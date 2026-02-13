@@ -4,9 +4,8 @@ import type { MapCenter } from "@/types/map"
 import { MapPin } from "lucide-react"
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string
-
-const darkMapId = "739af084373f96fe" // Google Maps 다크 스타일용 Map ID (Cloud Console에서 생성)
-const lightMapId = "e8a1bc81a1a06fc" // Google Maps 라이트 스타일용 Map ID
+const DARK_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_DARK_MAP_ID as string
+const LIGHT_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_LIGHT_MAP_ID as string
 
 interface MapViewProps {
   center: MapCenter
@@ -40,13 +39,15 @@ export function MapView({ center, zoom, className = "" }: MapViewProps) {
     )
   }
 
+  const mapId = isDarkMode ? DARK_MAP_ID : LIGHT_MAP_ID
+
   return (
     <div className={`h-full w-full ${className}`} data-testid="map-container">
       <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
         <Map
           defaultCenter={center}
           defaultZoom={zoom}
-          mapId={isDarkMode ? darkMapId : lightMapId}
+          mapId={mapId || undefined}
           gestureHandling="greedy"
           disableDefaultUI={false}
           style={{ width: "100%", height: "100%" }}

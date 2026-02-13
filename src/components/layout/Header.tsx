@@ -1,18 +1,21 @@
+import { Link, useLocation } from "react-router-dom"
 import { MapPin, Moon, Sun, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 
 export function Header() {
   const { isDarkMode, toggleDarkMode } = useUIStore()
+  const location = useLocation()
+  const isPlanner = location.pathname === "/planner"
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <div className="flex items-center gap-2">
+      <div className={`flex h-16 items-center justify-between px-4 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
+        <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
           <MapPin className="h-6 w-6 text-primary" />
           <span className="text-lg font-bold">타비톡</span>
           <span className="hidden text-xs text-muted-foreground sm:inline">TabiTalk</span>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-2">
           <Button

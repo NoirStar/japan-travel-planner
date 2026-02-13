@@ -1,12 +1,12 @@
 import { useSearchParams } from "react-router-dom"
 import { MapView } from "@/components/map/MapView"
 import { SchedulePanel } from "@/components/planner/SchedulePanel"
-import { getCityMapConfig } from "@/data/mapConfig"
+import { getCityConfig } from "@/data/mapConfig"
 
 export function PlannerPage() {
   const [searchParams] = useSearchParams()
   const cityId = searchParams.get("city")
-  const cityConfig = getCityMapConfig(cityId)
+  const cityConfig = getCityConfig(cityId)
 
   return (
     <div className="flex h-screen flex-col pt-16" data-testid="planner-page">

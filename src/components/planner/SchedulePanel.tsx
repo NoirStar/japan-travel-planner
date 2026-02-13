@@ -1,4 +1,20 @@
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
 import { MapPin, Bot, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
@@ -6,6 +22,7 @@ import { getPlaceById } from "@/data/places"
 import { getCityConfig } from "@/data/mapConfig"
 import { DayTabs } from "./DayTabs"
 import { PlaceCard } from "./PlaceCard"
+import { SortablePlaceCard } from "./SortablePlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
 
 interface SchedulePanelProps {
@@ -17,9 +34,20 @@ interface SchedulePanelProps {
 export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }: SchedulePanelProps) {
   const cityConfig = getCityConfig(cityId)
   const trip = useScheduleStore((s) => s.getActiveTrip())
-  const { addDay, removeDay, removeItem } = useScheduleStore()
+  const { addDay, removeDay, removeItem, moveItem } = useScheduleStore()
 
   const [isPlaceSheetOpen, setIsPlaceSheetOpen] = useState(false)
+  const [activeItemId, setActiveItemId] = useState<string | null>(null)
+
+  // ── DnD 센서 ──────────────────────────────────────────
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
 
   if (!trip) {
     return (
@@ -31,6 +59,18 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
 
   const currentDay = trip.days[activeDayIndex]
   const items = currentDay?.items ?? []
+
+  // sortable 아이디 배열
+  const itemIds = items.map((item) => item.id)
+
+  // 드래그 오버레이에 표시할 장소 정보
+  const activeItem = activeItemId
+    ? items.find((i) => i.id === activeItemId)
+    : null
+  const activePlace = activeItem ? getPlaceById(activeItem.placeId) : null
+  const activeIndex = activeItem
+    ? items.findIndex((i) => i.id === activeItemId)
+    : -1
 
   const handleAddDay = () => {
     addDay(trip.id)
@@ -47,6 +87,28 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
   const handleRemoveItem = (itemId: string) => {
     if (!currentDay) return
     removeItem(trip.id, currentDay.id, itemId)
+  }
+
+  // ── DnD 이벤트 핸들러 ─────────────────────────────────
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveItemId(event.active.id as string)
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveItemId(null)
+    const { active, over } = event
+    if (!over || !currentDay) return
+    if (active.id === over.id) return
+
+    const oldIndex = items.findIndex((i) => i.id === active.id)
+    const newIndex = items.findIndex((i) => i.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    moveItem(trip.id, currentDay.id, currentDay.id, active.id as string, newIndex)
+  }
+
+  const handleDragCancel = () => {
+    setActiveItemId(null)
   }
 
   return (
@@ -79,20 +141,44 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
             <p className="text-xs opacity-70">아래 버튼으로 장소를 추가해보세요</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {items.map((item, index) => {
-              const place = getPlaceById(item.placeId)
-              if (!place) return null
-              return (
-                <PlaceCard
-                  key={item.id}
-                  place={place}
-                  index={index}
-                  onRemove={() => handleRemoveItem(item.id)}
-                />
-              )
-            })}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
+          >
+            <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+              <div className="flex flex-col gap-3">
+                {items.map((item, index) => {
+                  const place = getPlaceById(item.placeId)
+                  if (!place) return null
+                  return (
+                    <SortablePlaceCard
+                      key={item.id}
+                      id={item.id}
+                      place={place}
+                      index={index}
+                      onRemove={() => handleRemoveItem(item.id)}
+                    />
+                  )
+                })}
+              </div>
+            </SortableContext>
+
+            {/* 드래그 오버레이 */}
+            <DragOverlay dropAnimation={null}>
+              {activePlace && activeIndex >= 0 ? (
+                <div className="opacity-90" data-testid="drag-overlay">
+                  <PlaceCard
+                    place={activePlace}
+                    index={activeIndex}
+                    onRemove={() => {}}
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         )}
       </div>
 

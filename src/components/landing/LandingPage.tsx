@@ -52,13 +52,12 @@ export function LandingPage() {
       animate="visible"
     >
       {/* Hero */}
-      <motion.div className="mb-10 text-center" variants={itemVariants}>
-        <h1 className="mb-3 text-4xl font-bold tracking-tight sm:text-5xl">
-          🗾 타비톡
-        </h1>
-        <p className="mb-1 text-sm font-medium tracking-widest text-primary">
-          TabiTalk
-        </p>
+      <motion.div className="mb-10 flex flex-col items-center text-center" variants={itemVariants}>
+        <img
+          src="/logo.png"
+          alt="타비톡 로고"
+          className="mb-4 h-48 w-48 rounded-2xl shadow-lg sm:h-56 sm:w-56"
+        />
         <p className="text-lg text-muted-foreground">
           나만의 완벽한 일본 여행을 계획하세요
         </p>

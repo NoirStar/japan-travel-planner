@@ -12,9 +12,9 @@ function renderWithRouter() {
 }
 
 describe("LandingPage", () => {
-  it("히어로 타이틀이 렌더링된다", () => {
+  it("히어로 로고가 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText("🗾 타비톡")).toBeInTheDocument()
+    expect(screen.getByAltText("타비톡 로고")).toBeInTheDocument()
   })
 
   it("서브타이틀이 렌더링된다", () => {

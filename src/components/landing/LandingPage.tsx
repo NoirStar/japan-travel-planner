@@ -25,13 +25,11 @@ export function LandingPage() {
   const navigate = useNavigate()
 
   const handleAIRecommend = () => {
-    if (prompt.trim()) {
-      navigate(`/planner?ai=${encodeURIComponent(prompt.trim())}`)
-    }
+    navigate("/wizard")
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && prompt.trim()) {
+    if (e.key === "Enter") {
       handleAIRecommend()
     }
   }
@@ -76,7 +74,6 @@ export function LandingPage() {
           <Button
             size="lg"
             onClick={handleAIRecommend}
-            disabled={!prompt.trim()}
             className="h-12 gap-2 shrink-0"
           >
             <Send className="h-4 w-4" />

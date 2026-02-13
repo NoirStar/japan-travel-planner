@@ -1,0 +1,60 @@
+import { motion } from "framer-motion"
+import { Star } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import type { WizardOption, MealType } from "@/types/wizard"
+
+interface MealStepProps {
+  options: WizardOption[]
+  dayNumber: number
+  mealType: MealType
+  onSelect: (id: string) => void
+  onSkip: () => void
+}
+
+export function MealStep({ options, dayNumber, mealType, onSelect, onSkip }: MealStepProps) {
+  const mealLabel = mealType === "lunch" ? "점심" : "저녁"
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.15 }}
+      className="flex flex-col gap-3"
+      data-testid={`meal-step-${dayNumber}-${mealType}`}
+    >
+      <div className="grid grid-cols-2 gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt.id}
+            onClick={() => onSelect(opt.id)}
+            className="flex flex-col items-start gap-1 rounded-xl border border-border bg-card p-3 text-left shadow-sm transition-all hover:shadow-md hover:ring-2 hover:ring-primary/50"
+            data-testid={`meal-option-${opt.id}`}
+          >
+            <span className="text-lg">{opt.emoji}</span>
+            <h4 className="font-semibold text-sm leading-tight">{opt.label}</h4>
+            {opt.rating && (
+              <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                {opt.rating}
+              </span>
+            )}
+            {opt.description && (
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {opt.description}
+              </p>
+            )}
+          </button>
+        ))}
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="self-start text-xs"
+        onClick={onSkip}
+        data-testid={`meal-skip-${dayNumber}-${mealType}`}
+      >
+        ⏭️ {mealLabel} 건너뛰기
+      </Button>
+    </motion.div>
+  )
+}

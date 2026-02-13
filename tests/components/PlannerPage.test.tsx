@@ -140,4 +140,50 @@ describe("PlannerPage", () => {
     expect(screen.queryByText("센소지")).not.toBeInTheDocument()
     expect(screen.getByText("아직 추가된 장소가 없습니다")).toBeInTheDocument()
   })
+
+  // ── 드래그 앤 드롭 ──────────────────────────────────
+  it("장소 추가 시 드래그 핸들이 렌더링된다", () => {
+    renderWithRoute()
+    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
+    fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
+    expect(screen.getByTestId("drag-handle-0")).toBeInTheDocument()
+    expect(screen.getByTestId("drag-handle-0")).toHaveAttribute("aria-label", "센소지 순서 변경")
+  })
+
+  it("여러 장소 추가 시 각각 드래그 핸들이 존재한다", () => {
+    renderWithRoute()
+    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
+    fireEvent.click(screen.getByTestId("place-add-tokyo-meiji-shrine"))
+    fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
+    expect(screen.getByTestId("drag-handle-0")).toBeInTheDocument()
+    expect(screen.getByTestId("drag-handle-1")).toBeInTheDocument()
+  })
+
+  it("moveItem 스토어 액션이 같은 Day 내 순서를 변경한다", () => {
+    renderWithRoute()
+    // 2개 장소 추가
+    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
+    fireEvent.click(screen.getByTestId("place-add-tokyo-meiji-shrine"))
+    fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
+
+    // 스토어 직접 호출로 moveItem 검증
+    const state = useScheduleStore.getState()
+    const trip = state.getActiveTrip()!
+    const day = trip.days[0]
+    const firstItemId = day.items[0].id
+    expect(day.items[0].placeId).toBe("tokyo-sensoji")
+    expect(day.items[1].placeId).toBe("tokyo-meiji-shrine")
+
+    // 첫 번째 아이템을 인덱스 1로 이동 (순서 바뀜)
+    act(() => {
+      useScheduleStore.getState().moveItem(trip.id, day.id, day.id, firstItemId, 1)
+    })
+
+    const updated = useScheduleStore.getState().getActiveTrip()!
+    expect(updated.days[0].items[0].placeId).toBe("tokyo-meiji-shrine")
+    expect(updated.days[0].items[1].placeId).toBe("tokyo-sensoji")
+  })
 })

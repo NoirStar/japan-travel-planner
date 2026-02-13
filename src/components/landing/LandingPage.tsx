@@ -54,11 +54,8 @@ export function LandingPage() {
       {/* Hero */}
       <motion.div className="mb-10 text-center" variants={itemVariants}>
         <h1 className="mb-3 text-4xl font-bold tracking-tight sm:text-5xl">
-          🗾 타비톡
+          타비톡
         </h1>
-        <p className="mb-1 text-sm font-medium tracking-widest text-primary">
-          TabiTalk
-        </p>
         <p className="text-lg text-muted-foreground">
           나만의 완벽한 일본 여행을 계획하세요
         </p>
@@ -67,7 +64,7 @@ export function LandingPage() {
       {/* AI 입력 */}
       <motion.div className="mb-6 w-full max-w-xl" variants={itemVariants}>
         <div className="relative flex items-center gap-2">
-          <Sparkles className="absolute left-3 h-5 w-5 text-muted-foreground" />
+          <Sparkles className="pointer-events-none absolute left-3 h-5 w-5 text-muted-foreground" />
           <Input
             placeholder='"도쿄 2박3일 맛집 위주로 추천해줘"'
             value={prompt}
@@ -126,6 +123,14 @@ export function LandingPage() {
               <Card
                 className="cursor-pointer overflow-hidden transition-shadow hover:shadow-lg"
                 onClick={() => handleCityClick(city.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    handleCityClick(city.id)
+                  }
+                }}
               >
                 <div className="relative h-32 overflow-hidden bg-muted sm:h-40">
                   <img

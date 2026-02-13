@@ -17,6 +17,12 @@ describe("Header", () => {
     expect(screen.getByText("타비톡")).toBeInTheDocument()
   })
 
+  it("로고 클릭 시 홈으로 이동하는 링크가 있다", () => {
+    renderWithRouter()
+    const homeLink = screen.getByText("타비톡").closest("a")
+    expect(homeLink).toHaveAttribute("href", "/")
+  })
+
   it("로그인 버튼이 존재한다", () => {
     renderWithRouter()
     expect(screen.getByText("로그인")).toBeInTheDocument()

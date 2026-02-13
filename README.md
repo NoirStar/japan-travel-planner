@@ -1,73 +1,96 @@
-# React + TypeScript + Vite
+# 🗾 타비톡 TabiTalk
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> AI와 대화하며 만드는 일본 여행 플래너
 
-Currently, two official plugins are available:
+[![Vite](https://img.shields.io/badge/Vite-7.x-646CFF?logo=vite)](https://vite.dev)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 기능
 
-## React Compiler
+- 🗺️ Google Maps 기반 여행 경로 시각화
+- 🤖 AI 여행 코스 추천 (OpenAI)
+- 📅 Day별 시간대 일정 관리
+- 🔍 장소 검색 & 카테고리 필터
+- 🌙 다크모드 지원
+- 📱 반응형 디자인
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 시작하기
 
-## Expanding the ESLint configuration
+### 필수 조건
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 20+
+- Google Maps API Key
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 설치
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+\`\`\`bash
+git clone https://github.com/NoirStar/japan-travel-planner.git
+cd japan-travel-planner
+npm install
+\`\`\`
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 환경변수 설정
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+\`\`\`bash
+cp .env.example .env.local
+# .env.local 파일에 API 키 입력
+\`\`\`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 개발 서버
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+\`\`\`bash
+npm run dev
+\`\`\`
+
+### 테스트
+
+\`\`\`bash
+npm test           # 전체 테스트 실행
+npm run test:watch # 워치 모드
+\`\`\`
+
+### 빌드
+
+\`\`\`bash
+npm run build
+npm run preview    # 빌드 결과 미리보기
+\`\`\`
+
+## 기술 스택
+
+| 카테고리 | 기술 |
+|---------|------|
+| 프레임워크 | Vite + React 19 + TypeScript |
+| 지도 | Google Maps (@vis.gl/react-google-maps) |
+| UI | Tailwind CSS 4 + shadcn/ui + Framer Motion |
+| 상태관리 | Zustand |
+| 테스트 | Vitest + React Testing Library |
+| 배포 | Vercel |
+
+## 프로젝트 구조
+
+\`\`\`
+src/
+├── components/
+│   ├── ui/          # shadcn/ui 기본 컴포넌트
+│   ├── layout/      # Header 등 레이아웃
+│   ├── landing/     # 랜딩 페이지
+│   ├── planner/     # 플래너 관련
+│   └── map/         # 지도 관련
+├── stores/          # Zustand 스토어
+├── data/            # 도시/장소 데이터
+├── types/           # TypeScript 타입
+├── hooks/           # 커스텀 훅
+└── lib/             # 유틸리티
+\`\`\`
+
+## 문서
+
+- [전체 기획서](PLAN.md)
+- [기능별 스펙](docs/specs/)
+
+## 라이선스
+
+MIT

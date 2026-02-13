@@ -3,9 +3,13 @@ import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import { MapPin } from "lucide-react"
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string
-const DARK_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_DARK_MAP_ID as string
-const LIGHT_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_LIGHT_MAP_ID as string
+function getEnv() {
+  return {
+    apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
+    darkMapId: import.meta.env.VITE_GOOGLE_MAPS_DARK_MAP_ID as string,
+    lightMapId: import.meta.env.VITE_GOOGLE_MAPS_LIGHT_MAP_ID as string,
+  }
+}
 
 interface MapViewProps {
   center: MapCenter
@@ -30,8 +34,9 @@ function MapFallback() {
 
 export function MapView({ center, zoom, className = "" }: MapViewProps) {
   const { isDarkMode } = useUIStore()
+  const { apiKey, darkMapId, lightMapId } = getEnv()
 
-  if (!GOOGLE_MAPS_API_KEY) {
+  if (!apiKey) {
     return (
       <div className={`h-full w-full ${className}`}>
         <MapFallback />
@@ -39,11 +44,11 @@ export function MapView({ center, zoom, className = "" }: MapViewProps) {
     )
   }
 
-  const mapId = isDarkMode ? DARK_MAP_ID : LIGHT_MAP_ID
+  const mapId = isDarkMode ? darkMapId : lightMapId
 
   return (
     <div className={`h-full w-full ${className}`} data-testid="map-container">
-      <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+      <APIProvider apiKey={apiKey}>
         <Map
           defaultCenter={center}
           defaultZoom={zoom}

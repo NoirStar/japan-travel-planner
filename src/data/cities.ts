@@ -32,7 +32,7 @@ export const cities: CityInfo[] = [
     id: "fukuoka",
     name: "후쿠오카",
     nameEn: "Fukuoka",
-    image: "https://images.unsplash.com/photo-1577862112796-ecb1caf9e60d?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1573455494060-c5595004fb6c?w=400&h=300&fit=crop",
     description: "규슈의 관문, 하카타 라멘의 본고장",
     center: { lat: 33.5904, lng: 130.4017 },
     zoom: 12,

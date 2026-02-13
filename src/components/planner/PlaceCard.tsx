@@ -1,5 +1,6 @@
 import { forwardRef } from "react"
 import { X, Star, GripVertical } from "lucide-react"
+import type { DraggableAttributes } from "@dnd-kit/core"
 import { Button } from "@/components/ui/button"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
@@ -11,7 +12,7 @@ interface PlaceCardProps {
   /** dnd-kit에서 전달하는 드래그 핸들 리스너 */
   dragHandleListeners?: Record<string, unknown>
   /** dnd-kit에서 전달하는 드래그 핸들 어트리뷰트 */
-  dragHandleAttributes?: Record<string, unknown>
+  dragHandleAttributes?: DraggableAttributes
   /** 드래그 중 스타일 (opacity 등) */
   style?: React.CSSProperties
   /** 드래그 중 여부 */

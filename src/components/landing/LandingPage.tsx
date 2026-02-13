@@ -67,7 +67,7 @@ export function LandingPage() {
       {/* AI 입력 */}
       <motion.div className="mb-6 w-full max-w-xl" variants={itemVariants}>
         <div className="relative flex items-center gap-2">
-          <Sparkles className="absolute left-3 h-5 w-5 text-muted-foreground" />
+          <Sparkles className="pointer-events-none absolute left-3 h-5 w-5 text-muted-foreground" />
           <Input
             placeholder='"도쿄 2박3일 맛집 위주로 추천해줘"'
             value={prompt}
@@ -126,6 +126,14 @@ export function LandingPage() {
               <Card
                 className="cursor-pointer overflow-hidden transition-shadow hover:shadow-lg"
                 onClick={() => handleCityClick(city.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    handleCityClick(city.id)
+                  }
+                }}
               >
                 <div className="relative h-32 overflow-hidden bg-muted sm:h-40">
                   <img

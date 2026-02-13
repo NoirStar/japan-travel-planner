@@ -1,19 +1,43 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
+import type { Place } from "@/types/place"
+import { PlaceCategory } from "@/types/place"
 
 // @vis.gl/react-google-maps 모킹
 vi.mock("@vis.gl/react-google-maps", () => ({
   APIProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="api-provider">{children}</div>
   ),
-  Map: (props: Record<string, unknown>) => (
+  Map: ({ children, ...props }: { children?: React.ReactNode } & Record<string, unknown>) => (
     <div
       data-testid="google-map"
       data-center={JSON.stringify(props.defaultCenter)}
       data-zoom={props.defaultZoom}
-    />
+    >
+      {children}
+    </div>
   ),
+  AdvancedMarker: ({ children, title }: { children?: React.ReactNode; title?: string }) => (
+    <div data-testid={`advanced-marker-${title}`}>{children}</div>
+  ),
+  InfoWindow: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="info-window">{children}</div>
+  ),
+  useAdvancedMarkerRef: () => [null, null],
+  useMap: () => null,
+  useMapsLibrary: () => null,
 }))
+
+const mockPlace = (id: string, name: string, lat: number, lng: number): Place => ({
+  id,
+  name,
+  nameEn: name,
+  category: PlaceCategory.ATTRACTION,
+  cityId: "tokyo",
+  location: { lat, lng },
+  rating: 4.5,
+  description: "test",
+})
 
 describe("MapView", () => {
   beforeEach(() => {
@@ -60,6 +84,39 @@ describe("MapView", () => {
     )
     expect(screen.getByTestId("map-container")).toBeInTheDocument()
     expect(screen.getByTestId("google-map")).toBeInTheDocument()
+
+    import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
+  })
+
+  it("places가 전달되면 마커가 렌더링된다", async () => {
+    const originalKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    import.meta.env.VITE_GOOGLE_MAPS_API_KEY = "test-api-key"
+    const { MapView } = await import("@/components/map/MapView")
+    const places = [
+      mockPlace("p1", "센소지", 35.7148, 139.7967),
+      mockPlace("p2", "스카이트리", 35.7101, 139.8107),
+    ]
+
+    render(
+      <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} places={places} />,
+    )
+    expect(screen.getByTestId("map-marker-0")).toBeInTheDocument()
+    expect(screen.getByTestId("map-marker-1")).toBeInTheDocument()
+    expect(screen.getByText("1")).toBeInTheDocument()
+    expect(screen.getByText("2")).toBeInTheDocument()
+
+    import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
+  })
+
+  it("places가 비어있으면 마커가 없다", async () => {
+    const originalKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    import.meta.env.VITE_GOOGLE_MAPS_API_KEY = "test-api-key"
+    const { MapView } = await import("@/components/map/MapView")
+
+    render(
+      <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} places={[]} />,
+    )
+    expect(screen.queryByTestId("map-marker-0")).not.toBeInTheDocument()
 
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
   })

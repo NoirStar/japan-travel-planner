@@ -1,7 +1,11 @@
-import { APIProvider, Map } from "@vis.gl/react-google-maps"
+import { useEffect } from "react"
+import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
+import type { Place } from "@/types/place"
 import { MapPin } from "lucide-react"
+import { PlaceMarker } from "./PlaceMarker"
+import { RoutePolyline } from "./RoutePolyline"
 
 function getEnv() {
   return {
@@ -15,6 +19,7 @@ interface MapViewProps {
   center: MapCenter
   zoom: number
   className?: string
+  places?: Place[]
 }
 
 function MapFallback() {
@@ -32,7 +37,30 @@ function MapFallback() {
   )
 }
 
-export function MapView({ center, zoom, className = "" }: MapViewProps) {
+/** 장소가 있으면 모두 보이도록 지도 영역 조정 */
+function FitBoundsHelper({ places }: { places: Place[] }) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (!map || places.length === 0) return
+
+    if (places.length === 1) {
+      map.panTo(places[0].location)
+      map.setZoom(15)
+      return
+    }
+
+    const bounds = new google.maps.LatLngBounds()
+    for (const p of places) {
+      bounds.extend(p.location)
+    }
+    map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 })
+  }, [map, places])
+
+  return null
+}
+
+export function MapView({ center, zoom, className = "", places = [] }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
 
@@ -56,7 +84,18 @@ export function MapView({ center, zoom, className = "" }: MapViewProps) {
           gestureHandling="greedy"
           disableDefaultUI={false}
           style={{ width: "100%", height: "100%" }}
-        />
+        >
+          {/* 장소 마커 */}
+          {places.map((place, index) => (
+            <PlaceMarker key={place.id} place={place} index={index} />
+          ))}
+
+          {/* 경로 폴리라인 */}
+          <RoutePolyline places={places} />
+
+          {/* 자동 fitBounds */}
+          <FitBoundsHelper places={places} />
+        </Map>
       </APIProvider>
     </div>
   )

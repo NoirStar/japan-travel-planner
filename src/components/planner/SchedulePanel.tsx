@@ -10,14 +10,15 @@ import { PlaceSheet } from "./PlaceSheet"
 
 interface SchedulePanelProps {
   cityId: string
+  activeDayIndex: number
+  onActiveDayIndexChange: (index: number) => void
 }
 
-export function SchedulePanel({ cityId }: SchedulePanelProps) {
+export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }: SchedulePanelProps) {
   const cityConfig = getCityConfig(cityId)
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const { addDay, removeDay, removeItem } = useScheduleStore()
 
-  const [activeDayIndex, setActiveDayIndex] = useState(0)
   const [isPlaceSheetOpen, setIsPlaceSheetOpen] = useState(false)
 
   if (!trip) {
@@ -39,7 +40,7 @@ export function SchedulePanel({ cityId }: SchedulePanelProps) {
     if (trip.days.length <= 1) return
     removeDay(trip.id, dayId)
     if (activeDayIndex >= trip.days.length - 1) {
-      setActiveDayIndex(Math.max(0, trip.days.length - 2))
+      onActiveDayIndexChange(Math.max(0, trip.days.length - 2))
     }
   }
 
@@ -64,7 +65,7 @@ export function SchedulePanel({ cityId }: SchedulePanelProps) {
       <DayTabs
         days={trip.days}
         activeDayIndex={activeDayIndex}
-        onSelectDay={setActiveDayIndex}
+        onSelectDay={onActiveDayIndexChange}
         onAddDay={handleAddDay}
         onRemoveDay={handleRemoveDay}
       />

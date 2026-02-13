@@ -14,7 +14,7 @@ function renderWithRouter() {
 describe("Header", () => {
   it("서비스명이 표시된다", () => {
     renderWithRouter()
-    expect(screen.getByText("일본 여행 플래너")).toBeInTheDocument()
+    expect(screen.getByText("타비톡")).toBeInTheDocument()
   })
 
   it("로그인 버튼이 존재한다", () => {

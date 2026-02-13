@@ -10,7 +10,8 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <MapPin className="h-6 w-6 text-primary" />
-          <span className="text-lg font-bold">일본 여행 플래너</span>
+          <span className="text-lg font-bold">타비톡</span>
+          <span className="hidden text-xs text-muted-foreground sm:inline">TabiTalk</span>
         </div>
 
         <div className="flex items-center gap-2">

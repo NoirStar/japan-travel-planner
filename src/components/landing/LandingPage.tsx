@@ -54,8 +54,11 @@ export function LandingPage() {
       {/* Hero */}
       <motion.div className="mb-10 text-center" variants={itemVariants}>
         <h1 className="mb-3 text-4xl font-bold tracking-tight sm:text-5xl">
-          🗾 일본 여행 플래너
+          🗾 타비톡
         </h1>
+        <p className="mb-1 text-sm font-medium tracking-widest text-primary">
+          TabiTalk
+        </p>
         <p className="text-lg text-muted-foreground">
           나만의 완벽한 일본 여행을 계획하세요
         </p>
@@ -151,7 +154,7 @@ export function LandingPage() {
         className="mt-16 mb-8 text-center text-sm text-muted-foreground"
         variants={itemVariants}
       >
-        <p>© 2026 일본 여행 플래너. 당신의 완벽한 여행을 응원합니다.</p>
+        <p>© 2026 TabiTalk. 당신의 완벽한 여행을 응원합니다.</p>
       </motion.footer>
     </motion.div>
   )

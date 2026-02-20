@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
 import { Star } from "lucide-react"
 import type { Place } from "@/types/place"
@@ -55,16 +55,31 @@ function createBalloonSvg(num: number, colors: [string, string], selected: boole
 
 export function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerProps) {
   const [markerRef, marker] = useMarkerRef()
+  const [isHovered, setIsHovered] = useState(false)
 
   const handleClick = useCallback(() => {
     onSelect?.()
   }, [onSelect])
+
+  // 마커 hover 이벤트 리스너
+  useEffect(() => {
+    if (!marker) return
+    const over = marker.addListener("mouseover", () => setIsHovered(true))
+    const out = marker.addListener("mouseout", () => setIsHovered(false))
+    return () => {
+      over.remove()
+      out.remove()
+    }
+  }, [marker])
 
   const colors = CATEGORY_COLORS[place.category] ?? CATEGORY_COLORS.other
   const iconUrl = useMemo(() => createBalloonSvg(index + 1, colors, !!isSelected), [index, colors, isSelected])
 
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
+
+  // 호버 시 미니 툴팁 (선택 상태가 아닐 때만)
+  const showHoverTooltip = isHovered && !isSelected && marker
 
   return (
     <>
@@ -74,8 +89,41 @@ export function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerP
         onClick={handleClick}
         title={place.name}
         icon={iconUrl}
-        zIndex={isSelected ? 1000 : 100 + index}
+        zIndex={isSelected ? 1000 : isHovered ? 500 : 100 + index}
       />
+
+      {/* 호버 툴팁 — 컴팩트 카드 */}
+      {showHoverTooltip && (
+        <InfoWindow
+          anchor={marker}
+          headerDisabled
+          onCloseClick={() => setIsHovered(false)}
+        >
+          <div className="flex items-center gap-2 p-1 min-w-[160px]">
+            {place.image ? (
+              <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
+                <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
+              </div>
+            ) : (
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: colors[0] }}>
+                <CategoryIcon className="h-5 w-5 text-white" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-gray-900 truncate">{place.name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[10px] rounded px-1 py-px" style={{ backgroundColor: `${colors[0]}20`, color: colors[0] }}>{categoryLabel}</span>
+                {place.rating && (
+                  <span className="flex items-center gap-0.5 text-[10px] text-gray-600">
+                    <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                    {place.rating}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </InfoWindow>
+      )}
 
       {/* 선택 시 상세 InfoWindow */}
       {isSelected && marker && (

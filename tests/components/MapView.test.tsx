@@ -104,8 +104,8 @@ describe("MapView", () => {
     render(
       <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} places={places} />,
     )
-    expect(screen.getByTestId("map-marker-센소지")).toBeInTheDocument()
-    expect(screen.getByTestId("map-marker-스카이트리")).toBeInTheDocument()
+    expect(screen.getByTestId("advanced-marker-센소지")).toBeInTheDocument()
+    expect(screen.getByTestId("advanced-marker-스카이트리")).toBeInTheDocument()
     expect(screen.getByText("1")).toBeInTheDocument()
     expect(screen.getByText("2")).toBeInTheDocument()
 
@@ -120,7 +120,7 @@ describe("MapView", () => {
     render(
       <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} places={[]} />,
     )
-    expect(screen.queryByTestId(/^map-marker-/)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(/^advanced-marker-/)).not.toBeInTheDocument()
 
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
   })

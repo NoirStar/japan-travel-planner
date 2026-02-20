@@ -1,12 +1,23 @@
-import { useState, useCallback } from "react"
-import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
+import { useCallback } from "react"
+import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps"
 import { Star, Plus } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 import { Button } from "@/components/ui/button"
 
-/** 카테고리별 마커 색상 (Hex) */
+/** 카테고리별 배경 그래디언트 */
+const CATEGORY_GRADIENT: Record<string, string> = {
+  restaurant: "from-orange-500 to-red-500",
+  attraction: "from-pink-500 to-rose-500",
+  shopping: "from-violet-500 to-purple-600",
+  accommodation: "from-blue-500 to-indigo-500",
+  cafe: "from-amber-500 to-yellow-600",
+  transport: "from-emerald-500 to-teal-600",
+  other: "from-gray-500 to-slate-600",
+}
+
+/** 카테고리별 색상 Hex */
 const CATEGORY_HEX: Record<string, string> = {
   restaurant: "#f97316",
   attraction: "#ec4899",
@@ -17,17 +28,6 @@ const CATEGORY_HEX: Record<string, string> = {
   other: "#6b7280",
 }
 
-/** 카테고리별 마커 라벨 */
-const CATEGORY_EMOJI: Record<string, string> = {
-  restaurant: "🍽",
-  attraction: "🏯",
-  shopping: "🛍",
-  accommodation: "🏨",
-  cafe: "☕",
-  transport: "🚃",
-  other: "📍",
-}
-
 interface CityPlaceMarkerProps {
   place: Place
   isSelected?: boolean
@@ -36,45 +36,49 @@ interface CityPlaceMarkerProps {
 }
 
 /**
- * 도시의 미추가 장소를 표시하는 작은 마커.
+ * 도시의 미추가 장소를 표시하는 작은 말풍선 마커.
  * 클릭하면 InfoWindow에서 "일정 추가" 가능.
  */
 export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
-  const [markerRef, marker] = useMarkerRef()
-  const [infoOpen, setInfoOpen] = useState(false)
+  const [markerRef, marker] = useAdvancedMarkerRef()
 
   const handleClick = useCallback(() => {
-    setInfoOpen((prev) => !prev)
     onSelect?.()
   }, [onSelect])
 
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
+  const gradient = CATEGORY_GRADIENT[place.category] ?? "from-gray-500 to-slate-600"
   const color = CATEGORY_HEX[place.category] ?? "#6b7280"
 
   return (
     <>
-      <Marker
+      <AdvancedMarker
         ref={markerRef}
         position={place.location}
         onClick={handleClick}
         title={place.name}
-        icon={{
-          path: 0, // google.maps.SymbolPath.CIRCLE
-          fillColor: color,
-          fillOpacity: 0.7,
-          strokeColor: "#ffffff",
-          strokeWeight: 1.5,
-          scale: 8,
-        }}
         zIndex={isSelected ? 500 : 10}
-        opacity={isSelected ? 1 : 0.8}
-      />
+      >
+        {/* 작은 말풍선 마커 */}
+        <div className={`relative flex flex-col items-center transition-all duration-200 ${
+          isSelected ? "scale-110" : "opacity-75 hover:opacity-100 hover:scale-105"
+        }`}>
+          {/* 카테고리 아이콘 원형 */}
+          <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br ${gradient} border-2 border-white shadow-md`}>
+            <CategoryIcon className="h-4 w-4 text-white" />
+          </div>
+          {/* 꼬리 */}
+          <svg width="10" height="6" viewBox="0 0 10 6" className="-mt-[1px] drop-shadow-sm">
+            <polygon points="0,0 5,6 10,0" fill="white" />
+          </svg>
+        </div>
+      </AdvancedMarker>
 
-      {infoOpen && marker && (
+      {isSelected && marker && (
         <InfoWindow
           anchor={marker}
-          onCloseClick={() => setInfoOpen(false)}
+          onCloseClick={() => onSelect?.()}
         >
           <div className="min-w-[200px] p-1.5">
             {/* 이미지 */}
@@ -89,7 +93,7 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
             )}
 
             <div className="flex items-center gap-1.5">
-              <CategoryIcon className="h-4 w-4 text-pink-500" />
+              <CategoryIcon className="h-4 w-4" style={{ color }} />
               <span className="text-sm font-bold text-gray-900">{place.name}</span>
             </div>
             <p className="mt-0.5 text-xs text-gray-500">{place.nameEn}</p>
@@ -115,7 +119,8 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
               onClick={(e) => {
                 e.stopPropagation()
                 onAdd?.()
-                setInfoOpen(false)
+                // 추가 후 닫기
+                onSelect?.()
               }}
             >
               <Plus className="h-3.5 w-3.5" />

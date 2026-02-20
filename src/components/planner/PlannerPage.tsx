@@ -7,7 +7,9 @@ import { getCityConfig } from "@/data/mapConfig"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getPlacesByCity } from "@/data/places"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
+import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
+import { fetchNearbyPlaces } from "@/services/placesService"
 import type { Place } from "@/types/place"
 
 export function PlannerPage() {
@@ -80,8 +82,36 @@ export function PlannerPage() {
     }
   }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip, shareId])
 
-  // 도시의 전체 장소 목록
-  const allCityPlaces = useMemo(() => getPlacesByCity(cityId), [cityId])
+  // 도시의 전체 장소 목록 (큐레이션 + Google Nearby)
+  const curatedPlaces = useMemo(() => getPlacesByCity(cityId), [cityId])
+  const [googlePlaces, setGooglePlaces] = useState<Place[]>([])
+  const nearbyLoaded = useRef<string>("")
+
+  // 도시 진입 시 Google Places Nearby 데이터 자동 로드
+  useEffect(() => {
+    if (nearbyLoaded.current === cityId) return
+    nearbyLoaded.current = cityId
+
+    fetchNearbyPlaces(cityId).then((places) => {
+      if (places.length > 0) {
+        setGooglePlaces(places)
+        // dynamicPlaceStore에 저장 (일정 추가 시 조회 가능하도록)
+        const store = useDynamicPlaceStore.getState()
+        for (const p of places) {
+          store.addPlace(p)
+        }
+      }
+    }).catch(() => {
+      // Google API 실패 시 큐레이션만 사용
+    })
+  }, [cityId])
+
+  // 큐레이션 + Google 장소 통합 (중복 제거)
+  const allCityPlaces = useMemo(() => {
+    const curatedIds = new Set(curatedPlaces.map((p) => p.id))
+    const uniqueGoogle = googlePlaces.filter((p) => !curatedIds.has(p.id))
+    return [...curatedPlaces, ...uniqueGoogle]
+  }, [curatedPlaces, googlePlaces])
 
   // 현재 Day의 장소 목록을 Place 객체로 변환
   const currentDayPlaces: Place[] = useMemo(() => {

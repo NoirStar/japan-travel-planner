@@ -1,21 +1,10 @@
-import { useCallback } from "react"
-import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps"
+import { useCallback, useMemo } from "react"
+import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
 import { Star, Plus } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 import { Button } from "@/components/ui/button"
-
-/** 카테고리별 배경 그래디언트 */
-const CATEGORY_GRADIENT: Record<string, string> = {
-  restaurant: "from-orange-500 to-red-500",
-  attraction: "from-pink-500 to-rose-500",
-  shopping: "from-violet-500 to-purple-600",
-  accommodation: "from-blue-500 to-indigo-500",
-  cafe: "from-amber-500 to-yellow-600",
-  transport: "from-emerald-500 to-teal-600",
-  other: "from-gray-500 to-slate-600",
-}
 
 /** 카테고리별 색상 Hex */
 const CATEGORY_HEX: Record<string, string> = {
@@ -28,6 +17,37 @@ const CATEGORY_HEX: Record<string, string> = {
   other: "#6b7280",
 }
 
+/** 카테고리 1글자 약어 */
+const CATEGORY_ABBR: Record<string, string> = {
+  restaurant: "食",
+  attraction: "観",
+  shopping: "買",
+  accommodation: "泊",
+  cafe: "茶",
+  transport: "駅",
+  other: "他",
+}
+
+/** 작은 원형 SVG 아이콘 (카테고리 색상 + 약어) */
+function createSmallDotSvg(color: string, abbr: string, selected: boolean): string {
+  const border = selected ? "#f472b6" : "#ffffff"
+  const bw = selected ? 2.5 : 2
+  const r = selected ? 12 : 10
+  const w = (r + 4) * 2
+  const cx = w / 2
+  const tailH = 6
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${w + tailH}" viewBox="0 0 ${w} ${w + tailH}">
+<defs><filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.2"/></filter></defs>
+<g filter="url(#s)">
+  <circle cx="${cx}" cy="${cx}" r="${r}" fill="${color}" stroke="${border}" stroke-width="${bw}"/>
+  <polygon points="${cx - 4},${cx + r - 2} ${cx},${w + tailH - 2} ${cx + 4},${cx + r - 2}" fill="${color}"/>
+</g>
+<text x="${cx}" y="${cx + 4}" text-anchor="middle" fill="white" font-size="10" font-weight="bold" font-family="Arial,sans-serif">${abbr}</text>
+</svg>`
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
+}
+
 interface CityPlaceMarkerProps {
   place: Place
   isSelected?: boolean
@@ -36,44 +56,34 @@ interface CityPlaceMarkerProps {
 }
 
 /**
- * 도시의 미추가 장소를 표시하는 작은 말풍선 마커.
+ * 도시의 미추가 장소를 표시하는 작은 원형 마커.
  * 클릭하면 InfoWindow에서 "일정 추가" 가능.
  */
 export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
-  const [markerRef, marker] = useAdvancedMarkerRef()
+  const [markerRef, marker] = useMarkerRef()
 
   const handleClick = useCallback(() => {
     onSelect?.()
   }, [onSelect])
 
+  const color = CATEGORY_HEX[place.category] ?? "#6b7280"
+  const abbr = CATEGORY_ABBR[place.category] ?? "他"
+  const iconUrl = useMemo(() => createSmallDotSvg(color, abbr, !!isSelected), [color, abbr, isSelected])
+
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
-  const gradient = CATEGORY_GRADIENT[place.category] ?? "from-gray-500 to-slate-600"
-  const color = CATEGORY_HEX[place.category] ?? "#6b7280"
 
   return (
     <>
-      <AdvancedMarker
+      <Marker
         ref={markerRef}
         position={place.location}
         onClick={handleClick}
         title={place.name}
+        icon={iconUrl}
         zIndex={isSelected ? 500 : 10}
-      >
-        {/* 작은 말풍선 마커 */}
-        <div className={`relative flex flex-col items-center transition-all duration-200 ${
-          isSelected ? "scale-110" : "opacity-75 hover:opacity-100 hover:scale-105"
-        }`}>
-          {/* 카테고리 아이콘 원형 */}
-          <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br ${gradient} border-2 border-white shadow-md`}>
-            <CategoryIcon className="h-4 w-4 text-white" />
-          </div>
-          {/* 꼬리 */}
-          <svg width="10" height="6" viewBox="0 0 10 6" className="-mt-[1px] drop-shadow-sm">
-            <polygon points="0,0 5,6 10,0" fill="white" />
-          </svg>
-        </div>
-      </AdvancedMarker>
+        opacity={isSelected ? 1 : 0.85}
+      />
 
       {isSelected && marker && (
         <InfoWindow
@@ -119,7 +129,6 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
               onClick={(e) => {
                 e.stopPropagation()
                 onAdd?.()
-                // 추가 후 닫기
                 onSelect?.()
               }}
             >

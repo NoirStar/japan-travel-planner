@@ -1,5 +1,5 @@
-import { useCallback } from "react"
-import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps"
+import { useCallback, useMemo } from "react"
+import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
 import { Star } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
@@ -12,87 +12,70 @@ interface PlaceMarkerProps {
   onSelect?: () => void
 }
 
-/** 카테고리별 배경 그래디언트 */
-const CATEGORY_GRADIENT: Record<string, string> = {
-  restaurant: "from-orange-500 to-red-500",
-  attraction: "from-pink-500 to-rose-500",
-  shopping: "from-violet-500 to-purple-600",
-  accommodation: "from-blue-500 to-indigo-500",
-  cafe: "from-amber-500 to-yellow-600",
-  transport: "from-emerald-500 to-teal-600",
-  other: "from-gray-500 to-slate-600",
+/** 카테고리별 색상 (from, to) */
+const CATEGORY_COLORS: Record<string, [string, string]> = {
+  restaurant: ["#f97316", "#ef4444"],
+  attraction: ["#ec4899", "#f43f5e"],
+  shopping: ["#8b5cf6", "#7c3aed"],
+  accommodation: ["#3b82f6", "#4f46e5"],
+  cafe: ["#f59e0b", "#d97706"],
+  transport: ["#10b981", "#0d9488"],
+  other: ["#6b7280", "#475569"],
+}
+
+/** SVG 말풍선 아이콘 (둥근 사각형 + V꼬리 + 번호) */
+function createBalloonSvg(num: number, colors: [string, string], selected: boolean): string {
+  const [c1, c2] = colors
+  const border = selected ? "#f472b6" : "#ffffff"
+  const bw = selected ? 3 : 2.5
+  const glow = selected
+    ? `<rect x="2" y="0" width="36" height="36" rx="11" ry="11" fill="none" stroke="#f472b680" stroke-width="5"/>`
+    : ""
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="${c1}"/>
+    <stop offset="100%" stop-color="${c2}"/>
+  </linearGradient>
+  <filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.25"/></filter>
+</defs>
+<g filter="url(#s)">
+  ${glow}
+  <rect x="4" y="2" width="32" height="32" rx="10" ry="10" fill="url(#bg)" stroke="${border}" stroke-width="${bw}"/>
+  <polygon points="14,33 20,44 26,33" fill="url(#bg)"/>
+  <line x1="14" y1="33" x2="20" y2="44" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
+  <line x1="26" y1="33" x2="20" y2="44" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
+  <rect x="13" y="31" width="14" height="4" fill="url(#bg)"/>
+</g>
+<text x="20" y="23" text-anchor="middle" fill="white" font-size="15" font-weight="bold" font-family="Arial,sans-serif">${num}</text>
+</svg>`
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
 }
 
 export function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerProps) {
-  const [markerRef, marker] = useAdvancedMarkerRef()
+  const [markerRef, marker] = useMarkerRef()
 
   const handleClick = useCallback(() => {
     onSelect?.()
   }, [onSelect])
 
+  const colors = CATEGORY_COLORS[place.category] ?? CATEGORY_COLORS.other
+  const iconUrl = useMemo(() => createBalloonSvg(index + 1, colors, !!isSelected), [index, colors, isSelected])
+
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
-  const gradient = CATEGORY_GRADIENT[place.category] ?? "from-gray-500 to-slate-600"
 
   return (
     <>
-      <AdvancedMarker
+      <Marker
         ref={markerRef}
         position={place.location}
         onClick={handleClick}
         title={place.name}
+        icon={iconUrl}
         zIndex={isSelected ? 1000 : 100 + index}
-      >
-        {/* 말풍선 마커 */}
-        <div className="relative flex flex-col items-center">
-          {/* 이름 + 별점 라벨 (말풍선 위) */}
-          <div className={`mb-0.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-md bg-gradient-to-r ${gradient} transition-all duration-200 ${
-            isSelected ? "scale-110 shadow-lg" : ""
-          }`}>
-            <span className="max-w-[80px] truncate">{place.name}</span>
-            {place.rating && (
-              <>
-                <Star className="h-2.5 w-2.5 flex-shrink-0 fill-yellow-300 text-yellow-300" />
-                <span className="text-yellow-100">{place.rating}</span>
-              </>
-            )}
-          </div>
-
-          {/* 말풍선 본체 — 사진 + 번호 */}
-          <div className={`relative overflow-visible rounded-xl border-[2.5px] shadow-lg transition-all duration-200 ${
-            isSelected
-              ? "border-sakura ring-2 ring-sakura/40 scale-110"
-              : "border-white hover:scale-105 hover:shadow-xl"
-          }`}>
-            <div className="h-12 w-12 overflow-hidden rounded-[9px]">
-              {place.image ? (
-                <img
-                  src={place.image}
-                  alt={place.name}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${gradient}`}>
-                  <CategoryIcon className="h-5 w-5 text-white" />
-                </div>
-              )}
-            </div>
-
-            {/* 번호 배지 */}
-            <div className={`absolute -left-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-[10px] font-bold text-white shadow ring-[1.5px] ring-white`}>
-              {index + 1}
-            </div>
-          </div>
-
-          {/* 꼬리 (V 모양 포인터) */}
-          <div className="relative -mt-[1px]">
-            <svg width="14" height="8" viewBox="0 0 14 8" className="drop-shadow-sm">
-              <polygon points="0,0 7,8 14,0" fill="white" />
-            </svg>
-          </div>
-        </div>
-      </AdvancedMarker>
+      />
 
       {/* 선택 시 상세 InfoWindow */}
       {isSelected && marker && (

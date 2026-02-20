@@ -9,21 +9,21 @@ export type WizardStepType =
 
 // ─── 여행 스타일 ─────────────────────────────────────────
 export const TRAVEL_STYLES = [
-  { id: "foodie", label: "맛집 중심", emoji: "🍜" },
-  { id: "sightseeing", label: "관광 중심", emoji: "🏯" },
-  { id: "shopping", label: "쇼핑 중심", emoji: "🛍️" },
-  { id: "cafe", label: "카페·감성", emoji: "☕" },
-  { id: "nature", label: "힐링·자연", emoji: "🌿" },
+  { id: "foodie", label: "맛집 중심" },
+  { id: "sightseeing", label: "관광 중심" },
+  { id: "shopping", label: "쇼핑 중심" },
+  { id: "cafe", label: "카페·감성" },
+  { id: "nature", label: "힘링·자연" },
 ] as const
 
 export type TravelStyleId = (typeof TRAVEL_STYLES)[number]["id"]
 
 // ─── Day 테마 ────────────────────────────────────────────
 export const DAY_THEMES = [
-  { id: "landmark", label: "유명 관광지", emoji: "🏯", description: "꼭 가봐야 할 인기 명소" },
-  { id: "local-food", label: "로컬 맛집 투어", emoji: "🍜", description: "현지인이 추천하는 맛집" },
-  { id: "shopping", label: "쇼핑 스팟", emoji: "🛍️", description: "쇼핑 거리와 백화점" },
-  { id: "temple-park", label: "공원·신사", emoji: "⛩️", description: "자연과 전통의 힐링" },
+  { id: "landmark", label: "유명 관광지", description: "꼭 가봐야 할 인기 명소" },
+  { id: "local-food", label: "로컬 맛집 투어", description: "현지인이 추천하는 맛집" },
+  { id: "shopping", label: "쇼핑 스팟", description: "쇼핑 거리와 백화점" },
+  { id: "temple-park", label: "공원·신사", description: "자연과 전통의 힘링" },
 ] as const
 
 export type DayThemeId = (typeof DAY_THEMES)[number]["id"]

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import type { WizardOption } from "@/types/wizard"
+import { STYLE_ICONS } from "@/lib/categoryIcons"
 
 interface StyleStepProps {
   options: WizardOption[]
@@ -37,12 +38,12 @@ export function StyleStep({ options, onSelect }: StyleStepProps) {
               onClick={() => toggle(opt.id)}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                 isActive
-                  ? "border-primary bg-primary text-primary-foreground shadow-md"
-                  : "border-border bg-card hover:border-primary/50"
+                  ? "border-transparent bg-gradient-to-r from-sakura-dark to-indigo text-white shadow-md"
+                  : "border-border/50 bg-card hover:border-sakura/50 hover:shadow-sm"
               }`}
               data-testid={`style-option-${opt.id}`}
             >
-              {opt.emoji && <span className="mr-1">{opt.emoji}</span>}
+              {(() => { const Icon = STYLE_ICONS[opt.id]; return Icon ? <Icon className="mr-1 inline h-4 w-4" /> : null })()}
               {opt.label}
             </button>
           )
@@ -52,7 +53,7 @@ export function StyleStep({ options, onSelect }: StyleStepProps) {
         onClick={() => onSelect([...selected])}
         disabled={selected.size === 0}
         size="sm"
-        className="self-start"
+        className="self-start btn-gradient rounded-full border-0 px-6"
         data-testid="style-confirm"
       >
         선택 완료 ({selected.size}개)

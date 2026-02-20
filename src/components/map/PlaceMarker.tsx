@@ -3,20 +3,11 @@ import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-
 import { Star } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
+import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 
 interface PlaceMarkerProps {
   place: Place
   index: number
-}
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  restaurant: "🍜",
-  attraction: "🏯",
-  shopping: "🛍️",
-  accommodation: "🏨",
-  cafe: "☕",
-  transport: "🚃",
-  other: "📍",
 }
 
 export function PlaceMarker({ place, index }: PlaceMarkerProps) {
@@ -27,7 +18,7 @@ export function PlaceMarker({ place, index }: PlaceMarkerProps) {
     setInfoOpen((prev) => !prev)
   }, [])
 
-  const emoji = CATEGORY_EMOJI[place.category] ?? "📍"
+  const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
 
   return (
@@ -38,12 +29,40 @@ export function PlaceMarker({ place, index }: PlaceMarkerProps) {
         onClick={handleClick}
         title={place.name}
       >
-        {/* 커스텀 번호 마커 */}
+        {/* 원형 사진 마커 */}
         <div
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-lg ring-2 ring-white"
+          className="relative cursor-pointer"
           data-testid={`map-marker-${index}`}
         >
-          {index + 1}
+          <div className="h-11 w-11 overflow-hidden rounded-full border-[2.5px] border-white bg-gradient-to-br from-sakura-dark to-indigo shadow-lg">
+            {place.image ? (
+              <img
+                src={place.image}
+                alt={place.name}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
+                {index + 1}
+              </div>
+            )}
+          </div>
+
+          {/* 번호 배지 (이미지가 있을 때만, 없으면 원 안에 번호 표시) */}
+          {place.image && (
+            <div className="absolute -left-1 -top-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gradient-to-br from-sakura-dark to-indigo text-[9px] font-bold text-white shadow ring-1 ring-white">
+              {index + 1}
+            </div>
+          )}
+
+          {/* 별점 배지 */}
+          {place.rating && (
+            <div className="absolute -bottom-1 -right-1 flex items-center gap-[2px] rounded-full bg-white px-1 py-[1px] text-[9px] font-bold text-gray-800 shadow ring-1 ring-gray-200/60">
+              <Star className="h-[10px] w-[10px] fill-amber-400 text-amber-400" />
+              {place.rating}
+            </div>
+          )}
         </div>
       </AdvancedMarker>
 
@@ -54,7 +73,7 @@ export function PlaceMarker({ place, index }: PlaceMarkerProps) {
         >
           <div className="min-w-[180px] p-1">
             <div className="flex items-center gap-1.5">
-              <span>{emoji}</span>
+              <CategoryIcon className="h-4 w-4 text-sakura-dark" />
               <span className="text-sm font-bold text-gray-900">{place.name}</span>
             </div>
             <p className="mt-0.5 text-xs text-gray-500">{place.nameEn}</p>

@@ -25,14 +25,18 @@ interface MapViewProps {
 function MapFallback() {
   return (
     <div
-      className="flex h-full flex-col items-center justify-center gap-3 bg-muted/30 text-muted-foreground"
+      className="flex h-full flex-col items-center justify-center gap-4 bg-muted/20 text-muted-foreground bg-sakura-pattern"
       data-testid="map-fallback"
     >
-      <MapPin className="h-12 w-12 opacity-40" />
-      <p className="text-sm font-medium">Google Maps API 키가 설정되지 않았습니다</p>
-      <p className="max-w-xs text-center text-xs opacity-70">
-        .env 파일에 VITE_GOOGLE_MAPS_API_KEY를 설정해주세요
-      </p>
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sakura/20 to-indigo/10">
+        <MapPin className="h-8 w-8 text-sakura-dark opacity-60" />
+      </div>
+      <div className="text-center">
+        <p className="text-sm font-semibold">Google Maps API 키가 설정되지 않았습니다</p>
+        <p className="mt-1 max-w-xs text-xs opacity-60">
+          .env 파일에 VITE_GOOGLE_MAPS_API_KEY를 설정해주세요
+        </p>
+      </div>
     </div>
   )
 }

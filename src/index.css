@@ -1,47 +1,169 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
+  --color-background: #faf8f6;
+  --color-foreground: #1a1a2e;
   --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
-  --color-primary: #171717;
-  --color-primary-foreground: #fafafa;
-  --color-secondary: #f5f5f5;
-  --color-secondary-foreground: #171717;
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #737373;
-  --color-accent: #f5f5f5;
-  --color-accent-foreground: #171717;
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
-  --color-ring: #0a0a0a;
-  --radius: 0.625rem;
+  --color-card-foreground: #1a1a2e;
+  --color-primary: #e84393;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f0ecf9;
+  --color-secondary-foreground: #1a1a2e;
+  --color-muted: #f3f0ed;
+  --color-muted-foreground: #6b7280;
+  --color-accent: #6c5ce7;
+  --color-accent-foreground: #ffffff;
+  --color-border: #e5e1dc;
+  --color-input: #e5e1dc;
+  --color-ring: #e84393;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --radius: 0.75rem;
+  --color-sakura: #f8b4c8;
+  --color-sakura-dark: #e84393;
+  --color-indigo: #6c5ce7;
+  --color-indigo-light: #a29bfe;
 }
 
 .dark {
-  --color-background: #0a0a0a;
-  --color-foreground: #fafafa;
-  --color-card: #0a0a0a;
-  --color-card-foreground: #fafafa;
-  --color-primary: #fafafa;
-  --color-primary-foreground: #171717;
-  --color-secondary: #262626;
-  --color-secondary-foreground: #fafafa;
-  --color-muted: #262626;
-  --color-muted-foreground: #a3a3a3;
-  --color-accent: #262626;
-  --color-accent-foreground: #fafafa;
-  --color-border: #262626;
-  --color-input: #262626;
-  --color-ring: #d4d4d4;
+  --color-background: #0f0f1a;
+  --color-foreground: #f0eff4;
+  --color-card: #1a1a2e;
+  --color-card-foreground: #f0eff4;
+  --color-primary: #f06292;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #2a2a40;
+  --color-secondary-foreground: #f0eff4;
+  --color-muted: #252540;
+  --color-muted-foreground: #9ca3af;
+  --color-accent: #a29bfe;
+  --color-accent-foreground: #ffffff;
+  --color-border: #2a2a40;
+  --color-input: #2a2a40;
+  --color-ring: #f06292;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-sakura: #f06292;
+  --color-sakura-dark: #ec407a;
+  --color-indigo: #a29bfe;
+  --color-indigo-light: #c0b8ff;
 }
 
 body {
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-family: "Noto Sans KR", "Inter", system-ui, -apple-system, sans-serif;
   background-color: var(--color-background);
   color: var(--color-foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── 커스텀 스크롤바 ─────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
+}
+
+/* ── 사쿠라 배경 패턴 ────────────────────────────────── */
+.bg-sakura-pattern {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(232, 67, 147, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(108, 92, 231, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(248, 180, 200, 0.1) 0%, transparent 50%);
+}
+
+.dark .bg-sakura-pattern {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(240, 98, 146, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(162, 155, 254, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, rgba(240, 98, 146, 0.04) 0%, transparent 50%);
+}
+
+/* ── 글래스모피즘 ────────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(26, 26, 46, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── 그라데이션 텍스트 ───────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #e84393, #6c5ce7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-text {
+  background: linear-gradient(135deg, #f06292, #a29bfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── 그라데이션 버튼 ─────────────────────────────────── */
+.btn-gradient {
+  background: linear-gradient(135deg, #e84393, #6c5ce7);
+  color: white;
+  transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+  background: linear-gradient(135deg, #d63384, #5f4dd0);
+  box-shadow: 0 8px 25px rgba(232, 67, 147, 0.3);
+  transform: translateY(-1px);
+}
+
+.dark .btn-gradient {
+  background: linear-gradient(135deg, #f06292, #a29bfe);
+}
+.dark .btn-gradient:hover {
+  background: linear-gradient(135deg, #ec407a, #9085f0);
+  box-shadow: 0 8px 25px rgba(240, 98, 146, 0.25);
+}
+
+/* ── 떠다니는 애니메이션 ─────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-8px) rotate(2deg); }
+  66% { transform: translateY(4px) rotate(-1deg); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes sakura-fall {
+  0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-sakura {
+  animation: sakura-fall linear infinite;
 }

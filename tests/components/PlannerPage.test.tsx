@@ -58,12 +58,12 @@ describe("PlannerPage", () => {
 
   it("장소 추가 버튼이 존재한다", () => {
     renderWithRoute()
-    expect(screen.getByText("장소 추가")).toBeInTheDocument()
+    expect(screen.getAllByText("장소 추가").length).toBeGreaterThanOrEqual(1)
   })
 
   it("AI 추천 버튼이 존재한다", () => {
     renderWithRoute()
-    expect(screen.getByText("AI 추천받기")).toBeInTheDocument()
+    expect(screen.getAllByText("AI 추천받기").length).toBeGreaterThanOrEqual(1)
   })
 
   // ── Day 탭 ──────────────────────────────────────────
@@ -87,14 +87,14 @@ describe("PlannerPage", () => {
   // ── 장소 추가 시트 ──────────────────────────────────
   it("장소 추가 버튼 클릭 시 시트가 열린다", () => {
     renderWithRoute()
-    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getAllByText("장소 추가")[0])
     expect(screen.getByTestId("place-sheet")).toBeInTheDocument()
   })
 
   it("시트에서 장소를 추가하면 카드가 표시된다", () => {
     renderWithRoute()
     // 시트 열기
-    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getAllByText("장소 추가")[0])
     // 센소지 추가
     const addBtn = screen.getByTestId("place-add-tokyo-sensoji")
     fireEvent.click(addBtn)
@@ -107,7 +107,7 @@ describe("PlannerPage", () => {
 
   it("카테고리 필터가 동작한다", () => {
     renderWithRoute()
-    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getAllByText("장소 추가")[0])
     const sheet = screen.getByTestId("place-sheet")
 
     // "맛집" 필터 클릭
@@ -121,7 +121,7 @@ describe("PlannerPage", () => {
 
   it("장소 추가 후 Day 요약이 표시된다", () => {
     renderWithRoute()
-    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getAllByText("장소 추가")[0])
     fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
     expect(screen.getByTestId("day-summary")).toBeInTheDocument()
@@ -131,7 +131,7 @@ describe("PlannerPage", () => {
   it("장소 카드에서 삭제 버튼을 클릭하면 카드가 제거된다", () => {
     renderWithRoute()
     // 장소 추가
-    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getAllByText("장소 추가")[0])
     fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
     expect(screen.getByText("센소지")).toBeInTheDocument()
@@ -144,7 +144,7 @@ describe("PlannerPage", () => {
   // ── 드래그 앤 드롭 ──────────────────────────────────
   it("장소 추가 시 드래그 핸들이 렌더링된다", () => {
     renderWithRoute()
-    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getAllByText("장소 추가")[0])
     fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
     expect(screen.getByTestId("drag-handle-0")).toBeInTheDocument()
@@ -153,7 +153,7 @@ describe("PlannerPage", () => {
 
   it("여러 장소 추가 시 각각 드래그 핸들이 존재한다", () => {
     renderWithRoute()
-    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getAllByText("장소 추가")[0])
     fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
     fireEvent.click(screen.getByTestId("place-add-tokyo-meiji-shrine"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
@@ -164,7 +164,7 @@ describe("PlannerPage", () => {
   it("moveItem 스토어 액션이 같은 Day 내 순서를 변경한다", () => {
     renderWithRoute()
     // 2개 장소 추가
-    fireEvent.click(screen.getByText("장소 추가"))
+    fireEvent.click(screen.getAllByText("장소 추가")[0])
     fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
     fireEvent.click(screen.getByTestId("place-add-tokyo-meiji-shrine"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))

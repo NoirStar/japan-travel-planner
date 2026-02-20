@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react"
-import { X, Plus, Star, Search } from "lucide-react"
+import { X, Plus, Star, Search, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getPlacesByCity } from "@/data/places"
@@ -76,53 +76,57 @@ export function PlaceSheet({
     <>
       {/* 백드롭 */}
       <div
-        className="fixed inset-0 z-40 bg-black/40"
+        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
         data-testid="place-sheet-backdrop"
       />
 
       {/* 시트 패널 */}
       <div
-        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[70vh] flex-col rounded-t-2xl border-t border-border bg-background shadow-2xl lg:left-0 lg:max-h-full lg:w-[380px] lg:rounded-none lg:rounded-tr-2xl"
+        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-3xl bg-background shadow-2xl ring-1 ring-border/30 lg:left-0 lg:max-h-full lg:w-[400px] lg:rounded-none lg:rounded-tr-3xl"
         data-testid="place-sheet"
       >
-        {/* 헤더 */}
-        <div className="flex items-center justify-between border-b border-border p-4">
-          <h3 className="text-base font-bold">장소 추가</h3>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            aria-label="닫기"
-          >
-            <X className="h-5 w-5" />
-          </Button>
+        {/* 핸들 + 헤더 */}
+        <div className="flex flex-col items-center border-b border-border/50 px-4 pb-3 pt-2">
+          <div className="mb-2 h-1 w-10 rounded-full bg-border/80 lg:hidden" />
+          <div className="flex w-full items-center justify-between">
+            <h3 className="text-sm font-bold">장소 추가</h3>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              aria-label="닫기"
+              className="h-7 w-7 rounded-full"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* 검색 */}
-        <div className="border-b border-border px-4 py-3">
+        <div className="border-b border-border/50 px-4 py-2.5">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
             <Input
               placeholder="장소 이름 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="h-9 rounded-xl border-border/50 pl-9 text-sm"
               data-testid="place-search-input"
             />
           </div>
         </div>
 
         {/* 카테고리 필터 */}
-        <div className="flex gap-1.5 overflow-x-auto border-b border-border px-4 py-2" data-testid="category-filter">
+        <div className="flex gap-1.5 overflow-x-auto border-b border-border/50 px-4 py-2" data-testid="category-filter">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setActiveCategory(cat.value)}
-              className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium transition-all ${
                 activeCategory === cat.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-gradient-to-r from-sakura-dark to-indigo text-white shadow-sm"
+                  : "bg-muted/60 text-muted-foreground hover:bg-muted"
               }`}
               data-testid={`filter-${cat.value}`}
             >
@@ -144,16 +148,18 @@ export function PlaceSheet({
                 return (
                   <div
                     key={place.id}
-                    className="flex items-center gap-3 rounded-lg border border-border p-3"
+                    className={`flex items-center gap-3 rounded-xl border p-3 transition-all ${
+                      isAdded ? "border-sakura/30 bg-sakura/5" : "border-border/50 hover:border-sakura/20 hover:shadow-sm"
+                    }`}
                     data-testid={`place-item-${place.id}`}
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{place.name}</p>
-                      <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                      <p className="truncate text-sm font-semibold">{place.name}</p>
+                      <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
                         <span>{CATEGORY_LABELS[place.category]}</span>
                         {place.rating && (
                           <span className="flex items-center gap-0.5">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                             {place.rating}
                           </span>
                         )}
@@ -164,11 +170,13 @@ export function PlaceSheet({
                       size="sm"
                       disabled={isAdded}
                       onClick={() => handleAdd(place)}
-                      className="shrink-0 gap-1"
+                      className={`shrink-0 gap-1 rounded-full text-xs ${
+                        isAdded ? "" : "btn-gradient border-0 shadow-sm"
+                      }`}
                       data-testid={`place-add-${place.id}`}
                     >
                       {isAdded ? (
-                        "추가됨"
+                        <><Check className="h-3 w-3" /> 추가됨</>
                       ) : (
                         <>
                           <Plus className="h-3 w-3" />

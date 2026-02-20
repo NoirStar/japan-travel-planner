@@ -14,12 +14,12 @@ function renderWithRouter() {
 describe("Header", () => {
   it("서비스명이 표시된다", () => {
     renderWithRouter()
-    expect(screen.getByText("타비톡")).toBeInTheDocument()
+    expect(screen.getByText("タビトーク")).toBeInTheDocument()
   })
 
   it("로고 클릭 시 홈으로 이동하는 링크가 있다", () => {
     renderWithRouter()
-    const homeLink = screen.getByText("타비톡").closest("a")
+    const homeLink = screen.getByText("タビトーク").closest("a")
     expect(homeLink).toHaveAttribute("href", "/")
   })
 

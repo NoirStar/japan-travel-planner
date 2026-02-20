@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import { Moon } from "lucide-react"
 import type { WizardOption } from "@/types/wizard"
 
 interface DurationStepProps {
@@ -19,10 +20,10 @@ export function DurationStep({ options, onSelect }: DurationStepProps) {
         <button
           key={opt.id}
           onClick={() => onSelect(opt.id)}
-          className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:bg-primary hover:text-primary-foreground hover:shadow-md"
+          className="rounded-full border border-border/50 bg-card px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:bg-gradient-to-r hover:from-sakura-dark hover:to-indigo hover:text-white hover:shadow-md hover:border-transparent active:scale-95"
           data-testid={`duration-option-${opt.id}`}
         >
-          {opt.emoji && <span className="mr-1.5">{opt.emoji}</span>}
+          <Moon className="mr-1.5 inline h-4 w-4" />
           {opt.label}
         </button>
       ))}

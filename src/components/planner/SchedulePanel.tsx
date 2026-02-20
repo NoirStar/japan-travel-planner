@@ -15,11 +15,13 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Bot, Plus } from "lucide-react"
+import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getPlaceById } from "@/data/places"
 import { getCityConfig } from "@/data/mapConfig"
+import { estimateTravel, formatTravelTime, formatDistance } from "@/lib/utils"
+import type { TransportMode } from "@/lib/utils"
 import { DayTabs } from "./DayTabs"
 import { PlaceCard } from "./PlaceCard"
 import { SortablePlaceCard } from "./SortablePlaceCard"
@@ -114,11 +116,12 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
   return (
     <div className="flex h-full flex-col" data-testid="schedule-panel">
       {/* 헤더 */}
-      <div className="border-b border-border p-4">
-        <h2 className="text-lg font-bold">
-          🗾 {cityConfig.name} 여행
+      <div className="border-b border-border/50 bg-gradient-to-r from-sakura/10 to-indigo/5 p-4">
+        <h2 className="text-base font-bold flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-sakura-dark to-indigo text-sm text-white shadow-sm"><Map className="h-4 w-4" /></span>
+          {cityConfig.name} 여행
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           장소를 추가하여 여행 일정을 만들어보세요
         </p>
       </div>
@@ -135,10 +138,12 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
       {/* 일정 카드 리스트 */}
       <div className="flex-1 overflow-y-auto p-4" data-testid="schedule-items">
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-12 text-center text-muted-foreground">
-            <MapPin className="h-10 w-10 opacity-30" />
-            <p className="text-sm">아직 추가된 장소가 없습니다</p>
-            <p className="text-xs opacity-70">아래 버튼으로 장소를 추가해보세요</p>
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center text-muted-foreground">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted/50">
+              <MapPin className="h-7 w-7 opacity-30" />
+            </div>
+            <p className="text-sm font-medium">아직 추가된 장소가 없습니다</p>
+            <p className="text-xs opacity-60">아래 버튼으로 장소를 추가해보세요</p>
           </div>
         ) : (
           <DndContext
@@ -149,18 +154,57 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
             onDragCancel={handleDragCancel}
           >
             <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col">
                 {items.map((item, index) => {
                   const place = getPlaceById(item.placeId)
                   if (!place) return null
+
+                  // 이전 장소와의 이동시간 커넥터
+                  const prevItem = index > 0 ? items[index - 1] : null
+                  const prevPlace = prevItem ? getPlaceById(prevItem.placeId) : null
+                  let travelMinutes = 0
+                  let travelMode: TransportMode = "metro"
+                  let distanceKm = 0
+                  if (prevPlace && place) {
+                    const est = estimateTravel(
+                      prevPlace.location.lat, prevPlace.location.lng,
+                      place.location.lat, place.location.lng,
+                    )
+                    travelMinutes = est.minutes
+                    travelMode = est.mode
+                    distanceKm = est.distanceKm
+                  }
+
                   return (
-                    <SortablePlaceCard
-                      key={item.id}
-                      id={item.id}
-                      place={place}
-                      index={index}
-                      onRemove={() => handleRemoveItem(item.id)}
-                    />
+                    <div key={item.id}>
+                      {/* 이동시간 커넥터 */}
+                      {prevPlace && (
+                        <div className="flex items-center gap-2 py-1.5 pl-3" data-testid={`travel-connector-${index}`}>
+                          <div className="flex flex-col items-center">
+                            <div className="h-3 w-px bg-border" />
+                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted/80">
+                              {travelMode === "walk" ? (
+                                <Footprints className="h-3 w-3 text-muted-foreground" />
+                              ) : travelMode === "metro" ? (
+                                <Train className="h-3 w-3 text-muted-foreground" />
+                              ) : (
+                                <TrainFront className="h-3 w-3 text-muted-foreground" />
+                              )}
+                            </div>
+                            <div className="h-3 w-px bg-border" />
+                          </div>
+                          <span className="text-[10px] font-medium text-muted-foreground">
+                            {formatTravelTime(travelMinutes, travelMode)} · {formatDistance(distanceKm)}
+                          </span>
+                        </div>
+                      )}
+                      <SortablePlaceCard
+                        id={item.id}
+                        place={place}
+                        index={index}
+                        onRemove={() => handleRemoveItem(item.id)}
+                      />
+                    </div>
                   )
                 })}
               </div>
@@ -183,23 +227,39 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
       </div>
 
       {/* Day 요약 */}
-      {items.length > 0 && (
-        <div className="border-t border-border px-4 py-2 text-xs text-muted-foreground" data-testid="day-summary">
-          📊 Day {currentDay?.dayNumber} 요약 — 장소 {items.length}개
-        </div>
-      )}
+      {items.length > 0 && (() => {
+        // 총 이동시간 계산
+        let totalTravelMinutes = 0
+        for (let i = 1; i < items.length; i++) {
+          const prev = getPlaceById(items[i - 1].placeId)
+          const curr = getPlaceById(items[i].placeId)
+          if (prev && curr) {
+            totalTravelMinutes += estimateTravel(
+              prev.location.lat, prev.location.lng,
+              curr.location.lat, curr.location.lng,
+            ).minutes
+          }
+        }
+        return (
+          <div className="border-t border-border/50 bg-muted/30 px-4 py-2 text-xs text-muted-foreground" data-testid="day-summary">
+            <span className="mr-1 inline-flex items-center"><BarChart3 className="mr-1 inline h-3.5 w-3.5" /></span>Day {currentDay?.dayNumber} 요약 — <span className="font-semibold text-foreground">장소 {items.length}개</span>
+            {totalTravelMinutes > 0 && (
+              <> · <span className="font-semibold text-foreground">이동 {formatTravelTime(totalTravelMinutes)}</span></>
+            )}
+          </div>
+        )
+      })()}
 
       {/* 하단 액션 */}
-      <div className="flex flex-col gap-2 border-t border-border p-4">
-        <Button
-          className="w-full gap-2"
-          size="lg"
+      <div className="flex flex-col gap-2 border-t border-border/50 p-4">
+        <button
+          className="btn-gradient flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold"
           onClick={() => setIsPlaceSheetOpen(true)}
         >
           <Plus className="h-4 w-4" />
           장소 추가
-        </Button>
-        <Button variant="outline" className="w-full gap-2" size="lg">
+        </button>
+        <Button variant="outline" className="w-full gap-2 rounded-xl border-border/60" size="lg">
           <Bot className="h-4 w-4" />
           AI 추천받기
         </Button>

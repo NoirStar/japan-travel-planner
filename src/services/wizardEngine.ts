@@ -28,11 +28,10 @@ export function getNextStep(selections: WizardSelections): WizardStepInfo | null
   if (!selections.cityId) {
     return {
       type: "city",
-      question: "어디로 여행을 떠나고 싶으세요? ✈️",
+      question: "어디로 여행을 떠나고 싶으세요?",
       options: cities.map((c) => ({
         id: c.id,
         label: c.name,
-        emoji: "🏙️",
         description: c.description,
         image: c.image,
       })),
@@ -43,11 +42,11 @@ export function getNextStep(selections: WizardSelections): WizardStepInfo | null
   if (!selections.duration) {
     return {
       type: "duration",
-      question: "며칠 여행하실 건가요? 📅",
+      question: "며칠 여행하실 건가요?",
       options: [
-        { id: "2", label: "1박 2일", emoji: "🌙" },
-        { id: "3", label: "2박 3일", emoji: "🌙🌙" },
-        { id: "4", label: "3박 4일", emoji: "🌙🌙🌙" },
+        { id: "2", label: "1박 2일" },
+        { id: "3", label: "2박 3일" },
+        { id: "4", label: "3박 4일" },
       ],
     }
   }
@@ -56,11 +55,10 @@ export function getNextStep(selections: WizardSelections): WizardStepInfo | null
   if (!selections.styles || selections.styles.length === 0) {
     return {
       type: "style",
-      question: "어떤 스타일의 여행을 좋아하세요? (여러 개 선택 가능) 🎯",
+      question: "어떤 스타일의 여행을 좋아하세요? (여러 개 선택 가능)",
       options: TRAVEL_STYLES.map((s) => ({
         id: s.id,
         label: s.label,
-        emoji: s.emoji,
       })),
       multiSelect: true,
     }
@@ -72,11 +70,10 @@ export function getNextStep(selections: WizardSelections): WizardStepInfo | null
     if (!selections.dayThemes?.[day]) {
       return {
         type: "dayTheme",
-        question: `Day ${day}은 어떤 테마로 할까요? 🗓️`,
+        question: `Day ${day}은 어떤 테마로 할까요?`,
         options: DAY_THEMES.map((t) => ({
           id: t.id,
           label: t.label,
-          emoji: t.emoji,
           description: t.description,
         })),
         dayNumber: day,
@@ -89,7 +86,7 @@ export function getNextStep(selections: WizardSelections): WizardStepInfo | null
       const restaurants = getMealOptions(selections.cityId, selections.dayThemes[day], "lunch")
       return {
         type: "meal",
-        question: `Day ${day} 점심은 어디서 드실래요? 🍽️`,
+        question: `Day ${day} 점심은 어디서 드실래요?`,
         options: restaurants,
         dayNumber: day,
         mealType: "lunch",
@@ -103,7 +100,7 @@ export function getNextStep(selections: WizardSelections): WizardStepInfo | null
       const restaurants = getMealOptions(selections.cityId, selections.dayThemes[day], "dinner")
       return {
         type: "meal",
-        question: `Day ${day} 저녁은 어디서 드실래요? 🌙`,
+        question: `Day ${day} 저녁은 어디서 드실래요?`,
         options: restaurants,
         dayNumber: day,
         mealType: "dinner",
@@ -115,7 +112,7 @@ export function getNextStep(selections: WizardSelections): WizardStepInfo | null
   // 6. 모든 선택 완료 → 요약
   return {
     type: "summary",
-    question: "일정이 완성되었어요! 확인해주세요 🎉",
+    question: "일정이 완성되었어요! 확인해주세요",
     options: [],
   }
 }
@@ -135,7 +132,6 @@ function getMealOptions(
   return shuffled.slice(0, 4).map((p) => ({
     id: p.id,
     label: p.name,
-    emoji: p.category === "restaurant" ? "🍜" : "☕",
     description: p.description ?? "",
     rating: p.rating,
     image: p.image,
@@ -162,15 +158,15 @@ export function getAIResponseText(
 ): string {
   switch (stepType) {
     case "city":
-      return `${selectionLabel}! 멋진 선택이에요 😊`
+      return `${selectionLabel}! 멋진 선택이에요!`
     case "duration":
-      return `${selectionLabel} 일정이군요! 알차게 계획해볼게요 ✨`
+      return `${selectionLabel} 일정이군요! 알차게 계획해볼게요.`
     case "style":
       return `${selectionLabel} 스타일로 준비할게요!`
     case "dayTheme":
-      return `${selectionLabel} 테마로 골라볼게요 🗺️`
+      return `${selectionLabel} 테마로 골라볼게요.`
     case "meal":
-      return `${selectionLabel}, 좋은 선택이에요! 😋`
+      return `${selectionLabel}, 좋은 선택이에요!`
     default:
       return "알겠어요!"
   }

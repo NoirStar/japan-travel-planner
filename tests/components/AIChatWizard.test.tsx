@@ -105,4 +105,32 @@ describe("AIChatWizard", () => {
     renderWizard()
     expect(screen.getByTestId("wizard-back")).toBeInTheDocument()
   })
+
+  // ── 프리톡 모드 ─────────────────────────────────────────
+  it("자유 대화 입력바가 표시된다", () => {
+    renderWizard()
+    expect(screen.getByTestId("free-chat-bar")).toBeInTheDocument()
+    expect(screen.getByTestId("free-chat-input")).toBeInTheDocument()
+    expect(screen.getByTestId("free-chat-send")).toBeInTheDocument()
+  })
+
+  it("자유 대화 안내 메시지가 표시된다", () => {
+    renderWizard()
+    expect(screen.getByText(/자유롭게 원하는 여행을 말씀해주세요/)).toBeInTheDocument()
+  })
+
+  it("빈 입력에서 전송 버튼이 비활성화된다", () => {
+    renderWizard()
+    const sendBtn = screen.getByTestId("free-chat-send")
+    expect(sendBtn).toBeDisabled()
+  })
+
+  it("텍스트 입력 시 전송 버튼이 활성화된다", () => {
+    renderWizard()
+    const input = screen.getByTestId("free-chat-input")
+    const sendBtn = screen.getByTestId("free-chat-send")
+
+    fireEvent.change(input, { target: { value: "도쿄 맛집" } })
+    expect(sendBtn).not.toBeDisabled()
+  })
 })

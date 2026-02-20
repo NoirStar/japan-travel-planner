@@ -19,7 +19,7 @@ export function CityStep({ options, onSelect }: CityStepProps) {
         <button
           key={opt.id}
           onClick={() => onSelect(opt.id)}
-          className="group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:shadow-md hover:ring-2 hover:ring-primary/50"
+          className="group overflow-hidden rounded-2xl bg-card text-left shadow-sm ring-1 ring-border/50 transition-all hover:shadow-lg hover:ring-sakura-dark/40 active:scale-[0.98]"
           data-testid={`city-option-${opt.id}`}
         >
           {opt.image && (
@@ -27,15 +27,15 @@ export function CityStep({ options, onSelect }: CityStepProps) {
               <img
                 src={opt.image}
                 alt={opt.label}
-                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
               />
             </div>
           )}
           <div className="p-3">
-            <h3 className="font-bold">{opt.label}</h3>
+            <h3 className="text-sm font-bold">{opt.label}</h3>
             {opt.description && (
-              <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
+              <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
                 {opt.description}
               </p>
             )}

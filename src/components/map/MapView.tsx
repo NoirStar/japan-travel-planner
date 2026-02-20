@@ -20,6 +20,8 @@ interface MapViewProps {
   zoom: number
   className?: string
   places?: Place[]
+  selectedPlaceId?: string | null
+  onSelectPlace?: (placeId: string | null) => void
 }
 
 function MapFallback() {
@@ -64,7 +66,7 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
   return null
 }
 
-export function MapView({ center, zoom, className = "", places = [] }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], selectedPlaceId, onSelectPlace }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
 
@@ -91,7 +93,13 @@ export function MapView({ center, zoom, className = "", places = [] }: MapViewPr
         >
           {/* 장소 마커 */}
           {places.map((place, index) => (
-            <PlaceMarker key={place.id} place={place} index={index} />
+            <PlaceMarker
+              key={place.id}
+              place={place}
+              index={index}
+              isSelected={selectedPlaceId === place.id}
+              onSelect={() => onSelectPlace?.(place.id === selectedPlaceId ? null : place.id)}
+            />
           ))}
 
           {/* 경로 폴리라인 */}

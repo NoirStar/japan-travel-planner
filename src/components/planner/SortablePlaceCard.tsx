@@ -8,9 +8,15 @@ interface SortablePlaceCardProps {
   place: Place
   index: number
   onRemove: () => void
+  startTime?: string
+  memo?: string
+  onStartTimeChange?: (time: string) => void
+  onMemoChange?: (memo: string) => void
+  isSelected?: boolean
+  onClick?: () => void
 }
 
-export function SortablePlaceCard({ id, place, index, onRemove }: SortablePlaceCardProps) {
+export function SortablePlaceCard({ id, place, index, onRemove, startTime, memo, onStartTimeChange, onMemoChange, isSelected, onClick }: SortablePlaceCardProps) {
   const {
     attributes,
     listeners,
@@ -31,6 +37,12 @@ export function SortablePlaceCard({ id, place, index, onRemove }: SortablePlaceC
       place={place}
       index={index}
       onRemove={onRemove}
+      startTime={startTime}
+      memo={memo}
+      onStartTimeChange={onStartTimeChange}
+      onMemoChange={onMemoChange}
+      isSelected={isSelected}
+      onClick={onClick}
       dragHandleListeners={listeners}
       dragHandleAttributes={attributes}
       style={style}

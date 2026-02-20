@@ -8,15 +8,18 @@ import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 interface PlaceMarkerProps {
   place: Place
   index: number
+  isSelected?: boolean
+  onSelect?: () => void
 }
 
-export function PlaceMarker({ place, index }: PlaceMarkerProps) {
+export function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerProps) {
   const [markerRef, marker] = useAdvancedMarkerRef()
   const [infoOpen, setInfoOpen] = useState(false)
 
   const handleClick = useCallback(() => {
     setInfoOpen((prev) => !prev)
-  }, [])
+    onSelect?.()
+  }, [onSelect])
 
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
@@ -31,10 +34,12 @@ export function PlaceMarker({ place, index }: PlaceMarkerProps) {
       >
         {/* 원형 사진 마커 */}
         <div
-          className="relative cursor-pointer"
+          className={`relative cursor-pointer transition-transform duration-200 ${isSelected ? "scale-125" : "hover:scale-110"}`}
           data-testid={`map-marker-${index}`}
         >
-          <div className="h-11 w-11 overflow-hidden rounded-full border-[2.5px] border-white bg-gradient-to-br from-sakura-dark to-indigo shadow-lg">
+          <div className={`h-11 w-11 overflow-hidden rounded-full border-[2.5px] bg-gradient-to-br from-sakura-dark to-indigo shadow-lg ${
+            isSelected ? "border-sakura ring-2 ring-sakura/50" : "border-white"
+          }`}>
             {place.image ? (
               <img
                 src={place.image}

@@ -63,7 +63,7 @@ describe("PlannerPage", () => {
 
   it("AI 추천 버튼이 존재한다", () => {
     renderWithRoute()
-    expect(screen.getAllByText("AI 추천받기").length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText("AI 추천").length).toBeGreaterThanOrEqual(1)
   })
 
   // ── Day 탭 ──────────────────────────────────────────

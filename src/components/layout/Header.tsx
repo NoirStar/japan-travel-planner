@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
-import { Moon, Sun, User, Plane } from "lucide-react"
+import { Moon, Sun, User, Plane, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 
@@ -19,6 +19,12 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-1.5">
+          <Link to="/trips">
+            <Button variant="ghost" size="sm" className="gap-1.5 rounded-full hover:bg-sakura/20">
+              <List className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">내 여행</span>
+            </Button>
+          </Link>
           <Button
             variant="ghost"
             size="icon"

@@ -1,26 +1,74 @@
 import { useEffect, useRef, useMemo, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useSearchParams, useParams } from "react-router-dom"
 import { List, MapIcon } from "lucide-react"
 import { MapView } from "@/components/map/MapView"
 import { SchedulePanel } from "@/components/planner/SchedulePanel"
 import { getCityConfig } from "@/data/mapConfig"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getPlaceById } from "@/data/places"
+import { decodeTrip } from "@/lib/shareUtils"
 import type { Place } from "@/types/place"
 
 export function PlannerPage() {
   const [searchParams] = useSearchParams()
-  const cityId = searchParams.get("city") ?? "tokyo"
-  const cityConfig = getCityConfig(cityId)
+  const { shareId } = useParams<{ shareId?: string }>()
+  const cityIdParam = searchParams.get("city") ?? "tokyo"
 
   const { trips, createTrip, setActiveTrip } = useScheduleStore()
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const initialized = useRef(false)
   const [activeDayIndex, setActiveDayIndex] = useState(0)
   const [mobileTab, setMobileTab] = useState<"schedule" | "map">("schedule")
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
+
+  // 공유 링크에서 여행 데이터 복원
+  useEffect(() => {
+    if (!shareId || initialized.current) return
+    initialized.current = true
+
+    const sharedTrip = decodeTrip(shareId)
+    if (sharedTrip) {
+      // 동일 공유 트립이 이미 있는지 확인
+      const existing = trips.find((t) => t.id === sharedTrip.id)
+      if (existing) {
+        setActiveTrip(existing.id)
+      } else {
+        // 새 트립으로 생성
+        const newTrip = createTrip(sharedTrip.cityId, sharedTrip.title)
+        // 공유 데이터의 days 복원 - Store를 통해 아이템 추가
+        const store = useScheduleStore.getState()
+        // Remove existing empty day and rebuild
+        for (const day of sharedTrip.days) {
+          if (day.dayNumber > 1) store.addDay(newTrip.id)
+        }
+        // 아이템 추가
+        const updatedTrip = store.trips.find((t) => t.id === newTrip.id)
+        if (updatedTrip) {
+          for (let di = 0; di < sharedTrip.days.length; di++) {
+            const sharedDay = sharedTrip.days[di]
+            const targetDay = updatedTrip.days[di]
+            if (!targetDay) continue
+            for (const item of sharedDay.items) {
+              const newItem = store.addItem(newTrip.id, targetDay.id, item.placeId)
+              if (item.startTime || item.memo) {
+                store.updateItem(newTrip.id, targetDay.id, newItem.id, {
+                  startTime: item.startTime,
+                  memo: item.memo,
+                })
+              }
+            }
+          }
+        }
+      }
+      return
+    }
+  }, [shareId, trips, createTrip, setActiveTrip])
+
+  const cityId = trip?.cityId ?? cityIdParam
+  const cityConfig = getCityConfig(cityId)
 
   useEffect(() => {
-    if (initialized.current) return
+    if (initialized.current || shareId) return
     initialized.current = true
 
     const existingTrip = trips.find((t) => t.cityId === cityId)
@@ -29,7 +77,7 @@ export function PlannerPage() {
     } else {
       createTrip(cityId, `${cityConfig.name} 여행`)
     }
-  }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip])
+  }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip, shareId])
 
   // 현재 Day의 장소 목록을 Place 객체로 변환
   const currentDayPlaces: Place[] = useMemo(() => {
@@ -53,6 +101,8 @@ export function PlannerPage() {
             cityId={cityId}
             activeDayIndex={activeDayIndex}
             onActiveDayIndexChange={setActiveDayIndex}
+            selectedPlaceId={selectedPlaceId}
+            onSelectPlace={setSelectedPlaceId}
           />
         </aside>
 
@@ -64,6 +114,8 @@ export function PlannerPage() {
             center={cityConfig.center}
             zoom={cityConfig.zoom}
             places={currentDayPlaces}
+            selectedPlaceId={selectedPlaceId}
+            onSelectPlace={setSelectedPlaceId}
           />
         </main>
       </div>

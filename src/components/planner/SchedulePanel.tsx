@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront } from "lucide-react"
+import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront, Calendar, Share2, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getPlaceById } from "@/data/places"
@@ -26,20 +26,24 @@ import { DayTabs } from "./DayTabs"
 import { PlaceCard } from "./PlaceCard"
 import { SortablePlaceCard } from "./SortablePlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
+import { copyShareUrl } from "@/lib/shareUtils"
 
 interface SchedulePanelProps {
   cityId: string
   activeDayIndex: number
   onActiveDayIndexChange: (index: number) => void
+  selectedPlaceId?: string | null
+  onSelectPlace?: (placeId: string | null) => void
 }
 
-export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }: SchedulePanelProps) {
+export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace }: SchedulePanelProps) {
   const cityConfig = getCityConfig(cityId)
   const trip = useScheduleStore((s) => s.getActiveTrip())
-  const { addDay, removeDay, removeItem, moveItem } = useScheduleStore()
+  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip } = useScheduleStore()
 
   const [isPlaceSheetOpen, setIsPlaceSheetOpen] = useState(false)
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
+  const [shareMessage, setShareMessage] = useState<string | null>(null)
 
   // ── DnD 센서 ──────────────────────────────────────────
   const sensors = useSensors(
@@ -121,9 +125,24 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-sakura-dark to-indigo text-sm text-white shadow-sm"><Map className="h-4 w-4" /></span>
           {cityConfig.name} 여행
         </h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          장소를 추가하여 여행 일정을 만들어보세요
-        </p>
+        <div className="mt-2 flex items-center gap-2">
+          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+          <input
+            type="date"
+            value={trip.startDate ?? ""}
+            onChange={(e) => updateTrip(trip.id, { startDate: e.target.value })}
+            className="h-6 rounded bg-muted/60 px-1.5 text-[11px] text-foreground outline-none ring-1 ring-border/50 focus:ring-sakura/50"
+            data-testid="trip-start-date"
+          />
+          <span className="text-[11px] text-muted-foreground">~</span>
+          <input
+            type="date"
+            value={trip.endDate ?? ""}
+            onChange={(e) => updateTrip(trip.id, { endDate: e.target.value })}
+            className="h-6 rounded bg-muted/60 px-1.5 text-[11px] text-foreground outline-none ring-1 ring-border/50 focus:ring-sakura/50"
+            data-testid="trip-end-date"
+          />
+        </div>
       </div>
 
       {/* Day 탭 */}
@@ -203,6 +222,16 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
                         place={place}
                         index={index}
                         onRemove={() => handleRemoveItem(item.id)}
+                        startTime={item.startTime}
+                        memo={item.memo}
+                        onStartTimeChange={(time) => {
+                          if (trip && currentDay) updateItem(trip.id, currentDay.id, item.id, { startTime: time })
+                        }}
+                        onMemoChange={(memoValue) => {
+                          if (trip && currentDay) updateItem(trip.id, currentDay.id, item.id, { memo: memoValue })
+                        }}
+                        isSelected={selectedPlaceId === item.placeId}
+                        onClick={() => onSelectPlace?.(item.placeId === selectedPlaceId ? null : item.placeId)}
                       />
                     </div>
                   )
@@ -259,10 +288,27 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange }
           <Plus className="h-4 w-4" />
           장소 추가
         </button>
-        <Button variant="outline" className="w-full gap-2 rounded-xl border-border/60" size="lg">
-          <Bot className="h-4 w-4" />
-          AI 추천받기
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1 gap-2 rounded-xl border-border/60" size="lg">
+            <Bot className="h-4 w-4" />
+            AI 추천
+          </Button>
+          <Button
+            variant="outline"
+            className="gap-2 rounded-xl border-border/60"
+            size="lg"
+            onClick={async () => {
+              if (!trip) return
+              const ok = await copyShareUrl(trip)
+              setShareMessage(ok ? "링크가 복사되었습니다!" : "복사에 실패했습니다")
+              setTimeout(() => setShareMessage(null), 2000)
+            }}
+            data-testid="share-button"
+          >
+            {shareMessage ? <Check className="h-4 w-4 text-green-500" /> : <Share2 className="h-4 w-4" />}
+            {shareMessage ?? "공유"}
+          </Button>
+        </div>
       </div>
 
       {/* 장소 추가 시트 */}

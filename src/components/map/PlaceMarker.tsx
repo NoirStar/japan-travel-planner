@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps"
+import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
 import { Star } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
@@ -12,8 +12,19 @@ interface PlaceMarkerProps {
   onSelect?: () => void
 }
 
+/** 카테고리별 마커 색상 (Hex) */
+const CATEGORY_HEX: Record<string, string> = {
+  restaurant: "#f97316",
+  attraction: "#ec4899",
+  shopping: "#8b5cf6",
+  accommodation: "#3b82f6",
+  cafe: "#f59e0b",
+  transport: "#10b981",
+  other: "#6b7280",
+}
+
 export function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerProps) {
-  const [markerRef, marker] = useAdvancedMarkerRef()
+  const [markerRef, marker] = useMarkerRef()
   const [infoOpen, setInfoOpen] = useState(false)
 
   const handleClick = useCallback(() => {
@@ -23,53 +34,32 @@ export function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerP
 
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
+  const color = CATEGORY_HEX[place.category] ?? "#6b7280"
 
   return (
     <>
-      <AdvancedMarker
+      <Marker
         ref={markerRef}
         position={place.location}
         onClick={handleClick}
         title={place.name}
-      >
-        {/* 원형 사진 마커 */}
-        <div
-          className={`relative cursor-pointer transition-transform duration-200 ${isSelected ? "scale-125" : "hover:scale-110"}`}
-          data-testid={`map-marker-${index}`}
-        >
-          <div className={`h-11 w-11 overflow-hidden rounded-full border-[2.5px] bg-gradient-to-br from-sakura-dark to-indigo shadow-lg ${
-            isSelected ? "border-sakura ring-2 ring-sakura/50" : "border-white"
-          }`}>
-            {place.image ? (
-              <img
-                src={place.image}
-                alt={place.name}
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
-                {index + 1}
-              </div>
-            )}
-          </div>
-
-          {/* 번호 배지 (이미지가 있을 때만, 없으면 원 안에 번호 표시) */}
-          {place.image && (
-            <div className="absolute -left-1 -top-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-gradient-to-br from-sakura-dark to-indigo text-[9px] font-bold text-white shadow ring-1 ring-white">
-              {index + 1}
-            </div>
-          )}
-
-          {/* 별점 배지 */}
-          {place.rating && (
-            <div className="absolute -bottom-1 -right-1 flex items-center gap-[2px] rounded-full bg-white px-1 py-[1px] text-[9px] font-bold text-gray-800 shadow ring-1 ring-gray-200/60">
-              <Star className="h-[10px] w-[10px] fill-amber-400 text-amber-400" />
-              {place.rating}
-            </div>
-          )}
-        </div>
-      </AdvancedMarker>
+        label={{
+          text: `${index + 1}`,
+          color: "#ffffff",
+          fontWeight: "bold",
+          fontSize: "13px",
+        }}
+        icon={{
+          path: 0, // google.maps.SymbolPath.CIRCLE
+          fillColor: isSelected ? "#e11d48" : color,
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 2.5,
+          scale: 16,
+          labelOrigin: { x: 0, y: 0 } as google.maps.Point,
+        }}
+        zIndex={isSelected ? 1000 : 100 + index}
+      />
 
       {infoOpen && marker && (
         <InfoWindow
@@ -77,6 +67,17 @@ export function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerP
           onCloseClick={() => setInfoOpen(false)}
         >
           <div className="min-w-[180px] p-1">
+            {/* 이미지 */}
+            {place.image && (
+              <div className="mb-2 h-24 w-full overflow-hidden rounded-lg">
+                <img
+                  src={place.image}
+                  alt={place.name}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
             <div className="flex items-center gap-1.5">
               <CategoryIcon className="h-4 w-4 text-sakura-dark" />
               <span className="text-sm font-bold text-gray-900">{place.name}</span>

@@ -17,12 +17,16 @@ vi.mock("@vis.gl/react-google-maps", () => ({
       {children}
     </div>
   ),
+  Marker: ({ title, label }: { title?: string; label?: { text: string } }) => (
+    <div data-testid={`map-marker-${title}`} data-label={label?.text}>{label?.text}</div>
+  ),
   AdvancedMarker: ({ children, title }: { children?: React.ReactNode; title?: string }) => (
     <div data-testid={`advanced-marker-${title}`}>{children}</div>
   ),
   InfoWindow: ({ children }: { children?: React.ReactNode }) => (
     <div data-testid="info-window">{children}</div>
   ),
+  useMarkerRef: () => [null, null],
   useAdvancedMarkerRef: () => [null, null],
   useMap: () => null,
   useMapsLibrary: () => null,
@@ -100,8 +104,8 @@ describe("MapView", () => {
     render(
       <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} places={places} />,
     )
-    expect(screen.getByTestId("map-marker-0")).toBeInTheDocument()
-    expect(screen.getByTestId("map-marker-1")).toBeInTheDocument()
+    expect(screen.getByTestId("map-marker-센소지")).toBeInTheDocument()
+    expect(screen.getByTestId("map-marker-스카이트리")).toBeInTheDocument()
     expect(screen.getByText("1")).toBeInTheDocument()
     expect(screen.getByText("2")).toBeInTheDocument()
 
@@ -116,7 +120,7 @@ describe("MapView", () => {
     render(
       <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} places={[]} />,
     )
-    expect(screen.queryByTestId("map-marker-0")).not.toBeInTheDocument()
+    expect(screen.queryByTestId(/^map-marker-/)).not.toBeInTheDocument()
 
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
   })

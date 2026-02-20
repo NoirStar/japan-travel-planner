@@ -11,6 +11,10 @@ vi.mock("@vis.gl/react-google-maps", () => ({
     <div data-testid="api-provider">{children}</div>
   ),
   Map: () => <div data-testid="google-map" />,
+  Marker: () => <div data-testid="marker" />,
+  useMarkerRef: () => [null, null],
+  useMap: () => null,
+  useMapsLibrary: () => null,
 }))
 
 // 각 테스트 전 스토어 초기화

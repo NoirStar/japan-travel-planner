@@ -1,20 +1,31 @@
 import { useState, useCallback } from "react"
-import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps"
+import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
 import { Star, Plus } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 import { Button } from "@/components/ui/button"
 
-/** 카테고리별 마커 색상 */
-const CATEGORY_COLORS: Record<string, string> = {
-  restaurant: "bg-orange-500",
-  attraction: "bg-pink-500",
-  shopping: "bg-violet-500",
-  accommodation: "bg-blue-500",
-  cafe: "bg-amber-500",
-  transport: "bg-emerald-500",
-  other: "bg-gray-500",
+/** 카테고리별 마커 색상 (Hex) */
+const CATEGORY_HEX: Record<string, string> = {
+  restaurant: "#f97316",
+  attraction: "#ec4899",
+  shopping: "#8b5cf6",
+  accommodation: "#3b82f6",
+  cafe: "#f59e0b",
+  transport: "#10b981",
+  other: "#6b7280",
+}
+
+/** 카테고리별 마커 라벨 */
+const CATEGORY_EMOJI: Record<string, string> = {
+  restaurant: "🍽",
+  attraction: "🏯",
+  shopping: "🛍",
+  accommodation: "🏨",
+  cafe: "☕",
+  transport: "🚃",
+  other: "📍",
 }
 
 interface CityPlaceMarkerProps {
@@ -29,7 +40,7 @@ interface CityPlaceMarkerProps {
  * 클릭하면 InfoWindow에서 "일정 추가" 가능.
  */
 export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
-  const [markerRef, marker] = useAdvancedMarkerRef()
+  const [markerRef, marker] = useMarkerRef()
   const [infoOpen, setInfoOpen] = useState(false)
 
   const handleClick = useCallback(() => {
@@ -39,28 +50,26 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
 
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
-  const colorClass = CATEGORY_COLORS[place.category] ?? "bg-gray-500"
+  const color = CATEGORY_HEX[place.category] ?? "#6b7280"
 
   return (
     <>
-      <AdvancedMarker
+      <Marker
         ref={markerRef}
         position={place.location}
         onClick={handleClick}
         title={place.name}
-      >
-        <div
-          className={`relative cursor-pointer transition-transform duration-200 ${isSelected ? "scale-125" : "hover:scale-110"}`}
-          data-testid={`city-marker-${place.id}`}
-        >
-          {/* 작은 원형 카테고리 아이콘 마커 */}
-          <div className={`flex h-7 w-7 items-center justify-center rounded-full ${colorClass} border-2 border-white shadow-md opacity-80 hover:opacity-100 transition-opacity ${
-            isSelected ? "opacity-100 ring-2 ring-sakura/50" : ""
-          }`}>
-            <CategoryIcon className="h-3.5 w-3.5 text-white" />
-          </div>
-        </div>
-      </AdvancedMarker>
+        icon={{
+          path: 0, // google.maps.SymbolPath.CIRCLE
+          fillColor: color,
+          fillOpacity: 0.7,
+          strokeColor: "#ffffff",
+          strokeWeight: 1.5,
+          scale: 8,
+        }}
+        zIndex={isSelected ? 500 : 10}
+        opacity={isSelected ? 1 : 0.8}
+      />
 
       {infoOpen && marker && (
         <InfoWindow

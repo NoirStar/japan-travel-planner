@@ -1,11 +1,13 @@
-import { useState, useMemo } from "react"
-import { X, Plus, Star, Search, Check } from "lucide-react"
+import { useState, useMemo, useCallback, useRef } from "react"
+import { X, Plus, Star, Search, Check, Globe, Database, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getPlacesByCity } from "@/data/places"
 import { PlaceCategory, CATEGORY_LABELS } from "@/types/place"
 import type { Place } from "@/types/place"
 import { useScheduleStore } from "@/stores/scheduleStore"
+import { searchGooglePlaces } from "@/services/placesService"
+import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 
 interface PlaceSheetProps {
   open: boolean
@@ -32,6 +34,10 @@ export function PlaceSheet({
 }: PlaceSheetProps) {
   const [activeCategory, setActiveCategory] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchMode, setSearchMode] = useState<"curated" | "google">("curated")
+  const [googleResults, setGoogleResults] = useState<Place[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
   const { addItem } = useScheduleStore()
   const trip = useScheduleStore((s) => s.getActiveTrip())
 
@@ -67,8 +73,39 @@ export function PlaceSheet({
   }, [allCityPlaces, activeCategory, searchQuery])
 
   const handleAdd = (place: Place) => {
+    // Google에서 검색한 장소는 dynamicPlaceStore에 저장
+    if (place.id.startsWith("google-")) {
+      useDynamicPlaceStore.getState().addPlace(place)
+    }
     addItem(tripId, dayId, place.id)
   }
+
+  // Google Places 검색
+  const handleGoogleSearch = useCallback(
+    (query: string) => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+      if (!query.trim()) {
+        setGoogleResults([])
+        return
+      }
+      searchTimeoutRef.current = setTimeout(async () => {
+        setIsSearching(true)
+        const results = await searchGooglePlaces(query, cityId)
+        setGoogleResults(results)
+        setIsSearching(false)
+      }, 500) // 500ms 디바운스
+    },
+    [cityId],
+  )
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    if (searchMode === "google") {
+      handleGoogleSearch(value)
+    }
+  }
+
+  const displayPlaces = searchMode === "google" ? googleResults : filteredPlaces
 
   if (!open) return null
 
@@ -103,47 +140,87 @@ export function PlaceSheet({
           </div>
         </div>
 
-        {/* 검색 */}
-        <div className="border-b border-border/50 px-4 py-2.5">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-            <Input
-              placeholder="장소 이름 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-9 rounded-xl border-border/50 pl-9 text-sm"
-              data-testid="place-search-input"
-            />
-          </div>
-        </div>
-
-        {/* 카테고리 필터 */}
-        <div className="flex gap-1.5 overflow-x-auto border-b border-border/50 px-4 py-2" data-testid="category-filter">
-          {CATEGORIES.map((cat) => (
+        {/* 검색 모드 탭 + 검색 */}
+        <div className="border-b border-border/50 px-4 py-2.5 space-y-2">
+          {/* 검색 소스 토글 */}
+          <div className="flex gap-1.5">
             <button
-              key={cat.value}
-              onClick={() => setActiveCategory(cat.value)}
-              className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium transition-all ${
-                activeCategory === cat.value
+              onClick={() => { setSearchMode("curated"); setGoogleResults([]) }}
+              className={`flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-medium transition-all ${
+                searchMode === "curated"
                   ? "bg-gradient-to-r from-sakura-dark to-indigo text-white shadow-sm"
                   : "bg-muted/60 text-muted-foreground hover:bg-muted"
               }`}
-              data-testid={`filter-${cat.value}`}
+              data-testid="search-mode-curated"
             >
-              {cat.label}
+              <Database className="h-3 w-3" />
+              추천 장소
             </button>
-          ))}
+            <button
+              onClick={() => { setSearchMode("google"); if (searchQuery) handleGoogleSearch(searchQuery) }}
+              className={`flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-medium transition-all ${
+                searchMode === "google"
+                  ? "bg-gradient-to-r from-sakura-dark to-indigo text-white shadow-sm"
+                  : "bg-muted/60 text-muted-foreground hover:bg-muted"
+              }`}
+              data-testid="search-mode-google"
+            >
+              <Globe className="h-3 w-3" />
+              Google 검색
+            </button>
+          </div>
+
+          {/* 검색 입력 */}
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+            <Input
+              placeholder={searchMode === "google" ? "장소를 검색하세요 (예: 라멘, 신사, 카페...)" : "장소 이름 검색..."}
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="h-9 rounded-xl border-border/50 pl-9 text-sm"
+              data-testid="place-search-input"
+            />
+            {isSearching && (
+              <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+            )}
+          </div>
         </div>
+
+        {/* 카테고리 필터 (큐레이션 모드만) */}
+        {searchMode === "curated" && (
+          <div className="flex gap-1.5 overflow-x-auto border-b border-border/50 px-4 py-2" data-testid="category-filter">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setActiveCategory(cat.value)}
+                className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium transition-all ${
+                  activeCategory === cat.value
+                    ? "bg-gradient-to-r from-sakura-dark to-indigo text-white shadow-sm"
+                    : "bg-muted/60 text-muted-foreground hover:bg-muted"
+                }`}
+                data-testid={`filter-${cat.value}`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* 장소 목록 */}
         <div className="flex-1 overflow-y-auto p-4" data-testid="place-list">
-          {filteredPlaces.length === 0 ? (
+          {searchMode === "google" && !searchQuery.trim() ? (
+            <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
+              <Globe className="h-8 w-8 opacity-30" />
+              <p className="text-sm font-medium">Google에서 장소를 검색하세요</p>
+              <p className="text-xs opacity-60">검색어를 입력하면 실시간으로 검색됩니다</p>
+            </div>
+          ) : displayPlaces.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              검색 결과가 없습니다
+              {isSearching ? "검색 중..." : "검색 결과가 없습니다"}
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              {filteredPlaces.map((place) => {
+              {displayPlaces.map((place) => {
                 const isAdded = addedPlaceIds.has(place.id)
                 return (
                   <div
@@ -153,10 +230,16 @@ export function PlaceSheet({
                     }`}
                     data-testid={`place-item-${place.id}`}
                   >
+                    {/* 이미지 썸네일 */}
+                    {place.image && (
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg">
+                        <img src={place.image} alt={place.name} className="h-full w-full object-cover" loading="lazy" />
+                      </div>
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">{place.name}</p>
                       <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <span>{CATEGORY_LABELS[place.category]}</span>
+                        <span>{CATEGORY_LABELS[place.category] ?? place.category}</span>
                         {place.rating && (
                           <span className="flex items-center gap-0.5">
                             <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
@@ -164,6 +247,9 @@ export function PlaceSheet({
                           </span>
                         )}
                       </div>
+                      {place.address && (
+                        <p className="mt-0.5 truncate text-[10px] text-muted-foreground/60">{place.address}</p>
+                      )}
                     </div>
                     <Button
                       variant={isAdded ? "secondary" : "default"}

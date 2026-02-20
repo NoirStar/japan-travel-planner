@@ -5,7 +5,8 @@ import { MapView } from "@/components/map/MapView"
 import { SchedulePanel } from "@/components/planner/SchedulePanel"
 import { getCityConfig } from "@/data/mapConfig"
 import { useScheduleStore } from "@/stores/scheduleStore"
-import { getPlaceById } from "@/data/places"
+import { getPlacesByCity } from "@/data/places"
+import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
 import type { Place } from "@/types/place"
 
@@ -79,15 +80,29 @@ export function PlannerPage() {
     }
   }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip, shareId])
 
+  // 도시의 전체 장소 목록
+  const allCityPlaces = useMemo(() => getPlacesByCity(cityId), [cityId])
+
   // 현재 Day의 장소 목록을 Place 객체로 변환
   const currentDayPlaces: Place[] = useMemo(() => {
     if (!trip) return []
     const day = trip.days[activeDayIndex]
     if (!day) return []
     return day.items
-      .map((item) => getPlaceById(item.placeId))
+      .map((item) => getAnyPlaceById(item.placeId))
       .filter((p): p is Place => p !== undefined)
   }, [trip, activeDayIndex])
+
+  // 지도에서 장소를 클릭하여 일정에 추가
+  const handleAddPlaceFromMap = (placeId: string) => {
+    if (!trip) return
+    const currentDay = trip.days[activeDayIndex]
+    if (!currentDay) return
+    // 이미 추가된 장소인지 확인
+    const alreadyAdded = currentDay.items.some((item) => item.placeId === placeId)
+    if (alreadyAdded) return
+    useScheduleStore.getState().addItem(trip.id, currentDay.id, placeId)
+  }
 
   return (
     <div className="flex h-screen flex-col pt-14" data-testid="planner-page">
@@ -114,8 +129,10 @@ export function PlannerPage() {
             center={cityConfig.center}
             zoom={cityConfig.zoom}
             places={currentDayPlaces}
+            allCityPlaces={allCityPlaces}
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={setSelectedPlaceId}
+            onAddPlace={handleAddPlaceFromMap}
           />
         </main>
       </div>

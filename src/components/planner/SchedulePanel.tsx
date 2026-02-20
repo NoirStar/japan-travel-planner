@@ -18,7 +18,7 @@ import {
 import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront, Calendar, Share2, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
-import { getPlaceById } from "@/data/places"
+import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { getCityConfig } from "@/data/mapConfig"
 import { estimateTravel, formatTravelTime, formatDistance } from "@/lib/utils"
 import type { TransportMode } from "@/lib/utils"
@@ -73,7 +73,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const activeItem = activeItemId
     ? items.find((i) => i.id === activeItemId)
     : null
-  const activePlace = activeItem ? getPlaceById(activeItem.placeId) : null
+  const activePlace = activeItem ? getAnyPlaceById(activeItem.placeId) : null
   const activeIndex = activeItem
     ? items.findIndex((i) => i.id === activeItemId)
     : -1
@@ -175,12 +175,12 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
               <div className="flex flex-col">
                 {items.map((item, index) => {
-                  const place = getPlaceById(item.placeId)
+                  const place = getAnyPlaceById(item.placeId)
                   if (!place) return null
 
                   // 이전 장소와의 이동시간 커넥터
                   const prevItem = index > 0 ? items[index - 1] : null
-                  const prevPlace = prevItem ? getPlaceById(prevItem.placeId) : null
+                  const prevPlace = prevItem ? getAnyPlaceById(prevItem.placeId) : null
                   let travelMinutes = 0
                   let travelMode: TransportMode = "metro"
                   let distanceKm = 0
@@ -260,8 +260,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         // 총 이동시간 계산
         let totalTravelMinutes = 0
         for (let i = 1; i < items.length; i++) {
-          const prev = getPlaceById(items[i - 1].placeId)
-          const curr = getPlaceById(items[i].placeId)
+          const prev = getAnyPlaceById(items[i - 1].placeId)
+          const curr = getAnyPlaceById(items[i].placeId)
           if (prev && curr) {
             totalTravelMinutes += estimateTravel(
               prev.location.lat, prev.location.lng,

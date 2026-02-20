@@ -3,7 +3,7 @@ import { Star, Map, CheckCircle, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { WizardSelections, DayThemeId } from "@/types/wizard"
 import { DAY_THEMES } from "@/types/wizard"
-import { getPlaceById } from "@/data/places"
+import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { getPlacesForDayTheme } from "@/services/wizardEngine"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 import { THEME_ICONS } from "@/lib/categoryIcons"
@@ -108,7 +108,7 @@ export function TripSummary({ selections, onConfirm, onReset }: TripSummaryProps
 
 // ─── 장소 행 ─────────────────────────────────────────────
 function SummaryPlaceRow({ time, placeId }: { time: string; placeId: string }) {
-  const place = getPlaceById(placeId)
+  const place = getAnyPlaceById(placeId)
   if (!place) return null
 
   const PlaceIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other

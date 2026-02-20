@@ -18,6 +18,14 @@ interface DayTabsProps {
   onSelectDay: (index: number) => void
   onAddDay: () => void
   onRemoveDay: (dayId: string) => void
+  tripStartDate?: string | null
+}
+
+/** startDate 기준으로 dayIndex만큼 후의 날짜를 "M/D" 포맷으로 반환 */
+function getDayDateLabel(startDate: string, dayIndex: number): string {
+  const d = new Date(startDate)
+  d.setDate(d.getDate() + dayIndex)
+  return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
 export function DayTabs({
@@ -26,6 +34,7 @@ export function DayTabs({
   onSelectDay,
   onAddDay,
   onRemoveDay,
+  tripStartDate,
 }: DayTabsProps) {
   return (
     <div className="flex items-center gap-1.5 border-b border-border/50 px-4 py-2.5" data-testid="day-tabs">
@@ -44,6 +53,11 @@ export function DayTabs({
               data-testid={`day-tab-${day.dayNumber}`}
             >
               Day {day.dayNumber}
+              {tripStartDate && (
+                <span className={`ml-1 text-[10px] font-normal ${isActive ? "text-white/80" : "text-muted-foreground/60"}`}>
+                  {getDayDateLabel(tripStartDate, index)}
+                </span>
+              )}
             </button>
             {days.length > 1 && isActive && (
               <button

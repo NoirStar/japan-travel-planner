@@ -24,6 +24,8 @@ interface MapViewProps {
   places?: Place[]
   /** 도시의 모든 장소 (작은 마커로 표시) */
   allCityPlaces?: Place[]
+  /** 현재 활성 Day 인덱스 (경로 색상용) */
+  activeDayIndex?: number
   selectedPlaceId?: string | null
   onSelectPlace?: (placeId: string | null) => void
   /** 미추가 장소 클릭 시 일정에 추가하는 콜백 */
@@ -92,7 +94,7 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
   return null
 }
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], selectedPlaceId, onSelectPlace, onAddPlace }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -173,7 +175,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           ))}
 
           {/* 경로 폴리라인 */}
-          <RoutePolyline places={places} />
+          <RoutePolyline places={places} dayIndex={activeDayIndex} />
 
           {/* 자동 fitBounds */}
           <FitBoundsHelper places={fitPlaces} />

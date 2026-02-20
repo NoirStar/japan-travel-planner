@@ -54,19 +54,22 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
   const [isHovered, setIsHovered] = useState(false)
 
   const handleClick = useCallback(() => {
+    setIsHovered(false)
     onSelect?.()
   }, [onSelect])
 
-  // 마커 hover 이벤트 리스너
+  // 마커 hover 이벤트 리스너 (선택 상태일 때는 무시)
   useEffect(() => {
     if (!marker) return
-    const over = marker.addListener("mouseover", () => setIsHovered(true))
+    const over = marker.addListener("mouseover", () => {
+      if (!isSelected) setIsHovered(true)
+    })
     const out = marker.addListener("mouseout", () => setIsHovered(false))
     return () => {
       over.remove()
       out.remove()
     }
-  }, [marker])
+  }, [marker, isSelected])
 
   const color = CATEGORY_HEX[place.category] ?? "#6b7280"
   const iconUrl = useMemo(() => createPinSvg(color, !!isSelected), [color, isSelected])

@@ -1,0 +1,214 @@
+/**
+ * 로컬 개발용 API 서버.
+ * Vercel serverless function (api/*.ts) 대신 로컬에서 동일 로직 실행.
+ *
+ * 사용: node api-dev-server.mjs
+ * → http://localhost:3001 에서 /api/places-nearby, /api/places-search 처리
+ */
+import http from "http"
+import dotenv from "dotenv"
+import { fileURLToPath } from "url"
+import { dirname, join } from "path"
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: join(__dirname, ".env.local") })
+
+const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.VITE_GOOGLE_MAPS_API_KEY
+if (!API_KEY) {
+  console.error("❌ API key not found. Set VITE_GOOGLE_MAPS_API_KEY in .env.local")
+  process.exit(1)
+}
+
+// ── 도시 좌표 ───────────────────────────────────────────
+const CITY_CENTER = {
+  tokyo: { lat: 35.6762, lng: 139.6503 },
+  osaka: { lat: 34.6937, lng: 135.5023 },
+  kyoto: { lat: 35.0116, lng: 135.7681 },
+  fukuoka: { lat: 33.5904, lng: 130.4017 },
+}
+
+const CATEGORY_TYPES = {
+  attraction: ["tourist_attraction", "museum", "park", "cultural_landmark", "historical_landmark"],
+  restaurant: ["restaurant", "japanese_restaurant", "ramen_restaurant", "sushi_restaurant"],
+  cafe: ["cafe", "coffee_shop", "bakery"],
+  shopping: ["shopping_mall", "market", "department_store"],
+}
+
+function mapGoogleType(types) {
+  const s = new Set(types)
+  if (s.has("restaurant") || s.has("food") || s.has("japanese_restaurant") || s.has("ramen_restaurant") || s.has("sushi_restaurant")) return "restaurant"
+  if (s.has("cafe") || s.has("bakery") || s.has("coffee_shop")) return "cafe"
+  if (s.has("lodging") || s.has("hotel")) return "accommodation"
+  if (s.has("shopping_mall") || s.has("store") || s.has("clothing_store") || s.has("department_store") || s.has("market")) return "shopping"
+  if (s.has("transit_station") || s.has("train_station")) return "transport"
+  return "attraction"
+}
+
+// ── 핸들러: /api/places-nearby ──────────────────────────
+async function handleNearby(body) {
+  const { cityId, category } = body
+  const center = CITY_CENTER[cityId]
+  if (!center) return { status: 400, data: { error: "Invalid cityId" } }
+
+  const includedTypes = category && CATEGORY_TYPES[category]
+    ? CATEGORY_TYPES[category]
+    : [...CATEGORY_TYPES.attraction, ...CATEGORY_TYPES.restaurant, ...CATEGORY_TYPES.cafe]
+
+  const requestBody = {
+    includedTypes,
+    locationRestriction: {
+      circle: {
+        center: { latitude: center.lat, longitude: center.lng },
+        radius: 15000,
+      },
+    },
+    maxResultCount: 20,
+    rankPreference: "POPULARITY",
+    languageCode: "ja",
+  }
+
+  const res = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": API_KEY,
+      "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.rating,places.types,places.formattedAddress,places.photos,places.userRatingCount,places.editorialSummary",
+    },
+    body: JSON.stringify(requestBody),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    console.error("Google Nearby API error:", res.status, err)
+    return { status: 502, data: { error: "Google Places API error", details: err } }
+  }
+
+  const data = await res.json()
+  const places = (data.places ?? []).map((p) => {
+    let image
+    if (p.photos?.[0]) {
+      image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${API_KEY}`
+    }
+    return {
+      id: `google-${p.id}`,
+      name: p.displayName?.text ?? "",
+      nameEn: p.displayName?.text ?? "",
+      category: mapGoogleType(p.types ?? []),
+      location: { lat: p.location?.latitude ?? 0, lng: p.location?.longitude ?? 0 },
+      rating: p.rating,
+      ratingCount: p.userRatingCount,
+      address: p.formattedAddress,
+      description: p.editorialSummary?.text ?? p.formattedAddress,
+      image,
+      googlePlaceId: p.id,
+    }
+  })
+
+  return { status: 200, data: { places } }
+}
+
+// ── 핸들러: /api/places-search ──────────────────────────
+async function handleSearch(body) {
+  const { query, cityId } = body
+  if (!query) return { status: 400, data: { error: "query required" } }
+
+  const center = CITY_CENTER[cityId] ?? CITY_CENTER.tokyo
+
+  const requestBody = {
+    textQuery: query,
+    locationBias: {
+      circle: {
+        center: { latitude: center.lat, longitude: center.lng },
+        radius: 20000,
+      },
+    },
+    maxResultCount: 10,
+    languageCode: "ja",
+  }
+
+  const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": API_KEY,
+      "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.rating,places.types,places.formattedAddress,places.photos,places.userRatingCount,places.editorialSummary",
+    },
+    body: JSON.stringify(requestBody),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    console.error("Google Text Search API error:", res.status, err)
+    return { status: 502, data: { error: "Google Places API error", details: err } }
+  }
+
+  const data = await res.json()
+  const places = (data.places ?? []).map((p) => {
+    let image
+    if (p.photos?.[0]) {
+      image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${API_KEY}`
+    }
+    return {
+      id: `google-${p.id}`,
+      name: p.displayName?.text ?? "",
+      nameEn: p.displayName?.text ?? "",
+      category: mapGoogleType(p.types ?? []),
+      location: { lat: p.location?.latitude ?? 0, lng: p.location?.longitude ?? 0 },
+      rating: p.rating,
+      ratingCount: p.userRatingCount,
+      address: p.formattedAddress,
+      description: p.editorialSummary?.text ?? p.formattedAddress,
+      image,
+      googlePlaceId: p.id,
+    }
+  })
+
+  return { status: 200, data: { places } }
+}
+
+// ── HTTP 서버 ───────────────────────────────────────────
+const server = http.createServer(async (req, res) => {
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*")
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+
+  if (req.method === "OPTIONS") { res.writeHead(200); res.end(); return }
+
+  if (req.method !== "POST") {
+    res.writeHead(405, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ error: "Method not allowed" }))
+    return
+  }
+
+  // body 읽기
+  let body = ""
+  for await (const chunk of req) body += chunk
+  let json = {}
+  try { json = JSON.parse(body) } catch { /* empty */ }
+
+  let result
+  try {
+    if (req.url === "/api/places-nearby") {
+      result = await handleNearby(json)
+    } else if (req.url === "/api/places-search") {
+      result = await handleSearch(json)
+    } else {
+      result = { status: 404, data: { error: "Not found" } }
+    }
+  } catch (e) {
+    console.error("Handler error:", e)
+    result = { status: 500, data: { error: e.message } }
+  }
+
+  res.writeHead(result.status, { "Content-Type": "application/json" })
+  res.end(JSON.stringify(result.data))
+})
+
+const PORT = 3001
+server.listen(PORT, () => {
+  console.log(`\n🚀 API dev server running at http://localhost:${PORT}`)
+  console.log(`   ├─ POST /api/places-nearby   (Google Nearby Search)`)
+  console.log(`   └─ POST /api/places-search   (Google Text Search)`)
+  console.log(`   API Key: ${API_KEY.slice(0, 10)}...${API_KEY.slice(-4)}\n`)
+})

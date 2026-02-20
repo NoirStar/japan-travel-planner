@@ -43,6 +43,18 @@ const CATEGORY_GRADIENT: Record<string, string> = {
   other: "from-gray-400 to-slate-400",
 }
 
+/** 시간대(아침/오전/점심 등) 분류 */
+function getTimeSlotLabel(time: string): { label: string; color: string } | null {
+  if (!time) return null
+  const [h] = time.split(":").map(Number)
+  if (h >= 6 && h < 9) return { label: "아침", color: "text-orange-500" }
+  if (h >= 9 && h < 12) return { label: "오전", color: "text-sky-500" }
+  if (h >= 12 && h < 14) return { label: "점심", color: "text-amber-600" }
+  if (h >= 14 && h < 17) return { label: "오후", color: "text-emerald-500" }
+  if (h >= 17 && h < 20) return { label: "저녁", color: "text-indigo" }
+  return { label: "밤", color: "text-violet-500" }
+}
+
 export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
   function PlaceCard(
     { place, index, onRemove, startTime, memo, onStartTimeChange, onMemoChange, isSelected, onClick, dragHandleListeners, dragHandleAttributes, style, isDragging },
@@ -71,6 +83,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         } ${isDragging ? "opacity-50 shadow-xl ring-2 ring-sakura-dark scale-[1.02]" : ""}`}
         style={style}
         data-testid={`place-card-${index}`}
+        data-place-id={place.id}
         onClick={onClick}
       >
         {/* 좌측 컬러 스트라이프 */}
@@ -143,6 +156,16 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                   {startTime || "시간 설정"}
                 </button>
               )}
+
+              {/* 시간대 레이블 */}
+              {startTime && (() => {
+                const slot = getTimeSlotLabel(startTime)
+                return slot ? (
+                  <span className={`text-[10px] font-semibold ${slot.color}`} data-testid={`time-slot-${index}`}>
+                    {slot.label}
+                  </span>
+                ) : null
+              })()}
 
               <span className="rounded-full bg-muted/80 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                 {categoryLabel}

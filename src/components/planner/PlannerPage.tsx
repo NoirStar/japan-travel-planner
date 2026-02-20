@@ -160,6 +160,7 @@ export function PlannerPage() {
             zoom={cityConfig.zoom}
             places={currentDayPlaces}
             allCityPlaces={allCityPlaces}
+            activeDayIndex={activeDayIndex}
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={setSelectedPlaceId}
             onAddPlace={handleAddPlaceFromMap}

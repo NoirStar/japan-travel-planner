@@ -58,19 +58,22 @@ export function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerP
   const [isHovered, setIsHovered] = useState(false)
 
   const handleClick = useCallback(() => {
+    setIsHovered(false)
     onSelect?.()
   }, [onSelect])
 
-  // 마커 hover 이벤트 리스너
+  // 마커 hover 이벤트 리스너 (선택 상태일 때는 무시)
   useEffect(() => {
     if (!marker) return
-    const over = marker.addListener("mouseover", () => setIsHovered(true))
+    const over = marker.addListener("mouseover", () => {
+      if (!isSelected) setIsHovered(true)
+    })
     const out = marker.addListener("mouseout", () => setIsHovered(false))
     return () => {
       over.remove()
       out.remove()
     }
-  }, [marker])
+  }, [marker, isSelected])
 
   const colors = CATEGORY_COLORS[place.category] ?? CATEGORY_COLORS.other
   const iconUrl = useMemo(() => createBalloonSvg(index + 1, colors, !!isSelected), [index, colors, isSelected])

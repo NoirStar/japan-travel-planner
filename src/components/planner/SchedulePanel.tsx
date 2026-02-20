@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   DndContext,
   DragOverlay,
@@ -15,7 +15,8 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront, Calendar, Share2, Check } from "lucide-react"
+import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
@@ -41,9 +42,55 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip } = useScheduleStore()
 
+  /** 날짜 변경 시 Day 수 자동 조정 */
+  const handleDateChange = (field: "startDate" | "endDate", value: string) => {
+    if (!trip) return
+    updateTrip(trip.id, { [field]: value })
+
+    // 양쪽 날짜가 모두 설정된 경우 Day 수 조정
+    const start = field === "startDate" ? value : trip.startDate
+    const end = field === "endDate" ? value : trip.endDate
+    if (!start || !end) return
+
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+    const diffDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    if (diffDays < 1 || diffDays > 30) return // 비정상 범위 무시
+
+    const currentDays = trip.days.length
+    if (diffDays > currentDays) {
+      // Day 추가
+      for (let i = currentDays; i < diffDays; i++) {
+        addDay(trip.id)
+      }
+    } else if (diffDays < currentDays) {
+      // 뒤쪽 Day부터 삭제 (일정이 있는 Day는 경고 없이 삭제)
+      const latestTrip = useScheduleStore.getState().trips.find((t) => t.id === trip.id)
+      if (latestTrip) {
+        for (let i = latestTrip.days.length - 1; i >= diffDays; i--) {
+          removeDay(trip.id, latestTrip.days[i].id)
+        }
+      }
+      if (activeDayIndex >= diffDays) {
+        onActiveDayIndexChange(diffDays - 1)
+      }
+    }
+  }
+
   const [isPlaceSheetOpen, setIsPlaceSheetOpen] = useState(false)
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
+
+  // 마커 클릭 시 해당 카드로 자동 스크롤
+  useEffect(() => {
+    if (!selectedPlaceId || !scrollContainerRef.current) return
+    const card = scrollContainerRef.current.querySelector(`[data-place-id="${selectedPlaceId}"]`)
+    if (card) {
+      card.scrollIntoView({ behavior: "smooth", block: "center" })
+    }
+  }, [selectedPlaceId])
 
   // ── DnD 센서 ──────────────────────────────────────────
   const sensors = useSensors(
@@ -130,7 +177,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           <input
             type="date"
             value={trip.startDate ?? ""}
-            onChange={(e) => updateTrip(trip.id, { startDate: e.target.value })}
+            onChange={(e) => handleDateChange("startDate", e.target.value)}
             className="h-6 rounded bg-muted/60 px-1.5 text-[11px] text-foreground outline-none ring-1 ring-border/50 focus:ring-sakura/50"
             data-testid="trip-start-date"
           />
@@ -138,10 +185,14 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           <input
             type="date"
             value={trip.endDate ?? ""}
-            onChange={(e) => updateTrip(trip.id, { endDate: e.target.value })}
+            onChange={(e) => handleDateChange("endDate", e.target.value)}
             className="h-6 rounded bg-muted/60 px-1.5 text-[11px] text-foreground outline-none ring-1 ring-border/50 focus:ring-sakura/50"
             data-testid="trip-end-date"
           />
+          <span className="ml-auto flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">
+            <Save className="h-3 w-3" />
+            자동 저장
+          </span>
         </div>
       </div>
 
@@ -152,10 +203,11 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         onSelectDay={onActiveDayIndexChange}
         onAddDay={handleAddDay}
         onRemoveDay={handleRemoveDay}
+        tripStartDate={trip.startDate}
       />
 
       {/* 일정 카드 리스트 */}
-      <div className="flex-1 overflow-y-auto p-4" data-testid="schedule-items">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4" data-testid="schedule-items">
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16 text-center text-muted-foreground">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted/50">
@@ -289,7 +341,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           장소 추가
         </button>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 gap-2 rounded-xl border-border/60" size="lg">
+          <Button variant="outline" className="flex-1 gap-2 rounded-xl border-border/60" size="lg" onClick={() => navigate(`/wizard?city=${cityId}`)}>
             <Bot className="h-4 w-4" />
             AI 추천
           </Button>

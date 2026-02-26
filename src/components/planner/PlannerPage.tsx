@@ -27,10 +27,10 @@ export function PlannerPage() {
   // 공유 링크에서 여행 데이터 복원
   useEffect(() => {
     if (!shareId || initialized.current) return
-    initialized.current = true
 
     const sharedTrip = decodeTrip(shareId)
     if (sharedTrip) {
+      initialized.current = true
       // 동일 공유 트립이 이미 있는지 확인
       const existing = trips.find((t) => t.id === sharedTrip.id)
       if (existing) {
@@ -71,7 +71,7 @@ export function PlannerPage() {
   const cityConfig = getCityConfig(cityId)
 
   useEffect(() => {
-    if (initialized.current || shareId) return
+    if (initialized.current) return
     initialized.current = true
 
     const existingTrip = trips.find((t) => t.cityId === cityId)
@@ -80,7 +80,7 @@ export function PlannerPage() {
     } else {
       createTrip(cityId, `${cityConfig.name} 여행`)
     }
-  }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip, shareId])
+  }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip])
 
   // 도시의 전체 장소 목록 (큐레이션 + Google Nearby)
   const curatedPlaces = useMemo(() => getPlacesByCity(cityId), [cityId])

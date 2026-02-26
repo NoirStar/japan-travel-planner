@@ -35,6 +35,7 @@ function renderWithRoute(route = "/planner") {
     <MemoryRouter initialEntries={[route]}>
       <Routes>
         <Route path="/planner" element={<PlannerPage />} />
+        <Route path="/planner/:shareId" element={<PlannerPage />} />
       </Routes>
     </MemoryRouter>,
   )
@@ -64,6 +65,12 @@ describe("PlannerPage", () => {
   it("city=kyoto 파라미터로 교토가 표시된다", () => {
     renderWithRoute("/planner?city=kyoto")
     expect(screen.getByText(/교토 여행/)).toBeInTheDocument()
+  })
+
+  it("잘못된 share 링크에서도 기본 플래너가 초기화된다", () => {
+    renderWithRoute("/planner/invalid-share-id")
+    expect(screen.getByTestId("schedule-panel")).toBeInTheDocument()
+    expect(screen.getByText(/도쿄 여행/)).toBeInTheDocument()
   })
 
   it("장소 추가 버튼이 존재한다", () => {

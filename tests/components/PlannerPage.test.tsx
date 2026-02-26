@@ -17,6 +17,12 @@ vi.mock("@vis.gl/react-google-maps", () => ({
   useMapsLibrary: () => null,
 }))
 
+// placesService 모킹
+vi.mock("@/services/placesService", () => ({
+  fetchNearbyPlaces: vi.fn().mockResolvedValue([]),
+  searchGooglePlaces: vi.fn().mockResolvedValue([]),
+}))
+
 // 각 테스트 전 스토어 초기화
 beforeEach(() => {
   act(() => {

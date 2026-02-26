@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { render, screen, fireEvent } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { AIChatWizard } from "@/components/chat/AIChatWizard"
@@ -19,10 +19,15 @@ vi.mock("@vis.gl/react-google-maps", () => ({
 }))
 
 beforeEach(() => {
+  vi.useFakeTimers()
   act(() => {
     useWizardStore.getState().reset()
     useScheduleStore.setState({ trips: [], activeTripId: null })
   })
+})
+
+afterEach(() => {
+  vi.useRealTimers()
 })
 
 function renderWizard() {
@@ -57,52 +62,63 @@ describe("AIChatWizard", () => {
     expect(screen.getByTestId("city-option-fukuoka")).toBeInTheDocument()
   })
 
-  it("도시 선택 시 사용자 메시지가 추가되고 다음 스텝으로 진행한다", async () => {
+  it("도시 선택 시 사용자 메시지가 추가되고 다음 스텝으로 진행한다", () => {
     renderWizard()
     fireEvent.click(screen.getByTestId("city-option-tokyo"))
 
     // 사용자 메시지
     expect(screen.getByText("도쿄")).toBeInTheDocument()
 
-    // 잠시 후 AI 응답 + 다음 질문 (setTimeout 때문에 waitFor 사용)
-    await vi.waitFor(() => {
-      expect(screen.getByTestId("duration-step")).toBeInTheDocument()
-    }, { timeout: 2000 })
+    // 잠시 후 AI 응답 + 다음 질문
+    act(() => {
+      vi.runAllTimers()
+    })
+    expect(screen.getByTestId("duration-step")).toBeInTheDocument()
   })
 
-  it("기간 선택 후 스타일 선택으로 진행한다", async () => {
+  it("기간 선택 후 스타일 선택으로 진행한다", () => {
     renderWizard()
 
     // 도시 선택
     fireEvent.click(screen.getByTestId("city-option-osaka"))
-    await vi.waitFor(() => {
-      expect(screen.getByTestId("duration-step")).toBeInTheDocument()
-    }, { timeout: 2000 })
+    act(() => {
+      vi.runAllTimers()
+    })
+    expect(screen.getByTestId("duration-step")).toBeInTheDocument()
 
     // 기간 선택
     fireEvent.click(screen.getByTestId("duration-option-3"))
-    await vi.waitFor(() => {
-      expect(screen.getByTestId("style-step")).toBeInTheDocument()
-    }, { timeout: 2000 })
+    act(() => {
+      vi.runAllTimers()
+    })
+    expect(screen.getByTestId("style-step")).toBeInTheDocument()
   })
 
-  it("스타일 복수 선택 후 Day 테마로 진행한다", async () => {
+  it("스타일 복수 선택 후 Day 테마로 진행한다", () => {
     renderWizard()
 
     // 도시 → 기간
     fireEvent.click(screen.getByTestId("city-option-tokyo"))
-    await vi.waitFor(() => screen.getByTestId("duration-step"), { timeout: 2000 })
+    act(() => {
+      vi.runAllTimers()
+    })
+    expect(screen.getByTestId("duration-step")).toBeInTheDocument()
+    
     fireEvent.click(screen.getByTestId("duration-option-2"))
-    await vi.waitFor(() => screen.getByTestId("style-step"), { timeout: 2000 })
+    act(() => {
+      vi.runAllTimers()
+    })
+    expect(screen.getByTestId("style-step")).toBeInTheDocument()
 
     // 스타일 선택
     fireEvent.click(screen.getByTestId("style-option-foodie"))
     fireEvent.click(screen.getByTestId("style-option-sightseeing"))
     fireEvent.click(screen.getByTestId("style-confirm"))
 
-    await vi.waitFor(() => {
-      expect(screen.getByTestId("daytheme-step-1")).toBeInTheDocument()
-    }, { timeout: 2000 })
+    act(() => {
+      vi.runAllTimers()
+    })
+    expect(screen.getByTestId("daytheme-step-1")).toBeInTheDocument()
   })
 
   it("돌아가기 버튼이 존재한다", () => {

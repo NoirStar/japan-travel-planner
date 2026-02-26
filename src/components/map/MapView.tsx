@@ -101,12 +101,15 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
 
   // Google Maps 인증 실패 글로벌 콜백
   useEffect(() => {
-    const prev = (window as Record<string, unknown>).gm_authFailure as (() => void) | undefined
-    ;(window as Record<string, unknown>).gm_authFailure = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const prev = (window as any).gm_authFailure as (() => void) | undefined
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).gm_authFailure = () => {
       setMapError(true)
     }
     return () => {
-      ;(window as Record<string, unknown>).gm_authFailure = prev
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(window as any).gm_authFailure = prev
     }
   }, [])
 

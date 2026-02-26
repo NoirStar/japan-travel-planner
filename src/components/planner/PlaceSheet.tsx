@@ -37,7 +37,7 @@ export function PlaceSheet({
   const [searchMode, setSearchMode] = useState<"curated" | "google">("curated")
   const [googleResults, setGoogleResults] = useState<Place[]>([])
   const [isSearching, setIsSearching] = useState(false)
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { addItem } = useScheduleStore()
   const trip = useScheduleStore((s) => s.getActiveTrip())
 

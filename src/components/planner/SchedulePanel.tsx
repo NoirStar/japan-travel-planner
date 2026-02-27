@@ -16,7 +16,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save } from "lucide-react"
-import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
@@ -81,7 +80,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const navigate = useNavigate()
 
   // 마커 클릭 시 해당 카드로 자동 스크롤
   useEffect(() => {

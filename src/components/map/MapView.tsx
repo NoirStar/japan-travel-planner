@@ -30,6 +30,10 @@ interface MapViewProps {
   onSelectPlace?: (placeId: string | null) => void
   /** 미추가 장소 클릭 시 일정에 추가하는 콜백 */
   onAddPlace?: (placeId: string) => void
+  /** Google Maps 기본 POI 클릭 시 콜백 */
+  onPoiClick?: (placeId: string) => void
+  /** 현재 지도 영역에서 검색 */
+  onSearchArea?: (lat: number, lng: number) => void
 }
 
 function MapFallback({ errorType }: { errorType?: "no-key" | "api-error" }) {
@@ -94,7 +98,41 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
   return null
 }
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace }: MapViewProps) {
+function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number) => void }) {
+  const map = useMap()
+  const [show, setShow] = useState(false)
+
+  useEffect(() => {
+    if (!map) return
+    const listener = map.addListener("dragend", () => {
+      setShow(true)
+    })
+    return () => google.maps.event.removeListener(listener)
+  }, [map])
+
+  if (!show) return null
+
+  return (
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+      <button
+        onClick={() => {
+          if (!map) return
+          const center = map.getCenter()
+          if (center) {
+            onSearch(center.lat(), center.lng())
+            setShow(false)
+          }
+        }}
+        className="bg-background/90 backdrop-blur-sm text-foreground px-4 py-2 rounded-full shadow-md text-sm font-medium border border-border/50 hover:bg-background transition-colors flex items-center gap-2"
+      >
+        <MapPin className="w-4 h-4" />
+        현재 지도에서 검색
+      </button>
+    </div>
+  )
+}
+
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -154,6 +192,14 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           gestureHandling="greedy"
           disableDefaultUI={false}
           style={{ width: "100%", height: "100%" }}
+          onClick={(e) => {
+            if (e.detail.placeId) {
+              e.stop()
+              onPoiClick?.(e.detail.placeId)
+            } else {
+              onSelectPlace?.(null)
+            }
+          }}
         >
           {/* 도시의 미추가 장소 — 작은 마커 */}
           {unscheduledPlaces.map((place) => (
@@ -182,6 +228,9 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
 
           {/* 자동 fitBounds */}
           <FitBoundsHelper places={fitPlaces} />
+
+          {/* 현재 지도에서 검색 버튼 */}
+          {onSearchArea && <SearchAreaButton onSearch={onSearchArea} />}
         </Map>
       </APIProvider>
     </div>

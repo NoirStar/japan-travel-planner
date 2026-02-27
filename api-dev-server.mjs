@@ -46,9 +46,9 @@ function mapGoogleType(types) {
 
 // ── 핸들러: /api/places-nearby ──────────────────────────
 async function handleNearby(body) {
-  const { cityId, category } = body
-  const center = CITY_CENTER[cityId]
-  if (!center) return { status: 400, data: { error: "Invalid cityId" } }
+  const { cityId, category, lat, lng } = body
+  const center = (lat && lng) ? { lat, lng } : CITY_CENTER[cityId]
+  if (!center) return { status: 400, data: { error: "Invalid cityId or coordinates" } }
 
   const includedTypes = category && CATEGORY_TYPES[category]
     ? CATEGORY_TYPES[category]
@@ -166,6 +166,51 @@ async function handleSearch(body) {
   return { status: 200, data: { places } }
 }
 
+// ── 핸들러: /api/place-details ─────────────────────────
+async function handlePlaceDetails(body) {
+  const { placeId } = body
+  if (!placeId) return { status: 400, data: { error: "placeId required" } }
+
+  // google- 접두사가 있으면 제거
+  const realPlaceId = placeId.replace(/^google-/, "")
+
+  const res = await fetch(`https://places.googleapis.com/v1/places/${realPlaceId}`, {
+    method: "GET",
+    headers: {
+      "X-Goog-Api-Key": API_KEY,
+      "X-Goog-FieldMask": "id,displayName,location,rating,types,formattedAddress,photos,userRatingCount,editorialSummary",
+    },
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    console.error("Google Place Details API error:", res.status, err)
+    return { status: 502, data: { error: "Google Places API error", details: err } }
+  }
+
+  const p = await res.json()
+  let image
+  if (p.photos?.[0]) {
+    image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${API_KEY}`
+  }
+
+  const place = {
+    id: `google-${p.id}`,
+    name: p.displayName?.text ?? "",
+    nameEn: p.displayName?.text ?? "",
+    category: mapGoogleType(p.types ?? []),
+    location: { lat: p.location?.latitude ?? 0, lng: p.location?.longitude ?? 0 },
+    rating: p.rating,
+    ratingCount: p.userRatingCount,
+    address: p.formattedAddress,
+    description: p.editorialSummary?.text ?? p.formattedAddress,
+    image,
+    googlePlaceId: p.id,
+  }
+
+  return { status: 200, data: { place } }
+}
+
 // ── HTTP 서버 ───────────────────────────────────────────
 const server = http.createServer(async (req, res) => {
   // CORS
@@ -193,6 +238,8 @@ const server = http.createServer(async (req, res) => {
       result = await handleNearby(json)
     } else if (req.url === "/api/places-search") {
       result = await handleSearch(json)
+    } else if (req.url === "/api/place-details") {
+      result = await handlePlaceDetails(json)
     } else {
       result = { status: 404, data: { error: "Not found" } }
     }

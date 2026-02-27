@@ -47,14 +47,16 @@ export default async function handler(
   }
 
   try {
-    const { cityId, category } = req.body as {
-      cityId: string
+    const { cityId, category, lat, lng } = req.body as {
+      cityId?: string
       category?: string
+      lat?: number
+      lng?: number
     }
 
-    const center = CITY_CENTER[cityId]
+    const center = (lat && lng) ? { lat, lng } : (cityId ? CITY_CENTER[cityId] : undefined)
     if (!center) {
-      return res.status(400).json({ error: "Invalid cityId" })
+      return res.status(400).json({ error: "Invalid cityId or coordinates" })
     }
 
     const includedTypes = category && CATEGORY_TYPES[category]

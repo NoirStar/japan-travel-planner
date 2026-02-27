@@ -89,3 +89,31 @@ export async function fetchNearbyPlaces(
     return []
   }
 }
+
+/**
+ * Google Place ID로 장소 상세 정보를 가져옵니다.
+ */
+export async function fetchPlaceDetails(
+  placeId: string,
+  cityId: string = "tokyo",
+): Promise<Place | null> {
+  try {
+    const res = await fetch("/api/place-details", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ placeId }),
+    })
+
+    if (!res.ok) {
+      console.error("Place details failed:", res.status)
+      return null
+    }
+
+    const data = await res.json()
+    if (!data.place) return null
+    return toPlace(data.place, cityId)
+  } catch (error) {
+    console.error("Place details error:", error)
+    return null
+  }
+}

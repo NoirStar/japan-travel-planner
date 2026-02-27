@@ -9,7 +9,7 @@ import { getPlacesByCity } from "@/data/places"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
-import { fetchNearbyPlaces } from "@/services/placesService"
+import { fetchNearbyPlaces, fetchPlaceDetails } from "@/services/placesService"
 import type { Place } from "@/types/place"
 
 export function PlannerPage() {
@@ -134,6 +134,64 @@ export function PlannerPage() {
     useScheduleStore.getState().addItem(trip.id, currentDay.id, placeId)
   }
 
+  // Google Maps 기본 POI 클릭 처리
+  const handlePoiClick = async (googlePlaceId: string) => {
+    // 이미 로드된 장소인지 확인
+    const existing = allCityPlaces.find((p) => p.googlePlaceId === googlePlaceId || p.id === `google-${googlePlaceId}`)
+    if (existing) {
+      setSelectedPlaceId(existing.id)
+      return
+    }
+
+    // 새 장소 정보 가져오기
+    const place = await fetchPlaceDetails(googlePlaceId, cityId)
+    if (place) {
+      useDynamicPlaceStore.getState().addPlace(place)
+      setGooglePlaces((prev) => [...prev, place])
+      setSelectedPlaceId(place.id)
+    }
+  }
+
+  // 현재 지도 영역에서 장소 검색
+  const handleSearchArea = async (lat: number, lng: number) => {
+    try {
+      const res = await fetch("/api/places-nearby", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cityId, lat, lng }),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      const places: Place[] = (data.places ?? []).map((p: Place) => ({
+        id: p.id,
+        name: p.name,
+        nameEn: p.nameEn,
+        category: p.category,
+        cityId,
+        location: p.location,
+        rating: p.rating,
+        image: p.image,
+        description: p.description ?? p.address,
+        address: p.address,
+        googlePlaceId: p.googlePlaceId,
+      }))
+      
+      if (places.length > 0) {
+        const store = useDynamicPlaceStore.getState()
+        for (const p of places) {
+          store.addPlace(p)
+        }
+        setGooglePlaces((prev) => {
+          const existingIds = new Set(prev.map(p => p.id))
+          const newPlaces = places.filter((p: Place) => !existingIds.has(p.id))
+          return [...prev, ...newPlaces]
+        })
+      }
+    } catch (error) {
+      console.error("Search area error:", error)
+    }
+  }
+
   return (
     <div className="flex h-screen flex-col pt-14" data-testid="planner-page">
       {/* 데스크톱: 좌우 분할 / 모바일: 탭 전환 */}
@@ -164,6 +222,8 @@ export function PlannerPage() {
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={setSelectedPlaceId}
             onAddPlace={handleAddPlaceFromMap}
+            onPoiClick={handlePoiClick}
+            onSearchArea={handleSearchArea}
           />
         </main>
       </div>

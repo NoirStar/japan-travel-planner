@@ -175,7 +175,7 @@ async function handlePlaceDetails(body) {
   // google- 접두사가 있으면 제거
   const realPlaceId = placeId.replace(/^google-/, "")
 
-  const res = await fetch(`https://places.googleapis.com/v1/places/${realPlaceId}`, {
+  const res = await fetch(`https://places.googleapis.com/v1/places/${realPlaceId}?languageCode=ko`, {
     method: "GET",
     headers: {
       "X-Goog-Api-Key": API_KEY,

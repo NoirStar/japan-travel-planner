@@ -35,7 +35,7 @@ export default async function handler(
 
     const realPlaceId = placeId.replace(/^google-/, "")
 
-    const placesRes = await fetch(`https://places.googleapis.com/v1/places/${realPlaceId}`, {
+    const placesRes = await fetch(`https://places.googleapis.com/v1/places/${realPlaceId}?languageCode=ko`, {
       method: "GET",
       headers: {
         "X-Goog-Api-Key": apiKey,

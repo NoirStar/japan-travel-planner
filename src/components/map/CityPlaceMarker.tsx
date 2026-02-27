@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState, memo } from "react"
 import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
-import { Star, Plus } from "lucide-react"
+import { Star, Plus, ExternalLink, Clock } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
@@ -49,7 +49,7 @@ interface CityPlaceMarkerProps {
  * 호버 → 미니 툴팁 (사진+이름+별점)
  * 클릭 → 상세 InfoWindow + "일정에 추가"
  */
-export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
+export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
   const [markerRef, marker] = useMarkerRef()
   const [isHovered, setIsHovered] = useState(false)
 
@@ -99,28 +99,36 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
           headerDisabled
           onCloseClick={() => setIsHovered(false)}
         >
-          <div className="flex items-center gap-2 p-1 min-w-[160px]">
-            {place.image ? (
-              <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
-                <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
-              </div>
-            ) : (
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: color }}>
-                <CategoryIcon className="h-5 w-5 text-white" />
-              </div>
-            )}
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-gray-900 truncate">{place.name}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[10px] rounded px-1 py-px" style={{ backgroundColor: `${color}20`, color }}>{categoryLabel}</span>
-                {place.rating && (
-                  <span className="flex items-center gap-0.5 text-[10px] text-gray-600">
-                    <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
-                    {place.rating}
-                  </span>
-                )}
+          <div className="p-1 min-w-[180px] max-w-[240px]">
+            <div className="flex items-center gap-2">
+              {place.image ? (
+                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
+                  <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
+                </div>
+              ) : (
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: color }}>
+                  <CategoryIcon className="h-5 w-5 text-white" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-gray-900 truncate">{place.name}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[10px] rounded px-1 py-px" style={{ backgroundColor: `${color}20`, color }}>{categoryLabel}</span>
+                  {place.rating && (
+                    <span className="flex items-center gap-0.5 text-[10px] text-gray-600">
+                      <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                      {place.rating}
+                      {place.ratingCount && (
+                        <span className="text-gray-400">({place.ratingCount.toLocaleString()})</span>
+                      )}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
+            {place.description && (
+              <p className="mt-1.5 text-[10px] text-gray-500 line-clamp-2 leading-relaxed">{place.description}</p>
+            )}
           </div>
         </InfoWindow>
       )}
@@ -131,7 +139,7 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
           anchor={marker}
           onCloseClick={() => onSelect?.()}
         >
-          <div className="min-w-[200px] p-1.5">
+          <div className="min-w-[220px] max-w-[280px] p-1.5">
             {place.image && (
               <div className="mb-2 h-24 w-full overflow-hidden rounded-lg">
                 <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
@@ -142,20 +150,76 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
               <CategoryIcon className="h-4 w-4" style={{ color }} />
               <span className="text-sm font-bold text-gray-900">{place.name}</span>
             </div>
-            <p className="mt-0.5 text-xs text-gray-500">{place.nameEn}</p>
             <div className="mt-1 flex items-center gap-2 text-xs text-gray-600">
               <span className="rounded bg-gray-100 px-1.5 py-0.5">{categoryLabel}</span>
               {place.rating && (
                 <span className="flex items-center gap-0.5">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                   {place.rating}
+                  {place.ratingCount && (
+                    <span className="text-gray-400 text-[10px]">({place.ratingCount.toLocaleString()})</span>
+                  )}
                 </span>
               )}
             </div>
+            {place.address && (
+              <p className="mt-1 text-[11px] text-gray-500 line-clamp-1">{place.address}</p>
+            )}
             {place.description && (
-              <p className="mt-1.5 max-w-[220px] text-xs text-gray-500 line-clamp-2">
+              <p className="mt-1 max-w-[260px] text-xs text-gray-600 line-clamp-2">
                 {place.description}
               </p>
+            )}
+
+            {/* 영업시간 */}
+            {place.openingHours && place.openingHours.length > 0 && (
+              <details className="mt-2 text-[10px] text-gray-500">
+                <summary className="cursor-pointer flex items-center gap-1 font-medium text-gray-600">
+                  <Clock className="h-3 w-3" /> 영업시간
+                </summary>
+                <ul className="mt-1 space-y-0.5 pl-4">
+                  {place.openingHours.map((h, i) => (
+                    <li key={i}>{h}</li>
+                  ))}
+                </ul>
+              </details>
+            )}
+
+            {/* 웹사이트 */}
+            {place.websiteUri && (
+              <a
+                href={place.websiteUri}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" /> 웹사이트
+              </a>
+            )}
+
+            {/* 리뷰 */}
+            {place.reviews && place.reviews.length > 0 && (
+              <div className="mt-2 border-t border-gray-100 pt-2">
+                <p className="text-[11px] font-semibold text-gray-700 mb-1">리뷰</p>
+                <div className="space-y-1.5 max-h-[120px] overflow-y-auto">
+                  {place.reviews.slice(0, 3).map((review, i) => (
+                    <div key={i} className="text-[10px]">
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <span className="font-medium">{review.authorName}</span>
+                        <span className="flex items-center">
+                          {Array.from({ length: review.rating }).map((_, j) => (
+                            <Star key={j} className="h-2 w-2 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </span>
+                        <span className="text-gray-400">{review.relativeTime}</span>
+                      </div>
+                      {review.text && (
+                        <p className="text-gray-500 line-clamp-2 mt-0.5">{review.text}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
 
             <Button
@@ -175,4 +239,4 @@ export function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlac
       )}
     </>
   )
-}
+})

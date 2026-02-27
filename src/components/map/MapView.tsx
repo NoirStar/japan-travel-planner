@@ -3,7 +3,7 @@ import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star } from "lucide-react"
 import { PlaceMarker } from "./PlaceMarker"
 import { CityPlaceMarker } from "./CityPlaceMarker"
 import { RoutePolyline } from "./RoutePolyline"
@@ -38,6 +38,10 @@ interface MapViewProps {
   activeCategory?: string
   /** 카테고리 변경 콜백 */
   onCategoryChange?: (category: string | undefined) => void
+  /** 최소 별점 필터 */
+  minRating?: number
+  /** 최소 별점 변경 콜백 */
+  onMinRatingChange?: (rating: number | undefined) => void
 }
 
 function MapFallback({ errorType }: { errorType?: "no-key" | "api-error" }) {
@@ -187,6 +191,47 @@ function CategoryFilterBar({
   )
 }
 
+// ── 별점 필터 버튼 ────────────────────────────
+const RATING_OPTIONS = [
+  { value: undefined, label: "전체" },
+  { value: 3.5, label: "3.5+" },
+  { value: 4.0, label: "4.0+" },
+  { value: 4.5, label: "4.5+" },
+] as const
+
+function RatingFilterBar({
+  minRating,
+  onMinRatingChange,
+}: {
+  minRating?: number
+  onMinRatingChange: (rating: number | undefined) => void
+}) {
+  return (
+    <div className="absolute top-4 right-4 z-10 flex flex-col gap-1 bg-background/90 backdrop-blur-sm rounded-xl px-1.5 py-1.5 shadow-lg border border-border/50">
+      <div className="flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] text-muted-foreground font-medium">
+        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+        별점
+      </div>
+      {RATING_OPTIONS.map((opt) => {
+        const isActive = minRating === opt.value
+        return (
+          <button
+            key={opt.label}
+            onClick={() => onMinRatingChange(opt.value as number | undefined)}
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+              isActive
+                ? "bg-yellow-400 text-yellow-900 shadow-sm"
+                : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+            }`}
+          >
+            {opt.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── 간소화된 지도 스타일 (POI/대중교통 등 시각 노이즈 감소) ──
 const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
@@ -197,7 +242,7 @@ const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, activeCategory, onCategoryChange }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, activeCategory, onCategoryChange, minRating, onMinRatingChange }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -304,6 +349,14 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
             <CategoryFilterBar
               activeCategory={activeCategory}
               onCategoryChange={onCategoryChange}
+            />
+          )}
+
+          {/* 별점 필터 */}
+          {onMinRatingChange && (
+            <RatingFilterBar
+              minRating={minRating}
+              onMinRatingChange={onMinRatingChange}
             />
           )}
         </Map>

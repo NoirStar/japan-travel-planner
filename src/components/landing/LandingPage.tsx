@@ -29,17 +29,19 @@ const FEATURES = [
 /** 사쿠라 꽃잎 파티클 */
 function SakuraPetals() {
   return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      {Array.from({ length: 8 }).map((_, i) => (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0" style={{ background: "transparent" }}>
+      {Array.from({ length: 10 }).map((_, i) => (
         <span
           key={i}
           className="animate-sakura absolute select-none"
           style={{
-            left: `${10 + i * 12}%`,
-            animationDuration: `${8 + i * 2}s`,
-            animationDelay: `${i * 1.5}s`,
-            fontSize: `${14 + (i % 3) * 4}px`,
+            left: `${5 + i * 9.5}%`,
+            top: "-5%",
+            animationDuration: `${10 + i * 1.8}s`,
+            animationDelay: `${i * 2.2}s`,
+            fontSize: `${12 + (i % 4) * 3}px`,
             lineHeight: 1,
+            opacity: 0,
           }}
         >
           🌸

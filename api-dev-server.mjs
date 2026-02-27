@@ -46,7 +46,7 @@ function mapGoogleType(types) {
 
 // ── 핸들러: /api/places-nearby ──────────────────────────
 async function handleNearby(body) {
-  const { cityId, category, lat, lng } = body
+  const { cityId, category, lat, lng, minRating } = body
   const center = (lat && lng) ? { lat, lng } : CITY_CENTER[cityId]
   if (!center) return { status: 400, data: { error: "Invalid cityId or coordinates" } }
 
@@ -104,7 +104,8 @@ async function handleNearby(body) {
     }
   })
 
-  return { status: 200, data: { places } }
+  const filtered = minRating ? places.filter((p) => (p.rating ?? 0) >= minRating) : places
+  return { status: 200, data: { places: filtered } }
 }
 
 // ── 핸들러: /api/places-search ──────────────────────────
@@ -178,7 +179,7 @@ async function handlePlaceDetails(body) {
     method: "GET",
     headers: {
       "X-Goog-Api-Key": API_KEY,
-      "X-Goog-FieldMask": "id,displayName,location,rating,types,formattedAddress,photos,userRatingCount,editorialSummary",
+      "X-Goog-FieldMask": "id,displayName,location,rating,types,formattedAddress,photos,userRatingCount,editorialSummary,reviews,regularOpeningHours,websiteUri",
     },
   })
 
@@ -206,6 +207,14 @@ async function handlePlaceDetails(body) {
     description: p.editorialSummary?.text ?? p.formattedAddress,
     image,
     googlePlaceId: p.id,
+    reviews: (p.reviews ?? []).slice(0, 5).map((r) => ({
+      authorName: r.authorAttribution?.displayName ?? "익명",
+      rating: r.rating,
+      text: r.text?.text ?? "",
+      relativeTime: r.relativePublishTimeDescription ?? "",
+    })),
+    openingHours: p.regularOpeningHours?.weekdayDescriptions,
+    websiteUri: p.websiteUri,
   }
 
   return { status: 200, data: { place } }

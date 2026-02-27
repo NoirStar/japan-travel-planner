@@ -84,6 +84,7 @@ export function PlannerPage() {
   // 도시의 전체 장소 목록 (Google Nearby만 사용)
   const [googlePlaces, setGooglePlaces] = useState<Place[]>([])
   const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined)
+  const [minRating, setMinRating] = useState<number | undefined>(undefined)
   const nearbyLoaded = useRef<string>("")
 
   // 도시 진입 시 Google Places Nearby 데이터 자동 로드
@@ -105,10 +106,11 @@ export function PlannerPage() {
     })
   }, [cityId])
 
-  // Google 장소 목록 (중복 제거)
+  // Google 장소 목록 (별점 필터 적용)
   const allCityPlaces = useMemo(() => {
-    return googlePlaces
-  }, [googlePlaces])
+    if (!minRating) return googlePlaces
+    return googlePlaces.filter((p) => (p.rating ?? 0) >= minRating)
+  }, [googlePlaces, minRating])
 
   // 현재 Day의 장소 목록을 Place 객체로 변환
   const currentDayPlaces: Place[] = useMemo(() => {
@@ -155,7 +157,7 @@ export function PlannerPage() {
       const res = await fetch("/api/places-nearby", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cityId, lat, lng, category: activeCategory }),
+        body: JSON.stringify({ cityId, lat, lng, category: activeCategory, minRating }),
       })
       if (!res.ok) return
       const data = await res.json()
@@ -167,6 +169,7 @@ export function PlannerPage() {
         cityId,
         location: p.location,
         rating: p.rating,
+        ratingCount: p.ratingCount,
         image: p.image,
         description: p.description ?? p.address,
         address: p.address,
@@ -184,11 +187,16 @@ export function PlannerPage() {
     } catch (error) {
       console.error("Search area error:", error)
     }
-  }, [cityId, activeCategory])
+  }, [cityId, activeCategory, minRating])
 
   // 카테고리 변경 핸들러
   const handleCategoryChange = useCallback((category: string | undefined) => {
     setActiveCategory(category)
+  }, [])
+
+  // 최소 별점 변경 핸들러
+  const handleMinRatingChange = useCallback((rating: number | undefined) => {
+    setMinRating(rating)
   }, [])
 
   return (
@@ -225,6 +233,8 @@ export function PlannerPage() {
             onSearchArea={handleSearchArea}
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
+            minRating={minRating}
+            onMinRatingChange={handleMinRatingChange}
           />
         </main>
       </div>

@@ -39,7 +39,7 @@ export default async function handler(
       method: "GET",
       headers: {
         "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "id,displayName,location,rating,types,formattedAddress,photos,userRatingCount,editorialSummary",
+        "X-Goog-FieldMask": "id,displayName,location,rating,types,formattedAddress,photos,userRatingCount,editorialSummary,reviews,regularOpeningHours,websiteUri",
       },
     })
 
@@ -59,6 +59,9 @@ export default async function handler(
       formattedAddress?: string
       photos?: { name: string }[]
       editorialSummary?: { text: string }
+      reviews?: { authorAttribution?: { displayName: string }; rating: number; text?: { text: string }; relativePublishTimeDescription: string }[]
+      regularOpeningHours?: { weekdayDescriptions: string[] }
+      websiteUri?: string
     }
 
     let image: string | undefined
@@ -81,6 +84,14 @@ export default async function handler(
       description: p.editorialSummary?.text ?? p.formattedAddress,
       image,
       googlePlaceId: p.id,
+      reviews: (p.reviews ?? []).slice(0, 5).map((r) => ({
+        authorName: r.authorAttribution?.displayName ?? "익명",
+        rating: r.rating,
+        text: r.text?.text ?? "",
+        relativeTime: r.relativePublishTimeDescription ?? "",
+      })),
+      openingHours: p.regularOpeningHours?.weekdayDescriptions,
+      websiteUri: p.websiteUri,
     }
 
     return res.status(200).json({ place })

@@ -47,11 +47,12 @@ export default async function handler(
   }
 
   try {
-    const { cityId, category, lat, lng } = req.body as {
+    const { cityId, category, lat, lng, minRating } = req.body as {
       cityId?: string
       category?: string
       lat?: number
       lng?: number
+      minRating?: number
     }
 
     const center = (lat && lng) ? { lat, lng } : (cityId ? CITY_CENTER[cityId] : undefined)
@@ -127,7 +128,8 @@ export default async function handler(
       }
     })
 
-    return res.status(200).json({ places })
+    const filtered = minRating ? places.filter((p: { rating?: number }) => (p.rating ?? 0) >= minRating) : places
+    return res.status(200).json({ places: filtered })
   } catch (error) {
     console.error("Nearby search error:", error)
     return res.status(500).json({ error: "서버 오류가 발생했습니다" })

@@ -1,4 +1,4 @@
-import type { Place } from "@/types/place"
+import type { Place, PlaceReview } from "@/types/place"
 import type { PlaceCategory } from "@/types/place"
 
 interface PlacesSearchResult {
@@ -13,6 +13,9 @@ interface PlacesSearchResult {
   description?: string
   image?: string
   googlePlaceId: string
+  reviews?: PlaceReview[]
+  openingHours?: string[]
+  websiteUri?: string
 }
 
 interface PlacesSearchResponse {
@@ -28,10 +31,14 @@ function toPlace(p: PlacesSearchResult, cityId: string): Place {
     cityId,
     location: p.location,
     rating: p.rating,
+    ratingCount: p.ratingCount,
     image: p.image,
     description: p.description ?? p.address,
     address: p.address,
     googlePlaceId: p.googlePlaceId,
+    reviews: p.reviews,
+    openingHours: p.openingHours,
+    websiteUri: p.websiteUri,
   }
 }
 
@@ -69,12 +76,13 @@ export async function searchGooglePlaces(
 export async function fetchNearbyPlaces(
   cityId: string,
   category?: string,
+  minRating?: number,
 ): Promise<Place[]> {
   try {
     const res = await fetch("/api/places-nearby", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cityId, category }),
+      body: JSON.stringify({ cityId, category, minRating }),
     })
 
     if (!res.ok) {

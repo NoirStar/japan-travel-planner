@@ -75,7 +75,7 @@ export default async function handler(
         },
       },
       maxResultCount: 10,
-      languageCode: "ja",
+      languageCode: "ko",
     }
 
     const placesRes = await fetch(PLACES_API_URL, {

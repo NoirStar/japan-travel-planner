@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
-import { MapPin } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee } from "lucide-react"
 import { PlaceMarker } from "./PlaceMarker"
 import { CityPlaceMarker } from "./CityPlaceMarker"
 import { RoutePolyline } from "./RoutePolyline"
@@ -34,6 +34,10 @@ interface MapViewProps {
   onPoiClick?: (placeId: string) => void
   /** 현재 지도 영역에서 검색 */
   onSearchArea?: (lat: number, lng: number) => void
+  /** 현재 활성 카테고리 필터 */
+  activeCategory?: string
+  /** 카테고리 변경 콜백 */
+  onCategoryChange?: (category: string | undefined) => void
 }
 
 function MapFallback({ errorType }: { errorType?: "no-key" | "api-error" }) {
@@ -75,16 +79,25 @@ function MapFallback({ errorType }: { errorType?: "no-key" | "api-error" }) {
   )
 }
 
-/** 장소가 있으면 모두 보이도록 지도 영역 조정 */
+/** 일정 장소가 있으면 최초 1회만 fitBounds. 검색 결과 변경 시에는 지도를 움직이지 않음 */
 function FitBoundsHelper({ places }: { places: Place[] }) {
   const map = useMap()
+  const hasFitted = useRef(false)
+  const prevPlaceCount = useRef(0)
 
   useEffect(() => {
     if (!map || places.length === 0) return
 
+    // 일정 장소 수가 변경될 때만 fitBounds (검색 결과가 아닌 스케줄 변경)
+    // 최초 로드 또는 일정에 장소가 추가/제거될 때만 동작
+    if (hasFitted.current && places.length === prevPlaceCount.current) return
+    
+    prevPlaceCount.current = places.length
+
     if (places.length === 1) {
       map.panTo(places[0].location)
-      map.setZoom(15)
+      if (!hasFitted.current) map.setZoom(15)
+      hasFitted.current = true
       return
     }
 
@@ -93,6 +106,7 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
       bounds.extend(p.location)
     }
     map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 })
+    hasFitted.current = true
   }, [map, places])
 
   return null
@@ -132,7 +146,58 @@ function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number) =
   )
 }
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea }: MapViewProps) {
+// ── 카테고리 필터 버튼 ────────────────────────────
+const CATEGORY_FILTERS = [
+  { id: undefined, label: "전체", icon: MapPin },
+  { id: "restaurant", label: "맛집", icon: Utensils },
+  { id: "attraction", label: "관광지", icon: Camera },
+  { id: "shopping", label: "쇼핑", icon: ShoppingBag },
+  { id: "cafe", label: "카페", icon: Coffee },
+  { id: "accommodation", label: "숙소", icon: Hotel },
+] as const
+
+function CategoryFilterBar({
+  activeCategory,
+  onCategoryChange,
+}: {
+  activeCategory?: string
+  onCategoryChange: (category: string | undefined) => void
+}) {
+  return (
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 bg-background/90 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-lg border border-border/50">
+      {CATEGORY_FILTERS.map((cat) => {
+        const Icon = cat.icon
+        const isActive = activeCategory === cat.id
+        return (
+          <button
+            key={cat.id ?? "all"}
+            onClick={() => onCategoryChange(cat.id as string | undefined)}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              isActive
+                ? "bg-sakura text-white shadow-sm"
+                : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+            }`}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            {cat.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── 간소화된 지도 스타일 (POI/대중교통 등 시각 노이즈 감소) ──
+const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "transit.line", stylers: [{ visibility: "simplified" }] },
+  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
+]
+
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, activeCategory, onCategoryChange }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -158,8 +223,8 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
     [allCityPlaces, scheduledIds],
   )
 
-  // fitBounds 대상: 일정 장소가 있으면 일정 장소, 없으면 모든 도시 장소
-  const fitPlaces = places.length > 0 ? places : allCityPlaces
+  // fitBounds 대상: 일정에 추가된 장소만 (검색 결과로 리셋하지 않음)
+  const fitPlaces = places
 
   if (!apiKey) {
     return (
@@ -192,6 +257,8 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           gestureHandling="greedy"
           disableDefaultUI={false}
           style={{ width: "100%", height: "100%" }}
+          styles={mapId ? undefined : CLEAN_MAP_STYLES}
+          clickableIcons={true}
           onClick={(e) => {
             if (e.detail.placeId) {
               e.stop()
@@ -231,6 +298,14 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
 
           {/* 현재 지도에서 검색 버튼 */}
           {onSearchArea && <SearchAreaButton onSearch={onSearchArea} />}
+
+          {/* 카테고리 필터 */}
+          {onCategoryChange && (
+            <CategoryFilterBar
+              activeCategory={activeCategory}
+              onCategoryChange={onCategoryChange}
+            />
+          )}
         </Map>
       </APIProvider>
     </div>

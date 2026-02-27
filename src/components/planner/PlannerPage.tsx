@@ -1,11 +1,10 @@
-import { useEffect, useRef, useMemo, useState } from "react"
+import { useEffect, useRef, useMemo, useState, useCallback } from "react"
 import { useSearchParams, useParams } from "react-router-dom"
 import { List, MapIcon } from "lucide-react"
 import { MapView } from "@/components/map/MapView"
 import { SchedulePanel } from "@/components/planner/SchedulePanel"
 import { getCityConfig } from "@/data/mapConfig"
 import { useScheduleStore } from "@/stores/scheduleStore"
-import { getPlacesByCity } from "@/data/places"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
@@ -82,9 +81,9 @@ export function PlannerPage() {
     }
   }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip])
 
-  // 도시의 전체 장소 목록 (큐레이션 + Google Nearby)
-  const curatedPlaces = useMemo(() => getPlacesByCity(cityId), [cityId])
+  // 도시의 전체 장소 목록 (Google Nearby만 사용)
   const [googlePlaces, setGooglePlaces] = useState<Place[]>([])
+  const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined)
   const nearbyLoaded = useRef<string>("")
 
   // 도시 진입 시 Google Places Nearby 데이터 자동 로드
@@ -102,16 +101,14 @@ export function PlannerPage() {
         }
       }
     }).catch(() => {
-      // Google API 실패 시 큐레이션만 사용
+      // Google API 실패 시 빈 상태
     })
   }, [cityId])
 
-  // 큐레이션 + Google 장소 통합 (중복 제거)
+  // Google 장소 목록 (중복 제거)
   const allCityPlaces = useMemo(() => {
-    const curatedIds = new Set(curatedPlaces.map((p) => p.id))
-    const uniqueGoogle = googlePlaces.filter((p) => !curatedIds.has(p.id))
-    return [...curatedPlaces, ...uniqueGoogle]
-  }, [curatedPlaces, googlePlaces])
+    return googlePlaces
+  }, [googlePlaces])
 
   // 현재 Day의 장소 목록을 Place 객체로 변환
   const currentDayPlaces: Place[] = useMemo(() => {
@@ -152,13 +149,13 @@ export function PlannerPage() {
     }
   }
 
-  // 현재 지도 영역에서 장소 검색
-  const handleSearchArea = async (lat: number, lng: number) => {
+  // 현재 지도 영역에서 장소 검색 (이전 결과 교체)
+  const handleSearchArea = useCallback(async (lat: number, lng: number) => {
     try {
       const res = await fetch("/api/places-nearby", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cityId, lat, lng }),
+        body: JSON.stringify({ cityId, lat, lng, category: activeCategory }),
       })
       if (!res.ok) return
       const data = await res.json()
@@ -181,16 +178,18 @@ export function PlannerPage() {
         for (const p of places) {
           store.addPlace(p)
         }
-        setGooglePlaces((prev) => {
-          const existingIds = new Set(prev.map(p => p.id))
-          const newPlaces = places.filter((p: Place) => !existingIds.has(p.id))
-          return [...prev, ...newPlaces]
-        })
+        // 이전 결과를 교체 (append가 아닌 replace)
+        setGooglePlaces(places)
       }
     } catch (error) {
       console.error("Search area error:", error)
     }
-  }
+  }, [cityId, activeCategory])
+
+  // 카테고리 변경 핸들러
+  const handleCategoryChange = useCallback((category: string | undefined) => {
+    setActiveCategory(category)
+  }, [])
 
   return (
     <div className="flex h-screen flex-col pt-14" data-testid="planner-page">
@@ -224,6 +223,8 @@ export function PlannerPage() {
             onAddPlace={handleAddPlaceFromMap}
             onPoiClick={handlePoiClick}
             onSearchArea={handleSearchArea}
+            activeCategory={activeCategory}
+            onCategoryChange={handleCategoryChange}
           />
         </main>
       </div>

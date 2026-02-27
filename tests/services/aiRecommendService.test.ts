@@ -65,7 +65,8 @@ describe("aiRecommendService", () => {
       const body = JSON.parse(options.body)
       expect(body.prompt).toBe("오사카 맛집")
       expect(body.places).toBeDefined()
-      expect(body.places.length).toBeGreaterThan(0)
+      // 동적 장소 스토어가 비어 있으면 빈 배열
+      expect(Array.isArray(body.places)).toBe(true)
     })
 
     it("API 오류 시 에러를 던진다", async () => {

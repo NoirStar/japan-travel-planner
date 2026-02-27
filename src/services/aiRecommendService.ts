@@ -1,7 +1,7 @@
 /**
  * aiRecommendService — AI 자연어 추천 API 호출 서비스
  */
-import { allPlaces } from "@/data/places"
+import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import type { Trip, DaySchedule, ScheduleItem } from "@/types/schedule"
 import { generateId } from "@/stores/scheduleStore"
 
@@ -34,7 +34,8 @@ const API_URL = import.meta.env.VITE_AI_API_URL || "/api/ai-recommend"
 export async function fetchAIRecommendation(
   prompt: string,
 ): Promise<AIRecommendResponse> {
-  const places = allPlaces.map((p) => ({
+  const dynamicPlaces = Object.values(useDynamicPlaceStore.getState().places)
+  const places = dynamicPlaces.map((p) => ({
     id: p.id,
     name: p.name,
     category: p.category,

@@ -73,7 +73,7 @@ export default async function handler(
       },
       maxResultCount: 20,
       rankPreference: "POPULARITY",
-      languageCode: "ja",
+      languageCode: "ko",
     }
 
     const placesRes = await fetch(NEARBY_API_URL, {

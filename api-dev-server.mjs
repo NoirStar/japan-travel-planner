@@ -64,7 +64,7 @@ async function handleNearby(body) {
     },
     maxResultCount: 20,
     rankPreference: "POPULARITY",
-    languageCode: "ja",
+    languageCode: "ko",
   }
 
   const res = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
@@ -123,7 +123,7 @@ async function handleSearch(body) {
       },
     },
     maxResultCount: 10,
-    languageCode: "ja",
+    languageCode: "ko",
   }
 
   const res = await fetch("https://places.googleapis.com/v1/places:searchText", {

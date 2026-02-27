@@ -1,11 +1,10 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { Place } from "@/types/place"
-import { getPlaceById as getCuratedPlaceById } from "@/data/places"
 
 /**
  * Google Places API에서 검색한 장소를 로컬에 저장하는 스토어.
- * 큐레이션 데이터에 없는 장소(google- prefix)를 관리합니다.
+ * 모든 장소 데이터는 Google Places API를 통해 동적으로 로드됩니다.
  */
 interface DynamicPlaceState {
   /** Google 등에서 추가된 동적 장소 */
@@ -27,10 +26,6 @@ export const useDynamicPlaceStore = create<DynamicPlaceState>()(
         })),
 
       getPlace: (id) => {
-        // 큐레이션 데이터 우선
-        const curated = getCuratedPlaceById(id)
-        if (curated) return curated
-        // 동적 장소 조회
         return get().places[id]
       },
     }),
@@ -41,11 +36,9 @@ export const useDynamicPlaceStore = create<DynamicPlaceState>()(
 )
 
 /**
- * 큐레이션 + 동적 장소를 모두 포함한 장소 조회.
+ * 동적 장소 조회 (모든 장소는 dinamicPlaceStore에서 관리).
  * PlaceCard, PlaceMarker 등에서 사용.
  */
 export function getAnyPlaceById(id: string): Place | undefined {
-  const curated = getCuratedPlaceById(id)
-  if (curated) return curated
   return useDynamicPlaceStore.getState().places[id]
 }

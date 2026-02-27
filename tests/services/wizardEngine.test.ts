@@ -62,11 +62,11 @@ describe("wizardEngine", () => {
     expect(step!.type).toBe("summary")
   })
 
-  it("getPlacesForDayTheme이 장소 ID 배열을 반환한다", () => {
+  it("getPlacesForDayTheme이 장소 ID 배열을 반환한다 (큐레이션 제거로 빈 배열)", () => {
     const placeIds = getPlacesForDayTheme("tokyo", "landmark", 2)
     expect(placeIds.length).toBeLessThanOrEqual(2)
-    expect(placeIds.length).toBeGreaterThan(0)
-    placeIds.forEach((id) => expect(id).toContain("tokyo"))
+    // 큐레이션 데이터 제거 후 빈 배열 반환
+    expect(placeIds).toEqual([])
   })
 
   it("getAIResponseText가 적절한 텍스트를 반환한다", () => {

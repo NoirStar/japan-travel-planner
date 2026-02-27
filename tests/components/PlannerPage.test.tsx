@@ -3,7 +3,9 @@ import { render, screen, fireEvent, within } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import { PlannerPage } from "@/components/planner/PlannerPage"
 import { useScheduleStore } from "@/stores/scheduleStore"
+import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import { act } from "@testing-library/react"
+import type { Place } from "@/types/place"
 
 // Google Maps 모킹
 vi.mock("@vis.gl/react-google-maps", () => ({
@@ -21,12 +23,53 @@ vi.mock("@vis.gl/react-google-maps", () => ({
 vi.mock("@/services/placesService", () => ({
   fetchNearbyPlaces: vi.fn().mockResolvedValue([]),
   searchGooglePlaces: vi.fn().mockResolvedValue([]),
+  fetchPlaceDetails: vi.fn().mockResolvedValue(null),
 }))
+
+// 테스트용 장소 데이터
+const testPlaces: Place[] = [
+  {
+    id: "test-place-1",
+    name: "테스트 관광지",
+    nameEn: "Test Attraction",
+    category: "attraction",
+    cityId: "tokyo",
+    location: { lat: 35.7148, lng: 139.7967 },
+    rating: 4.5,
+    description: "테스트용 관광지",
+  },
+  {
+    id: "test-place-2",
+    name: "테스트 신사",
+    nameEn: "Test Shrine",
+    category: "attraction",
+    cityId: "tokyo",
+    location: { lat: 35.6764, lng: 139.6993 },
+    rating: 4.6,
+    description: "테스트용 신사",
+  },
+  {
+    id: "test-restaurant",
+    name: "테스트 식당",
+    nameEn: "Test Restaurant",
+    category: "restaurant",
+    cityId: "tokyo",
+    location: { lat: 35.6654, lng: 139.7707 },
+    rating: 4.3,
+    description: "테스트용 식당",
+  },
+]
 
 // 각 테스트 전 스토어 초기화
 beforeEach(() => {
   act(() => {
     useScheduleStore.setState({ trips: [], activeTripId: null })
+    // 동적 장소 스토어에 테스트 데이터 로드
+    const placeMap: Record<string, Place> = {}
+    for (const p of testPlaces) {
+      placeMap[p.id] = p
+    }
+    useDynamicPlaceStore.setState({ places: placeMap })
   })
 })
 
@@ -112,13 +155,13 @@ describe("PlannerPage", () => {
     renderWithRoute()
     // 시트 열기
     fireEvent.click(screen.getAllByText("장소 추가")[0])
-    // 센소지 추가
-    const addBtn = screen.getByTestId("place-add-tokyo-sensoji")
+    // 장소 추가
+    const addBtn = screen.getByTestId("place-add-test-place-1")
     fireEvent.click(addBtn)
     // 시트 닫기
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
     // 카드가 표시됨
-    expect(screen.getByText("센소지")).toBeInTheDocument()
+    expect(screen.getByText("테스트 관광지")).toBeInTheDocument()
     expect(screen.getByTestId("place-card-0")).toBeInTheDocument()
   })
 
@@ -130,16 +173,16 @@ describe("PlannerPage", () => {
     // "맛집" 필터 클릭
     fireEvent.click(within(sheet).getByTestId("filter-restaurant"))
     const placeList = within(sheet).getByTestId("place-list")
-    // 맛집만 표시되어야 함 (츠키지 외시장, 이치란)
-    expect(within(placeList).getByText("츠키지 외시장")).toBeInTheDocument()
+    // 맛집만 표시되어야 함
+    expect(within(placeList).getByText("테스트 식당")).toBeInTheDocument()
     // 관광지는 표시되지 않아야 함
-    expect(within(placeList).queryByText("센소지")).not.toBeInTheDocument()
+    expect(within(placeList).queryByText("테스트 관광지")).not.toBeInTheDocument()
   })
 
   it("장소 추가 후 Day 요약이 표시된다", () => {
     renderWithRoute()
     fireEvent.click(screen.getAllByText("장소 추가")[0])
-    fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
+    fireEvent.click(screen.getByTestId("place-add-test-place-1"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
     expect(screen.getByTestId("day-summary")).toBeInTheDocument()
     expect(screen.getByText(/장소 1개/)).toBeInTheDocument()
@@ -149,12 +192,12 @@ describe("PlannerPage", () => {
     renderWithRoute()
     // 장소 추가
     fireEvent.click(screen.getAllByText("장소 추가")[0])
-    fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
+    fireEvent.click(screen.getByTestId("place-add-test-place-1"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
-    expect(screen.getByText("센소지")).toBeInTheDocument()
+    expect(screen.getByText("테스트 관광지")).toBeInTheDocument()
     // 삭제
     fireEvent.click(screen.getByTestId("place-remove-0"))
-    expect(screen.queryByText("센소지")).not.toBeInTheDocument()
+    expect(screen.queryByText("테스트 관광지")).not.toBeInTheDocument()
     expect(screen.getByText("아직 추가된 장소가 없습니다")).toBeInTheDocument()
   })
 
@@ -162,17 +205,17 @@ describe("PlannerPage", () => {
   it("장소 추가 시 드래그 핸들이 렌더링된다", () => {
     renderWithRoute()
     fireEvent.click(screen.getAllByText("장소 추가")[0])
-    fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
+    fireEvent.click(screen.getByTestId("place-add-test-place-1"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
     expect(screen.getByTestId("drag-handle-0")).toBeInTheDocument()
-    expect(screen.getByTestId("drag-handle-0")).toHaveAttribute("aria-label", "센소지 순서 변경")
+    expect(screen.getByTestId("drag-handle-0")).toHaveAttribute("aria-label", "테스트 관광지 순서 변경")
   })
 
   it("여러 장소 추가 시 각각 드래그 핸들이 존재한다", () => {
     renderWithRoute()
     fireEvent.click(screen.getAllByText("장소 추가")[0])
-    fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
-    fireEvent.click(screen.getByTestId("place-add-tokyo-meiji-shrine"))
+    fireEvent.click(screen.getByTestId("place-add-test-place-1"))
+    fireEvent.click(screen.getByTestId("place-add-test-place-2"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
     expect(screen.getByTestId("drag-handle-0")).toBeInTheDocument()
     expect(screen.getByTestId("drag-handle-1")).toBeInTheDocument()
@@ -182,8 +225,8 @@ describe("PlannerPage", () => {
     renderWithRoute()
     // 2개 장소 추가
     fireEvent.click(screen.getAllByText("장소 추가")[0])
-    fireEvent.click(screen.getByTestId("place-add-tokyo-sensoji"))
-    fireEvent.click(screen.getByTestId("place-add-tokyo-meiji-shrine"))
+    fireEvent.click(screen.getByTestId("place-add-test-place-1"))
+    fireEvent.click(screen.getByTestId("place-add-test-place-2"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
 
     // 스토어 직접 호출로 moveItem 검증
@@ -191,8 +234,8 @@ describe("PlannerPage", () => {
     const trip = state.getActiveTrip()!
     const day = trip.days[0]
     const firstItemId = day.items[0].id
-    expect(day.items[0].placeId).toBe("tokyo-sensoji")
-    expect(day.items[1].placeId).toBe("tokyo-meiji-shrine")
+    expect(day.items[0].placeId).toBe("test-place-1")
+    expect(day.items[1].placeId).toBe("test-place-2")
 
     // 첫 번째 아이템을 인덱스 1로 이동 (순서 바뀜)
     act(() => {
@@ -200,7 +243,7 @@ describe("PlannerPage", () => {
     })
 
     const updated = useScheduleStore.getState().getActiveTrip()!
-    expect(updated.days[0].items[0].placeId).toBe("tokyo-meiji-shrine")
-    expect(updated.days[0].items[1].placeId).toBe("tokyo-sensoji")
+    expect(updated.days[0].items[0].placeId).toBe("test-place-2")
+    expect(updated.days[0].items[1].placeId).toBe("test-place-1")
   })
 })

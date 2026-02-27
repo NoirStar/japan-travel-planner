@@ -32,14 +32,18 @@ describe("LandingPage", () => {
     expect(screen.getByText("나만의 완벽한 일본 여행을 계획하세요")).toBeInTheDocument()
   })
 
-  it("AI 추천 입력창이 존재한다", () => {
+  it("AI 추천 입력창이 비활성화 상태로 존재한다", () => {
     renderWithRouter()
-    expect(screen.getByLabelText("AI 추천 입력")).toBeInTheDocument()
+    const input = screen.getByLabelText("AI 추천 입력 (비활성화)")
+    expect(input).toBeInTheDocument()
+    expect(input).toBeDisabled()
   })
 
-  it("추천받기 버튼이 존재한다", () => {
+  it("추천받기 버튼이 비활성화 상태로 존재한다", () => {
     renderWithRouter()
-    expect(screen.getByLabelText("추천받기")).toBeInTheDocument()
+    const button = screen.getByLabelText("추천받기")
+    expect(button).toBeInTheDocument()
+    expect(button).toBeDisabled()
   })
 
   it("직접 만들기 버튼이 존재한다", () => {
@@ -55,38 +59,16 @@ describe("LandingPage", () => {
     expect(screen.getByText("후쿠오카")).toBeInTheDocument()
   })
 
-  it("추천받기 버튼이 항상 활성화 상태다", () => {
+  it("AI 추천 준비 중 안내 메시지가 표시된다", () => {
     renderWithRouter()
-    const button = screen.getByLabelText("추천받기")
-    expect(button).not.toBeDisabled()
+    expect(screen.getByText("AI 추천 기능은 현재 준비 중입니다")).toBeInTheDocument()
   })
 
-  it("추천받기 클릭 시 wizard 경로로 이동한다", () => {
+  it("비활성화된 추천받기 클릭 시 이동하지 않는다", () => {
     renderWithRouter()
     const button = screen.getByLabelText("추천받기")
     fireEvent.click(button)
-    // 입력 없이 클릭하면 /wizard로 이동
-    expect(mockNavigate).toHaveBeenCalledWith("/wizard")
-  })
-
-  it("프롬프트 입력 후 추천받기 클릭 시 쿼리 파라미터로 전달된다", () => {
-    renderWithRouter()
-    const input = screen.getByLabelText("AI 추천 입력")
-    fireEvent.change(input, { target: { value: "도쿄 맛집 2박3일" } })
-    fireEvent.click(screen.getByLabelText("추천받기"))
-    expect(mockNavigate).toHaveBeenCalledWith(
-      `/wizard?prompt=${encodeURIComponent("도쿄 맛집 2박3일")}`,
-    )
-  })
-
-  it("Enter 키로 추천받기가 작동한다", () => {
-    renderWithRouter()
-    const input = screen.getByLabelText("AI 추천 입력")
-    fireEvent.change(input, { target: { value: "오사카 여행" } })
-    fireEvent.keyDown(input, { key: "Enter" })
-    expect(mockNavigate).toHaveBeenCalledWith(
-      `/wizard?prompt=${encodeURIComponent("오사카 여행")}`,
-    )
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 
   it("도시 카드가 키보드 접근 가능하다", () => {

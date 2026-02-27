@@ -207,12 +207,13 @@ async function handlePlaceDetails(body) {
     description: p.editorialSummary?.text ?? p.formattedAddress,
     image,
     googlePlaceId: p.id,
-    reviews: (p.reviews ?? []).slice(0, 5).map((r) => ({
+    reviews: (p.reviews ?? []).slice(0, 10).map((r) => ({
       authorName: r.authorAttribution?.displayName ?? "익명",
       rating: r.rating,
       text: r.text?.text ?? "",
       relativeTime: r.relativePublishTimeDescription ?? "",
     })),
+    googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.id}`,
     openingHours: p.regularOpeningHours?.weekdayDescriptions,
     websiteUri: p.websiteUri,
   }

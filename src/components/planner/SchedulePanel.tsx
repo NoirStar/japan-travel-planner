@@ -341,7 +341,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           장소 추가
         </button>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 gap-2 rounded-xl border-border/60" size="lg" onClick={() => navigate(`/wizard?city=${cityId}`)}>
+          <Button variant="outline" className="flex-1 gap-2 rounded-xl border-border/60 opacity-50" size="lg" disabled title="AI 추천 기능 준비 중">
             <Bot className="h-4 w-4" />
             AI 추천
           </Button>

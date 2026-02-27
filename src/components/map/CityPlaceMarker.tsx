@@ -188,8 +188,8 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
             {place.reviews && place.reviews.length > 0 && (
               <div className="mt-2 border-t border-gray-100 pt-2">
                 <p className="text-[11px] font-semibold text-gray-700 mb-1">리뷰</p>
-                <div className="space-y-1.5 max-h-[120px] overflow-y-auto">
-                  {place.reviews.slice(0, 3).map((review, i) => (
+                <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+                  {place.reviews.map((review, i) => (
                     <div key={i} className="text-[10px]">
                       <div className="flex items-center gap-1 text-gray-600">
                         <span className="font-medium">{review.authorName}</span>
@@ -201,12 +201,24 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
                         <span className="text-gray-400">{review.relativeTime}</span>
                       </div>
                       {review.text && (
-                        <p className="text-gray-500 line-clamp-2 mt-0.5">{review.text}</p>
+                        <p className="text-gray-500 line-clamp-3 mt-0.5">{review.text}</p>
                       )}
                     </div>
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* Google Maps 링크 */}
+            {place.googlePlaceId && (
+              <a
+                href={`https://www.google.com/maps/place/?q=place_id:${place.googlePlaceId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" /> Google Maps에서 보기
+              </a>
             )}
 
             <Button

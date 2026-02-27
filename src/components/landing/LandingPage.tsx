@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Sparkles, Pencil, Send, MapPin, Calendar, Utensils, Camera } from "lucide-react"
@@ -52,22 +51,7 @@ function SakuraPetals() {
 }
 
 export function LandingPage() {
-  const [prompt, setPrompt] = useState("")
   const navigate = useNavigate()
-
-  const handleAIRecommend = () => {
-    if (prompt.trim()) {
-      navigate(`/wizard?prompt=${encodeURIComponent(prompt.trim())}`)
-    } else {
-      navigate("/wizard")
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleAIRecommend()
-    }
-  }
 
   const handleCustom = () => {
     navigate("/planner")
@@ -109,36 +93,25 @@ export function LandingPage() {
           </p>
         </motion.div>
 
-        {/* AI 입력 */}
-        <motion.div className="mb-5 w-full max-w-xl" variants={itemVariants}>
+        {/* AI 입력 — 비활성화 */}
+        <motion.div className="mb-5 w-full max-w-xl opacity-50 pointer-events-none" variants={itemVariants}>
           <div className="glass relative flex items-center gap-2 rounded-2xl p-2 shadow-lg shadow-sakura/10">
-            <Sparkles className="pointer-events-none ml-3 h-5 w-5 shrink-0 text-sakura-dark dark:text-sakura" />
+            <Sparkles className="pointer-events-none ml-3 h-5 w-5 shrink-0 text-muted-foreground" />
             <Input
-              placeholder='"도쿄 2박3일 맛집 위주로 추천해줘"'
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={handleKeyDown}
+              placeholder="AI 추천 기능 준비 중..."
+              disabled
               className="h-12 border-0 bg-transparent text-base shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/50"
-              aria-label="AI 추천 입력"
+              aria-label="AI 추천 입력 (비활성화)"
             />
             <button
-              onClick={handleAIRecommend}
-              className="btn-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+              disabled
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted"
               aria-label="추천받기"
             >
-              <Send className="h-4 w-4 text-white" />
+              <Send className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
-        </motion.div>
-
-        {/* 또는 */}
-        <motion.div
-          className="mb-5 flex items-center gap-4 text-muted-foreground"
-          variants={itemVariants}
-        >
-          <div className="h-px w-12 bg-gradient-to-r from-transparent to-border" />
-          <span className="text-xs font-medium">또는</span>
-          <div className="h-px w-12 bg-gradient-to-l from-transparent to-border" />
+          <p className="text-center text-[11px] text-muted-foreground/60 mt-1.5">AI 추천 기능은 현재 준비 중입니다</p>
         </motion.div>
 
         {/* 커스텀 만들기 */}

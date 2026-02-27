@@ -3,7 +3,7 @@ import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search } from "lucide-react"
 import { PlaceMarker } from "./PlaceMarker"
 import { CityPlaceMarker } from "./CityPlaceMarker"
 import { RoutePolyline } from "./RoutePolyline"
@@ -42,6 +42,8 @@ interface MapViewProps {
   minRating?: number
   /** 최소 별점 변경 콜백 */
   onMinRatingChange?: (rating: number | undefined) => void
+  /** 마커 초기화 콜백 */
+  onClearMarkers?: () => void
 }
 
 function MapFallback({ errorType }: { errorType?: "no-key" | "api-error" }) {
@@ -83,25 +85,19 @@ function MapFallback({ errorType }: { errorType?: "no-key" | "api-error" }) {
   )
 }
 
-/** 일정 장소가 있으면 최초 1회만 fitBounds. 검색 결과 변경 시에는 지도를 움직이지 않음 */
+/** 일정 장소가 있으면 최초 1회만 fitBounds. 이후 절대 지도 이동하지 않음 */
 function FitBoundsHelper({ places }: { places: Place[] }) {
   const map = useMap()
   const hasFitted = useRef(false)
-  const prevPlaceCount = useRef(0)
 
   useEffect(() => {
-    if (!map || places.length === 0) return
+    if (!map || places.length === 0 || hasFitted.current) return
 
-    // 일정 장소 수가 변경될 때만 fitBounds (검색 결과가 아닌 스케줄 변경)
-    // 최초 로드 또는 일정에 장소가 추가/제거될 때만 동작
-    if (hasFitted.current && places.length === prevPlaceCount.current) return
-    
-    prevPlaceCount.current = places.length
+    hasFitted.current = true
 
     if (places.length === 1) {
       map.panTo(places[0].location)
-      if (!hasFitted.current) map.setZoom(15)
-      hasFitted.current = true
+      map.setZoom(15)
       return
     }
 
@@ -110,7 +106,6 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
       bounds.extend(p.location)
     }
     map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 })
-    hasFitted.current = true
   }, [map, places])
 
   return null
@@ -118,17 +113,6 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
 
 function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number) => void }) {
   const map = useMap()
-  const [show, setShow] = useState(false)
-
-  useEffect(() => {
-    if (!map) return
-    const listener = map.addListener("dragend", () => {
-      setShow(true)
-    })
-    return () => google.maps.event.removeListener(listener)
-  }, [map])
-
-  if (!show) return null
 
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
@@ -138,12 +122,11 @@ function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number) =
           const center = map.getCenter()
           if (center) {
             onSearch(center.lat(), center.lng())
-            setShow(false)
           }
         }}
         className="bg-background/90 backdrop-blur-sm text-foreground px-4 py-2 rounded-full shadow-md text-sm font-medium border border-border/50 hover:bg-background transition-colors flex items-center gap-2"
       >
-        <MapPin className="w-4 h-4" />
+        <Search className="w-4 h-4" />
         현재 지도에서 검색
       </button>
     </div>
@@ -242,7 +225,7 @@ const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, activeCategory, onCategoryChange, minRating, onMinRatingChange }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -358,6 +341,19 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
               minRating={minRating}
               onMinRatingChange={onMinRatingChange}
             />
+          )}
+
+          {/* 마커 초기화 버튼 */}
+          {onClearMarkers && allCityPlaces.length > 0 && (
+            <div className="absolute top-4 left-4 z-10">
+              <button
+                onClick={onClearMarkers}
+                className="bg-background/90 backdrop-blur-sm text-foreground p-2 rounded-full shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                title="마커 초기화"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
           )}
         </Map>
       </APIProvider>

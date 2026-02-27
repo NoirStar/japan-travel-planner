@@ -226,7 +226,7 @@ export function LandingPage() {
 
         {/* Footer */}
         <motion.footer
-          className="mt-16 mb-4 text-center text-xs text-muted-foreground/50"
+          className="mt-16 mb-4 w-full text-center text-xs text-muted-foreground/60 py-4"
           variants={itemVariants}
         >
           <p>© 2026 TabiTalk — 당신의 완벽한 여행을 응원합니다 🌸</p>

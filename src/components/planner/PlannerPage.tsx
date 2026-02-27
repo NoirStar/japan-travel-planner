@@ -8,7 +8,7 @@ import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
-import { fetchNearbyPlaces, fetchPlaceDetails } from "@/services/placesService"
+import { fetchPlaceDetails } from "@/services/placesService"
 import type { Place } from "@/types/place"
 
 export function PlannerPage() {
@@ -81,36 +81,22 @@ export function PlannerPage() {
     }
   }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip])
 
-  // 도시의 전체 장소 목록 (Google Nearby만 사용)
+  // 도시의 전체 장소 목록 (검색 후에만 로드)
   const [googlePlaces, setGooglePlaces] = useState<Place[]>([])
   const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined)
   const [minRating, setMinRating] = useState<number | undefined>(undefined)
-  const nearbyLoaded = useRef<string>("")
 
-  // 도시 진입 시 Google Places Nearby 데이터 자동 로드
-  useEffect(() => {
-    if (nearbyLoaded.current === cityId) return
-    nearbyLoaded.current = cityId
-
-    fetchNearbyPlaces(cityId).then((places) => {
-      if (places.length > 0) {
-        setGooglePlaces(places)
-        // dynamicPlaceStore에 저장 (일정 추가 시 조회 가능하도록)
-        const store = useDynamicPlaceStore.getState()
-        for (const p of places) {
-          store.addPlace(p)
-        }
-      }
-    }).catch(() => {
-      // Google API 실패 시 빈 상태
-    })
-  }, [cityId])
-
-  // Google 장소 목록 (별점 필터 적용)
+  // Google 장소 목록 (카테고리 + 별점 필터 적용 — 클라이언트 사이드)
   const allCityPlaces = useMemo(() => {
-    if (!minRating) return googlePlaces
-    return googlePlaces.filter((p) => (p.rating ?? 0) >= minRating)
-  }, [googlePlaces, minRating])
+    let filtered = googlePlaces
+    if (activeCategory) {
+      filtered = filtered.filter((p) => p.category === activeCategory)
+    }
+    if (minRating) {
+      filtered = filtered.filter((p) => (p.rating ?? 0) >= minRating)
+    }
+    return filtered
+  }, [googlePlaces, activeCategory, minRating])
 
   // 현재 Day의 장소 목록을 Place 객체로 변환
   const currentDayPlaces: Place[] = useMemo(() => {
@@ -121,6 +107,28 @@ export function PlannerPage() {
       .map((item) => getAnyPlaceById(item.placeId))
       .filter((p): p is Place => p !== undefined)
   }, [trip, activeDayIndex])
+
+  // 장소 선택 시 상세 정보 (리뷰 등) lazy-load
+  const handleSelectPlace = useCallback(async (placeId: string | null) => {
+    setSelectedPlaceId(placeId)
+    if (!placeId) return
+
+    // 이미 리뷰가 로드된 장소인지 확인
+    const existing = googlePlaces.find((p) => p.id === placeId)
+    if (existing?.reviews && existing.reviews.length > 0) return
+
+    // googlePlaceId로 상세 정보 fetch
+    const gid = existing?.googlePlaceId
+    if (!gid) return
+
+    const detailed = await fetchPlaceDetails(gid, cityId)
+    if (detailed) {
+      useDynamicPlaceStore.getState().addPlace(detailed)
+      setGooglePlaces((prev) =>
+        prev.map((p) => (p.id === placeId ? { ...p, ...detailed } : p)),
+      )
+    }
+  }, [googlePlaces, cityId])
 
   // 지도에서 장소를 클릭하여 일정에 추가
   const handleAddPlaceFromMap = (placeId: string) => {
@@ -199,6 +207,13 @@ export function PlannerPage() {
     setMinRating(rating)
   }, [])
 
+  // 마커 초기화 핸들러
+  const handleClearMarkers = useCallback(() => {
+    setGooglePlaces([])
+    setActiveCategory(undefined)
+    setMinRating(undefined)
+  }, [])
+
   return (
     <div className="flex h-screen flex-col pt-14" data-testid="planner-page">
       {/* 데스크톱: 좌우 분할 / 모바일: 탭 전환 */}
@@ -227,7 +242,7 @@ export function PlannerPage() {
             allCityPlaces={allCityPlaces}
             activeDayIndex={activeDayIndex}
             selectedPlaceId={selectedPlaceId}
-            onSelectPlace={setSelectedPlaceId}
+            onSelectPlace={handleSelectPlace}
             onAddPlace={handleAddPlaceFromMap}
             onPoiClick={handlePoiClick}
             onSearchArea={handleSearchArea}
@@ -235,6 +250,7 @@ export function PlannerPage() {
             onCategoryChange={handleCategoryChange}
             minRating={minRating}
             onMinRatingChange={handleMinRatingChange}
+            onClearMarkers={handleClearMarkers}
           />
         </main>
       </div>

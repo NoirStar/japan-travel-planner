@@ -92,42 +92,29 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
         opacity={isSelected || isHovered ? 1 : 0.85}
       />
 
-      {/* 호버 툴팁 — 컴팩트 카드 */}
+      {/* 호버 툴팁 — 컴팩트 텍스트 */}
       {showHoverTooltip && (
         <InfoWindow
           anchor={marker}
           headerDisabled
           onCloseClick={() => setIsHovered(false)}
         >
-          <div className="p-1 min-w-[180px] max-w-[240px]">
-            <div className="flex items-center gap-2">
-              {place.image ? (
-                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-md">
-                  <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
-                </div>
-              ) : (
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md" style={{ backgroundColor: color }}>
-                  <CategoryIcon className="h-5 w-5 text-white" />
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-gray-900 truncate">{place.name}</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[10px] rounded px-1 py-px" style={{ backgroundColor: `${color}20`, color }}>{categoryLabel}</span>
-                  {place.rating && (
-                    <span className="flex items-center gap-0.5 text-[10px] text-gray-600">
-                      <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
-                      {place.rating}
-                      {place.ratingCount && (
-                        <span className="text-gray-400">({place.ratingCount.toLocaleString()})</span>
-                      )}
-                    </span>
+          <div className="p-1.5 min-w-[140px] max-w-[220px]">
+            <p className="text-xs font-bold text-gray-900 truncate">{place.name}</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-[10px] rounded px-1 py-px" style={{ backgroundColor: `${color}20`, color }}>{categoryLabel}</span>
+              {place.rating && (
+                <span className="flex items-center gap-0.5 text-[10px] text-gray-600">
+                  <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                  {place.rating}
+                  {place.ratingCount && (
+                    <span className="text-gray-400">({place.ratingCount.toLocaleString()})</span>
                   )}
-                </div>
-              </div>
+                </span>
+              )}
             </div>
             {place.description && (
-              <p className="mt-1.5 text-[10px] text-gray-500 line-clamp-2 leading-relaxed">{place.description}</p>
+              <p className="mt-1 text-[10px] text-gray-500 line-clamp-1 leading-relaxed">{place.description}</p>
             )}
           </div>
         </InfoWindow>

@@ -219,7 +219,7 @@ export function PlannerPage() {
       {/* 데스크톱: 좌우 분할 / 모바일: 탭 전환 */}
       <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
         {/* 일정 패널 */}
-        <aside className={`w-full shrink-0 overflow-y-auto bg-background lg:h-full lg:w-[400px] lg:border-r lg:border-border/50 lg:block ${
+        <aside className={`w-full shrink-0 overflow-y-auto bg-card lg:h-full lg:w-[400px] lg:border-r lg:border-border lg:block ${
           mobileTab === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
         }`}>
           <SchedulePanel
@@ -256,7 +256,7 @@ export function PlannerPage() {
       </div>
 
       {/* 모바일 하단 탭 바 */}
-      <div className="flex border-t border-border/50 glass lg:hidden" data-testid="mobile-tab-bar">
+      <div className="flex border-t border-border bg-card lg:hidden" data-testid="mobile-tab-bar">
         <button
           onClick={() => setMobileTab("schedule")}
           className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${

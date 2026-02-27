@@ -46,9 +46,9 @@ describe("LandingPage", () => {
     expect(button).toBeDisabled()
   })
 
-  it("직접 만들기 버튼이 존재한다", () => {
+  it("여행 만들기 버튼이 존재한다", () => {
     renderWithRouter()
-    expect(screen.getByText("직접 커스텀으로 만들기")).toBeInTheDocument()
+    expect(screen.getByText("여행 만들기")).toBeInTheDocument()
   })
 
   it("4개 도시 카드가 렌더링된다", () => {

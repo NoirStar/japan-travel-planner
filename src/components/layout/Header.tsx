@@ -9,18 +9,18 @@ export function Header() {
   const isPlanner = location.pathname === "/planner"
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card">
       <div className={`flex h-14 items-center justify-between px-4 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
-        <Link to="/" className="group flex items-center gap-2.5 transition-all hover:opacity-90">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sakura-dark to-indigo text-white shadow-md transition-transform group-hover:scale-105">
+        <Link to="/" className="group flex items-center gap-2.5 transition-all hover:opacity-80">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sakura-dark text-white shadow-sm transition-transform group-hover:scale-105">
             <Plane className="h-4 w-4" />
           </div>
           <span className="text-lg font-bold tracking-tight gradient-text">タビトーク</span>
         </Link>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <Link to="/trips">
-            <Button variant="ghost" size="sm" className="gap-1.5 rounded-full hover:bg-sakura/20">
+            <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted">
               <List className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">내 여행</span>
             </Button>
@@ -30,11 +30,11 @@ export function Header() {
             size="icon"
             onClick={toggleDarkMode}
             aria-label="다크모드 토글"
-            className="rounded-full hover:bg-sakura/20"
+            className="rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 rounded-full hover:bg-sakura/20">
+          <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline text-sm">로그인</span>
           </Button>

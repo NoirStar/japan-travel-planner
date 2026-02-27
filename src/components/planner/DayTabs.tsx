@@ -37,7 +37,7 @@ export function DayTabs({
   tripStartDate,
 }: DayTabsProps) {
   return (
-    <div className="flex items-center gap-1.5 border-b border-border/50 px-4 py-2.5" data-testid="day-tabs">
+    <div className="flex items-center gap-1.5 border-b border-border px-4 py-2.5" data-testid="day-tabs">
       {days.map((day, index) => {
         const colorClass = DAY_COLORS[index % DAY_COLORS.length]
         const isActive = index === activeDayIndex

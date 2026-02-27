@@ -76,11 +76,11 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
     return (
       <div
         ref={ref}
-        className={`group relative overflow-hidden rounded-2xl border bg-card p-3 shadow-sm transition-all duration-200 hover:shadow-lg cursor-pointer ${
+        className={`group relative overflow-hidden rounded-2xl border bg-card p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
           isSelected
-            ? "border-sakura ring-2 ring-sakura/30 shadow-lg"
-            : "border-border/50 hover:border-sakura/30"
-        } ${isDragging ? "opacity-50 shadow-xl ring-2 ring-sakura-dark scale-[1.02]" : ""}`}
+            ? "border-sakura-dark shadow-md"
+            : "border-border hover:border-sakura/40"
+        } ${isDragging ? "opacity-50 shadow-lg scale-[1.02]" : ""}`}
         style={style}
         data-testid={`place-card-${index}`}
         data-place-id={place.id}
@@ -117,7 +117,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
           <GripVertical className="mt-1 h-3.5 w-3.5 shrink-0 text-muted-foreground/30" />
 
           {/* 카테고리 아이콘 */}
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted/60">
+          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted">
             <CategoryIcon className="h-5 w-5 text-muted-foreground" aria-label={categoryLabel} />
           </div>
 
@@ -148,7 +148,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 />
               ) : (
                 <button
-                  className="flex items-center gap-0.5 rounded-full bg-sakura/10 px-2 py-0.5 text-[10px] font-medium text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors"
+                  className="flex items-center gap-0.5 rounded-full bg-sakura/10 px-2 py-0.5 text-[10px] font-medium text-sakura-dark dark:text-sakura hover:bg-sakura/15 transition-colors"
                   onClick={(e) => { e.stopPropagation(); setIsEditingTime(true) }}
                   data-testid={`time-badge-${index}`}
                 >
@@ -167,7 +167,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 ) : null
               })()}
 
-              <span className="rounded-full bg-muted/80 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                 {categoryLabel}
               </span>
               {place.rating && (
@@ -198,7 +198,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
             {/* 메모 입력 */}
             {showMemo && (
               <textarea
-                className="mt-1 w-full resize-none rounded-lg border border-border/50 bg-muted/30 px-2 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40"
+                className="mt-1 w-full resize-none rounded-lg border border-border bg-muted px-2 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40"
                 placeholder="메모를 입력하세요..."
                 rows={2}
                 defaultValue={memo ?? ""}

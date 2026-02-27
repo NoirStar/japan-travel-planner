@@ -297,7 +297,7 @@ export function AIChatWizard() {
   return (
     <div className="flex h-screen flex-col pt-14 bg-sakura-pattern" data-testid="wizard-page">
       {/* 헤더 */}
-      <div className="flex items-center gap-3 border-b border-border/50 glass px-4 py-2.5">
+      <div className="flex items-center gap-3 border-b border-border bg-card px-4 py-2.5">
         <Button
           variant="ghost"
           size="icon"
@@ -309,7 +309,7 @@ export function AIChatWizard() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-sakura-dark to-indigo text-sm text-white shadow-sm"><Bot className="h-4 w-4" /></div>
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sakura-dark text-sm text-white"><Bot className="h-4 w-4" /></div>
           <h1 className="text-sm font-bold">AI 여행 플래너</h1>
         </div>
       </div>
@@ -378,7 +378,7 @@ export function AIChatWizard() {
       </div>
 
       {/* 하단 자유 입력 바 */}
-      <div className="border-t border-border/50 glass px-4 py-3" data-testid="free-chat-bar">
+      <div className="border-t border-border bg-card px-4 py-3" data-testid="free-chat-bar">
         <div className="mx-auto flex max-w-lg items-center gap-2">
           <Sparkles className="h-4 w-4 shrink-0 text-sakura-dark dark:text-sakura" />
           <Input

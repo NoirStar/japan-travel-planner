@@ -29,18 +29,18 @@ export function TripListPage() {
       <div className="mx-auto max-w-3xl px-4 py-10">
         {/* 헤더 */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sakura/20 to-indigo/10">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-sakura/10">
             <Plane className="h-8 w-8 text-sakura-dark" />
           </div>
-          <h1 className="text-2xl font-bold gradient-text">내 여행 목록</h1>
+          <h1 className="text-2xl font-bold">내 여행 목록</h1>
           <p className="mt-1 text-sm text-muted-foreground">저장된 여행 일정을 관리하세요</p>
         </div>
 
         {/* 여행 목록 */}
         {trips.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted/40">
-              <MapPin className="h-10 w-10 opacity-30" />
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted">
+              <MapPin className="h-10 w-10 text-muted-foreground/30" />
             </div>
             <p className="text-sm font-medium">아직 저장된 여행이 없습니다</p>
             <p className="text-xs opacity-60">랜딩 페이지에서 새 여행을 시작해보세요</p>
@@ -65,13 +65,13 @@ export function TripListPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100 }}
-                    className="group cursor-pointer overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all hover:shadow-lg hover:border-sakura/30"
+                    className="group cursor-pointer overflow-hidden rounded-2xl border border-border bg-card transition-all card-shadow"
                     onClick={() => handleOpenTrip(trip.id, trip.cityId)}
                     data-testid={`trip-card-${trip.id}`}
                   >
                     <div className="flex items-center gap-4 p-4">
                       {/* 도시 아이콘 */}
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sakura/20 to-indigo/10">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-sakura/10">
                         <MapPin className="h-6 w-6 text-sakura-dark" />
                       </div>
 

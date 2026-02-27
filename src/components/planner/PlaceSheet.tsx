@@ -117,11 +117,11 @@ export function PlaceSheet({
 
       {/* 시트 패널 */}
       <div
-        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-3xl bg-background shadow-2xl ring-1 ring-border/30 lg:left-0 lg:max-h-full lg:w-[400px] lg:rounded-none lg:rounded-tr-3xl"
+        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-3xl bg-card shadow-2xl border-t border-border lg:left-0 lg:max-h-full lg:w-[400px] lg:rounded-none lg:rounded-tr-3xl"
         data-testid="place-sheet"
       >
         {/* 핸들 + 헤더 */}
-        <div className="flex flex-col items-center border-b border-border/50 px-4 pb-3 pt-2">
+        <div className="flex flex-col items-center border-b border-border px-4 pb-3 pt-2">
           <div className="mb-2 h-1 w-10 rounded-full bg-border/80 lg:hidden" />
           <div className="flex w-full items-center justify-between">
             <h3 className="text-sm font-bold">장소 추가</h3>
@@ -138,7 +138,7 @@ export function PlaceSheet({
         </div>
 
         {/* 검색 */}
-        <div className="border-b border-border/50 px-4 py-2.5 space-y-2">
+        <div className="border-b border-border px-4 py-2.5 space-y-2">
           {/* 검색 입력 */}
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
@@ -146,7 +146,7 @@ export function PlaceSheet({
               placeholder="장소를 검색하세요 (예: 라멘, 신사, 카페...)"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="h-9 rounded-xl border-border/50 pl-9 text-sm"
+              className="h-9 rounded-xl border-border pl-9 text-sm"
               data-testid="place-search-input"
             />
             {isSearching && (
@@ -156,15 +156,15 @@ export function PlaceSheet({
         </div>
 
         {/* 카테고리 필터 */}
-        <div className="flex gap-1.5 overflow-x-auto border-b border-border/50 px-4 py-2" data-testid="category-filter">
+        <div className="flex gap-1.5 overflow-x-auto border-b border-border px-4 py-2" data-testid="category-filter">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setActiveCategory(cat.value)}
               className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium transition-all ${
                 activeCategory === cat.value
-                  ? "bg-gradient-to-r from-sakura-dark to-indigo text-white shadow-sm"
-                  : "bg-muted/60 text-muted-foreground hover:bg-muted"
+                  ? "bg-sakura-dark text-white shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
               data-testid={`filter-${cat.value}`}
             >
@@ -190,7 +190,7 @@ export function PlaceSheet({
                   <div
                     key={place.id}
                     className={`flex items-center gap-3 rounded-xl border p-3 transition-all ${
-                      isAdded ? "border-sakura/30 bg-sakura/5" : "border-border/50 hover:border-sakura/20 hover:shadow-sm"
+                      isAdded ? "border-sakura/30 bg-sakura/5" : "border-border hover:border-sakura/30 hover:shadow-sm"
                     }`}
                     data-testid={`place-item-${place.id}`}
                   >

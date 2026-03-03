@@ -231,6 +231,9 @@ function CategoryFilterBar({
 // ── 별점 필터 버튼 ────────────────────────────
 const RATING_OPTIONS = [
   { value: undefined, label: "전체" },
+  { value: 1.0, label: "1.0+" },
+  { value: 2.0, label: "2.0+" },
+  { value: 3.0, label: "3.0+" },
   { value: 3.5, label: "3.5+" },
   { value: 4.0, label: "4.0+" },
   { value: 4.5, label: "4.5+" },
@@ -244,7 +247,7 @@ function RatingFilterBar({
   onMinRatingChange: (rating: number | undefined) => void
 }) {
   return (
-    <div className="absolute top-4 right-4 z-10 flex flex-col gap-1 bg-background/90 backdrop-blur-sm rounded-xl px-1.5 py-1.5 shadow-lg border border-border/50">
+    <div className="absolute top-4 right-4 z-10 flex flex-col gap-0.5 bg-background/90 backdrop-blur-sm rounded-xl px-1 py-1 shadow-lg border border-border/50">
       <div className="flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] text-muted-foreground font-medium">
         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
         별점
@@ -255,7 +258,7 @@ function RatingFilterBar({
           <button
             key={opt.label}
             onClick={() => onMinRatingChange(opt.value as number | undefined)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+            className={`px-2 py-0.5 rounded-lg text-[11px] font-medium transition-all ${
               isActive
                 ? "bg-yellow-400 text-yellow-900 shadow-sm"
                 : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"

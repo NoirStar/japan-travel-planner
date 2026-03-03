@@ -67,8 +67,8 @@ export default async function handler(
     // 클라이언트에서 줌 레벨 기반 반경 전달, 최소 300m 최대 50km
     const radius = Math.max(300, Math.min(reqRadius ?? 5000, 50000))
 
-    // 반경에 따른 결과 수 조절
-    const maxResults = radius <= 500 ? 10 : radius <= 1500 ? 15 : 20
+    // 반경에 따른 결과 수 조절 (넓은 범위 = 더 많은 결과)
+    const maxResults = radius <= 500 ? 15 : radius <= 1500 ? 20 : radius <= 5000 ? 25 : 30
 
     const includedTypes = category && CATEGORY_TYPES[category]
       ? CATEGORY_TYPES[category]
@@ -138,8 +138,8 @@ export default async function handler(
       }
     })
 
-    const filtered = minRating ? places.filter((p: { rating?: number }) => (p.rating ?? 0) >= minRating) : places
-    return res.status(200).json({ places: filtered })
+    // 별점 필터링은 클라이언트에서 처리 — 서버는 전체 반환
+    return res.status(200).json({ places })
   } catch (error) {
     console.error("Nearby search error:", error)
     return res.status(500).json({ error: "서버 오류가 발생했습니다" })

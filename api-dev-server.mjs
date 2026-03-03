@@ -53,7 +53,7 @@ async function handleNearby(body) {
   if (!center) return { status: 400, data: { error: "Invalid cityId or coordinates" } }
 
   const radius = Math.max(300, Math.min(reqRadius ?? 5000, 50000))
-  const maxResults = radius <= 500 ? 10 : radius <= 1500 ? 15 : 20
+  const maxResults = radius <= 500 ? 15 : radius <= 1500 ? 20 : radius <= 5000 ? 25 : 30
 
   const includedTypes = category && CATEGORY_TYPES[category]
     ? CATEGORY_TYPES[category]
@@ -109,8 +109,8 @@ async function handleNearby(body) {
     }
   })
 
-  const filtered = minRating ? places.filter((p) => (p.rating ?? 0) >= minRating) : places
-  return { status: 200, data: { places: filtered } }
+  // 별점 필터링은 클라이언트에서 처리
+  return { status: 200, data: { places } }
 }
 
 // ── 핸들러: /api/places-search ──────────────────────────

@@ -161,17 +161,20 @@ export function PlannerPage() {
 
   // 현재 지도 영역에서 장소 검색 (이전 결과 교체)
   const handleSearchArea = useCallback(async (lat: number, lng: number, zoom?: number) => {
-    // 줌 레벨에 따른 검색 반경 (m)
-    // zoom 18+ = 500m, 16 = 1km, 14 = 3km, 12 = 8km, 10- = 15km
-    let radius = 3000
+    // 줌 레벨에 따른 검색 반경 (m) — 실제 지도 가시 영역에 맞게 매핑
+    // Google Maps 줌 레벨: 20=건물, 15=거리, 12=도시, 10=광역
+    let radius = 5000
     if (zoom !== undefined) {
-      if (zoom >= 18) radius = 500
-      else if (zoom >= 16) radius = 1000
-      else if (zoom >= 15) radius = 2000
-      else if (zoom >= 14) radius = 3000
-      else if (zoom >= 13) radius = 5000
-      else if (zoom >= 12) radius = 8000
-      else radius = 15000
+      if (zoom >= 19) radius = 200
+      else if (zoom >= 18) radius = 400
+      else if (zoom >= 17) radius = 800
+      else if (zoom >= 16) radius = 1500
+      else if (zoom >= 15) radius = 2500
+      else if (zoom >= 14) radius = 4000
+      else if (zoom >= 13) radius = 7000
+      else if (zoom >= 12) radius = 12000
+      else if (zoom >= 11) radius = 20000
+      else radius = 30000
     }
     try {
       const res = await fetch("/api/places-nearby", {

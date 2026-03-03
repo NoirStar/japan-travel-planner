@@ -17,24 +17,87 @@ const CATEGORY_HEX: Record<string, string> = {
   other: "#6b7280",
 }
 
-/** 핀 모양 SVG data URI 생성 (카테고리 색상 + 흰 내부 원) */
-function createPinSvg(color: string, selected: boolean): string {
-  if (selected) {
-    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="28" height="40" viewBox="0 0 28 40">
-<defs><filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3"/></filter></defs>
-<g filter="url(#s)">
-  <path d="M14,2 C7,2 2,7 2,14 C2,22 14,37 14,37 C14,37 26,22 26,14 C26,7 21,2 14,2 Z" fill="${color}" stroke="#f472b6" stroke-width="2.5"/>
-  <circle cx="14" cy="13" r="5" fill="white" fill-opacity="0.9"/>
-  <circle cx="14" cy="13" r="2.5" fill="${color}"/>
-</g></svg>`)}`
+// ── 별점 등급 기반 마커 시스템 ─────────────────────────────
+type RatingTier = "premium" | "good" | "normal" | "basic"
+
+function getRatingTier(rating?: number): RatingTier {
+  if (!rating) return "basic"
+  if (rating >= 4.5) return "premium"
+  if (rating >= 4.0) return "good"
+  if (rating >= 3.5) return "normal"
+  return "basic"
+}
+
+const TIER_Z_INDEX: Record<RatingTier, number> = { premium: 100, good: 50, normal: 20, basic: 10 }
+const TIER_OPACITY: Record<RatingTier, number> = { premium: 1, good: 0.95, normal: 0.85, basic: 0.7 }
+
+/** 카테고리 아이콘 SVG (중심점 기준 상대좌표) */
+function getCategoryIconSvg(category: string, cx: number, cy: number, scale: number): string {
+  const t = `translate(${cx},${cy}) scale(${scale})`
+  switch (category) {
+    case "restaurant":
+      return `<g transform="${t}"><path d="M-2,-4 v8 M2,-4 v3.5 q0,1.5 -1.5,1.5 v3" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>`
+    case "cafe":
+      return `<g transform="${t}"><path d="M-3,-1.5 h5 l-0.5,4.5 h-4 z M2,0 h1.5 v2 h-1.5" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/><line x1="-3" y1="3.5" x2="2" y2="3.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/></g>`
+    case "attraction":
+      return `<g transform="${t}"><path d="M0,-4 L1.2,-1.3 L4,-1.2 L2,0.8 L2.5,3.5 L0,2 L-2.5,3.5 L-2,0.8 L-4,-1.2 L-1.2,-1.3 Z" fill="white" opacity="0.95"/></g>`
+    case "shopping":
+      return `<g transform="${t}"><path d="M-3,0 h6 l0.5,4.5 h-7 z M-1,0 v-2 a1.5,1.5 0 0,1 3,0 v2" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>`
+    case "accommodation":
+      return `<g transform="${t}"><path d="M-4,3 v-5.5 h8 v5.5 M-4,0 h8" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="-1.5" cy="-2" r="1.2" fill="white" opacity="0.9"/></g>`
+    case "transport":
+      return `<g transform="${t}"><rect x="-3" y="-4" width="6" height="7" rx="1.5" stroke="white" stroke-width="1.3" fill="none"/><line x1="-3" y1="1" x2="3" y2="1" stroke="white" stroke-width="1"/><circle cx="-1.5" cy="2" r="0.7" fill="white"/><circle cx="1.5" cy="2" r="0.7" fill="white"/></g>`
+    default:
+      return `<g transform="${t}"><circle cx="0" cy="-1" r="2.5" stroke="white" stroke-width="1.3" fill="none"/><line x1="0" y1="2" x2="0" y2="4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></g>`
   }
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="35" viewBox="0 0 24 35">
-<defs><filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.2"/></filter></defs>
+}
+
+/** 별점 등급 + 카테고리 아이콘이 포함된 마커 SVG */
+function createRatedPinSvg(color: string, category: string, rating: number | undefined, selected: boolean): string {
+  const tier = getRatingTier(rating)
+
+  const configs: Record<RatingTier, { w: number; bodyH: number; r: number; sw: number; tailH: number; iconScale: number }> = {
+    premium: { w: 38, bodyH: 30, r: 10, sw: 2.5, tailH: 10, iconScale: 1.35 },
+    good:    { w: 32, bodyH: 26, r: 8,  sw: 2,   tailH: 8,  iconScale: 1.15 },
+    normal:  { w: 28, bodyH: 24, r: 7,  sw: 1.8, tailH: 7,  iconScale: 1.0 },
+    basic:   { w: 24, bodyH: 20, r: 6,  sw: 1.5, tailH: 6,  iconScale: 0.85 },
+  }
+
+  const c = configs[tier]
+  const totalH = c.bodyH + c.tailH + 2
+  const cx = c.w / 2
+  const bodyCy = c.bodyH / 2 + 1
+
+  const border = selected ? "#f472b6" : "white"
+  const bw = selected ? c.sw + 0.5 : c.sw
+
+  const iconSvg = getCategoryIconSvg(category, cx, bodyCy, c.iconScale)
+
+  // 프리미엄: 골드 테두리 글로우
+  const premiumRing = tier === "premium"
+    ? `<rect x="0.5" y="0.5" width="${c.w - 1}" height="${c.bodyH + 1}" rx="${c.r + 1}" fill="none" stroke="#fbbf24" stroke-width="3" opacity="0.5"/>`
+    : ""
+
+  // 프리미엄: 우상단 골드 별 뱃지
+  const starBadge = tier === "premium"
+    ? `<circle cx="${c.w - 5}" cy="5" r="5.5" fill="#fbbf24" stroke="white" stroke-width="1.5"/><text x="${c.w - 5}" y="7.5" text-anchor="middle" fill="white" font-size="7" font-weight="bold">★</text>`
+    : ""
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${c.w}" height="${totalH}" viewBox="0 0 ${c.w} ${totalH}">
+<defs><filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs>
 <g filter="url(#s)">
-  <path d="M12,2 C6.5,2 2,6.5 2,12 C2,19 12,33 12,33 C12,33 22,19 22,12 C22,6.5 17.5,2 12,2 Z" fill="${color}" stroke="white" stroke-width="2"/>
-  <circle cx="12" cy="11" r="4" fill="white" fill-opacity="0.9"/>
-  <circle cx="12" cy="11" r="2" fill="${color}"/>
-</g></svg>`)}`
+  ${premiumRing}
+  <rect x="2" y="2" width="${c.w - 4}" height="${c.bodyH - 2}" rx="${c.r}" fill="${color}" stroke="${border}" stroke-width="${bw}"/>
+  <polygon points="${cx - 4},${c.bodyH - 1} ${cx},${c.bodyH + c.tailH - 2} ${cx + 4},${c.bodyH - 1}" fill="${color}"/>
+  <line x1="${cx - 4}" y1="${c.bodyH - 1}" x2="${cx}" y2="${c.bodyH + c.tailH - 2}" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
+  <line x1="${cx + 4}" y1="${c.bodyH - 1}" x2="${cx}" y2="${c.bodyH + c.tailH - 2}" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
+  <rect x="${cx - 5}" y="${c.bodyH - 2.5}" width="10" height="3.5" fill="${color}"/>
+</g>
+${iconSvg}
+${starBadge}
+</svg>`
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
 }
 
 interface CityPlaceMarkerProps {
@@ -72,7 +135,8 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
   }, [marker, isSelected])
 
   const color = CATEGORY_HEX[place.category] ?? "#6b7280"
-  const iconUrl = useMemo(() => createPinSvg(color, !!isSelected), [color, isSelected])
+  const tier = getRatingTier(place.rating)
+  const iconUrl = useMemo(() => createRatedPinSvg(color, place.category, place.rating, !!isSelected), [color, place.category, place.rating, isSelected])
 
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
@@ -88,8 +152,8 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
         onClick={handleClick}
         title={place.name}
         icon={iconUrl}
-        zIndex={isSelected ? 500 : isHovered ? 200 : 10}
-        opacity={isSelected || isHovered ? 1 : 0.85}
+        zIndex={isSelected ? 500 : isHovered ? 300 : TIER_Z_INDEX[tier]}
+        opacity={isSelected || isHovered ? 1 : TIER_OPACITY[tier]}
       />
 
       {/* 호버 툴팁 — 컴팩트 텍스트 */}

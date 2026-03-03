@@ -1,13 +1,14 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 
-// 카테고리 매핑
+// 카테고리 매핑 (3개 API 파일 공통)
 function mapGoogleType(types: string[]): string {
   const typeSet = new Set(types)
-  if (typeSet.has("restaurant") || typeSet.has("food") || typeSet.has("japanese_restaurant") || typeSet.has("ramen_restaurant") || typeSet.has("sushi_restaurant")) return "restaurant"
+  if (typeSet.has("restaurant") || typeSet.has("food") || typeSet.has("meal_delivery") || typeSet.has("meal_takeaway") || typeSet.has("japanese_restaurant") || typeSet.has("ramen_restaurant") || typeSet.has("sushi_restaurant")) return "restaurant"
   if (typeSet.has("cafe") || typeSet.has("bakery") || typeSet.has("coffee_shop")) return "cafe"
   if (typeSet.has("lodging") || typeSet.has("hotel")) return "accommodation"
   if (typeSet.has("shopping_mall") || typeSet.has("store") || typeSet.has("clothing_store") || typeSet.has("department_store") || typeSet.has("market")) return "shopping"
-  if (typeSet.has("transit_station") || typeSet.has("train_station")) return "transport"
+  if (typeSet.has("transit_station") || typeSet.has("train_station") || typeSet.has("bus_station") || typeSet.has("subway_station")) return "transport"
+  if (typeSet.has("tourist_attraction") || typeSet.has("museum") || typeSet.has("park") || typeSet.has("place_of_worship") || typeSet.has("shrine") || typeSet.has("temple") || typeSet.has("cultural_landmark") || typeSet.has("historical_landmark")) return "attraction"
   return "attraction"
 }
 

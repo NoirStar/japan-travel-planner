@@ -8,7 +8,9 @@ interface PlaceResult {
   category: string
   location: { lat: number; lng: number }
   rating?: number
+  ratingCount?: number
   address?: string
+  description?: string
   image?: string
   googlePlaceId: string
 }
@@ -16,15 +18,15 @@ interface PlaceResult {
 // Places API New (v1) — Text Search
 const PLACES_API_URL = "https://places.googleapis.com/v1/places:searchText"
 
-// 카테고리 매핑
+// 카테고리 매핑 (3개 API 파일 공통)
 function mapGoogleType(types: string[]): string {
   const typeSet = new Set(types)
-  if (typeSet.has("restaurant") || typeSet.has("food") || typeSet.has("meal_delivery") || typeSet.has("meal_takeaway")) return "restaurant"
-  if (typeSet.has("cafe") || typeSet.has("bakery")) return "cafe"
+  if (typeSet.has("restaurant") || typeSet.has("food") || typeSet.has("meal_delivery") || typeSet.has("meal_takeaway") || typeSet.has("japanese_restaurant") || typeSet.has("ramen_restaurant") || typeSet.has("sushi_restaurant")) return "restaurant"
+  if (typeSet.has("cafe") || typeSet.has("bakery") || typeSet.has("coffee_shop")) return "cafe"
   if (typeSet.has("lodging") || typeSet.has("hotel")) return "accommodation"
-  if (typeSet.has("shopping_mall") || typeSet.has("store") || typeSet.has("clothing_store") || typeSet.has("department_store")) return "shopping"
+  if (typeSet.has("shopping_mall") || typeSet.has("store") || typeSet.has("clothing_store") || typeSet.has("department_store") || typeSet.has("market")) return "shopping"
   if (typeSet.has("transit_station") || typeSet.has("train_station") || typeSet.has("bus_station") || typeSet.has("subway_station")) return "transport"
-  if (typeSet.has("tourist_attraction") || typeSet.has("museum") || typeSet.has("park") || typeSet.has("place_of_worship") || typeSet.has("shrine") || typeSet.has("temple")) return "attraction"
+  if (typeSet.has("tourist_attraction") || typeSet.has("museum") || typeSet.has("park") || typeSet.has("place_of_worship") || typeSet.has("shrine") || typeSet.has("temple") || typeSet.has("cultural_landmark") || typeSet.has("historical_landmark")) return "attraction"
   return "attraction"
 }
 
@@ -83,7 +85,7 @@ export default async function handler(
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.rating,places.types,places.formattedAddress,places.photos",
+        "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.rating,places.types,places.formattedAddress,places.photos,places.userRatingCount,places.editorialSummary",
       },
       body: JSON.stringify(requestBody),
     })
@@ -100,9 +102,11 @@ export default async function handler(
       displayName: { text: string; languageCode: string }
       location: { latitude: number; longitude: number }
       rating?: number
+      userRatingCount?: number
       types?: string[]
       formattedAddress?: string
       photos?: { name: string }[]
+      editorialSummary?: { text: string }
     }) => {
       // 사진 URL 생성 (Places API v1)
       let image: string | undefined
@@ -120,7 +124,9 @@ export default async function handler(
           lng: p.location?.longitude ?? 0,
         },
         rating: p.rating,
+        ratingCount: p.userRatingCount,
         address: p.formattedAddress,
+        description: p.editorialSummary?.text ?? p.formattedAddress,
         image,
         googlePlaceId: p.id,
       }

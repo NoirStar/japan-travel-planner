@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node"
 // Places API New (v1) — Nearby Search
 const NEARBY_API_URL = "https://places.googleapis.com/v1/places:searchNearby"
 
-// 카테고리 매핑
+// 카테고리 매핑 (3개 API 파일 공통)
 function mapGoogleType(types: string[]): string {
   const typeSet = new Set(types)
   if (typeSet.has("restaurant") || typeSet.has("food") || typeSet.has("meal_delivery") || typeSet.has("meal_takeaway") || typeSet.has("japanese_restaurant") || typeSet.has("ramen_restaurant") || typeSet.has("sushi_restaurant")) return "restaurant"
@@ -11,6 +11,7 @@ function mapGoogleType(types: string[]): string {
   if (typeSet.has("lodging") || typeSet.has("hotel")) return "accommodation"
   if (typeSet.has("shopping_mall") || typeSet.has("store") || typeSet.has("clothing_store") || typeSet.has("department_store") || typeSet.has("market")) return "shopping"
   if (typeSet.has("transit_station") || typeSet.has("train_station") || typeSet.has("bus_station") || typeSet.has("subway_station")) return "transport"
+  if (typeSet.has("tourist_attraction") || typeSet.has("museum") || typeSet.has("park") || typeSet.has("place_of_worship") || typeSet.has("shrine") || typeSet.has("temple") || typeSet.has("cultural_landmark") || typeSet.has("historical_landmark")) return "attraction"
   return "attraction"
 }
 
@@ -27,7 +28,9 @@ const CATEGORY_TYPES: Record<string, string[]> = {
   attraction: ["tourist_attraction", "museum", "park", "cultural_landmark", "historical_landmark"],
   restaurant: ["restaurant", "japanese_restaurant", "ramen_restaurant", "sushi_restaurant"],
   cafe: ["cafe", "coffee_shop", "bakery"],
-  shopping: ["shopping_mall", "market", "department_store"],
+  shopping: ["shopping_mall", "market", "department_store", "store", "clothing_store"],
+  accommodation: ["lodging", "hotel"],
+  transport: ["transit_station", "train_station", "bus_station", "subway_station"],
 }
 
 export default async function handler(
@@ -62,14 +65,14 @@ export default async function handler(
     }
 
     // 클라이언트에서 줌 레벨 기반 반경 전달, 최소 300m 최대 50km
-    const radius = Math.max(300, Math.min(reqRadius ?? 15000, 50000))
+    const radius = Math.max(300, Math.min(reqRadius ?? 5000, 50000))
 
-    // 반경에 따른 결과 수 조절 (500m = 10개, 15km = 20개)
-    const maxResults = radius <= 1000 ? 10 : radius <= 3000 ? 15 : 20
+    // 반경에 따른 결과 수 조절
+    const maxResults = radius <= 500 ? 10 : radius <= 1500 ? 15 : 20
 
     const includedTypes = category && CATEGORY_TYPES[category]
       ? CATEGORY_TYPES[category]
-      : [...CATEGORY_TYPES.attraction, ...CATEGORY_TYPES.restaurant, ...CATEGORY_TYPES.cafe]
+      : [...CATEGORY_TYPES.attraction, ...CATEGORY_TYPES.restaurant, ...CATEGORY_TYPES.cafe, ...CATEGORY_TYPES.shopping]
 
     const requestBody = {
       includedTypes,

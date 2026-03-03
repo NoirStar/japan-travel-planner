@@ -36,6 +36,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --color-background: #1a1a1a;
   --color-foreground: #f5f5f5;
   --color-card: #252525;
@@ -186,4 +187,24 @@ body {
 
 .animate-sakura {
   animation: sakura-fall linear infinite;
+}
+
+/* ── 스크롤바 숨기기 (카테고리 필터 등) ──────────────── */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── 검색 버튼 펄스 애니메이션 ───────────────────────── */
+@keyframes search-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(232, 67, 147, 0.5); }
+  70% { box-shadow: 0 0 0 12px rgba(232, 67, 147, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 67, 147, 0); }
+}
+
+.animate-search-pulse {
+  animation: search-pulse 2s ease-out infinite;
 }

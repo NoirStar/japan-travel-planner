@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save } from "lucide-react"
+import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
@@ -39,7 +39,7 @@ interface SchedulePanelProps {
 export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace }: SchedulePanelProps) {
   const cityConfig = getCityConfig(cityId)
   const trip = useScheduleStore((s) => s.getActiveTrip())
-  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip } = useScheduleStore()
+  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay } = useScheduleStore()
 
   /** 날짜 변경 시 Day 수 자동 조정 */
   const handleDateChange = (field: "startDate" | "endDate", value: string) => {
@@ -79,6 +79,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [isPlaceSheetOpen, setIsPlaceSheetOpen] = useState(false)
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // 마커 클릭 시 해당 카드로 자동 스크롤
@@ -170,24 +171,26 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sakura-dark text-sm text-white"><Map className="h-4 w-4" /></span>
           {cityConfig.name} 여행
         </h2>
-        <div className="mt-2 flex items-center gap-2">
-          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 dark:bg-muted">
+          <Calendar className="h-4 w-4 shrink-0 text-sakura-dark" />
           <input
             type="date"
             value={trip.startDate ?? ""}
             onChange={(e) => handleDateChange("startDate", e.target.value)}
-            className="h-6 rounded-lg bg-muted px-1.5 text-[11px] text-foreground outline-none border border-border focus:border-sakura-dark focus:ring-1 focus:ring-sakura/30"
+            className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-sakura-dark focus:ring-2 focus:ring-sakura/30"
             data-testid="trip-start-date"
           />
-          <span className="text-[11px] text-muted-foreground">~</span>
+          <span className="shrink-0 text-xs font-bold text-muted-foreground">~</span>
           <input
             type="date"
             value={trip.endDate ?? ""}
             onChange={(e) => handleDateChange("endDate", e.target.value)}
-            className="h-6 rounded-lg bg-muted px-1.5 text-[11px] text-foreground outline-none border border-border focus:border-sakura-dark focus:ring-1 focus:ring-sakura/30"
+            className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-sakura-dark focus:ring-2 focus:ring-sakura/30"
             data-testid="trip-end-date"
           />
-          <span className="ml-auto flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">
+        </div>
+        <div className="mt-1.5 flex items-center justify-end">
+          <span className="flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">
             <Save className="h-3 w-3" />
             자동 저장
           </span>
@@ -320,10 +323,41 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           }
         }
         return (
-          <div className="border-t border-border bg-muted px-4 py-2.5 text-xs text-muted-foreground" data-testid="day-summary">
-            <span className="mr-1 inline-flex items-center"><BarChart3 className="mr-1 inline h-3.5 w-3.5" /></span>Day {currentDay?.dayNumber} 요약 — <span className="font-semibold text-foreground">장소 {items.length}개</span>
-            {totalTravelMinutes > 0 && (
-              <> · <span className="font-semibold text-foreground">이동 {formatTravelTime(totalTravelMinutes)}</span></>
+          <div className="border-t border-border bg-muted px-4 py-2.5 text-xs text-muted-foreground flex items-center justify-between" data-testid="day-summary">
+            <div>
+              <span className="mr-1 inline-flex items-center"><BarChart3 className="mr-1 inline h-3.5 w-3.5" /></span>Day {currentDay?.dayNumber} 요약 — <span className="font-semibold text-foreground">장소 {items.length}개</span>
+              {totalTravelMinutes > 0 && (
+                <> · <span className="font-semibold text-foreground">이동 {formatTravelTime(totalTravelMinutes)}</span></>
+              )}
+            </div>
+            {/* 일정 초기화 */}
+            {!showClearConfirm ? (
+              <button
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                onClick={() => setShowClearConfirm(true)}
+                data-testid="clear-day-button"
+              >
+                <Trash2 className="h-3 w-3" />
+                초기화
+              </button>
+            ) : (
+              <div className="flex items-center gap-1">
+                <button
+                  className="rounded-lg bg-destructive px-2.5 py-1 text-[10px] font-bold text-white hover:bg-destructive/90 transition-colors"
+                  onClick={() => {
+                    if (currentDay) clearDay(trip.id, currentDay.id)
+                    setShowClearConfirm(false)
+                  }}
+                >
+                  삭제 확인
+                </button>
+                <button
+                  className="rounded-lg px-2 py-1 text-[10px] font-medium text-muted-foreground hover:bg-muted transition-colors"
+                  onClick={() => setShowClearConfirm(false)}
+                >
+                  취소
+                </button>
+              </div>
             )}
           </div>
         )

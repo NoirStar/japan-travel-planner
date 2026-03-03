@@ -27,6 +27,7 @@ interface ScheduleState {
   // ScheduleItem CRUD
   addItem: (tripId: string, dayId: string, placeId: string) => ScheduleItem
   removeItem: (tripId: string, dayId: string, itemId: string) => void
+  clearDay: (tripId: string, dayId: string) => void
   moveItem: (
     tripId: string,
     sourceDayId: string,
@@ -163,6 +164,20 @@ export const useScheduleStore = create<ScheduleState>()(
                 d.id === dayId
                   ? { ...d, items: d.items.filter((i) => i.id !== itemId) }
                   : d,
+              ),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      clearDay: (tripId, dayId) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              days: t.days.map((d) =>
+                d.id === dayId ? { ...d, items: [] } : d,
               ),
               updatedAt: new Date().toISOString(),
             }

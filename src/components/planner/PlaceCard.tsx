@@ -6,6 +6,16 @@ import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 
+/** 시간 프리셋 */
+const TIME_PRESETS = [
+  { label: "아침", time: "09:00", emoji: "🌅" },
+  { label: "오전", time: "10:30", emoji: "☀️" },
+  { label: "점심", time: "12:00", emoji: "🍽️" },
+  { label: "오후", time: "15:00", emoji: "🌤️" },
+  { label: "저녁", time: "18:00", emoji: "🌇" },
+  { label: "밤", time: "21:00", emoji: "🌙" },
+] as const
+
 interface PlaceCardProps {
   place: Place
   index: number
@@ -64,14 +74,28 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
     const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
     const gradientClass = CATEGORY_GRADIENT[place.category] ?? "from-gray-400 to-slate-400"
     const [isEditingTime, setIsEditingTime] = useState(false)
+    const [showTimePresets, setShowTimePresets] = useState(false)
     const [showMemo, setShowMemo] = useState(!!memo)
     const timeInputRef = useRef<HTMLInputElement>(null)
+    const presetRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
       if (isEditingTime && timeInputRef.current) {
         timeInputRef.current.focus()
       }
     }, [isEditingTime])
+
+    // 프리셋 외부 클릭 시 닫기
+    useEffect(() => {
+      if (!showTimePresets) return
+      const handleClick = (e: MouseEvent) => {
+        if (presetRef.current && !presetRef.current.contains(e.target as Node)) {
+          setShowTimePresets(false)
+        }
+      }
+      document.addEventListener("mousedown", handleClick)
+      return () => document.removeEventListener("mousedown", handleClick)
+    }, [showTimePresets])
 
     return (
       <div
@@ -127,35 +151,72 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
 
             <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
               {/* 시간대 표시/편집 */}
-              {isEditingTime ? (
-                <input
-                  ref={timeInputRef}
-                  type="time"
-                  defaultValue={startTime ?? ""}
-                  className="h-5 w-[72px] rounded bg-muted/80 px-1 text-[10px] font-medium text-foreground outline-none ring-1 ring-sakura/40 focus:ring-sakura"
-                  onBlur={(e) => {
-                    setIsEditingTime(false)
-                    onStartTimeChange?.(e.target.value)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+              <div className="relative" ref={presetRef}>
+                {isEditingTime ? (
+                  <input
+                    ref={timeInputRef}
+                    type="time"
+                    defaultValue={startTime ?? ""}
+                    className="h-7 w-[80px] rounded-lg bg-card px-2 text-xs font-medium text-foreground outline-none border border-sakura-dark shadow-sm focus:ring-2 focus:ring-sakura/30"
+                    onBlur={(e) => {
                       setIsEditingTime(false)
-                      onStartTimeChange?.((e.target as HTMLInputElement).value)
-                    }
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  data-testid={`time-input-${index}`}
-                />
-              ) : (
-                <button
-                  className="flex items-center gap-0.5 rounded-full bg-sakura/10 px-2 py-0.5 text-[10px] font-medium text-sakura-dark dark:text-sakura hover:bg-sakura/15 transition-colors"
-                  onClick={(e) => { e.stopPropagation(); setIsEditingTime(true) }}
-                  data-testid={`time-badge-${index}`}
-                >
-                  <Clock className="h-3 w-3" />
-                  {startTime || "시간 설정"}
-                </button>
-              )}
+                      onStartTimeChange?.(e.target.value)
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setIsEditingTime(false)
+                        onStartTimeChange?.((e.target as HTMLInputElement).value)
+                      }
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    data-testid={`time-input-${index}`}
+                  />
+                ) : (
+                  <button
+                    className="flex items-center gap-1 rounded-lg border border-sakura/30 bg-sakura/10 px-2.5 py-1 text-xs font-semibold text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors shadow-sm"
+                    onClick={(e) => { e.stopPropagation(); setShowTimePresets(!showTimePresets) }}
+                    data-testid={`time-badge-${index}`}
+                  >
+                    <Clock className="h-3.5 w-3.5" />
+                    {startTime || "시간 설정"}
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                )}
+
+                {/* 시간 프리셋 드롭다운 */}
+                {showTimePresets && (
+                  <div
+                    className="absolute left-0 top-full z-50 mt-1 w-40 rounded-xl border border-border bg-card p-1.5 shadow-xl"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {TIME_PRESETS.map((preset) => (
+                      <button
+                        key={preset.time}
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-foreground hover:bg-sakura/10 transition-colors"
+                        onClick={() => {
+                          onStartTimeChange?.(preset.time)
+                          setShowTimePresets(false)
+                        }}
+                      >
+                        <span className="text-sm">{preset.emoji}</span>
+                        <span>{preset.label}</span>
+                        <span className="ml-auto text-muted-foreground">{preset.time}</span>
+                      </button>
+                    ))}
+                    <div className="my-1 border-t border-border" />
+                    <button
+                      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                      onClick={() => {
+                        setShowTimePresets(false)
+                        setIsEditingTime(true)
+                      }}
+                    >
+                      <Clock className="h-3.5 w-3.5" />
+                      직접 입력
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* 시간대 레이블 */}
               {startTime && (() => {

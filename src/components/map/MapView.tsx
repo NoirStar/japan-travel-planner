@@ -113,20 +113,38 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
 
 function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number) => void }) {
   const map = useMap()
+  const [hasClicked, setHasClicked] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowTooltip(false), 6000)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+      {/* 튜토리얼 툴팁 */}
+      {showTooltip && !hasClicked && (
+        <div className="relative mb-2 rounded-2xl bg-sakura-dark px-4 py-2.5 text-xs font-bold text-white shadow-xl animate-bounce">
+          👇 지도를 이동 후 이 버튼을 눌러 주변 장소를 검색하세요!
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 bg-sakura-dark" />
+        </div>
+      )}
       <button
         onClick={() => {
           if (!map) return
           const center = map.getCenter()
           if (center) {
+            setHasClicked(true)
+            setShowTooltip(false)
             onSearch(center.lat(), center.lng())
           }
         }}
-        className="bg-background/90 backdrop-blur-sm text-foreground px-4 py-2 rounded-full shadow-md text-sm font-medium border border-border/50 hover:bg-background transition-colors flex items-center gap-2"
+        className={`relative flex items-center gap-2 rounded-full border-2 border-sakura-dark bg-card px-5 py-2.5 text-sm font-bold text-foreground shadow-lg transition-all hover:bg-sakura/10 ${
+          !hasClicked ? "animate-search-pulse" : ""
+        }`}
       >
-        <Search className="w-4 h-4" />
+        <Search className="w-4 h-4 text-sakura-dark" />
         현재 지도에서 검색
       </button>
     </div>
@@ -151,25 +169,28 @@ function CategoryFilterBar({
   onCategoryChange: (category: string | undefined) => void
 }) {
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 bg-background/90 backdrop-blur-sm rounded-full px-2 py-1.5 shadow-lg border border-border/50">
-      {CATEGORY_FILTERS.map((cat) => {
-        const Icon = cat.icon
-        const isActive = activeCategory === cat.id
-        return (
-          <button
-            key={cat.id ?? "all"}
-            onClick={() => onCategoryChange(cat.id as string | undefined)}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              isActive
-                ? "bg-sakura text-white shadow-sm"
-                : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-            }`}
-          >
-            <Icon className="w-3.5 h-3.5" />
-            {cat.label}
-          </button>
-        )
-      })}
+    <div className="absolute bottom-6 left-3 right-3 z-10 flex justify-center pointer-events-none">
+      <div className="pointer-events-auto flex gap-1 overflow-x-auto scrollbar-hide max-w-full rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 py-1.5 shadow-lg border border-border">
+        {CATEGORY_FILTERS.map((cat) => {
+          const Icon = cat.icon
+          const isActive = activeCategory === cat.id
+          return (
+            <button
+              key={cat.id ?? "all"}
+              onClick={() => onCategoryChange(cat.id as string | undefined)}
+              className={`flex shrink-0 items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                isActive
+                  ? "bg-sakura-dark text-white shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+              title={cat.label}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="hidden sm:inline">{cat.label}</span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

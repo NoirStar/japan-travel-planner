@@ -190,8 +190,6 @@ function UnifiedSearchBar({
     return () => document.removeEventListener("mousedown", handler)
   }, [ratingOpen])
 
-  const currentRatingLabel = RATING_OPTIONS.find(o => o.value === minRating)?.label ?? "전체"
-
   return (
     <div className="absolute top-3 left-3 right-3 z-10 flex flex-col items-center pointer-events-none">
       {/* 튜토리얼 툴팁 */}

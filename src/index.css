@@ -222,3 +222,19 @@ body {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+/* ── Google Maps InfoWindow 다크모드 ─────────────────────── */
+.dark .gm-style-iw-d {
+  overflow: auto !important;
+}
+.dark .gm-style .gm-style-iw-c {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  padding: 0 !important;
+}
+.dark .gm-style .gm-style-iw-tc::after {
+  background: #1f2937 !important;
+}
+.dark .gm-style .gm-style-iw-chr button span {
+  background-color: #9ca3af !important;
+}

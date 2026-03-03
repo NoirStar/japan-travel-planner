@@ -45,6 +45,7 @@ export interface PlaceReview {
   rating: number
   text: string
   relativeTime: string
+  publishTime?: string
 }
 
 // ─── 장소 ───────────────────────────────────────────────

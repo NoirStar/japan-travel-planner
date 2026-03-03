@@ -60,7 +60,7 @@ export default async function handler(
       formattedAddress?: string
       photos?: { name: string }[]
       editorialSummary?: { text: string }
-      reviews?: { authorAttribution?: { displayName: string }; rating: number; text?: { text: string }; relativePublishTimeDescription: string }[]
+      reviews?: { authorAttribution?: { displayName: string }; rating: number; text?: { text: string }; relativePublishTimeDescription: string; publishTime?: string }[]
       regularOpeningHours?: { weekdayDescriptions: string[] }
       websiteUri?: string
     }
@@ -85,11 +85,18 @@ export default async function handler(
       description: p.editorialSummary?.text ?? p.formattedAddress,
       image,
       googlePlaceId: p.id,
-      reviews: (p.reviews ?? []).slice(0, 10).map((r) => ({
+      reviews: (p.reviews ?? [])
+        .sort((a, b) => {
+          if (a.publishTime && b.publishTime) return new Date(b.publishTime).getTime() - new Date(a.publishTime).getTime()
+          return 0
+        })
+        .slice(0, 10)
+        .map((r) => ({
         authorName: r.authorAttribution?.displayName ?? "익명",
         rating: r.rating,
         text: r.text?.text ?? "",
         relativeTime: r.relativePublishTimeDescription ?? "",
+        publishTime: r.publishTime,
       })),
       googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.id}`,
       openingHours: p.regularOpeningHours?.weekdayDescriptions,

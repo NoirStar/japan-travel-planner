@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { Moon, Sun, User, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Logo } from "@/components/ui/Logo"
 import { useUIStore } from "@/stores/uiStore"
 
 export function Header() {
@@ -12,9 +11,8 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card">
       <div className={`flex h-14 items-center justify-between px-4 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
-        <Link to="/" className="group flex items-center gap-2.5 transition-all hover:opacity-80">
-          <Logo className="h-8 w-8 transition-transform group-hover:scale-105" />
-          <span className="text-lg font-bold tracking-tight gradient-text">タビトーク</span>
+        <Link to="/" className="group flex items-center gap-2 transition-all hover:opacity-80">
+          <span className="text-lg font-bold tracking-tight gradient-text">타비토크</span>
         </Link>
 
         <div className="flex items-center gap-1">

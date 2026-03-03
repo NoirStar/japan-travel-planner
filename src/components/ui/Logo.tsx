@@ -1,4 +1,4 @@
-/** タビトーク 로고 — 토리이 게이트 + 루트 마커 */
+/** 타비토크 로고 — 토리이 게이트 + 루트 마커 (현재 미사용) */
 export function Logo({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg

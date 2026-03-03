@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Sparkles, ArrowRight, MapPin, Calendar, ChevronRight, Route, Grip } from "lucide-react"
-import { Logo } from "@/components/ui/Logo"
+import { ArrowRight, MapPin, Calendar, Route, Grip } from "lucide-react"
 import { cities } from "@/data/cities"
 
 const containerVariants = {
@@ -78,29 +77,17 @@ export function LandingPage() {
         animate="visible"
       >
         {/* ── Hero ──────────────────────────────────── */}
-        <motion.div className="mb-20 text-center" variants={itemVariants}>
-          <motion.div
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground shadow-sm"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
-          >
-            <Logo className="h-5 w-5" />
-            나만의 일본 여행 플래너
-          </motion.div>
-          <h1 className="mb-5 text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl">
-            <span className="gradient-text">タビトーク</span>
+        <motion.div className="mb-16 text-center" variants={itemVariants}>
+          <h1 className="mb-4 text-5xl font-black tracking-tight sm:text-6xl">
+            <span className="gradient-text">타비토크</span>
           </h1>
           <p className="mx-auto max-w-md text-lg leading-relaxed text-muted-foreground">
             지도에서 검색하고, 드래그로 일정을 만들고,<br className="hidden sm:block" />
-            완벽한 여행을 계획하세요
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground/40 tracking-wide">
-            旅 (tabi) + Talk — 쉽고 직관적인 일본 여행 플래너
+            완벽한 일본 여행을 계획하세요
           </p>
 
           {/* CTA */}
-          <motion.div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center" variants={itemVariants}>
+          <motion.div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center" variants={itemVariants}>
             <button
               onClick={handleCustom}
               className="btn-gradient inline-flex items-center gap-2.5 rounded-2xl px-10 py-4 text-base font-bold shadow-xl"
@@ -132,18 +119,9 @@ export function LandingPage() {
 
         {/* ── 인기 도시 ─────────────────────────────── */}
         <motion.div variants={itemVariants}>
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-black">인기 여행지</h2>
-              <p className="mt-1 text-sm text-muted-foreground">어디로 떠나볼까요?</p>
-            </div>
-            <button
-              onClick={handleCustom}
-              className="flex items-center gap-1 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition-all hover:shadow-md hover:border-sakura/30"
-            >
-              모두 보기
-              <ChevronRight className="h-4 w-4" />
-            </button>
+          <div className="mb-8">
+            <h2 className="text-2xl font-black">인기 여행지</h2>
+            <p className="mt-1 text-sm text-muted-foreground">어디로 떠나볼까요?</p>
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {cities.map((city) => (
@@ -190,35 +168,12 @@ export function LandingPage() {
           </div>
         </motion.div>
 
-        {/* ── AI 추천 (비활성화) ─────────────────────── */}
-        <motion.div
-          className="mt-20 rounded-3xl border border-border bg-gradient-to-br from-card to-muted/50 p-10 text-center card-shadow"
-          variants={itemVariants}
-        >
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sakura/10 to-indigo/10">
-            <Sparkles className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <h3 className="text-xl font-bold">AI 추천 기능</h3>
-          <p className="mt-2 text-sm text-muted-foreground">취향에 맞는 여행지를 AI가 추천해드리는 기능을 준비하고 있어요</p>
-          <button
-            disabled
-            className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-muted px-7 py-3 text-sm font-semibold text-muted-foreground"
-            aria-label="추천받기"
-          >
-            <Sparkles className="h-4 w-4" />
-            곧 만나요
-          </button>
-          <input type="hidden" aria-label="AI 추천 입력 (비활성화)" disabled />
-        </motion.div>
-
         {/* ── Footer ─────────────────────────────────── */}
         <motion.footer
-          className="mt-20 border-t border-border pt-8 pb-6 text-center"
+          className="mt-16 border-t border-border pt-6 pb-6 text-center"
           variants={itemVariants}
         >
-          <Logo className="mx-auto mb-3 h-10 w-10" />
-          <p className="text-sm font-medium text-muted-foreground">© 2026 TabiTalk — 당신의 완벽한 여행을 응원합니다</p>
-          <p className="mt-1 text-xs text-muted-foreground/40">旅(tabi) + Talk</p>
+          <p className="text-sm text-muted-foreground">© 2026 타비토크</p>
         </motion.footer>
       </motion.div>
     </div>

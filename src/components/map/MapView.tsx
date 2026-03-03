@@ -480,6 +480,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           mapId={mapId || undefined}
           gestureHandling="greedy"
           disableDefaultUI={false}
+          mapTypeControl={false}
           style={{ width: "100%", height: "100%" }}
           styles={mapId ? undefined : CLEAN_MAP_STYLES}
           clickableIcons={true}
@@ -546,9 +547,9 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           </div>
         )}
 
-        {/* 마커 초기화 버튼 */}
+        {/* 마커 초기화 버튼 — 검색바 하단 왼쪽 */}
         {onClearMarkers && allCityPlaces.length > 0 && (
-          <div className="absolute top-4 left-4 z-10">
+          <div className="absolute bottom-6 left-4 z-10">
             <button
               onClick={onClearMarkers}
               className="bg-background/90 backdrop-blur-sm text-foreground p-2 rounded-full shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"

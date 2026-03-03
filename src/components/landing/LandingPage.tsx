@@ -79,7 +79,7 @@ export function LandingPage() {
         {/* ── Hero ──────────────────────────────────── */}
         <motion.div className="mb-16 text-center" variants={itemVariants}>
           <h1 className="mb-4 text-5xl font-black tracking-tight sm:text-6xl">
-            <span className="gradient-text">타비토크</span>
+            <span className="gradient-text">타비톡</span>
           </h1>
           <p className="mx-auto max-w-md text-lg leading-relaxed text-muted-foreground">
             지도에서 검색하고, 드래그로 일정을 만들고,<br className="hidden sm:block" />
@@ -173,7 +173,7 @@ export function LandingPage() {
           className="mt-16 border-t border-border pt-6 pb-6 text-center"
           variants={itemVariants}
         >
-          <p className="text-sm text-muted-foreground">© 2026 타비토크</p>
+          <p className="text-sm text-muted-foreground">© 2026 타비톡</p>
         </motion.footer>
       </motion.div>
     </div>

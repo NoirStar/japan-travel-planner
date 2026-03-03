@@ -12,7 +12,7 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card">
       <div className={`flex h-14 items-center justify-between px-4 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
         <Link to="/" className="group flex items-center gap-2 transition-all hover:opacity-80">
-          <span className="text-lg font-bold tracking-tight gradient-text">타비토크</span>
+          <span className="text-lg font-bold tracking-tight gradient-text">타비톡</span>
         </Link>
 
         <div className="flex items-center gap-1">

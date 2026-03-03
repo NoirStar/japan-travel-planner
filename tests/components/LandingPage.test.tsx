@@ -24,7 +24,7 @@ function renderWithRouter() {
 describe("LandingPage", () => {
   it("히어로 타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText("타비토크")).toBeInTheDocument()
+    expect(screen.getByText("타비톡")).toBeInTheDocument()
   })
 
   it("서브타이틀이 렌더링된다", () => {

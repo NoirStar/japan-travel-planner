@@ -10,7 +10,7 @@ describe("App", () => {
 
   it("헤더에 서비스명이 표시된다", () => {
     render(<App />)
-    const allMatches = screen.getAllByText("타비토크")
+    const allMatches = screen.getAllByText("타비톡")
     expect(allMatches.length).toBeGreaterThanOrEqual(1)
   })
 })

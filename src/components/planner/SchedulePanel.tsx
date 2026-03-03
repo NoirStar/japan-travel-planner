@@ -27,7 +27,6 @@ import { PlaceCard } from "./PlaceCard"
 import { SortablePlaceCard } from "./SortablePlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
 import { copyShareUrl } from "@/lib/shareUtils"
-import { Logo } from "@/components/ui/Logo"
 
 interface SchedulePanelProps {
   cityId: string
@@ -168,8 +167,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
     <div className="flex h-full flex-col" data-testid="schedule-panel">
       {/* 헤더 */}
       <div className="border-b border-border p-4">
-        <h2 className="text-base font-bold flex items-center gap-2">
-          <Logo className="h-7 w-7" />
+        <h2 className="text-base font-bold">
           {cityConfig.name} 여행
         </h2>
         <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 dark:bg-muted">

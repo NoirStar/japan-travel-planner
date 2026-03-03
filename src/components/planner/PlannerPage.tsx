@@ -225,7 +225,15 @@ export function PlannerPage() {
           store.addPlace(p)
         }
         setGooglePlaces(places)
-        setSearchMessage(`${places.length}개 장소를 찾았습니다`)
+        // 별점 필터 적용 시 필터 후 개수도 표시
+        const visibleCount = minRating
+          ? places.filter((p) => (p.rating ?? 0) >= minRating).length
+          : places.length
+        if (minRating && visibleCount < places.length) {
+          setSearchMessage(`${places.length}개 중 ${visibleCount}개 표시 (${minRating}점 이상)`)
+        } else {
+          setSearchMessage(`${places.length}개 장소를 찾았습니다`)
+        }
       } else {
         setGooglePlaces([])
         setSearchMessage("이 지역에서 장소를 찾지 못했습니다. 지도를 이동해보세요.")

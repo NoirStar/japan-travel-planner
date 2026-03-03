@@ -226,7 +226,7 @@ function UnifiedSearchBar({
       )}
 
       {/* 통합 검색바 — 2단 구조 */}
-      <div className="pointer-events-auto flex flex-col gap-1.5 max-w-full">
+      <div className="pointer-events-auto flex flex-col items-center gap-1.5 max-w-full">
         {/* 상단: 카테고리 필터 */}
         <div className="flex items-center gap-0.5 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 py-1.5 shadow-lg border border-border overflow-x-auto scrollbar-hide">
           {/* 카테고리 필터 */}
@@ -252,7 +252,7 @@ function UnifiedSearchBar({
         </div>
 
         {/* 하단: 별점 필터 + 정렬 + 검색 */}
-        <div className="flex items-center gap-0.5 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 py-1.5 shadow-lg border border-border">
+        <div className="flex w-fit items-center gap-0.5 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 py-1.5 shadow-lg border border-border">
 
         {/* Google 별점 드롭다운 */}
         <div className="relative shrink-0" ref={dropdownRef}>

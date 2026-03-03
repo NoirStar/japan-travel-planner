@@ -67,8 +67,8 @@ export default async function handler(
     // 클라이언트에서 줌 레벨 기반 반경 전달, 최소 300m 최대 50km
     const radius = Math.max(300, Math.min(reqRadius ?? 5000, 50000))
 
-    // 반경에 따른 결과 수 조절 (Google API 최대 20)
-    const maxResults = radius <= 1000 ? 10 : 20
+    // 항상 최대 20개 요청 (Google API 최대치). 실제 반환 수는 지역에 따라 달라짐
+    const maxResults = 20
 
     const includedTypes = category && CATEGORY_TYPES[category]
       ? CATEGORY_TYPES[category]

@@ -36,7 +36,8 @@ function getCategoryIconSvg(category: string, cx: number, cy: number, scale: num
   const t = `translate(${cx},${cy}) scale(${scale})`
   switch (category) {
     case "restaurant":
-      return `<g transform="${t}"><path d="M-3.5,1 a3.5,3 0 0,1 7,0 z" fill="white" opacity="0.95"/><path d="M-3.5,1 h7" stroke="white" stroke-width="1.3"/><line x1="-2" y1="-1" x2="-2" y2="-3.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/><line x1="0" y1="-1.5" x2="0" y2="-4" stroke="white" stroke-width="1.2" stroke-linecap="round"/><line x1="2" y1="-1" x2="2" y2="-3.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/></g>`
+      // 포크 + 나이프 아이콘
+      return `<g transform="${t}"><path d="M-3.5,-4 v3 a1.5,1.5 0 0,0 3,0 v-3" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/><line x1="-2" y1="-1" x2="-2" y2="4" stroke="white" stroke-width="1.3" stroke-linecap="round"/><path d="M1.5,-4 v2.5 c0,1.5 1,2 2.5,1.5 v-4 M1.5,-1.5 l0,5.5" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/></g>`
     case "cafe":
       return `<g transform="${t}"><path d="M-3,-1.5 h5 l-0.5,4.5 h-4 z M2,0 h1.5 v2 h-1.5" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/><line x1="-3" y1="3.5" x2="2" y2="3.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/></g>`
     case "attraction":

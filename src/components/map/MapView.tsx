@@ -3,7 +3,7 @@ import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search, Loader2 } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search, Loader2, ArrowUpDown } from "lucide-react"
 import { PlaceMarker } from "./PlaceMarker"
 import { CityPlaceMarker } from "./CityPlaceMarker"
 import { RoutePolyline } from "./RoutePolyline"
@@ -48,6 +48,10 @@ interface MapViewProps {
   onMinRatingChange?: (rating: number | undefined) => void
   /** 마커 초기화 콜백 */
   onClearMarkers?: () => void
+  /** 현재 정렬 기준 */
+  sortBy?: string
+  /** 정렬 변경 콜백 */
+  onSortChange?: (sort: string) => void
 }
 
 function MapFallback({ errorType }: { errorType?: "no-key" | "api-error" }) {
@@ -138,7 +142,16 @@ const RATING_OPTIONS = [
   { value: undefined, label: "전체 (필터 해제)" },
 ] as const
 
-/** 통합 검색바: 카테고리 필터 + Google 별점 드롭다운 + 검색 버튼 */
+// ── 정렬 옵션 ──────────────────────────────────────
+const SORT_OPTIONS = [
+  { value: "popularity", label: "인기순" },
+  { value: "rating-desc", label: "별점 높은순" },
+  { value: "rating-asc", label: "별점 낮은순" },
+  { value: "reviews-desc", label: "리뷰 많은순" },
+  { value: "name-asc", label: "이름순" },
+] as const
+
+/** 통합 검색바: 카테고리 필터 + Google 별점 드롭다운 + 정렬 + 검색 버튼 */
 function UnifiedSearchBar({
   onSearch,
   isSearching,
@@ -146,6 +159,8 @@ function UnifiedSearchBar({
   onCategoryChange,
   minRating,
   onMinRatingChange,
+  sortBy,
+  onSortChange,
 }: {
   onSearch: (lat: number, lng: number, radius: number) => void
   isSearching?: boolean
@@ -153,11 +168,15 @@ function UnifiedSearchBar({
   onCategoryChange: (category: string | undefined) => void
   minRating?: number
   onMinRatingChange: (rating: number | undefined) => void
+  sortBy?: string
+  onSortChange?: (sort: string) => void
 }) {
   const map = useMap()
   const [hasClicked, setHasClicked] = useState(false)
   const [ratingOpen, setRatingOpen] = useState(false)
+  const [sortOpen, setSortOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const sortDropdownRef = useRef<HTMLDivElement>(null)
   const [showTooltip, setShowTooltip] = useState(() => {
     try { return !localStorage.getItem(TUTORIAL_KEY) } catch { return true }
   })
@@ -180,15 +199,18 @@ function UnifiedSearchBar({
 
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
-    if (!ratingOpen) return
+    if (!ratingOpen && !sortOpen) return
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (ratingOpen && dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setRatingOpen(false)
+      }
+      if (sortOpen && sortDropdownRef.current && !sortDropdownRef.current.contains(e.target as Node)) {
+        setSortOpen(false)
       }
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
-  }, [ratingOpen])
+  }, [ratingOpen, sortOpen])
 
   return (
     <div className="absolute bottom-6 left-3 right-3 z-10 flex flex-col items-center pointer-events-none">
@@ -203,9 +225,11 @@ function UnifiedSearchBar({
         </div>
       )}
 
-      {/* 통합 검색바 */}
-      <div className="pointer-events-auto flex items-center gap-0.5 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 py-1.5 shadow-lg border border-border overflow-x-auto scrollbar-hide max-w-full">
-        {/* 카테고리 필터 */}
+      {/* 통합 검색바 — 2단 구조 */}
+      <div className="pointer-events-auto flex flex-col gap-1.5 max-w-full">
+        {/* 상단: 카테고리 필터 */}
+        <div className="flex items-center gap-0.5 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 py-1.5 shadow-lg border border-border overflow-x-auto scrollbar-hide">
+          {/* 카테고리 필터 */}
         {CATEGORY_FILTERS.map((cat) => {
           const Icon = cat.icon
           const isActive = activeCategory === cat.id
@@ -225,9 +249,10 @@ function UnifiedSearchBar({
             </button>
           )
         })}
+        </div>
 
-        {/* 구분선 */}
-        <div className="w-px h-6 bg-border/60 mx-1 shrink-0" />
+        {/* 하단: 별점 필터 + 정렬 + 검색 */}
+        <div className="flex items-center gap-0.5 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 py-1.5 shadow-lg border border-border">
 
         {/* Google 별점 드롭다운 */}
         <div className="relative shrink-0" ref={dropdownRef}>
@@ -240,8 +265,7 @@ function UnifiedSearchBar({
             }`}
           >
             <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400 shrink-0" />
-            <span className="hidden sm:inline">Google 별점</span>
-            <span className="sm:hidden text-[10px]">별점</span>
+            <span>별점 필터</span>
             {minRating != null && (
               <span className="text-[10px] font-bold ml-0.5">{minRating}+</span>
             )}
@@ -252,7 +276,7 @@ function UnifiedSearchBar({
 
           {/* 드롭다운 메뉴 (위로 열림) */}
           {ratingOpen && (
-            <div className="absolute bottom-full left-0 mb-1 min-w-[140px] rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1 z-20">
+            <div className="absolute bottom-full left-0 mb-1 min-w-[140px] rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1 z-50">
               <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium border-b border-border/50">
                 Google 별점 필터
               </div>
@@ -282,6 +306,57 @@ function UnifiedSearchBar({
             </div>
           )}
         </div>
+
+        {/* 정렬 드롭다운 */}
+        {onSortChange && (
+          <div className="relative shrink-0" ref={sortDropdownRef}>
+            <button
+              onClick={() => setSortOpen(!sortOpen)}
+              className={`flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                sortBy && sortBy !== "popularity"
+                  ? "bg-indigo-400/20 text-indigo-700 dark:text-indigo-300"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <ArrowUpDown className="w-3.5 h-3.5 shrink-0" />
+              <span>{SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? "인기순"}</span>
+              <svg className={`w-3 h-3 transition-transform ${sortOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+
+            {/* 정렬 드롭다운 메뉴 (위로 열림) */}
+            {sortOpen && (
+              <div className="absolute bottom-full left-0 mb-1 min-w-[140px] rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1 z-50">
+                <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium border-b border-border/50">
+                  정렬 기준
+                </div>
+                {SORT_OPTIONS.map((opt) => {
+                  const isActive = sortBy === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        onSortChange(opt.value)
+                        setSortOpen(false)
+                      }}
+                      className={`w-full text-left px-3 py-1.5 text-xs font-medium transition-all ${
+                        isActive
+                          ? "bg-indigo-400/20 text-indigo-700 dark:text-indigo-300"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        {isActive && <span className="text-indigo-500">✓</span>}
+                        {opt.label}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 구분선 */}
         <div className="w-px h-6 bg-border/60 mx-1 shrink-0" />
@@ -328,8 +403,9 @@ function UnifiedSearchBar({
           ) : (
             <Search className="w-3.5 h-3.5" />
           )}
-          <span className="hidden sm:inline">{isSearching ? "검색 중..." : "검색"}</span>
+          <span>{isSearching ? "검색 중..." : "검색"}</span>
         </button>
+        </div>
       </div>
     </div>
   )
@@ -345,7 +421,7 @@ const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, sortBy, onSortChange }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -393,7 +469,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
   const mapId = isDarkMode ? darkMapId : lightMapId
 
   return (
-    <div className={`h-full w-full ${className}`} data-testid="map-container">
+    <div className={`h-full w-full relative ${className}`} data-testid="map-container">
       <APIProvider
         apiKey={apiKey}
         onLoad={() => setMapError(false)}
@@ -443,41 +519,45 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
 
           {/* 자동 fitBounds */}
           <FitBoundsHelper places={fitPlaces} />
-
-          {/* 통합 검색바 (카테고리 + 별점 + 검색) */}
-          {onSearchArea && onCategoryChange && onMinRatingChange && (
-            <UnifiedSearchBar
-              onSearch={onSearchArea}
-              isSearching={isSearching}
-              activeCategory={activeCategory}
-              onCategoryChange={onCategoryChange}
-              minRating={minRating}
-              onMinRatingChange={onMinRatingChange}
-            />
-          )}
-
-          {/* 검색 결과 토스트 메시지 */}
-          {searchMessage && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 animate-fade-in">
-              <div className="rounded-xl bg-card/95 backdrop-blur-sm px-4 py-2 text-xs font-medium text-foreground shadow-lg border border-border">
-                {searchMessage}
-              </div>
-            </div>
-          )}
-
-          {/* 마커 초기화 버튼 */}
-          {onClearMarkers && allCityPlaces.length > 0 && (
-            <div className="absolute top-4 left-4 z-10">
-              <button
-                onClick={onClearMarkers}
-                className="bg-background/90 backdrop-blur-sm text-foreground p-2 rounded-full shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
-                title="마커 초기화"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-            </div>
-          )}
         </Map>
+
+        {/* ── Map 바깥 오버레이 (overflow 클리핑 방지) ── */}
+
+        {/* 통합 검색바 (카테고리 + 별점 + 정렬 + 검색) */}
+        {onSearchArea && onCategoryChange && onMinRatingChange && (
+          <UnifiedSearchBar
+            onSearch={onSearchArea}
+            isSearching={isSearching}
+            activeCategory={activeCategory}
+            onCategoryChange={onCategoryChange}
+            minRating={minRating}
+            onMinRatingChange={onMinRatingChange}
+            sortBy={sortBy}
+            onSortChange={onSortChange}
+          />
+        )}
+
+        {/* 검색 결과 토스트 메시지 */}
+        {searchMessage && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 animate-fade-in">
+            <div className="rounded-xl bg-card/95 backdrop-blur-sm px-4 py-2 text-xs font-medium text-foreground shadow-lg border border-border">
+              {searchMessage}
+            </div>
+          </div>
+        )}
+
+        {/* 마커 초기화 버튼 */}
+        {onClearMarkers && allCityPlaces.length > 0 && (
+          <div className="absolute top-4 left-4 z-10">
+            <button
+              onClick={onClearMarkers}
+              className="bg-background/90 backdrop-blur-sm text-foreground p-2 rounded-full shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
+              title="마커 초기화"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </APIProvider>
     </div>
   )

@@ -87,20 +87,40 @@ export function PlannerPage() {
   const [minRating, setMinRating] = useState<number | undefined>(undefined)
   const [isSearching, setIsSearching] = useState(false)
   const [searchMessage, setSearchMessage] = useState<string | null>(null)
+  const [sortBy, setSortBy] = useState<string>("popularity")
   // 마지막 검색 좌표 (카테고리 변경 시 자동 재검색용)
   const lastSearchRef = useRef<{ lat: number; lng: number; radius: number } | null>(null)
+  // API에서 카테고리 검색이 적용되었는지 추적 (이중 필터링 방지)
+  const lastSearchCategory = useRef<string | undefined>(undefined)
 
-  // Google 장소 목록 (카테고리 + 별점 필터 적용 — 클라이언트 사이드)
+  // Google 장소 목록 (별점 필터 + 정렬 적용 — 클라이언트 사이드)
+  // 카테고리 필터는 API에서 이미 적용되었으므로 클라이언트에서 중복 필터링하지 않음
   const allCityPlaces = useMemo(() => {
     let filtered = googlePlaces
-    if (activeCategory) {
-      filtered = filtered.filter((p) => p.category === activeCategory)
-    }
     if (minRating) {
       filtered = filtered.filter((p) => (p.rating ?? 0) >= minRating)
     }
-    return filtered
-  }, [googlePlaces, activeCategory, minRating])
+    // 정렬 적용
+    const sorted = [...filtered]
+    switch (sortBy) {
+      case "rating-desc":
+        sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+        break
+      case "rating-asc":
+        sorted.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0))
+        break
+      case "reviews-desc":
+        sorted.sort((a, b) => (b.ratingCount ?? 0) - (a.ratingCount ?? 0))
+        break
+      case "name-asc":
+        sorted.sort((a, b) => a.name.localeCompare(b.name, "ko"))
+        break
+      // "popularity" — Google API 기본 반환 순서 유지
+      default:
+        break
+    }
+    return sorted
+  }, [googlePlaces, minRating, sortBy])
 
   // 현재 Day의 장소 목록을 Place 객체로 변환
   const currentDayPlaces: Place[] = useMemo(() => {
@@ -169,8 +189,9 @@ export function PlannerPage() {
     const searchCategory = categoryOverride === null ? undefined : (categoryOverride ?? activeCategory)
     setIsSearching(true)
     setSearchMessage(null)
-    // 마지막 검색 좌표 저장
+    // 마지막 검색 좌표 및 카테고리 저장
     lastSearchRef.current = { lat, lng, radius }
+    lastSearchCategory.current = searchCategory
     try {
       const res = await fetch("/api/places-nearby", {
         method: "POST",
@@ -280,6 +301,8 @@ export function PlannerPage() {
             minRating={minRating}
             onMinRatingChange={handleMinRatingChange}
             onClearMarkers={handleClearMarkers}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
           />
         </main>
       </div>

@@ -36,6 +36,8 @@ interface MapViewProps {
   onSearchArea?: (lat: number, lng: number, zoom?: number) => void
   /** 검색 진행 중 여부 */
   isSearching?: boolean
+  /** 검색 결과 메시지 (토스트) */
+  searchMessage?: string | null
   /** 현재 활성 카테고리 필터 */
   activeCategory?: string
   /** 카테고리 변경 콜백 */
@@ -277,7 +279,7 @@ const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, isSearching, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -378,6 +380,15 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
 
           {/* 현재 지도에서 검색 버튼 */}
           {onSearchArea && <SearchAreaButton onSearch={onSearchArea} isSearching={isSearching} />}
+
+          {/* 검색 결과 토스트 메시지 */}
+          {searchMessage && (
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 animate-fade-in">
+              <div className="rounded-xl bg-card/95 backdrop-blur-sm px-4 py-2 text-xs font-medium text-foreground shadow-lg border border-border">
+                {searchMessage}
+              </div>
+            </div>
+          )}
 
           {/* 카테고리 필터 */}
           {onCategoryChange && (

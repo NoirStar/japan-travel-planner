@@ -23,13 +23,13 @@ const CITY_CENTER: Record<string, { lat: number; lng: number }> = {
   fukuoka: { lat: 33.5904, lng: 130.4017 },
 }
 
-// 카테고리별 검색 타입
+// 카테고리별 검색 타입 (Table A 타입만 사용 — Table B와 혼합 불가)
 const CATEGORY_TYPES: Record<string, string[]> = {
-  attraction: ["tourist_attraction", "museum", "park", "cultural_landmark", "historical_landmark"],
-  restaurant: ["restaurant", "japanese_restaurant", "ramen_restaurant", "sushi_restaurant"],
-  cafe: ["cafe", "coffee_shop", "bakery"],
-  shopping: ["shopping_mall", "market", "department_store", "store", "clothing_store"],
-  accommodation: ["lodging", "hotel"],
+  attraction: ["tourist_attraction", "museum", "park"],
+  restaurant: ["restaurant"],
+  cafe: ["cafe", "bakery"],
+  shopping: ["shopping_mall", "department_store", "clothing_store"],
+  accommodation: ["lodging"],
   transport: ["transit_station", "train_station", "bus_station", "subway_station"],
 }
 

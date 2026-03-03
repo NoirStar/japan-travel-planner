@@ -86,6 +86,7 @@ export function PlannerPage() {
   const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined)
   const [minRating, setMinRating] = useState<number | undefined>(undefined)
   const [isSearching, setIsSearching] = useState(false)
+  const [searchMessage, setSearchMessage] = useState<string | null>(null)
 
   // Google 장소 목록 (카테고리 + 별점 필터 적용 — 클라이언트 사이드)
   const allCityPlaces = useMemo(() => {
@@ -178,13 +179,18 @@ export function PlannerPage() {
       else radius = 30000
     }
     setIsSearching(true)
+    setSearchMessage(null)
     try {
       const res = await fetch("/api/places-nearby", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cityId, lat, lng, category: activeCategory, minRating, radius }),
       })
-      if (!res.ok) return
+      if (!res.ok) {
+        console.error("Search API error:", res.status)
+        setSearchMessage("검색에 실패했습니다. 다시 시도해주세요.")
+        return
+      }
       const data = await res.json()
       const places: Place[] = (data.places ?? []).map((p: Place) => ({
         id: p.id,
@@ -206,13 +212,19 @@ export function PlannerPage() {
         for (const p of places) {
           store.addPlace(p)
         }
-        // 이전 결과를 교체 (append가 아닌 replace)
         setGooglePlaces(places)
+        setSearchMessage(`${places.length}개 장소를 찾았습니다`)
+      } else {
+        setGooglePlaces([])
+        setSearchMessage("이 지역에서 장소를 찾지 못했습니다. 지도를 이동해보세요.")
       }
     } catch (error) {
       console.error("Search area error:", error)
+      setSearchMessage("네트워크 오류가 발생했습니다.")
     } finally {
       setIsSearching(false)
+      // 메시지 자동 숨김
+      setTimeout(() => setSearchMessage(null), 4000)
     }
   }, [cityId, activeCategory, minRating])
 
@@ -266,6 +278,7 @@ export function PlannerPage() {
             onPoiClick={handlePoiClick}
             onSearchArea={handleSearchArea}
             isSearching={isSearching}
+            searchMessage={searchMessage}
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
             minRating={minRating}

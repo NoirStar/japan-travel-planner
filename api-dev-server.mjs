@@ -28,10 +28,12 @@ const CITY_CENTER = {
 }
 
 const CATEGORY_TYPES = {
-  attraction: ["tourist_attraction", "museum", "park", "cultural_landmark", "historical_landmark"],
-  restaurant: ["restaurant", "japanese_restaurant", "ramen_restaurant", "sushi_restaurant"],
-  cafe: ["cafe", "coffee_shop", "bakery"],
-  shopping: ["shopping_mall", "market", "department_store"],
+  attraction: ["tourist_attraction", "museum", "park"],
+  restaurant: ["restaurant"],
+  cafe: ["cafe", "bakery"],
+  shopping: ["shopping_mall", "department_store", "clothing_store"],
+  accommodation: ["lodging"],
+  transport: ["transit_station", "train_station", "bus_station", "subway_station"],
 }
 
 function mapGoogleType(types) {
@@ -46,23 +48,26 @@ function mapGoogleType(types) {
 
 // ── 핸들러: /api/places-nearby ──────────────────────────
 async function handleNearby(body) {
-  const { cityId, category, lat, lng, minRating } = body
+  const { cityId, category, lat, lng, minRating, radius: reqRadius } = body
   const center = (lat && lng) ? { lat, lng } : CITY_CENTER[cityId]
   if (!center) return { status: 400, data: { error: "Invalid cityId or coordinates" } }
 
+  const radius = Math.max(300, Math.min(reqRadius ?? 5000, 50000))
+  const maxResults = radius <= 500 ? 10 : radius <= 1500 ? 15 : 20
+
   const includedTypes = category && CATEGORY_TYPES[category]
     ? CATEGORY_TYPES[category]
-    : [...CATEGORY_TYPES.attraction, ...CATEGORY_TYPES.restaurant, ...CATEGORY_TYPES.cafe]
+    : [...CATEGORY_TYPES.attraction, ...CATEGORY_TYPES.restaurant, ...CATEGORY_TYPES.cafe, ...CATEGORY_TYPES.shopping]
 
   const requestBody = {
     includedTypes,
     locationRestriction: {
       circle: {
         center: { latitude: center.lat, longitude: center.lng },
-        radius: 15000,
+        radius,
       },
     },
-    maxResultCount: 20,
+    maxResultCount: maxResults,
     rankPreference: "POPULARITY",
     languageCode: "ko",
   }

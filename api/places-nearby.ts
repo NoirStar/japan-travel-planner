@@ -67,8 +67,8 @@ export default async function handler(
     // 클라이언트에서 줌 레벨 기반 반경 전달, 최소 300m 최대 50km
     const radius = Math.max(300, Math.min(reqRadius ?? 5000, 50000))
 
-    // 반경에 따른 결과 수 조절 (넓은 범위 = 더 많은 결과)
-    const maxResults = radius <= 500 ? 15 : radius <= 1500 ? 20 : radius <= 5000 ? 25 : 30
+    // 반경에 따른 결과 수 조절 (Google API 최대 20)
+    const maxResults = radius <= 1000 ? 10 : 20
 
     const includedTypes = category && CATEGORY_TYPES[category]
       ? CATEGORY_TYPES[category]
@@ -99,8 +99,8 @@ export default async function handler(
 
     if (!placesRes.ok) {
       const errorText = await placesRes.text()
-      console.error("Nearby API error:", errorText)
-      return res.status(502).json({ error: "Google Places API 오류" })
+      console.error("Nearby API error:", placesRes.status, errorText)
+      return res.status(502).json({ error: `Google Places API 오류 (${placesRes.status})`, details: errorText })
     }
 
     const data = await placesRes.json()

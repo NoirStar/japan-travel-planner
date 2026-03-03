@@ -33,7 +33,7 @@ interface MapViewProps {
   /** Google Maps 기본 POI 클릭 시 콜백 */
   onPoiClick?: (placeId: string) => void
   /** 현재 지도 영역에서 검색 */
-  onSearchArea?: (lat: number, lng: number) => void
+  onSearchArea?: (lat: number, lng: number, zoom?: number) => void
   /** 현재 활성 카테고리 필터 */
   activeCategory?: string
   /** 카테고리 변경 콜백 */
@@ -111,22 +111,33 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
   return null
 }
 
-function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number) => void }) {
+const TUTORIAL_KEY = "tabitalk-search-tutorial-seen"
+
+function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number, zoom?: number) => void }) {
   const map = useMap()
   const [hasClicked, setHasClicked] = useState(false)
-  const [showTooltip, setShowTooltip] = useState(true)
+  const [showTooltip, setShowTooltip] = useState(() => {
+    try { return !localStorage.getItem(TUTORIAL_KEY) } catch { return true }
+  })
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowTooltip(false), 6000)
+    if (!showTooltip) return
+    const timer = setTimeout(() => {
+      setShowTooltip(false)
+      try { localStorage.setItem(TUTORIAL_KEY, "1") } catch { /* noop */ }
+    }, 6000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [showTooltip])
 
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
       {/* 튜토리얼 툴팁 */}
       {showTooltip && !hasClicked && (
         <div className="relative mb-2 rounded-2xl bg-sakura-dark px-4 py-2.5 text-xs font-bold text-white shadow-xl animate-bounce">
-          👇 지도를 이동 후 이 버튼을 눌러 주변 장소를 검색하세요!
+          <span className="flex items-center gap-1.5">
+            <Search className="h-3.5 w-3.5" />
+            지도를 이동 후 이 버튼을 눌러 주변 장소를 검색하세요!
+          </span>
           <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 bg-sakura-dark" />
         </div>
       )}
@@ -137,10 +148,11 @@ function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number) =
           if (center) {
             setHasClicked(true)
             setShowTooltip(false)
-            onSearch(center.lat(), center.lng())
+            try { localStorage.setItem(TUTORIAL_KEY, "1") } catch { /* noop */ }
+            onSearch(center.lat(), center.lng(), map.getZoom() ?? undefined)
           }
         }}
-        className={`relative flex items-center gap-2 rounded-full border-2 border-sakura-dark bg-card px-5 py-2.5 text-sm font-bold text-foreground shadow-lg transition-all hover:bg-sakura/10 ${
+        className={`relative flex items-center gap-2 rounded-full border-2 border-sakura-dark bg-card px-5 py-2.5 text-sm font-bold text-foreground shadow-lg transition-all hover:shadow-xl hover:border-sakura ${
           !hasClicked ? "animate-search-pulse" : ""
         }`}
       >

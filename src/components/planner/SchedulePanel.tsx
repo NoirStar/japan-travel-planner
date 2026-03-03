@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Bot, Plus, Train, Map, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2 } from "lucide-react"
+import { MapPin, Bot, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
@@ -27,6 +27,7 @@ import { PlaceCard } from "./PlaceCard"
 import { SortablePlaceCard } from "./SortablePlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
 import { copyShareUrl } from "@/lib/shareUtils"
+import { Logo } from "@/components/ui/Logo"
 
 interface SchedulePanelProps {
   cityId: string
@@ -168,7 +169,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       {/* 헤더 */}
       <div className="border-b border-border p-4">
         <h2 className="text-base font-bold flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sakura-dark text-sm text-white"><Map className="h-4 w-4" /></span>
+          <Logo className="h-7 w-7" />
           {cityConfig.name} 여행
         </h2>
         <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 dark:bg-muted">

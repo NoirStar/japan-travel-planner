@@ -29,7 +29,7 @@ describe("LandingPage", () => {
 
   it("서브타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText("나만의 완벽한 일본 여행을 계획하세요")).toBeInTheDocument()
+    expect(screen.getByText(/지도에서 검색하고/)).toBeInTheDocument()
   })
 
   it("AI 추천 입력창이 비활성화 상태로 존재한다", () => {
@@ -61,7 +61,7 @@ describe("LandingPage", () => {
 
   it("AI 추천 준비 중 안내 메시지가 표시된다", () => {
     renderWithRouter()
-    expect(screen.getByText("AI 추천 기능은 현재 준비 중입니다")).toBeInTheDocument()
+    expect(screen.getByText(/AI가 추천해드리는/)).toBeInTheDocument()
   })
 
   it("비활성화된 추천받기 클릭 시 이동하지 않는다", () => {

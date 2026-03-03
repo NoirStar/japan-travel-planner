@@ -160,12 +160,24 @@ export function PlannerPage() {
   }
 
   // 현재 지도 영역에서 장소 검색 (이전 결과 교체)
-  const handleSearchArea = useCallback(async (lat: number, lng: number) => {
+  const handleSearchArea = useCallback(async (lat: number, lng: number, zoom?: number) => {
+    // 줌 레벨에 따른 검색 반경 (m)
+    // zoom 18+ = 500m, 16 = 1km, 14 = 3km, 12 = 8km, 10- = 15km
+    let radius = 3000
+    if (zoom !== undefined) {
+      if (zoom >= 18) radius = 500
+      else if (zoom >= 16) radius = 1000
+      else if (zoom >= 15) radius = 2000
+      else if (zoom >= 14) radius = 3000
+      else if (zoom >= 13) radius = 5000
+      else if (zoom >= 12) radius = 8000
+      else radius = 15000
+    }
     try {
       const res = await fetch("/api/places-nearby", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cityId, lat, lng, category: activeCategory, minRating }),
+        body: JSON.stringify({ cityId, lat, lng, category: activeCategory, minRating, radius }),
       })
       if (!res.ok) return
       const data = await res.json()

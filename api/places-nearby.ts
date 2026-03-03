@@ -47,18 +47,25 @@ export default async function handler(
   }
 
   try {
-    const { cityId, category, lat, lng, minRating } = req.body as {
+    const { cityId, category, lat, lng, minRating, radius: reqRadius } = req.body as {
       cityId?: string
       category?: string
       lat?: number
       lng?: number
       minRating?: number
+      radius?: number
     }
 
     const center = (lat && lng) ? { lat, lng } : (cityId ? CITY_CENTER[cityId] : undefined)
     if (!center) {
       return res.status(400).json({ error: "Invalid cityId or coordinates" })
     }
+
+    // 클라이언트에서 줌 레벨 기반 반경 전달, 최소 300m 최대 50km
+    const radius = Math.max(300, Math.min(reqRadius ?? 15000, 50000))
+
+    // 반경에 따른 결과 수 조절 (500m = 10개, 15km = 20개)
+    const maxResults = radius <= 1000 ? 10 : radius <= 3000 ? 15 : 20
 
     const includedTypes = category && CATEGORY_TYPES[category]
       ? CATEGORY_TYPES[category]
@@ -69,10 +76,10 @@ export default async function handler(
       locationRestriction: {
         circle: {
           center: { latitude: center.lat, longitude: center.lng },
-          radius: 15000, // 15km
+          radius,
         },
       },
-      maxResultCount: 20,
+      maxResultCount: maxResults,
       rankPreference: "POPULARITY",
       languageCode: "ko",
     }

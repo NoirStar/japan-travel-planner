@@ -4,60 +4,59 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ══════════════════════════════════════════════════════
-   Airbnb DLS + 사쿠라 감성 테마
-   - 따뜻한 뉴트럴 베이스 + 코랄/사쿠라 액센트
-   - 깨끗한 카드 + 부드러운 그림자 (글래스 → 솔리드)
-   - 콘텐츠 중심, 여백 활용
+   모던 사쿠라 테마 — Airbnb DLS 기반
+   - 쿠한 뉴트럴 + 마젖타/로즈골드 액센트
+   - 세련된 그라디언트 + 깊은 그림자
    ══════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #ffffff;
-  --color-foreground: #222222;
+  --color-background: #fafafa;
+  --color-foreground: #1a1a2e;
   --color-card: #ffffff;
-  --color-card-foreground: #222222;
-  --color-primary: #e84393;
+  --color-card-foreground: #1a1a2e;
+  --color-primary: #d4436a;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #f7f7f7;
-  --color-secondary-foreground: #222222;
-  --color-muted: #f7f7f7;
-  --color-muted-foreground: #717171;
-  --color-accent: #e84393;
+  --color-secondary: #f5f3f0;
+  --color-secondary-foreground: #1a1a2e;
+  --color-muted: #f5f3f0;
+  --color-muted-foreground: #6b7280;
+  --color-accent: #d4436a;
   --color-accent-foreground: #ffffff;
-  --color-border: #ebebeb;
-  --color-input: #ebebeb;
-  --color-ring: #e84393;
-  --color-destructive: #c13515;
+  --color-border: #e5e2de;
+  --color-input: #e5e2de;
+  --color-ring: #d4436a;
+  --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
   --radius: 0.75rem;
-  --color-sakura: #f8b4c8;
-  --color-sakura-dark: #e84393;
-  --color-indigo: #6c5ce7;
-  --color-indigo-light: #a29bfe;
+  --color-sakura: #f0a4b8;
+  --color-sakura-dark: #d4436a;
+  --color-indigo: #5b4fbe;
+  --color-indigo-light: #8b7fd4;
 }
 
 .dark {
   color-scheme: dark;
-  --color-background: #1a1a1a;
-  --color-foreground: #f5f5f5;
-  --color-card: #252525;
-  --color-card-foreground: #f5f5f5;
-  --color-primary: #f06292;
+  --color-background: #0f0f15;
+  --color-foreground: #eee8e4;
+  --color-card: #1a1a24;
+  --color-card-foreground: #eee8e4;
+  --color-primary: #e86b8a;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #2d2d2d;
-  --color-secondary-foreground: #f5f5f5;
-  --color-muted: #2d2d2d;
-  --color-muted-foreground: #a0a0a0;
-  --color-accent: #f06292;
+  --color-secondary: #222230;
+  --color-secondary-foreground: #eee8e4;
+  --color-muted: #222230;
+  --color-muted-foreground: #9ca3af;
+  --color-accent: #e86b8a;
   --color-accent-foreground: #ffffff;
-  --color-border: #383838;
-  --color-input: #383838;
-  --color-ring: #f06292;
-  --color-destructive: #ff5a5f;
+  --color-border: #2e2e3e;
+  --color-input: #2e2e3e;
+  --color-ring: #e86b8a;
+  --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-sakura: #f06292;
-  --color-sakura-dark: #ec407a;
-  --color-indigo: #a29bfe;
-  --color-indigo-light: #c0b8ff;
+  --color-sakura: #e86b8a;
+  --color-sakura-dark: #d4436a;
+  --color-indigo: #8b7fd4;
+  --color-indigo-light: #a89dd8;
 }
 
 body {
@@ -84,20 +83,20 @@ body {
   background: var(--color-muted-foreground);
 }
 
-/* ── 사쿠라 배경 패턴 (Airbnb 스타일: 은은하게) ──────── */
+/* ── 사쿠라 배경 패턴 (모던 스타일: 은은한 메쉬) ──── */
 .bg-sakura-pattern {
   background-color: var(--color-background);
   background-image:
-    radial-gradient(ellipse at 15% 50%, rgba(232, 67, 147, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 20%, rgba(108, 92, 231, 0.03) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 90%, rgba(248, 180, 200, 0.05) 0%, transparent 60%);
+    radial-gradient(ellipse at 10% 40%, rgba(212, 67, 106, 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 20%, rgba(91, 79, 190, 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 85%, rgba(240, 164, 184, 0.06) 0%, transparent 55%);
 }
 
 .dark .bg-sakura-pattern {
   background-image:
-    radial-gradient(ellipse at 15% 50%, rgba(240, 98, 146, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 20%, rgba(162, 155, 254, 0.03) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 90%, rgba(240, 98, 146, 0.03) 0%, transparent 60%);
+    radial-gradient(ellipse at 10% 40%, rgba(232, 107, 138, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 20%, rgba(139, 127, 212, 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 85%, rgba(232, 107, 138, 0.04) 0%, transparent 55%);
 }
 
 /* ── 글래스 → Airbnb 솔리드 카드 ─────────────────────── */
@@ -113,46 +112,51 @@ body {
 
 /* ── 그라데이션 텍스트 ───────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #e84393, #d63384);
+  background: linear-gradient(135deg, #d4436a 0%, #5b4fbe 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .dark .gradient-text {
-  background: linear-gradient(135deg, #f06292, #ec407a);
+  background: linear-gradient(135deg, #e86b8a 0%, #8b7fd4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ── Airbnb 스타일 버튼 (코랄/사쿠라) ────────────────── */
+/* ── 모던 버튼 (마젠타/로즈골드 그라디언트) ─────── */
 .btn-gradient {
-  background: linear-gradient(to right, #e84393, #d63384);
+  background: linear-gradient(135deg, #d4436a 0%, #c23760 50%, #5b4fbe 100%);
   color: white;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 .btn-gradient:hover {
-  background: linear-gradient(to right, #d63384, #c62b7a);
-  box-shadow: 0 4px 14px rgba(232, 67, 147, 0.25);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #c23760 0%, #b02d56 50%, #4a3fad 100%);
+  box-shadow: 0 6px 20px rgba(212, 67, 106, 0.3);
+  transform: translateY(-2px);
 }
 
 .dark .btn-gradient {
-  background: linear-gradient(to right, #f06292, #ec407a);
+  background: linear-gradient(135deg, #e86b8a 0%, #d4436a 50%, #8b7fd4 100%);
 }
 .dark .btn-gradient:hover {
-  background: linear-gradient(to right, #ec407a, #e91e63);
-  box-shadow: 0 4px 14px rgba(240, 98, 146, 0.2);
+  background: linear-gradient(135deg, #d4436a 0%, #c23760 50%, #7b6fc4 100%);
+  box-shadow: 0 6px 20px rgba(232, 107, 138, 0.25);
 }
 
-/* ── Airbnb 카드 그림자 ──────────────────────────────── */
+/* ── 카드 그림자 (또렷한/깊은) ────────────────── */
 .card-shadow {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s ease;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card-shadow:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 /* ── 떠다니는 애니메이션 ─────────────────────────────── */

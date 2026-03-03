@@ -3,7 +3,7 @@ import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search, Loader2 } from "lucide-react"
 import { PlaceMarker } from "./PlaceMarker"
 import { CityPlaceMarker } from "./CityPlaceMarker"
 import { RoutePolyline } from "./RoutePolyline"
@@ -34,6 +34,8 @@ interface MapViewProps {
   onPoiClick?: (placeId: string) => void
   /** 현재 지도 영역에서 검색 */
   onSearchArea?: (lat: number, lng: number, zoom?: number) => void
+  /** 검색 진행 중 여부 */
+  isSearching?: boolean
   /** 현재 활성 카테고리 필터 */
   activeCategory?: string
   /** 카테고리 변경 콜백 */
@@ -113,7 +115,7 @@ function FitBoundsHelper({ places }: { places: Place[] }) {
 
 const TUTORIAL_KEY = "tabitalk-search-tutorial-seen"
 
-function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number, zoom?: number) => void }) {
+function SearchAreaButton({ onSearch, isSearching }: { onSearch: (lat: number, lng: number, zoom?: number) => void; isSearching?: boolean }) {
   const map = useMap()
   const [hasClicked, setHasClicked] = useState(false)
   const [showTooltip, setShowTooltip] = useState(() => {
@@ -129,10 +131,18 @@ function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number, z
     return () => clearTimeout(timer)
   }, [showTooltip])
 
+  // 검색 완료 시 펄스 다시 활성화
+  useEffect(() => {
+    if (!isSearching && hasClicked) {
+      const t = setTimeout(() => setHasClicked(false), 3000)
+      return () => clearTimeout(t)
+    }
+  }, [isSearching, hasClicked])
+
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
       {/* 튜토리얼 툴팁 */}
-      {showTooltip && !hasClicked && (
+      {showTooltip && !hasClicked && !isSearching && (
         <div className="relative mb-2 rounded-2xl bg-sakura-dark px-4 py-2.5 text-xs font-bold text-white shadow-xl animate-bounce">
           <span className="flex items-center gap-1.5">
             <Search className="h-3.5 w-3.5" />
@@ -142,8 +152,9 @@ function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number, z
         </div>
       )}
       <button
+        disabled={isSearching}
         onClick={() => {
-          if (!map) return
+          if (!map || isSearching) return
           const center = map.getCenter()
           if (center) {
             setHasClicked(true)
@@ -152,12 +163,20 @@ function SearchAreaButton({ onSearch }: { onSearch: (lat: number, lng: number, z
             onSearch(center.lat(), center.lng(), map.getZoom() ?? undefined)
           }
         }}
-        className={`relative flex items-center gap-2 rounded-full border-2 border-sakura-dark bg-card px-5 py-2.5 text-sm font-bold text-foreground shadow-lg transition-all hover:shadow-xl hover:border-sakura ${
-          !hasClicked ? "animate-search-pulse" : ""
+        className={`relative flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold shadow-lg transition-all duration-200 ${
+          isSearching
+            ? "bg-sakura-dark text-white border-2 border-sakura-dark cursor-wait"
+            : "bg-card text-foreground border-2 border-sakura-dark hover:bg-sakura-dark hover:text-white hover:shadow-xl active:scale-95 active:shadow-md"
+        } ${
+          !hasClicked && !isSearching ? "animate-search-pulse" : ""
         }`}
       >
-        <Search className="w-4 h-4 text-sakura-dark" />
-        현재 지도에서 검색
+        {isSearching ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Search className="w-4 h-4" />
+        )}
+        {isSearching ? "검색 중..." : "현재 지도에서 검색"}
       </button>
     </div>
   )
@@ -258,7 +277,7 @@ const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, isSearching, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -358,7 +377,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           <FitBoundsHelper places={fitPlaces} />
 
           {/* 현재 지도에서 검색 버튼 */}
-          {onSearchArea && <SearchAreaButton onSearch={onSearchArea} />}
+          {onSearchArea && <SearchAreaButton onSearch={onSearchArea} isSearching={isSearching} />}
 
           {/* 카테고리 필터 */}
           {onCategoryChange && (

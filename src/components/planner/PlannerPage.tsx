@@ -85,6 +85,7 @@ export function PlannerPage() {
   const [googlePlaces, setGooglePlaces] = useState<Place[]>([])
   const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined)
   const [minRating, setMinRating] = useState<number | undefined>(undefined)
+  const [isSearching, setIsSearching] = useState(false)
 
   // Google 장소 목록 (카테고리 + 별점 필터 적용 — 클라이언트 사이드)
   const allCityPlaces = useMemo(() => {
@@ -176,6 +177,7 @@ export function PlannerPage() {
       else if (zoom >= 11) radius = 20000
       else radius = 30000
     }
+    setIsSearching(true)
     try {
       const res = await fetch("/api/places-nearby", {
         method: "POST",
@@ -209,6 +211,8 @@ export function PlannerPage() {
       }
     } catch (error) {
       console.error("Search area error:", error)
+    } finally {
+      setIsSearching(false)
     }
   }, [cityId, activeCategory, minRating])
 
@@ -261,6 +265,7 @@ export function PlannerPage() {
             onAddPlace={handleAddPlaceFromMap}
             onPoiClick={handlePoiClick}
             onSearchArea={handleSearchArea}
+            isSearching={isSearching}
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
             minRating={minRating}

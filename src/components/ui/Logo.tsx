@@ -1,4 +1,4 @@
-/** タビトーク 로고 — 종이비행기 + 사쿠라 경로 */
+/** タビトーク 로고 — 토리이 게이트 + 루트 마커 */
 export function Logo({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg
@@ -9,31 +9,20 @@ export function Logo({ className = "h-8 w-8" }: { className?: string }) {
     >
       <defs>
         <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#e84393" />
-          <stop offset="100%" stopColor="#d63384" />
+          <stop offset="0%" stopColor="#d4436a" />
+          <stop offset="55%" stopColor="#b63b72" />
+          <stop offset="100%" stopColor="#5b4fbe" />
         </linearGradient>
       </defs>
-      <rect width="40" height="40" rx="10" fill="url(#logo-grad)" />
-      {/* 종이비행기 */}
-      <path
-        d="M12 27L28 13M28 13L23 14.5M28 13L26.5 19"
-        stroke="white"
-        strokeWidth="2.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* 경로 점선 */}
-      <path
-        d="M15 24Q18 28 22 26"
-        stroke="white"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeDasharray="2 2.5"
-        opacity="0.6"
-      />
-      {/* 사쿠라 꽃잎 점 */}
-      <circle cx="14" cy="30" r="1.8" fill="#f8b4c8" opacity="0.8" />
-      <circle cx="19" cy="32" r="1.2" fill="#f8b4c8" opacity="0.5" />
+      <rect width="40" height="40" rx="11" fill="url(#logo-grad)" />
+      {/* 토리이 게이트 */}
+      <line x1="9" y1="13" x2="31" y2="13" stroke="white" strokeWidth="3" strokeLinecap="round" />
+      <line x1="11" y1="17" x2="29" y2="17" stroke="white" strokeWidth="2" strokeLinecap="round" />
+      <line x1="14" y1="17" x2="14" y2="30" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="26" y1="17" x2="26" y2="30" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+      {/* 경로 돈 */}
+      <circle cx="20" cy="24" r="2" fill="#f8b4c8" opacity="0.9" />
+      <circle cx="20" cy="30" r="1.3" fill="#f8b4c8" opacity="0.6" />
     </svg>
   )
 }

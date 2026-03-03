@@ -88,7 +88,7 @@ export function PlannerPage() {
   const [isSearching, setIsSearching] = useState(false)
   const [searchMessage, setSearchMessage] = useState<string | null>(null)
   // 마지막 검색 좌표 (카테고리 변경 시 자동 재검색용)
-  const lastSearchRef = useRef<{ lat: number; lng: number; zoom?: number } | null>(null)
+  const lastSearchRef = useRef<{ lat: number; lng: number; radius: number } | null>(null)
 
   // Google 장소 목록 (카테고리 + 별점 필터 적용 — 클라이언트 사이드)
   const allCityPlaces = useMemo(() => {
@@ -164,28 +164,13 @@ export function PlannerPage() {
   }
 
   // 현재 지도 영역에서 장소 검색 (이전 결과 교체)
-  const handleSearchArea = useCallback(async (lat: number, lng: number, zoom?: number, categoryOverride?: string | null) => {
+  const handleSearchArea = useCallback(async (lat: number, lng: number, radius: number, categoryOverride?: string | null) => {
     // categoryOverride: null = 전체, undefined = 현재 activeCategory 사용
     const searchCategory = categoryOverride === null ? undefined : (categoryOverride ?? activeCategory)
-    // 줌 레벨에 따른 검색 반경 (m) — 실제 지도 가시 영역에 맞게 매핑
-    // Google Maps 줌 레벨: 20=건물, 15=거리, 12=도시, 10=광역
-    let radius = 5000
-    if (zoom !== undefined) {
-      if (zoom >= 19) radius = 200
-      else if (zoom >= 18) radius = 400
-      else if (zoom >= 17) radius = 800
-      else if (zoom >= 16) radius = 1500
-      else if (zoom >= 15) radius = 2500
-      else if (zoom >= 14) radius = 4000
-      else if (zoom >= 13) radius = 7000
-      else if (zoom >= 12) radius = 12000
-      else if (zoom >= 11) radius = 20000
-      else radius = 30000
-    }
     setIsSearching(true)
     setSearchMessage(null)
     // 마지막 검색 좌표 저장
-    lastSearchRef.current = { lat, lng, zoom }
+    lastSearchRef.current = { lat, lng, radius }
     try {
       const res = await fetch("/api/places-nearby", {
         method: "POST",
@@ -239,8 +224,8 @@ export function PlannerPage() {
     setActiveCategory(category)
     // 이전에 검색한 적 있으면 새 카테고리로 재검색
     if (lastSearchRef.current) {
-      const { lat, lng, zoom } = lastSearchRef.current
-      handleSearchArea(lat, lng, zoom, category ?? null)
+      const { lat, lng, radius } = lastSearchRef.current
+      handleSearchArea(lat, lng, radius, category ?? null)
     }
   }, [handleSearchArea])
 

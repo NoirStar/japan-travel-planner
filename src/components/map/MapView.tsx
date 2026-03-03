@@ -33,7 +33,7 @@ interface MapViewProps {
   /** Google Maps 기본 POI 클릭 시 콜백 */
   onPoiClick?: (placeId: string) => void
   /** 현재 지도 영역에서 검색 */
-  onSearchArea?: (lat: number, lng: number, zoom?: number) => void
+  onSearchArea?: (lat: number, lng: number, radius: number) => void
   /** 검색 진행 중 여부 */
   isSearching?: boolean
   /** 검색 결과 메시지 (토스트) */
@@ -127,15 +127,15 @@ const CATEGORY_FILTERS = [
   { id: "accommodation", label: "숙소", icon: Hotel },
 ] as const
 
-// ── Google 별점 드롭다운 옵션 ────────────────────
+// ── Google 별점 드롭다운 옵션 (내림차순) ────────────────────
 const RATING_OPTIONS = [
-  { value: undefined, label: "전체" },
-  { value: 1.0, label: "1.0점 이상" },
-  { value: 2.0, label: "2.0점 이상" },
-  { value: 3.0, label: "3.0점 이상" },
-  { value: 3.5, label: "3.5점 이상" },
-  { value: 4.0, label: "4.0점 이상" },
   { value: 4.5, label: "4.5점 이상" },
+  { value: 4.0, label: "4.0점 이상" },
+  { value: 3.5, label: "3.5점 이상" },
+  { value: 3.0, label: "3.0점 이상" },
+  { value: 2.0, label: "2.0점 이상" },
+  { value: 1.0, label: "1.0점 이상" },
+  { value: undefined, label: "전체 (필터 해제)" },
 ] as const
 
 /** 통합 검색바: 카테고리 필터 + Google 별점 드롭다운 + 검색 버튼 */
@@ -147,7 +147,7 @@ function UnifiedSearchBar({
   minRating,
   onMinRatingChange,
 }: {
-  onSearch: (lat: number, lng: number, zoom?: number) => void
+  onSearch: (lat: number, lng: number, radius: number) => void
   isSearching?: boolean
   activeCategory?: string
   onCategoryChange: (category: string | undefined) => void
@@ -191,7 +191,7 @@ function UnifiedSearchBar({
   }, [ratingOpen])
 
   return (
-    <div className="absolute top-3 left-3 right-3 z-10 flex flex-col items-center pointer-events-none">
+    <div className="absolute bottom-6 left-3 right-3 z-10 flex flex-col items-center pointer-events-none">
       {/* 튜토리얼 툴팁 */}
       {showTooltip && !hasClicked && !isSearching && (
         <div className="relative mb-2 rounded-2xl bg-sakura-dark px-4 py-2.5 text-xs font-bold text-white shadow-xl animate-bounce pointer-events-auto">
@@ -246,13 +246,13 @@ function UnifiedSearchBar({
               <span className="text-[10px] font-bold ml-0.5">{minRating}+</span>
             )}
             <svg className={`w-3 h-3 transition-transform ${ratingOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
             </svg>
           </button>
 
-          {/* 드롭다운 메뉴 */}
+          {/* 드롭다운 메뉴 (위로 열림) */}
           {ratingOpen && (
-            <div className="absolute top-full left-0 mt-1 min-w-[130px] rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1 z-20">
+            <div className="absolute bottom-full left-0 mb-1 min-w-[140px] rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1 z-20">
               <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium border-b border-border/50">
                 Google 별점 필터
               </div>
@@ -296,7 +296,23 @@ function UnifiedSearchBar({
               setHasClicked(true)
               setShowTooltip(false)
               try { localStorage.setItem(TUTORIAL_KEY, "1") } catch { /* noop */ }
-              onSearch(center.lat(), center.lng(), map.getZoom() ?? undefined)
+              // 실제 지도 가시 영역에서 반경 계산
+              const bounds = map.getBounds()
+              let radius = 5000
+              if (bounds) {
+                const ne = bounds.getNorthEast()
+                // 중심에서 모서리까지 거리 (Haversine)
+                const toRad = (d: number) => d * Math.PI / 180
+                const lat1 = toRad(center.lat())
+                const lat2 = toRad(ne.lat())
+                const dLat = toRad(ne.lat() - center.lat())
+                const dLng = toRad(ne.lng() - center.lng())
+                const a = Math.sin(dLat/2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng/2)**2
+                const dist = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+                // 가시 영역의 ~70% 반경으로 검색 (중심 기준)
+                radius = Math.max(300, Math.min(Math.round(dist * 0.7), 50000))
+              }
+              onSearch(center.lat(), center.lng(), radius)
             }
           }}
           className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition-all duration-200 ${
@@ -442,7 +458,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
 
           {/* 검색 결과 토스트 메시지 */}
           {searchMessage && (
-            <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 animate-fade-in">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 animate-fade-in">
               <div className="rounded-xl bg-card/95 backdrop-blur-sm px-4 py-2 text-xs font-medium text-foreground shadow-lg border border-border">
                 {searchMessage}
               </div>

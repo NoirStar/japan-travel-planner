@@ -11,7 +11,15 @@ import {
   Trash2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { supabase } from "@/lib/supabase"
+import { supabase, isSupabaseConfigured } from "@/lib/supabase"
+import {
+  fetchMockPost,
+  fetchMockComments,
+  getMockVote,
+  toggleMockVote,
+  addMockComment,
+  deleteMockComment,
+} from "@/lib/mockCommunity"
 import { useAuthStore } from "@/stores/authStore"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import type { CommunityPost, Comment, VoteType } from "@/types/community"
@@ -21,7 +29,7 @@ import { cities } from "@/data/cities"
 export function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
-  const { user, setShowLoginModal } = useAuthStore()
+  const { user, setShowLoginModal, refreshDemoProfile } = useAuthStore()
   const { createTrip, addDay, addItem } = useScheduleStore()
 
   const [post, setPost] = useState<CommunityPost | null>(null)
@@ -34,6 +42,11 @@ export function PostDetail() {
   // 게시글 로드
   const fetchPost = useCallback(async () => {
     if (!postId) return
+    if (!isSupabaseConfigured) {
+      setPost(fetchMockPost(postId))
+      setIsLoading(false)
+      return
+    }
     const { data } = await supabase
       .from("posts")
       .select("*, profiles(*)")
@@ -47,6 +60,10 @@ export function PostDetail() {
   // 댓글 로드
   const fetchComments = useCallback(async () => {
     if (!postId) return
+    if (!isSupabaseConfigured) {
+      setComments(fetchMockComments(postId))
+      return
+    }
     const { data } = await supabase
       .from("comments")
       .select("*, profiles(*)")
@@ -59,6 +76,10 @@ export function PostDetail() {
   // 내 투표 상태 확인
   const fetchMyVote = useCallback(async () => {
     if (!postId || !user) return
+    if (!isSupabaseConfigured) {
+      setMyVote(getMockVote(postId, user.id))
+      return
+    }
     const { data } = await supabase
       .from("post_votes")
       .select("vote_type")
@@ -85,6 +106,14 @@ export function PostDetail() {
       return
     }
     if (!postId) return
+
+    if (!isSupabaseConfigured) {
+      const newVote = toggleMockVote(postId, user.id, type)
+      setMyVote(newVote)
+      setPost(fetchMockPost(postId))
+      refreshDemoProfile()
+      return
+    }
 
     if (myVote === type) {
       // 투표 취소
@@ -131,6 +160,15 @@ export function PostDetail() {
     const trimmed = commentText.trim()
     if (!trimmed || !postId) return
     setIsSending(true)
+
+    if (!isSupabaseConfigured) {
+      addMockComment(postId, user.id, trimmed)
+      setCommentText("")
+      setIsSending(false)
+      setComments(fetchMockComments(postId))
+      setPost(fetchMockPost(postId))
+      return
+    }
 
     await supabase.from("comments").insert({
       post_id: postId,
@@ -356,6 +394,12 @@ export function PostDetail() {
                   {user?.id === comment.user_id && (
                     <button
                       onClick={async () => {
+                        if (!isSupabaseConfigured) {
+                          deleteMockComment(comment.id, postId!)
+                          setComments(fetchMockComments(postId!))
+                          setPost(fetchMockPost(postId!))
+                          return
+                        }
                         await supabase.from("comments").delete().eq("id", comment.id)
                         await supabase.rpc("decrement_count", { row_id: postId!, col_name: "comments_count" })
                         fetchComments()

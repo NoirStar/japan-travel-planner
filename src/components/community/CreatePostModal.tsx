@@ -3,7 +3,8 @@ import { X, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { useScheduleStore } from "@/stores/scheduleStore"
-import { supabase } from "@/lib/supabase"
+import { supabase, isSupabaseConfigured } from "@/lib/supabase"
+import { createMockPost } from "@/lib/mockCommunity"
 import { cities } from "@/data/cities"
 
 interface CreatePostModalProps {
@@ -31,6 +32,24 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
     setError("")
 
     const city = cities.find((c) => c.id === selectedTrip.cityId)
+
+    if (!isSupabaseConfigured) {
+      createMockPost({
+        user_id: user.id,
+        title: title.trim(),
+        description: description.trim() || null,
+        city_id: selectedTrip.cityId,
+        cover_image: city?.image ?? null,
+        trip_data: selectedTrip,
+      })
+      setIsSubmitting(false)
+      onCreated()
+      onClose()
+      setTitle("")
+      setDescription("")
+      setSelectedTripId("")
+      return
+    }
 
     const { error: insertError } = await supabase.from("posts").insert({
       user_id: user.id,

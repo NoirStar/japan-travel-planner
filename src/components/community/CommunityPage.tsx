@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react"
 import { Plus, TrendingUp, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { supabase } from "@/lib/supabase"
+import { supabase, isSupabaseConfigured } from "@/lib/supabase"
+import { fetchMockPosts } from "@/lib/mockCommunity"
 import { useAuthStore } from "@/stores/authStore"
 import type { CommunityPost, PostSortOption } from "@/types/community"
 import { PostCard } from "./PostCard"
@@ -18,6 +19,13 @@ export function CommunityPage() {
 
   const fetchPosts = useCallback(async () => {
     setIsLoading(true)
+
+    if (!isSupabaseConfigured) {
+      setPosts(fetchMockPosts(sort, cityFilter))
+      setIsLoading(false)
+      return
+    }
+
     let query = supabase
       .from("posts")
       .select("*, profiles(*)")

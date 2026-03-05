@@ -627,9 +627,9 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           </div>
         )}
 
-        {/* 마커 초기화 버튼 */}
+        {/* 마커 초기화 버튼 — Google Maps 줌 버튼 아래 */}
         {onClearMarkers && allCityPlaces.length > 0 && (
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-36 right-2.5 z-10">
             <button
               onClick={onClearMarkers}
               className="bg-background/90 backdrop-blur-sm text-foreground p-2 rounded-full shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"

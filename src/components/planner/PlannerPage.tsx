@@ -8,7 +8,7 @@ import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
-import { fetchPlaceDetails } from "@/services/placesService"
+import { fetchPlaceDetails, searchGooglePlaces } from "@/services/placesService"
 import type { Place } from "@/types/place"
 
 export function PlannerPage() {
@@ -92,6 +92,8 @@ export function PlannerPage() {
   const lastSearchRef = useRef<{ lat: number; lng: number; radius: number } | null>(null)
   // API에서 카테고리 검색이 적용되었는지 추적 (이중 필터링 방지)
   const lastSearchCategory = useRef<string | undefined>(undefined)
+  // 텍스트 검색 로딩 상태
+  const [isTextSearching, setIsTextSearching] = useState(false)
 
   // Google 장소 목록 (별점 필터 + 정렬 적용 — 클라이언트 사이드)
   // 카테고리 필터는 API에서 이미 적용되었으므로 클라이언트에서 중복 필터링하지 않음
@@ -277,6 +279,28 @@ export function PlannerPage() {
     setMinRating(undefined)
   }, [])
 
+  // 텍스트 검색 핸들러 (지도 상단 검색바)
+  const handleTextSearch = useCallback(async (query: string) => {
+    setIsTextSearching(true)
+    setSearchMessage(null)
+    try {
+      const results = await searchGooglePlaces(query, cityId)
+      if (results.length > 0) {
+        const store = useDynamicPlaceStore.getState()
+        for (const p of results) store.addPlace(p)
+        setGooglePlaces(results)
+        setSearchMessage(`"${query}" ${results.length}개 결과`)
+      } else {
+        setSearchMessage(`"${query}" 검색 결과가 없습니다`)
+      }
+    } catch {
+      setSearchMessage("검색 중 오류가 발생했습니다")
+    } finally {
+      setIsTextSearching(false)
+      setTimeout(() => setSearchMessage(null), 4000)
+    }
+  }, [cityId])
+
   return (
     <div className="flex h-dvh flex-col pt-14" data-testid="planner-page">
       {/* 데스크톱: 좌우 분할 / 모바일: 탭 전환 */}
@@ -319,6 +343,8 @@ export function PlannerPage() {
             onClearMarkers={handleClearMarkers}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            onTextSearch={handleTextSearch}
+            isTextSearching={isTextSearching}
           />
         </main>
       </div>

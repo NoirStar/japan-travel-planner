@@ -3,7 +3,7 @@ import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search, Loader2, ArrowUpDown } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search, Loader2, ArrowUpDown, X } from "lucide-react"
 import { PlaceMarker } from "./PlaceMarker"
 import { CityPlaceMarker } from "./CityPlaceMarker"
 import { RoutePolyline } from "./RoutePolyline"
@@ -54,6 +54,10 @@ interface MapViewProps {
   sortBy?: string
   /** 정렬 변경 콜백 */
   onSortChange?: (sort: string) => void
+  /** 텍스트 검색 콜백 */
+  onTextSearch?: (query: string) => void
+  /** 텍스트 검색 진행 중 여부 */
+  isTextSearching?: boolean
 }
 
 function MapFallback({ errorType }: { errorType?: "no-key" | "api-error" }) {
@@ -432,6 +436,55 @@ function UnifiedSearchBar({
   )
 }
 
+/** 장소 텍스트 검색바 (지도 상단) */
+function TextSearchBar({
+  onSearch,
+  isSearching,
+}: {
+  onSearch: (query: string) => void
+  isSearching?: boolean
+}) {
+  const [query, setQuery] = useState("")
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const q = query.trim()
+    if (!q || isSearching) return
+    onSearch(q)
+  }
+
+  return (
+    <div className="absolute top-3 left-2 right-14 sm:top-4 sm:left-3 sm:right-16 z-10">
+      <form onSubmit={handleSubmit} className="flex items-center gap-1.5 rounded-2xl bg-card/95 backdrop-blur-sm px-2 py-1.5 shadow-lg border border-border">
+        <Search className="w-4 h-4 text-muted-foreground shrink-0 ml-1" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="장소 검색 (예: 이치란 라멘, 도톤보리)"
+          className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60 min-w-0"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            className="p-1 rounded-full hover:bg-muted text-muted-foreground"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={!query.trim() || isSearching}
+          className="shrink-0 rounded-xl bg-sakura-dark px-3 py-1.5 text-xs font-bold text-white disabled:opacity-50 hover:bg-sakura-dark/90 transition-colors"
+        >
+          {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "검색"}
+        </button>
+      </form>
+    </div>
+  )
+}
+
 // ── 간소화된 지도 스타일 (POI/대중교통 등 시각 노이즈 감소) ──
 const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
@@ -442,7 +495,7 @@ const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onRemovePlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, sortBy, onSortChange }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onRemovePlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, sortBy, onSortChange, onTextSearch, isTextSearching }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -545,6 +598,11 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
         </Map>
 
         {/* ── Map 바깥 오버레이 (overflow 클리핑 방지) ── */}
+
+        {/* 텍스트 검색바 (지도 상단) */}
+        {onTextSearch && (
+          <TextSearchBar onSearch={onTextSearch} isSearching={isTextSearching} />
+        )}
 
         {/* 통합 검색바 (카테고리 + 별점 + 정렬 + 검색) */}
         {onSearchArea && onCategoryChange && onMinRatingChange && (

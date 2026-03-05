@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import type { Session, User } from "@supabase/supabase-js"
-import { supabase } from "@/lib/supabase"
+import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import type { UserProfile } from "@/types/community"
 
 interface AuthState {
@@ -26,21 +26,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   showLoginModal: false,
 
   initialize: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    set({ session, user: session?.user ?? null, isLoading: false })
-
-    if (session?.user) {
-      await get().fetchProfile(session.user.id)
+    if (!isSupabaseConfigured) {
+      set({ isLoading: false })
+      return
     }
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      set({ session, user: session?.user ?? null, isLoading: false })
 
-    supabase.auth.onAuthStateChange(async (_event, session) => {
-      set({ session, user: session?.user ?? null })
       if (session?.user) {
         await get().fetchProfile(session.user.id)
-      } else {
-        set({ profile: null })
       }
-    })
+
+      supabase.auth.onAuthStateChange(async (_event, session) => {
+        set({ session, user: session?.user ?? null })
+        if (session?.user) {
+          await get().fetchProfile(session.user.id)
+        } else {
+          set({ profile: null })
+        }
+      })
+    } catch {
+      set({ isLoading: false })
+    }
   },
 
   fetchProfile: async (userId: string) => {

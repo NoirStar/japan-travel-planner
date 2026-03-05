@@ -51,7 +51,8 @@ describe("LandingPage", () => {
 
   it("도시 카드가 키보드 접근 가능하다", () => {
     renderWithRouter()
-    const tokyoCard = screen.getByText("도쿄").closest("[role='button']")
-    expect(tokyoCard).toHaveAttribute("tabindex", "0")
+    // motion.button으로 변경되어 네이티브 button으로 접근 가능
+    const tokyoCard = screen.getByText("도쿄").closest("button")
+    expect(tokyoCard).toBeTruthy()
   })
 })

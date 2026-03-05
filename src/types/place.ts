@@ -39,15 +39,6 @@ export const CATEGORY_LABELS: Record<PlaceCategory, string> = {
   [PlaceCategory.OTHER]: "기타",
 }
 
-// ─── 리뷰 ───────────────────────────────────────────────
-export interface PlaceReview {
-  authorName: string
-  rating: number
-  text: string
-  relativeTime: string
-  publishTime?: string
-}
-
 // ─── 장소 ───────────────────────────────────────────────
 export interface Place {
   id: string
@@ -62,7 +53,7 @@ export interface Place {
   description?: string
   address?: string
   googlePlaceId?: string
-  reviews?: PlaceReview[]
+  /** Google Maps 외부 링크 (리뷰 보기 등에 사용) */
+  googleMapsUri?: string
   openingHours?: string[]
-  websiteUri?: string
 }

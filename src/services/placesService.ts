@@ -1,28 +1,50 @@
-import type { Place, PlaceReview } from "@/types/place"
+import type { Place } from "@/types/place"
 import type { PlaceCategory } from "@/types/place"
 
+// Essentials 등급 응답 (마커용 최소 데이터)
 interface PlacesSearchResult {
   id: string
   name: string
   nameEn: string
   category: string
   location: { lat: number; lng: number }
+  googlePlaceId: string
+}
+
+// Pro 등급 응답 (Details)
+interface PlaceDetailsResult extends PlacesSearchResult {
   rating?: number
   ratingCount?: number
   address?: string
   description?: string
   image?: string
-  googlePlaceId: string
-  reviews?: PlaceReview[]
+  googleMapsUri?: string
   openingHours?: string[]
-  websiteUri?: string
 }
 
 interface PlacesSearchResponse {
   places: PlacesSearchResult[]
 }
 
-function toPlace(p: PlacesSearchResult, cityId: string): Place {
+interface PlaceDetailsResponse {
+  place: PlaceDetailsResult
+}
+
+// Essentials 등급 응답 → Place 변환 (마커용 최소 데이터)
+function toMarkerPlace(p: PlacesSearchResult, cityId: string): Place {
+  return {
+    id: p.id,
+    name: p.name,
+    nameEn: p.nameEn,
+    category: p.category as PlaceCategory,
+    cityId,
+    location: p.location,
+    googlePlaceId: p.googlePlaceId,
+  }
+}
+
+// Pro 등급 응답 → Place 변환 (상세 데이터)
+function toDetailPlace(p: PlaceDetailsResult, cityId: string): Place {
   return {
     id: p.id,
     name: p.name,
@@ -36,9 +58,8 @@ function toPlace(p: PlacesSearchResult, cityId: string): Place {
     description: p.description ?? p.address,
     address: p.address,
     googlePlaceId: p.googlePlaceId,
-    reviews: p.reviews,
+    googleMapsUri: p.googleMapsUri,
     openingHours: p.openingHours,
-    websiteUri: p.websiteUri,
   }
 }
 
@@ -63,7 +84,7 @@ export async function searchGooglePlaces(
     }
 
     const data: PlacesSearchResponse = await res.json()
-    return data.places.map((p) => toPlace(p, cityId ?? "tokyo"))
+    return data.places.map((p) => toMarkerPlace(p, cityId ?? "tokyo"))
   } catch (error) {
     console.error("Places search error:", error)
     return []
@@ -91,7 +112,7 @@ export async function fetchNearbyPlaces(
     }
 
     const data: PlacesSearchResponse = await res.json()
-    return data.places.map((p) => toPlace(p, cityId))
+    return data.places.map((p) => toMarkerPlace(p, cityId))
   } catch (error) {
     console.error("Nearby search error:", error)
     return []
@@ -100,6 +121,7 @@ export async function fetchNearbyPlaces(
 
 /**
  * Google Place ID로 장소 상세 정보를 가져옵니다.
+ * ★ Pro 등급 (월 5,000건 무료) — 마커 클릭 시만 호출
  */
 export async function fetchPlaceDetails(
   placeId: string,
@@ -117,9 +139,9 @@ export async function fetchPlaceDetails(
       return null
     }
 
-    const data = await res.json()
+    const data: PlaceDetailsResponse = await res.json()
     if (!data.place) return null
-    return toPlace(data.place, cityId)
+    return toDetailPlace(data.place, cityId)
   } catch (error) {
     console.error("Place details error:", error)
     return null

@@ -132,16 +132,16 @@ export function PlannerPage() {
       .filter((p): p is Place => p !== undefined)
   }, [trip, activeDayIndex])
 
-  // 장소 선택 시 상세 정보 (리뷰 등) lazy-load
+  // 장소 선택 시 상세 정보 (별점, 영업시간, 사진 등) lazy-load
   const handleSelectPlace = useCallback(async (placeId: string | null) => {
     setSelectedPlaceId(placeId)
     if (!placeId) return
 
-    // 이미 리뷰가 로드된 장소인지 확인
+    // 이미 상세 정보가 로드된 장소인지 확인 (rating이 있으면 Details 호출 완료)
     const existing = googlePlaces.find((p) => p.id === placeId)
-    if (existing?.reviews && existing.reviews.length > 0) return
+    if (existing?.rating !== undefined) return
 
-    // googlePlaceId로 상세 정보 fetch
+    // googlePlaceId로 상세 정보 fetch (Pro 등급)
     const gid = existing?.googlePlaceId
     if (!gid) return
 

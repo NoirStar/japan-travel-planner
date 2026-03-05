@@ -73,12 +73,13 @@ async function handleNearby(body) {
     languageCode: "ko",
   }
 
+  // ★ Essentials 등급 (월 10,000건 무료) — 마커용 최소 필드만 요청
   const res = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": API_KEY,
-      "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.rating,places.types,places.formattedAddress,places.photos,places.userRatingCount,places.editorialSummary",
+      "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.types",
     },
     body: JSON.stringify(requestBody),
   })
@@ -91,21 +92,12 @@ async function handleNearby(body) {
 
   const data = await res.json()
   const places = (data.places ?? []).map((p) => {
-    let image
-    if (p.photos?.[0]) {
-      image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${API_KEY}`
-    }
     return {
       id: `google-${p.id}`,
       name: p.displayName?.text ?? "",
       nameEn: p.displayName?.text ?? "",
       category: mapGoogleType(p.types ?? []),
       location: { lat: p.location?.latitude ?? 0, lng: p.location?.longitude ?? 0 },
-      rating: p.rating,
-      ratingCount: p.userRatingCount,
-      address: p.formattedAddress,
-      description: p.editorialSummary?.text ?? p.formattedAddress,
-      image,
       googlePlaceId: p.id,
     }
   })
@@ -137,12 +129,13 @@ async function handleSearch(body) {
     languageCode: "ko",
   }
 
+  // ★ Essentials 등급 (월 10,000건 무료) — 마커용 최소 필드만 요청
   const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": API_KEY,
-      "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.rating,places.types,places.formattedAddress,places.photos,places.userRatingCount,places.editorialSummary",
+      "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.types",
     },
     body: JSON.stringify(requestBody),
   })
@@ -155,21 +148,12 @@ async function handleSearch(body) {
 
   const data = await res.json()
   const places = (data.places ?? []).map((p) => {
-    let image
-    if (p.photos?.[0]) {
-      image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${API_KEY}`
-    }
     return {
       id: `google-${p.id}`,
       name: p.displayName?.text ?? "",
       nameEn: p.displayName?.text ?? "",
       category: mapGoogleType(p.types ?? []),
       location: { lat: p.location?.latitude ?? 0, lng: p.location?.longitude ?? 0 },
-      rating: p.rating,
-      ratingCount: p.userRatingCount,
-      address: p.formattedAddress,
-      description: p.editorialSummary?.text ?? p.formattedAddress,
-      image,
       googlePlaceId: p.id,
     }
   })
@@ -185,11 +169,13 @@ async function handlePlaceDetails(body) {
   // google- 접두사가 있으면 제거
   const realPlaceId = placeId.replace(/^google-/, "")
 
+  // ★ Pro 등급 (월 5,000건 무료) — 마커 클릭 시만 호출
+  // ⚠️ reviews 필드 절대 포함 금지 (Enterprise → 월 1,000건으로 급감)
   const res = await fetch(`https://places.googleapis.com/v1/places/${realPlaceId}?languageCode=ko`, {
     method: "GET",
     headers: {
       "X-Goog-Api-Key": API_KEY,
-      "X-Goog-FieldMask": "id,displayName,location,rating,types,formattedAddress,photos,userRatingCount,editorialSummary,reviews,regularOpeningHours,websiteUri",
+      "X-Goog-FieldMask": "id,displayName,location,rating,userRatingCount,types,shortFormattedAddress,photos,regularOpeningHours,googleMapsUri",
     },
   })
 
@@ -200,6 +186,7 @@ async function handlePlaceDetails(body) {
   }
 
   const p = await res.json()
+  // Place Photos API — photo name으로 이미지 URL 생성 (월 10,000건 무료)
   let image
   if (p.photos?.[0]) {
     image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${API_KEY}`
@@ -213,19 +200,13 @@ async function handlePlaceDetails(body) {
     location: { lat: p.location?.latitude ?? 0, lng: p.location?.longitude ?? 0 },
     rating: p.rating,
     ratingCount: p.userRatingCount,
-    address: p.formattedAddress,
-    description: p.editorialSummary?.text ?? p.formattedAddress,
+    address: p.shortFormattedAddress,
+    description: p.shortFormattedAddress,
     image,
     googlePlaceId: p.id,
-    reviews: (p.reviews ?? []).slice(0, 10).map((r) => ({
-      authorName: r.authorAttribution?.displayName ?? "익명",
-      rating: r.rating,
-      text: r.text?.text ?? "",
-      relativeTime: r.relativePublishTimeDescription ?? "",
-    })),
-    googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.id}`,
+    // reviews 필드 제거 — Enterprise 등급 회피
+    googleMapsUri: p.googleMapsUri ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.displayName?.text ?? "")}&query_place_id=${p.id}`,
     openingHours: p.regularOpeningHours?.weekdayDescriptions,
-    websiteUri: p.websiteUri,
   }
 
   return { status: 200, data: { place } }

@@ -248,41 +248,16 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
                 </details>
               )}
 
-              {/* 웹사이트 */}
-              {place.websiteUri && (
+              {/* 구글 지도에서 리뷰 보기 (Enterprise 등급 회피) */}
+              {place.googleMapsUri && (
                 <a
-                  href={place.websiteUri}
+                  href={place.googleMapsUri}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                  className="mt-2 inline-flex items-center gap-1 rounded-lg bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  <ExternalLink className="h-3 w-3" /> 웹사이트
+                  <Star className="h-3 w-3" /> 구글 지도에서 리뷰 보기
                 </a>
-              )}
-
-              {/* 리뷰 */}
-              {place.reviews && place.reviews.length > 0 && (
-                <div className="mt-2 border-t border-gray-100 dark:border-gray-700 pt-2">
-                  <p className="text-[11px] font-semibold text-gray-700 dark:text-gray-200 mb-1">리뷰 ({place.reviews.length})</p>
-                  <div className="space-y-1.5">
-                    {place.reviews.map((review, i) => (
-                      <div key={i} className="text-[10px]">
-                        <div className="flex items-center gap-1 text-gray-600 dark:text-gray-300">
-                          <span className="font-medium">{review.authorName}</span>
-                          <span className="flex items-center">
-                            {Array.from({ length: review.rating }).map((_, j) => (
-                              <Star key={j} className="h-2 w-2 fill-yellow-400 text-yellow-400" />
-                            ))}
-                          </span>
-                          <span className="text-gray-400 dark:text-gray-500">{review.relativeTime}</span>
-                        </div>
-                        {review.text && (
-                          <p className="text-gray-500 dark:text-gray-400 line-clamp-3 mt-0.5">{review.text}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
               )}
 
               {/* Google Maps 링크 */}

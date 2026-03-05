@@ -88,12 +88,14 @@ export default async function handler(
       languageCode: "ko",
     }
 
+    // ★ Essentials 등급 (월 10,000건 무료) — 마커 표시용 최소 필드만 요청
+    // rating, photos, editorialSummary 등 Pro 등급 필드는 Place Details에서 별도 호출
     const placesRes = await fetch(NEARBY_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.rating,places.types,places.formattedAddress,places.photos,places.userRatingCount,places.editorialSummary",
+        "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.types",
       },
       body: JSON.stringify(requestBody),
     })
@@ -105,39 +107,23 @@ export default async function handler(
     }
 
     const data = await placesRes.json()
+    // Essentials 등급 — 마커 좌표 + 이름 + 카테고리만 반환
     const places = (data.places ?? []).map((p: {
       id: string
       displayName: { text: string; languageCode: string }
       location: { latitude: number; longitude: number }
-      rating?: number
-      userRatingCount?: number
       types?: string[]
-      formattedAddress?: string
-      photos?: { name: string }[]
-      editorialSummary?: { text: string }
-    }) => {
-      let image: string | undefined
-      if (p.photos?.[0]) {
-        image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${apiKey}`
-      }
-
-      return {
-        id: `google-${p.id}`,
-        name: p.displayName?.text ?? "",
-        nameEn: p.displayName?.text ?? "",
-        category: mapGoogleType(p.types ?? []),
-        location: {
-          lat: p.location?.latitude ?? 0,
-          lng: p.location?.longitude ?? 0,
-        },
-        rating: p.rating,
-        ratingCount: p.userRatingCount,
-        address: p.formattedAddress,
-        description: p.editorialSummary?.text ?? p.formattedAddress,
-        image,
-        googlePlaceId: p.id,
-      }
-    })
+    }) => ({
+      id: `google-${p.id}`,
+      name: p.displayName?.text ?? "",
+      nameEn: p.displayName?.text ?? "",
+      category: mapGoogleType(p.types ?? []),
+      location: {
+        lat: p.location?.latitude ?? 0,
+        lng: p.location?.longitude ?? 0,
+      },
+      googlePlaceId: p.id,
+    }))
 
     // 카테고리 필터가 지정된 경우, mapGoogleType 결과가 일치하는 것만 반환
     // (Google API가 includedTypes로 검색하지만, 장소의 다른 타입이 우선 매핑될 수 있음)

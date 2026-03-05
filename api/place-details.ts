@@ -37,11 +37,13 @@ export default async function handler(
 
     const realPlaceId = placeId.replace(/^google-/, "")
 
+    // ★ Pro 등급 (월 5,000건 무료) — 마커 클릭 시만 호출
+    // ⚠️ reviews 필드 절대 포함 금지 (Enterprise 등급 → 월 1,000건으로 급감)
     const placesRes = await fetch(`https://places.googleapis.com/v1/places/${realPlaceId}?languageCode=ko`, {
       method: "GET",
       headers: {
         "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "id,displayName,location,rating,types,formattedAddress,photos,userRatingCount,editorialSummary,reviews,regularOpeningHours,websiteUri",
+        "X-Goog-FieldMask": "id,displayName,location,rating,userRatingCount,types,shortFormattedAddress,photos,regularOpeningHours,googleMapsUri",
       },
     })
 
@@ -58,14 +60,13 @@ export default async function handler(
       rating?: number
       userRatingCount?: number
       types?: string[]
-      formattedAddress?: string
+      shortFormattedAddress?: string
       photos?: { name: string }[]
-      editorialSummary?: { text: string }
-      reviews?: { authorAttribution?: { displayName: string }; rating: number; text?: { text: string }; relativePublishTimeDescription: string; publishTime?: string }[]
       regularOpeningHours?: { weekdayDescriptions: string[] }
-      websiteUri?: string
+      googleMapsUri?: string
     }
 
+    // Place Photos API — photo name으로 이미지 URL 생성 (월 10,000건 무료)
     let image: string | undefined
     if (p.photos?.[0]) {
       image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${apiKey}`
@@ -82,26 +83,14 @@ export default async function handler(
       },
       rating: p.rating,
       ratingCount: p.userRatingCount,
-      address: p.formattedAddress,
-      description: p.editorialSummary?.text ?? p.formattedAddress,
+      address: p.shortFormattedAddress,
+      description: p.shortFormattedAddress,
       image,
       googlePlaceId: p.id,
-      reviews: (p.reviews ?? [])
-        .sort((a, b) => {
-          if (a.publishTime && b.publishTime) return new Date(b.publishTime).getTime() - new Date(a.publishTime).getTime()
-          return 0
-        })
-        .slice(0, 10)
-        .map((r) => ({
-        authorName: r.authorAttribution?.displayName ?? "익명",
-        rating: r.rating,
-        text: r.text?.text ?? "",
-        relativeTime: r.relativePublishTimeDescription ?? "",
-        publishTime: r.publishTime,
-      })),
-      googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${p.id}`,
+      // reviews 필드 제거 — Enterprise 등급 회피
+      // 대신 googleMapsUri로 "구글맵에서 리뷰 보기" 링크 제공
+      googleMapsUri: p.googleMapsUri ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.displayName?.text ?? "")}&query_place_id=${p.id}`,
       openingHours: p.regularOpeningHours?.weekdayDescriptions,
-      websiteUri: p.websiteUri,
     }
 
     return res.status(200).json({ place })

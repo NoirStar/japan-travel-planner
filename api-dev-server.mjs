@@ -36,10 +36,11 @@ const CATEGORY_TYPES = {
   transport: ["transit_station", "train_station", "bus_station", "subway_station"],
 }
 
+// 주의: cafe/bakery를 restaurant보다 먼저 체크해야 일본 카페가 식당으로 분류되지 않음
 function mapGoogleType(types) {
   const s = new Set(types)
-  if (s.has("restaurant") || s.has("food") || s.has("japanese_restaurant") || s.has("ramen_restaurant") || s.has("sushi_restaurant")) return "restaurant"
   if (s.has("cafe") || s.has("bakery") || s.has("coffee_shop")) return "cafe"
+  if (s.has("restaurant") || s.has("food") || s.has("japanese_restaurant") || s.has("ramen_restaurant") || s.has("sushi_restaurant")) return "restaurant"
   if (s.has("lodging") || s.has("hotel")) return "accommodation"
   if (s.has("shopping_mall") || s.has("store") || s.has("clothing_store") || s.has("department_store") || s.has("market")) return "shopping"
   if (s.has("transit_station") || s.has("train_station")) return "transport"

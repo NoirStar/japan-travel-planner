@@ -19,10 +19,11 @@ interface PlaceResult {
 const PLACES_API_URL = "https://places.googleapis.com/v1/places:searchText"
 
 // 카테고리 매핑 (3개 API 파일 공통)
+// 주의: cafe/bakery를 restaurant보다 먼저 체크해야 일본 카페가 식당으로 분류되지 않음
 function mapGoogleType(types: string[]): string {
   const typeSet = new Set(types)
-  if (typeSet.has("restaurant") || typeSet.has("food") || typeSet.has("meal_delivery") || typeSet.has("meal_takeaway") || typeSet.has("japanese_restaurant") || typeSet.has("ramen_restaurant") || typeSet.has("sushi_restaurant")) return "restaurant"
   if (typeSet.has("cafe") || typeSet.has("bakery") || typeSet.has("coffee_shop")) return "cafe"
+  if (typeSet.has("restaurant") || typeSet.has("food") || typeSet.has("meal_delivery") || typeSet.has("meal_takeaway") || typeSet.has("japanese_restaurant") || typeSet.has("ramen_restaurant") || typeSet.has("sushi_restaurant")) return "restaurant"
   if (typeSet.has("lodging") || typeSet.has("hotel")) return "accommodation"
   if (typeSet.has("shopping_mall") || typeSet.has("store") || typeSet.has("clothing_store") || typeSet.has("department_store") || typeSet.has("market")) return "shopping"
   if (typeSet.has("transit_station") || typeSet.has("train_station") || typeSet.has("bus_station") || typeSet.has("subway_station")) return "transport"

@@ -248,14 +248,10 @@ export function PlannerPage() {
     }
   }, [cityId, activeCategory, minRating])
 
-  // 카테고리 변경 핸들러 — 이전 검색 좌표로 자동 재검색
-  const handleCategoryChange = useCallback((category: string | undefined) => {
+  // 카테고리 변경 핸들러 — 현재 지도 중심 좌표로 재검색
+  const handleCategoryChange = useCallback((category: string | undefined, lat: number, lng: number, radius: number) => {
     setActiveCategory(category)
-    // 이전에 검색한 적 있으면 새 카테고리로 재검색
-    if (lastSearchRef.current) {
-      const { lat, lng, radius } = lastSearchRef.current
-      handleSearchArea(lat, lng, radius, category ?? null)
-    }
+    handleSearchArea(lat, lng, radius, category ?? null)
   }, [handleSearchArea])
 
   // 최소 별점 변경 핸들러

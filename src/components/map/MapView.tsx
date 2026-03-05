@@ -40,8 +40,8 @@ interface MapViewProps {
   searchMessage?: string | null
   /** 현재 활성 카테고리 필터 */
   activeCategory?: string
-  /** 카테고리 변경 콜백 */
-  onCategoryChange?: (category: string | undefined) => void
+  /** 카테고리 변경 콜백 (지도 좌표/반경 포함) */
+  onCategoryChange?: (category: string | undefined, lat: number, lng: number, radius: number) => void
   /** 최소 별점 필터 */
   minRating?: number
   /** 최소 별점 변경 콜백 */
@@ -165,7 +165,7 @@ function UnifiedSearchBar({
   onSearch: (lat: number, lng: number, radius: number) => void
   isSearching?: boolean
   activeCategory?: string
-  onCategoryChange: (category: string | undefined) => void
+  onCategoryChange: (category: string | undefined, lat: number, lng: number, radius: number) => void
   minRating?: number
   onMinRatingChange: (rating: number | undefined) => void
   sortBy?: string
@@ -236,7 +236,25 @@ function UnifiedSearchBar({
           return (
             <button
               key={cat.id ?? "all"}
-              onClick={() => onCategoryChange(cat.id as string | undefined)}
+              onClick={() => {
+                if (!map) return
+                const center = map.getCenter()
+                if (!center) return
+                const bounds = map.getBounds()
+                let radius = 5000
+                if (bounds) {
+                  const ne = bounds.getNorthEast()
+                  const toRad = (d: number) => d * Math.PI / 180
+                  const lat1 = toRad(center.lat())
+                  const lat2 = toRad(ne.lat())
+                  const dLat = toRad(ne.lat() - center.lat())
+                  const dLng = toRad(ne.lng() - center.lng())
+                  const a = Math.sin(dLat/2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng/2)**2
+                  const dist = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+                  radius = Math.max(300, Math.min(Math.round(dist * 0.7), 50000))
+                }
+                onCategoryChange(cat.id as string | undefined, center.lat(), center.lng(), radius)
+              }}
               className={`flex shrink-0 items-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all ${
                 isActive
                   ? "bg-sakura-dark text-white shadow-sm"

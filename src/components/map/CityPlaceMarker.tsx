@@ -122,9 +122,10 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
     onSelect?.()
   }, [onSelect])
 
-  // 마커 hover 이벤트 리스너 (선택 상태일 때는 무시)
+  // 마커 hover 이벤트 리스너 (선택 상태 또는 모바일 터치 디바이스일 때는 무시)
+  const isTouchDevice = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0)
   useEffect(() => {
-    if (!marker) return
+    if (!marker || isTouchDevice) return
     const over = marker.addListener("mouseover", () => {
       if (!isSelected) setIsHovered(true)
     })
@@ -133,7 +134,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
       over.remove()
       out.remove()
     }
-  }, [marker, isSelected])
+  }, [marker, isSelected, isTouchDevice])
 
   const color = CATEGORY_HEX[place.category] ?? "#6b7280"
   const tier = getRatingTier(place.rating)

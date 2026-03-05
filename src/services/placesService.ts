@@ -1,6 +1,39 @@
 import type { Place } from "@/types/place"
 import type { PlaceCategory } from "@/types/place"
 
+// ─── Place Details 캐시 (localStorage) ─────────────────
+const CACHE_KEY_PREFIX = "place-detail:"
+const CACHE_TTL = 24 * 60 * 60 * 1000 // 24시간
+
+interface CachedDetail {
+  place: Place
+  ts: number
+}
+
+function getCachedDetail(placeId: string): Place | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY_PREFIX + placeId)
+    if (!raw) return null
+    const cached: CachedDetail = JSON.parse(raw)
+    if (Date.now() - cached.ts > CACHE_TTL) {
+      localStorage.removeItem(CACHE_KEY_PREFIX + placeId)
+      return null
+    }
+    return cached.place
+  } catch {
+    return null
+  }
+}
+
+function setCachedDetail(placeId: string, place: Place) {
+  try {
+    const entry: CachedDetail = { place, ts: Date.now() }
+    localStorage.setItem(CACHE_KEY_PREFIX + placeId, JSON.stringify(entry))
+  } catch {
+    // quota 초과 시 무시
+  }
+}
+
 // Essentials 등급 응답 (마커용 최소 데이터)
 interface PlacesSearchResult {
   id: string
@@ -122,11 +155,16 @@ export async function fetchNearbyPlaces(
 /**
  * Google Place ID로 장소 상세 정보를 가져옵니다.
  * ★ Pro 등급 (월 5,000건 무료) — 마커 클릭 시만 호출
+ * ★ localStorage 캐시: 같은 장소를 다시 클릭해도 API를 재호출하지 않음 (24h TTL)
  */
 export async function fetchPlaceDetails(
   placeId: string,
   cityId: string = "tokyo",
 ): Promise<Place | null> {
+  // 캐시 히트 → API 호출 없이 반환
+  const cached = getCachedDetail(placeId)
+  if (cached) return cached
+
   try {
     const res = await fetch("/api/place-details", {
       method: "POST",
@@ -141,7 +179,10 @@ export async function fetchPlaceDetails(
 
     const data: PlaceDetailsResponse = await res.json()
     if (!data.place) return null
-    return toDetailPlace(data.place, cityId)
+
+    const place = toDetailPlace(data.place, cityId)
+    setCachedDetail(placeId, place)
+    return place
   } catch (error) {
     console.error("Place details error:", error)
     return null

@@ -238,3 +238,27 @@ body {
 .dark .gm-style .gm-style-iw-chr button span {
   background-color: #9ca3af !important;
 }
+/* InfoWindow 내부 다크 스크롤바 */
+.dark .gm-style-iw-d::-webkit-scrollbar,
+.dark .gm-style-iw-d *::-webkit-scrollbar {
+  width: 5px;
+}
+.dark .gm-style-iw-d::-webkit-scrollbar-track,
+.dark .gm-style-iw-d *::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+.dark .gm-style-iw-d::-webkit-scrollbar-thumb,
+.dark .gm-style-iw-d *::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+.dark .gm-style-iw-d::-webkit-scrollbar-thumb:hover,
+.dark .gm-style-iw-d *::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+/* Firefox 다크 스크롤바 */
+.dark .gm-style-iw-d,
+.dark .gm-style-iw-d * {
+  scrollbar-color: #4b5563 #1f2937;
+  scrollbar-width: thin;
+}

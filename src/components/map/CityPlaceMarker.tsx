@@ -192,113 +192,119 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
           anchor={marker}
           onCloseClick={() => onSelect?.()}
         >
-          <div className="min-w-[220px] max-w-[280px] p-1.5 dark:bg-gray-800">
-            {place.image && (
-              <div className="mb-2 h-24 w-full overflow-hidden rounded-lg">
-                <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
-              </div>
-            )}
+          <div className="min-w-[220px] max-w-[280px] dark:bg-gray-800 flex flex-col" style={{ maxHeight: '350px' }}>
+            {/* 스크롤 가능한 콘텐츠 영역 */}
+            <div className="flex-1 overflow-y-auto p-1.5 min-h-0">
+              {place.image && (
+                <div className="mb-2 h-24 w-full overflow-hidden rounded-lg">
+                  <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
+                </div>
+              )}
 
-            <div className="flex items-center gap-1.5">
-              <CategoryIcon className="h-4 w-4" style={{ color }} />
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{place.name}</span>
-            </div>
-            <div className="mt-1 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-              <span className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5">{categoryLabel}</span>
-              {place.rating && (
-                <span className="flex items-center gap-0.5">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                  {place.rating}
-                  {place.ratingCount && (
-                    <span className="text-gray-400 dark:text-gray-500 text-[10px]">({place.ratingCount.toLocaleString()})</span>
-                  )}
-                </span>
+              <div className="flex items-center gap-1.5">
+                <CategoryIcon className="h-4 w-4" style={{ color }} />
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{place.name}</span>
+              </div>
+              <div className="mt-1 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                <span className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5">{categoryLabel}</span>
+                {place.rating && (
+                  <span className="flex items-center gap-0.5">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    {place.rating}
+                    {place.ratingCount && (
+                      <span className="text-gray-400 dark:text-gray-500 text-[10px]">({place.ratingCount.toLocaleString()})</span>
+                    )}
+                  </span>
+                )}
+              </div>
+              {place.address && (
+                <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">{place.address}</p>
+              )}
+              {place.description && (
+                <p className="mt-1 max-w-[260px] text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                  {place.description}
+                </p>
+              )}
+
+              {/* 영업시간 */}
+              {place.openingHours && place.openingHours.length > 0 && (
+                <details className="mt-2 text-[10px] text-gray-500 dark:text-gray-400">
+                  <summary className="cursor-pointer flex items-center gap-1 font-medium text-gray-600 dark:text-gray-300">
+                    <Clock className="h-3 w-3" /> 영업시간
+                  </summary>
+                  <ul className="mt-1 space-y-0.5 pl-4">
+                    {place.openingHours.map((h, i) => (
+                      <li key={i}>{h}</li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+
+              {/* 웹사이트 */}
+              {place.websiteUri && (
+                <a
+                  href={place.websiteUri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" /> 웹사이트
+                </a>
+              )}
+
+              {/* 리뷰 */}
+              {place.reviews && place.reviews.length > 0 && (
+                <div className="mt-2 border-t border-gray-100 dark:border-gray-700 pt-2">
+                  <p className="text-[11px] font-semibold text-gray-700 dark:text-gray-200 mb-1">리뷰 ({place.reviews.length})</p>
+                  <div className="space-y-1.5">
+                    {place.reviews.map((review, i) => (
+                      <div key={i} className="text-[10px]">
+                        <div className="flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                          <span className="font-medium">{review.authorName}</span>
+                          <span className="flex items-center">
+                            {Array.from({ length: review.rating }).map((_, j) => (
+                              <Star key={j} className="h-2 w-2 fill-yellow-400 text-yellow-400" />
+                            ))}
+                          </span>
+                          <span className="text-gray-400 dark:text-gray-500">{review.relativeTime}</span>
+                        </div>
+                        {review.text && (
+                          <p className="text-gray-500 dark:text-gray-400 line-clamp-3 mt-0.5">{review.text}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Google Maps 링크 */}
+              {place.googlePlaceId && (
+                <a
+                  href={`https://www.google.com/maps/place/?q=place_id:${place.googlePlaceId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" /> Google Maps에서 보기
+                </a>
               )}
             </div>
-            {place.address && (
-              <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">{place.address}</p>
-            )}
-            {place.description && (
-              <p className="mt-1 max-w-[260px] text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
-                {place.description}
-              </p>
-            )}
 
-            {/* 영업시간 */}
-            {place.openingHours && place.openingHours.length > 0 && (
-              <details className="mt-2 text-[10px] text-gray-500 dark:text-gray-400">
-                <summary className="cursor-pointer flex items-center gap-1 font-medium text-gray-600 dark:text-gray-300">
-                  <Clock className="h-3 w-3" /> 영업시간
-                </summary>
-                <ul className="mt-1 space-y-0.5 pl-4">
-                  {place.openingHours.map((h, i) => (
-                    <li key={i}>{h}</li>
-                  ))}
-                </ul>
-              </details>
-            )}
-
-            {/* 웹사이트 */}
-            {place.websiteUri && (
-              <a
-                href={place.websiteUri}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+            {/* 하단 고정 버튼 */}
+            <div className="shrink-0 border-t border-gray-100 dark:border-gray-700 p-1.5">
+              <Button
+                size="sm"
+                className="w-full gap-1.5 rounded-lg bg-pink-500 text-white hover:bg-pink-600 text-xs h-7"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onAdd?.()
+                  onSelect?.()
+                }}
               >
-                <ExternalLink className="h-3 w-3" /> 웹사이트
-              </a>
-            )}
-
-            {/* 리뷰 */}
-            {place.reviews && place.reviews.length > 0 && (
-              <div className="mt-2 border-t border-gray-100 dark:border-gray-700 pt-2">
-                <p className="text-[11px] font-semibold text-gray-700 dark:text-gray-200 mb-1">리뷰 ({place.reviews.length})</p>
-                <div className="space-y-1.5 max-h-[250px] overflow-y-auto pr-1">
-                  {place.reviews.map((review, i) => (
-                    <div key={i} className="text-[10px]">
-                      <div className="flex items-center gap-1 text-gray-600 dark:text-gray-300">
-                        <span className="font-medium">{review.authorName}</span>
-                        <span className="flex items-center">
-                          {Array.from({ length: review.rating }).map((_, j) => (
-                            <Star key={j} className="h-2 w-2 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </span>
-                        <span className="text-gray-400 dark:text-gray-500">{review.relativeTime}</span>
-                      </div>
-                      {review.text && (
-                        <p className="text-gray-500 dark:text-gray-400 line-clamp-3 mt-0.5">{review.text}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Google Maps 링크 */}
-            {place.googlePlaceId && (
-              <a
-                href={`https://www.google.com/maps/place/?q=place_id:${place.googlePlaceId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                <ExternalLink className="h-3 w-3" /> Google Maps에서 보기
-              </a>
-            )}
-
-            <Button
-              size="sm"
-              className="mt-2 w-full gap-1.5 rounded-lg bg-pink-500 text-white hover:bg-pink-600 text-xs h-7"
-              onClick={(e) => {
-                e.stopPropagation()
-                onAdd?.()
-                onSelect?.()
-              }}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              일정에 추가
-            </Button>
+                <Plus className="h-3.5 w-3.5" />
+                일정에 추가
+              </Button>
+            </div>
           </div>
         </InfoWindow>
       )}

@@ -139,8 +139,13 @@ export default async function handler(
       }
     })
 
-    // 별점 필터링은 클라이언트에서 처리 — 서버는 전체 반환
-    return res.status(200).json({ places })
+    // 카테고리 필터가 지정된 경우, mapGoogleType 결과가 일치하는 것만 반환
+    // (Google API가 includedTypes로 검색하지만, 장소의 다른 타입이 우선 매핑될 수 있음)
+    const filtered = category
+      ? places.filter((p: { category: string }) => p.category === category)
+      : places
+
+    return res.status(200).json({ places: filtered })
   } catch (error) {
     console.error("Nearby search error:", error)
     return res.status(500).json({ error: "서버 오류가 발생했습니다" })

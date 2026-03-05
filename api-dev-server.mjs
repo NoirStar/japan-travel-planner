@@ -110,8 +110,12 @@ async function handleNearby(body) {
     }
   })
 
-  // 별점 필터링은 클라이언트에서 처리
-  return { status: 200, data: { places } }
+  // 카테고리 필터가 지정된 경우, mapGoogleType 결과가 일치하는 것만 반환
+  const filtered = category
+    ? places.filter((p) => p.category === category)
+    : places
+
+  return { status: 200, data: { places: filtered } }
 }
 
 // ── 핸들러: /api/places-search ──────────────────────────

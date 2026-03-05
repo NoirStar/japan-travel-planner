@@ -30,6 +30,8 @@ interface MapViewProps {
   onSelectPlace?: (placeId: string | null) => void
   /** 미추가 장소 클릭 시 일정에 추가하는 콜백 */
   onAddPlace?: (placeId: string) => void
+  /** 일정에서 장소 제거하는 콜백 */
+  onRemovePlace?: (placeId: string) => void
   /** Google Maps 기본 POI 클릭 시 콜백 */
   onPoiClick?: (placeId: string) => void
   /** 현재 지도 영역에서 검색 */
@@ -440,7 +442,7 @@ const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, sortBy, onSortChange }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onRemovePlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, sortBy, onSortChange }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -531,6 +533,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
               index={index}
               isSelected={selectedPlaceId === place.id}
               onSelect={() => onSelectPlace?.(place.id === selectedPlaceId ? null : place.id)}
+              onRemove={() => onRemovePlace?.(place.id)}
             />
           ))}
 

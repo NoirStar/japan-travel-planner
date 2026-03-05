@@ -165,6 +165,17 @@ export function PlannerPage() {
     useScheduleStore.getState().addItem(trip.id, currentDay.id, placeId)
   }
 
+  // 지도에서 번호 마커 클릭하여 일정에서 삭제
+  const handleRemovePlaceFromMap = useCallback((placeId: string) => {
+    if (!trip) return
+    const currentDay = trip.days[activeDayIndex]
+    if (!currentDay) return
+    const item = currentDay.items.find((i) => i.placeId === placeId)
+    if (item) {
+      useScheduleStore.getState().removeItem(trip.id, currentDay.id, item.id)
+    }
+  }, [trip, activeDayIndex])
+
   // Google Maps 기본 POI 클릭 처리
   const handlePoiClick = async (googlePlaceId: string) => {
     // 이미 로드된 장소인지 확인
@@ -296,6 +307,7 @@ export function PlannerPage() {
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={handleSelectPlace}
             onAddPlace={handleAddPlaceFromMap}
+            onRemovePlace={handleRemovePlaceFromMap}
             onPoiClick={handlePoiClick}
             onSearchArea={handleSearchArea}
             isSearching={isSearching}

@@ -31,25 +31,31 @@ function getRatingTier(rating?: number): RatingTier {
 const TIER_Z_INDEX: Record<RatingTier, number> = { premium: 100, good: 50, normal: 20, basic: 10 }
 const TIER_OPACITY: Record<RatingTier, number> = { premium: 1, good: 0.95, normal: 0.85, basic: 0.7 }
 
-/** 카테고리 아이콘 SVG (중심점 기준 상대좌표) */
+/** 카테고리 아이콘 SVG — Lucide 스타일 (검색패널과 동일한 느낌) */
 function getCategoryIconSvg(category: string, cx: number, cy: number, scale: number): string {
   const t = `translate(${cx},${cy}) scale(${scale})`
   switch (category) {
     case "restaurant":
-      // 포크 + 나이프 아이콘
-      return `<g transform="${t}"><path d="M-3.5,-4 v3 a1.5,1.5 0 0,0 3,0 v-3" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/><line x1="-2" y1="-1" x2="-2" y2="4" stroke="white" stroke-width="1.3" stroke-linecap="round"/><path d="M1.5,-4 v2.5 c0,1.5 1,2 2.5,1.5 v-4 M1.5,-1.5 l0,5.5" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/></g>`
+      // UtensilsCrossed — 교차된 포크+나이프
+      return `<g transform="${t}"><path d="M-2,-5 v3.5 a1.2,1.2 0 0,0 2.4,0 v-3.5 M-0.8,-5 v3.5" stroke="white" stroke-width="1" fill="none" stroke-linecap="round"/><line x1="-0.8" y1="-1" x2="-0.8" y2="5" stroke="white" stroke-width="1.1" stroke-linecap="round"/><path d="M2.5,-5 l-0.3,4 c0,0.8 0.5,1.2 1.3,1 l0,-5 M2.2,-1 l0,6" stroke="white" stroke-width="1" fill="none" stroke-linecap="round"/></g>`
     case "cafe":
-      return `<g transform="${t}"><path d="M-3,-1.5 h5 l-0.5,4.5 h-4 z M2,0 h1.5 v2 h-1.5" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/><line x1="-3" y1="3.5" x2="2" y2="3.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/></g>`
+      // Coffee — 커피컵 + 손잡이 + 받침
+      return `<g transform="${t}"><path d="M-3.5,-1 h6 l-0.5,5 h-5 z" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5,0 h1.5 a1,1 0 0,1 0,3 h-1.5" stroke="white" stroke-width="1.1" fill="none"/><line x1="-4" y1="4.5" x2="3" y2="4.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/><path d="M-1.5,-3.5 c0,-1 1,-1 1,0 M0.5,-3.5 c0,-1 1,-1 1,0" stroke="white" stroke-width="0.8" fill="none" stroke-linecap="round"/></g>`
     case "attraction":
-      return `<g transform="${t}"><path d="M0,-4 L1.2,-1.3 L4,-1.2 L2,0.8 L2.5,3.5 L0,2 L-2.5,3.5 L-2,0.8 L-4,-1.2 L-1.2,-1.3 Z" fill="white" opacity="0.95"/></g>`
+      // Landmark — 기둥이 있는 건물
+      return `<g transform="${t}"><path d="M0,-4.5 l-4,2.5 h8 z" stroke="white" stroke-width="1.1" fill="none" stroke-linejoin="round"/><line x1="-2.5" y1="-1.5" x2="-2.5" y2="3" stroke="white" stroke-width="1.2" stroke-linecap="round"/><line x1="0" y1="-1.5" x2="0" y2="3" stroke="white" stroke-width="1.2" stroke-linecap="round"/><line x1="2.5" y1="-1.5" x2="2.5" y2="3" stroke="white" stroke-width="1.2" stroke-linecap="round"/><line x1="-4" y1="3.5" x2="4" y2="3.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/></g>`
     case "shopping":
-      return `<g transform="${t}"><path d="M-3,0 h6 l0.5,4.5 h-7 z M-1,0 v-2 a1.5,1.5 0 0,1 3,0 v2" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>`
+      // ShoppingBag — 쇼핑백 + 손잡이
+      return `<g transform="${t}"><rect x="-3.5" y="-1" width="7" height="6" rx="0.8" stroke="white" stroke-width="1.2" fill="none"/><path d="M-1.5,-1 v-1.5 a1.5,1.5 0 0,1 3,0 v1.5" stroke="white" stroke-width="1.1" fill="none" stroke-linecap="round"/></g>`
     case "accommodation":
-      return `<g transform="${t}"><path d="M-4,3 v-5.5 h8 v5.5 M-4,0 h8" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="-1.5" cy="-2" r="1.2" fill="white" opacity="0.9"/></g>`
+      // Hotel — 침대
+      return `<g transform="${t}"><path d="M-4,3 v-7" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M-4,0 h6 a1.5,1.5 0 0,1 1.5,1.5 v1.5 h-9" stroke="white" stroke-width="1.2" fill="none" stroke-linejoin="round"/><circle cx="-2" cy="-2" r="1.3" fill="white" opacity="0.85"/><line x1="4" y1="3" x2="4" y2="1" stroke="white" stroke-width="1.2" stroke-linecap="round"/></g>`
     case "transport":
-      return `<g transform="${t}"><rect x="-3" y="-4" width="6" height="7" rx="1.5" stroke="white" stroke-width="1.3" fill="none"/><line x1="-3" y1="1" x2="3" y2="1" stroke="white" stroke-width="1"/><circle cx="-1.5" cy="2" r="0.7" fill="white"/><circle cx="1.5" cy="2" r="0.7" fill="white"/></g>`
+      // Train — 전철
+      return `<g transform="${t}"><rect x="-3" y="-4" width="6" height="6.5" rx="1.5" stroke="white" stroke-width="1.2" fill="none"/><line x1="-3" y1="0" x2="3" y2="0" stroke="white" stroke-width="0.9"/><circle cx="-1.5" cy="1.3" r="0.7" fill="white"/><circle cx="1.5" cy="1.3" r="0.7" fill="white"/><line x1="-1.5" y1="3" x2="-2.5" y2="4.5" stroke="white" stroke-width="1" stroke-linecap="round"/><line x1="1.5" y1="3" x2="2.5" y2="4.5" stroke="white" stroke-width="1" stroke-linecap="round"/></g>`
     default:
-      return `<g transform="${t}"><circle cx="0" cy="-1" r="2.5" stroke="white" stroke-width="1.3" fill="none"/><line x1="0" y1="2" x2="0" y2="4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></g>`
+      // MapPin
+      return `<g transform="${t}"><circle cx="0" cy="-1" r="2.5" stroke="white" stroke-width="1.3" fill="none"/><path d="M0,1.5 l0,3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></g>`
   }
 }
 
@@ -79,10 +85,12 @@ function createRatedPinSvg(color: string, category: string, rating: number | und
     ? `<rect x="0.5" y="0.5" width="${c.w - 1}" height="${c.bodyH + 1}" rx="${c.r + 1}" fill="none" stroke="#fbbf24" stroke-width="3" opacity="0.5"/>`
     : ""
 
-  // 프리미엄: 우상단 골드 별 뱃지
+  // 프리미엄: "추천" 텍스트 뱃지 / good: 골드 별 뱃지
   const starBadge = tier === "premium"
-    ? `<circle cx="${c.w - 5}" cy="5" r="5.5" fill="#fbbf24" stroke="white" stroke-width="1.5"/><text x="${c.w - 5}" y="7.5" text-anchor="middle" fill="white" font-size="7" font-weight="bold">★</text>`
-    : ""
+    ? `<rect x="${c.w - 18}" y="0" width="20" height="11" rx="5.5" fill="#ef4444" stroke="white" stroke-width="1.2"/><text x="${c.w - 8}" y="8.5" text-anchor="middle" fill="white" font-size="6.5" font-weight="bold" font-family="Arial,sans-serif">추천</text>`
+    : tier === "good"
+      ? `<circle cx="${c.w - 5}" cy="5" r="5.5" fill="#fbbf24" stroke="white" stroke-width="1.5"/><text x="${c.w - 5}" y="7.5" text-anchor="middle" fill="white" font-size="7" font-weight="bold">★</text>`
+      : ""
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${c.w}" height="${totalH}" viewBox="0 0 ${c.w} ${totalH}">
 <defs><filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs>
@@ -280,7 +288,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
               {/* Google Maps 링크 */}
               {place.googlePlaceId && (
                 <a
-                  href={`https://www.google.com/maps/place/?q=place_id:${place.googlePlaceId}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.googlePlaceId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"

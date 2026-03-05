@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useMemo, useState, memo } from "react"
 import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
-import { Star, Clock, ExternalLink } from "lucide-react"
+import { Star, Clock, ExternalLink, Trash2 } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
+import { Button } from "@/components/ui/button"
 
 interface PlaceMarkerProps {
   place: Place
   index: number
   isSelected?: boolean
   onSelect?: () => void
+  onRemove?: () => void
 }
 
 /** 카테고리별 색상 (from, to) */
@@ -53,7 +55,7 @@ function createBalloonSvg(num: number, colors: [string, string], selected: boole
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
 }
 
-export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected, onSelect }: PlaceMarkerProps) {
+export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected, onSelect, onRemove }: PlaceMarkerProps) {
   const [markerRef, marker] = useMarkerRef()
   const [isHovered, setIsHovered] = useState(false)
 
@@ -129,7 +131,8 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
           anchor={marker}
           onCloseClick={() => onSelect?.()}
         >
-          <div className="min-w-[220px] max-w-[280px] p-1.5 dark:bg-gray-800">
+          <div className="min-w-[220px] max-w-[280px] dark:bg-gray-800 flex flex-col" style={{ maxHeight: '350px' }}>
+            <div className="flex-1 overflow-y-auto p-1.5 min-h-0">
             {place.image && (
               <div className="mb-2 h-28 w-full overflow-hidden rounded-lg">
                 <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
@@ -190,7 +193,7 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
             {place.reviews && place.reviews.length > 0 && (
               <div className="mt-2 border-t border-gray-100 dark:border-gray-700 pt-2">
                 <p className="text-[11px] font-semibold text-gray-700 dark:text-gray-200 mb-1">리뷰 ({place.reviews.length})</p>
-                <div className="space-y-1.5 max-h-[250px] overflow-y-auto pr-1">
+                <div className="space-y-1.5">
                   {place.reviews.map((review, i) => (
                     <div key={i} className="text-[10px]">
                       <div className="flex items-center gap-1 text-gray-600 dark:text-gray-300">
@@ -214,7 +217,7 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
             {/* Google Maps 링크 */}
             {place.googlePlaceId && (
               <a
-                href={`https://www.google.com/maps/place/?q=place_id:${place.googlePlaceId}`}
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.googlePlaceId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
@@ -222,6 +225,24 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
                 <ExternalLink className="h-3 w-3" /> Google Maps에서 보기
               </a>
             )}
+            </div>
+
+            {/* 하단 고정 버튼 */}
+            <div className="shrink-0 border-t border-gray-100 dark:border-gray-700 p-1.5">
+              <Button
+                size="sm"
+                variant="destructive"
+                className="w-full gap-1.5 rounded-lg text-xs h-7"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onRemove?.()
+                  onSelect?.()
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                일정에서 삭제
+              </Button>
+            </div>
           </div>
         </InfoWindow>
       )}

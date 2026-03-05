@@ -271,9 +271,9 @@ export function PlannerPage() {
   }, [])
 
   return (
-    <div className="flex h-screen flex-col pt-14" data-testid="planner-page">
+    <div className="flex h-dvh flex-col pt-14" data-testid="planner-page">
       {/* 데스크톱: 좌우 분할 / 모바일: 탭 전환 */}
-      <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
+      <div className="flex flex-1 flex-col overflow-hidden lg:flex-row min-h-0">
         {/* 일정 패널 */}
         <aside className={`w-full shrink-0 overflow-y-auto bg-card lg:h-full lg:w-[400px] lg:border-r lg:border-border lg:block ${
           mobileTab === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
@@ -288,8 +288,8 @@ export function PlannerPage() {
         </aside>
 
         {/* 지도 */}
-        <main className={`flex-1 lg:block ${
-          mobileTab === "map" ? "block" : "hidden lg:block"
+        <main className={`flex-1 min-h-0 lg:block ${
+          mobileTab === "map" ? "block h-full" : "hidden lg:block"
         }`}>
           <MapView
             center={cityConfig.center}
@@ -316,12 +316,12 @@ export function PlannerPage() {
       </div>
 
       {/* 모바일 하단 탭 바 */}
-      <div className="flex border-t border-border bg-card lg:hidden" data-testid="mobile-tab-bar">
+      <div className="flex shrink-0 border-t border-border bg-card lg:hidden" data-testid="mobile-tab-bar">
         <button
           onClick={() => setMobileTab("schedule")}
-          className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+          className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors ${
             mobileTab === "schedule"
-              ? "text-sakura-dark dark:text-sakura"
+              ? "text-sakura-dark dark:text-sakura border-t-2 border-sakura-dark"
               : "text-muted-foreground"
           }`}
         >
@@ -330,9 +330,9 @@ export function PlannerPage() {
         </button>
         <button
           onClick={() => setMobileTab("map")}
-          className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+          className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors ${
             mobileTab === "map"
-              ? "text-sakura-dark dark:text-sakura"
+              ? "text-sakura-dark dark:text-sakura border-t-2 border-sakura-dark"
               : "text-muted-foreground"
           }`}
         >

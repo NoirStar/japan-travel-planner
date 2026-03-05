@@ -1,0 +1,93 @@
+import { ThumbsUp, MessageCircle, MapPin } from "lucide-react"
+import { Link } from "react-router-dom"
+import type { CommunityPost } from "@/types/community"
+import { LevelBadge } from "./LevelBadge"
+import { cities } from "@/data/cities"
+
+interface PostCardProps {
+  post: CommunityPost
+}
+
+export function PostCard({ post }: PostCardProps) {
+  const city = cities.find((c) => c.id === post.city_id)
+  const dayCount = post.trip_data.days?.length ?? 0
+  const profile = post.profiles
+
+  return (
+    <Link
+      to={`/community/${post.id}`}
+      className="group block overflow-hidden rounded-2xl border border-border bg-card transition-all hover:shadow-lg hover:border-primary/30"
+    >
+      {/* 커버 이미지 */}
+      <div className="relative h-40 overflow-hidden bg-muted">
+        {post.cover_image ? (
+          <img
+            src={post.cover_image}
+            alt={post.title}
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+        ) : city?.image ? (
+          <img
+            src={city.image}
+            alt={city.name}
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-4xl">🗾</div>
+        )}
+        {/* 도시 + 일수 배지 */}
+        <div className="absolute bottom-2 left-2 flex gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white backdrop-blur-sm">
+            <MapPin className="h-3 w-3" />
+            {city?.name ?? post.city_id}
+          </span>
+          {dayCount > 0 && (
+            <span className="rounded-full bg-black/60 px-2 py-0.5 text-xs text-white backdrop-blur-sm">
+              {dayCount}일
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* 콘텐츠 */}
+      <div className="p-4">
+        <h3 className="mb-1 line-clamp-1 text-sm font-semibold group-hover:text-primary">
+          {post.title}
+        </h3>
+        {post.description && (
+          <p className="mb-3 line-clamp-2 text-xs text-muted-foreground">
+            {post.description}
+          </p>
+        )}
+
+        {/* 하단 정보 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
+                {profile?.nickname?.charAt(0) ?? "?"}
+              </div>
+            )}
+            <span className="text-xs font-medium text-muted-foreground">
+              {profile?.nickname ?? "익명"}
+            </span>
+            {profile && <LevelBadge level={profile.level} totalLikes={profile.total_likes} compact />}
+          </div>
+
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <ThumbsUp className="h-3 w-3" />
+              {post.likes_count}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <MessageCircle className="h-3 w-3" />
+              {post.comments_count}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}

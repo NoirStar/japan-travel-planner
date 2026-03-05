@@ -1,0 +1,378 @@
+import { useState, useEffect, useCallback } from "react"
+import { useParams, useNavigate, Link } from "react-router-dom"
+import {
+  ThumbsUp,
+  ThumbsDown,
+  MessageCircle,
+  ArrowLeft,
+  MapPin,
+  Download,
+  Send,
+  Trash2,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { supabase } from "@/lib/supabase"
+import { useAuthStore } from "@/stores/authStore"
+import { useScheduleStore } from "@/stores/scheduleStore"
+import type { CommunityPost, Comment, VoteType } from "@/types/community"
+import { LevelBadge } from "./LevelBadge"
+import { cities } from "@/data/cities"
+
+export function PostDetail() {
+  const { postId } = useParams<{ postId: string }>()
+  const navigate = useNavigate()
+  const { user, setShowLoginModal } = useAuthStore()
+  const { createTrip, addDay, addItem } = useScheduleStore()
+
+  const [post, setPost] = useState<CommunityPost | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
+  const [myVote, setMyVote] = useState<VoteType | null>(null)
+  const [commentText, setCommentText] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSending, setIsSending] = useState(false)
+
+  // 게시글 로드
+  const fetchPost = useCallback(async () => {
+    if (!postId) return
+    const { data } = await supabase
+      .from("posts")
+      .select("*, profiles(*)")
+      .eq("id", postId)
+      .single()
+
+    if (data) setPost(data as CommunityPost)
+    setIsLoading(false)
+  }, [postId])
+
+  // 댓글 로드
+  const fetchComments = useCallback(async () => {
+    if (!postId) return
+    const { data } = await supabase
+      .from("comments")
+      .select("*, profiles(*)")
+      .eq("post_id", postId)
+      .order("created_at", { ascending: true })
+
+    setComments((data as Comment[]) ?? [])
+  }, [postId])
+
+  // 내 투표 상태 확인
+  const fetchMyVote = useCallback(async () => {
+    if (!postId || !user) return
+    const { data } = await supabase
+      .from("post_votes")
+      .select("vote_type")
+      .eq("post_id", postId)
+      .eq("user_id", user.id)
+      .maybeSingle()
+
+    setMyVote((data?.vote_type as VoteType) ?? null)
+  }, [postId, user])
+
+  useEffect(() => {
+    fetchPost()
+    fetchComments()
+  }, [fetchPost, fetchComments])
+
+  useEffect(() => {
+    fetchMyVote()
+  }, [fetchMyVote])
+
+  // 추천/비추천
+  const handleVote = async (type: VoteType) => {
+    if (!user) {
+      setShowLoginModal(true)
+      return
+    }
+    if (!postId) return
+
+    if (myVote === type) {
+      // 투표 취소
+      await supabase
+        .from("post_votes")
+        .delete()
+        .eq("post_id", postId)
+        .eq("user_id", user.id)
+
+      const col = type === "up" ? "likes_count" : "dislikes_count"
+      await supabase.rpc("decrement_count", { row_id: postId, col_name: col })
+      setMyVote(null)
+    } else {
+      if (myVote) {
+        // 기존 투표 삭제
+        await supabase
+          .from("post_votes")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", user.id)
+
+        const oldCol = myVote === "up" ? "likes_count" : "dislikes_count"
+        await supabase.rpc("decrement_count", { row_id: postId, col_name: oldCol })
+      }
+      // 새 투표
+      await supabase.from("post_votes").insert({
+        post_id: postId,
+        user_id: user.id,
+        vote_type: type,
+      })
+      const newCol = type === "up" ? "likes_count" : "dislikes_count"
+      await supabase.rpc("increment_count", { row_id: postId, col_name: newCol })
+      setMyVote(type)
+    }
+    fetchPost()
+  }
+
+  // 댓글 작성
+  const handleComment = async () => {
+    if (!user) {
+      setShowLoginModal(true)
+      return
+    }
+    const trimmed = commentText.trim()
+    if (!trimmed || !postId) return
+    setIsSending(true)
+
+    await supabase.from("comments").insert({
+      post_id: postId,
+      user_id: user.id,
+      content: trimmed,
+    })
+
+    // 댓글 수 증가
+    await supabase.rpc("increment_count", { row_id: postId, col_name: "comments_count" })
+
+    setCommentText("")
+    setIsSending(false)
+    fetchComments()
+    fetchPost()
+  }
+
+  // 일정 가져오기
+  const handleImport = () => {
+    if (!post) return
+    const tripData = post.trip_data
+    const newTrip = createTrip(tripData.cityId, `[가져옴] ${post.title}`)
+
+    // 기존 Day 하나 제거 후 원본 일정 복제
+    tripData.days.forEach((day, i) => {
+      const newDay = i === 0 ? newTrip.days[0] : addDay(newTrip.id)
+      day.items.forEach((item) => {
+        addItem(newTrip.id, newDay.id, item.placeId)
+      })
+    })
+
+    navigate("/planner")
+  }
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 pt-20">
+        <div className="h-48 animate-pulse rounded-2xl bg-muted" />
+      </div>
+    )
+  }
+
+  if (!post) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 pt-20 text-center">
+        <p className="text-lg font-semibold">게시글을 찾을 수 없습니다</p>
+        <Link to="/community" className="mt-2 text-sm text-primary underline">
+          커뮤니티로 돌아가기
+        </Link>
+      </div>
+    )
+  }
+
+  const profile = post.profiles
+  const city = cities.find((c) => c.id === post.city_id)
+  const dayCount = post.trip_data.days?.length ?? 0
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 pt-20 pb-10">
+      {/* 뒤로가기 */}
+      <button
+        onClick={() => navigate("/community")}
+        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        커뮤니티
+      </button>
+
+      {/* 커버 */}
+      <div className="mb-4 h-48 overflow-hidden rounded-2xl bg-muted">
+        {(post.cover_image || city?.image) && (
+          <img
+            src={post.cover_image ?? city?.image}
+            alt={post.title}
+            className="h-full w-full object-cover"
+          />
+        )}
+      </div>
+
+      {/* 제목 + 메타 */}
+      <h1 className="mb-2 text-2xl font-bold">{post.title}</h1>
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <MapPin className="h-3.5 w-3.5" />
+          {city?.name ?? post.city_id}
+        </span>
+        <span>·</span>
+        <span>{dayCount}일 일정</span>
+        <span>·</span>
+        <span>{new Date(post.created_at).toLocaleDateString("ko-KR")}</span>
+      </div>
+
+      {/* 작성자 */}
+      {profile && (
+        <div className="mb-4 flex items-center gap-2">
+          {profile.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-sm font-bold">
+              {profile.nickname.charAt(0)}
+            </div>
+          )}
+          <span className="text-sm font-medium">{profile.nickname}</span>
+          <LevelBadge level={profile.level} totalLikes={profile.total_likes} compact />
+        </div>
+      )}
+
+      {/* 설명 */}
+      {post.description && (
+        <p className="mb-6 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+          {post.description}
+        </p>
+      )}
+
+      {/* 일정 미리보기 */}
+      <div className="mb-6 rounded-2xl border border-border bg-card p-4">
+        <h3 className="mb-3 font-semibold">📅 일정 미리보기</h3>
+        <div className="space-y-3">
+          {post.trip_data.days.map((day) => (
+            <div key={day.id} className="rounded-xl bg-muted/50 p-3">
+              <p className="mb-1 text-xs font-semibold text-primary">
+                Day {day.dayNumber}{day.date && ` · ${day.date}`}
+              </p>
+              {day.items.length === 0 ? (
+                <p className="text-xs text-muted-foreground">일정이 비어있습니다</p>
+              ) : (
+                <ul className="space-y-1">
+                  {day.items.map((item, idx) => (
+                    <li key={item.id} className="text-xs text-muted-foreground">
+                      {idx + 1}. {item.placeId}
+                      {item.startTime && <span className="ml-1 text-primary">({item.startTime})</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 액션 버튼 */}
+      <div className="mb-6 flex items-center gap-2">
+        <Button
+          variant={myVote === "up" ? "default" : "outline"}
+          onClick={() => handleVote("up")}
+          className="gap-1.5 rounded-xl"
+          size="sm"
+        >
+          <ThumbsUp className="h-4 w-4" />
+          추천 {post.likes_count}
+        </Button>
+        <Button
+          variant={myVote === "down" ? "destructive" : "outline"}
+          onClick={() => handleVote("down")}
+          className="gap-1.5 rounded-xl"
+          size="sm"
+        >
+          <ThumbsDown className="h-4 w-4" />
+          {post.dislikes_count}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleImport}
+          className="ml-auto gap-1.5 rounded-xl"
+          size="sm"
+        >
+          <Download className="h-4 w-4" />
+          내 일정으로 가져오기
+        </Button>
+      </div>
+
+      {/* 댓글 */}
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <h3 className="mb-3 flex items-center gap-1.5 font-semibold">
+          <MessageCircle className="h-4 w-4" />
+          댓글 {comments.length}
+        </h3>
+
+        {/* 댓글 입력 */}
+        <div className="mb-4 flex gap-2">
+          <input
+            type="text"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleComment()}
+            placeholder={user ? "댓글을 입력하세요..." : "로그인 후 댓글을 작성할 수 있습니다"}
+            maxLength={500}
+            className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          <Button
+            onClick={handleComment}
+            disabled={isSending || !commentText.trim()}
+            size="icon"
+            className="shrink-0 rounded-xl"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* 댓글 목록 */}
+        {comments.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            아직 댓글이 없습니다. 첫 댓글을 남겨보세요!
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {comments.map((comment) => (
+              <div key={comment.id} className="rounded-xl bg-muted/50 p-3">
+                <div className="mb-1 flex items-center gap-2">
+                  {comment.profiles?.avatar_url ? (
+                    <img src={comment.profiles.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
+                  ) : (
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
+                      {comment.profiles?.nickname?.charAt(0) ?? "?"}
+                    </div>
+                  )}
+                  <span className="text-xs font-medium">{comment.profiles?.nickname ?? "익명"}</span>
+                  {comment.profiles && (
+                    <LevelBadge level={comment.profiles.level} totalLikes={comment.profiles.total_likes} compact />
+                  )}
+                  <span className="ml-auto text-[10px] text-muted-foreground">
+                    {new Date(comment.created_at).toLocaleDateString("ko-KR")}
+                  </span>
+                  {user?.id === comment.user_id && (
+                    <button
+                      onClick={async () => {
+                        await supabase.from("comments").delete().eq("id", comment.id)
+                        await supabase.rpc("decrement_count", { row_id: postId!, col_name: "comments_count" })
+                        fetchComments()
+                        fetchPost()
+                      }}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+                <p className="text-sm leading-relaxed">{comment.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

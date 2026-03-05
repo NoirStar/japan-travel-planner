@@ -1,0 +1,131 @@
+import { useState } from "react"
+import { X, Share2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/stores/authStore"
+import { useScheduleStore } from "@/stores/scheduleStore"
+import { supabase } from "@/lib/supabase"
+import { cities } from "@/data/cities"
+
+interface CreatePostModalProps {
+  open: boolean
+  onClose: () => void
+  onCreated: () => void
+}
+
+export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalProps) {
+  const { user } = useAuthStore()
+  const { trips } = useScheduleStore()
+  const [selectedTripId, setSelectedTripId] = useState("")
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState("")
+
+  if (!open) return null
+
+  const selectedTrip = trips.find((t) => t.id === selectedTripId)
+
+  const handleSubmit = async () => {
+    if (!user || !selectedTrip || !title.trim()) return
+    setIsSubmitting(true)
+    setError("")
+
+    const city = cities.find((c) => c.id === selectedTrip.cityId)
+
+    const { error: insertError } = await supabase.from("posts").insert({
+      user_id: user.id,
+      title: title.trim(),
+      description: description.trim() || null,
+      city_id: selectedTrip.cityId,
+      cover_image: city?.image ?? null,
+      trip_data: selectedTrip,
+    })
+
+    setIsSubmitting(false)
+
+    if (insertError) {
+      setError("게시글 작성 중 오류가 발생했습니다.")
+      return
+    }
+
+    onCreated()
+    onClose()
+    setTitle("")
+    setDescription("")
+    setSelectedTripId("")
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
+      <div className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <h2 className="mb-4 text-lg font-bold">여행 공유하기</h2>
+
+        {/* 여행 선택 */}
+        <div className="mb-4">
+          <label className="mb-1 block text-sm font-medium text-muted-foreground">여행 선택</label>
+          <select
+            value={selectedTripId}
+            onChange={(e) => setSelectedTripId(e.target.value)}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="">여행을 선택하세요</option>
+            {trips.map((trip) => {
+              const city = cities.find((c) => c.id === trip.cityId)
+              return (
+                <option key={trip.id} value={trip.id}>
+                  {trip.title} ({city?.name ?? trip.cityId}) - {trip.days.length}일
+                </option>
+              )
+            })}
+          </select>
+        </div>
+
+        {/* 제목 */}
+        <div className="mb-4">
+          <label className="mb-1 block text-sm font-medium text-muted-foreground">제목</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={60}
+            placeholder="예: 3박4일 도쿄 맛집투어 🍣"
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          />
+        </div>
+
+        {/* 설명 */}
+        <div className="mb-4">
+          <label className="mb-1 block text-sm font-medium text-muted-foreground">설명 (선택)</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={500}
+            rows={3}
+            placeholder="여행 일정에 대한 간단한 소개를 작성하세요"
+            className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          />
+        </div>
+
+        {error && <p className="mb-3 text-sm text-destructive">{error}</p>}
+
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting || !selectedTripId || !title.trim()}
+          className="w-full gap-2 rounded-xl"
+        >
+          <Share2 className="h-4 w-4" />
+          {isSubmitting ? "공유 중..." : "커뮤니티에 공유"}
+        </Button>
+      </div>
+    </div>
+  )
+}

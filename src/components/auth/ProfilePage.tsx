@@ -4,9 +4,11 @@ import { Camera, LogOut, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { LevelBadge } from "@/components/community/LevelBadge"
+import { getLevelInfo, USER_LEVELS } from "@/types/community"
+import { getPointBreakdown } from "@/lib/mockCommunity"
 
 export function ProfilePage() {
-  const { user, profile, updateProfile, signOut } = useAuthStore()
+  const { user, profile, isDemoMode, updateProfile, signOut } = useAuthStore()
   const navigate = useNavigate()
   const [nickname, setNickname] = useState(profile?.nickname ?? "")
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? "")
@@ -58,7 +60,7 @@ export function ProfilePage() {
           </label>
         </div>
 
-        <LevelBadge level={profile.level} totalLikes={profile.total_likes} />
+        <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} />
       </div>
 
       {/* 닉네임 */}
@@ -91,16 +93,80 @@ export function ProfilePage() {
       </div>
 
       {/* 통계 */}
-      <div className="mb-6 grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <p className="text-2xl font-bold text-primary">{profile.total_likes}</p>
-          <p className="text-xs text-muted-foreground">받은 추천</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <p className="text-2xl font-bold text-primary">Lv.{profile.level}</p>
-          <p className="text-xs text-muted-foreground">레벨</p>
-        </div>
-      </div>
+      {(() => {
+        const breakdown = isDemoMode && !profile.is_admin ? getPointBreakdown() : null
+        const currentLevel = getLevelInfo(profile.level)
+        const nextLevel = USER_LEVELS.find((l) => l.level === profile.level + 1)
+        const currentPts = profile.total_points ?? 0
+        const progressPct = nextLevel
+          ? Math.min(100, ((currentPts - currentLevel.minPoints) / (nextLevel.minPoints - currentLevel.minPoints)) * 100)
+          : 100
+
+        return (
+          <div className="mb-6 space-y-4">
+            {/* 포인트 + 레벨 요약 */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-xl border border-border bg-card p-4 text-center">
+                <p className="text-2xl font-bold text-primary">{currentPts}</p>
+                <p className="text-xs text-muted-foreground">총 포인트</p>
+              </div>
+              <div className="rounded-xl border border-border bg-card p-4 text-center">
+                <p className="text-2xl font-bold text-primary">Lv.{profile.level}</p>
+                <p className="text-xs text-muted-foreground">{currentLevel.label}</p>
+              </div>
+              <div className="rounded-xl border border-border bg-card p-4 text-center">
+                <p className="text-2xl font-bold text-primary">{profile.total_likes}</p>
+                <p className="text-xs text-muted-foreground">받은 추천</p>
+              </div>
+            </div>
+
+            {/* 다음 레벨 프로그레스 */}
+            {nextLevel && (
+              <div className="rounded-xl border border-border bg-card p-4">
+                <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>다음 레벨: Lv.{nextLevel.level} {nextLevel.label} {nextLevel.emoji}</span>
+                  <span>{currentPts} / {nextLevel.minPoints}P</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-indigo-500 transition-all"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 포인트 내역 */}
+            {breakdown && (
+              <div className="rounded-xl border border-border bg-card p-4">
+                <h3 className="mb-3 text-sm font-semibold">포인트 내역</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">📅 출석체크</span>
+                    <span className="font-medium">{breakdown.attendance}P</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">💬 댓글 작성</span>
+                    <span className="font-medium">{breakdown.comment}P</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">✏️ 글 작성</span>
+                    <span className="font-medium">{breakdown.post}P</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">👍 추천 받기</span>
+                    <span className="font-medium">{breakdown.like_received}P</span>
+                  </div>
+                  <div className="border-t border-border pt-2 flex items-center justify-between font-semibold">
+                    <span>합계</span>
+                    <span className="text-primary">{currentPts}P</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* 버튼 */}
       <div className="space-y-3">

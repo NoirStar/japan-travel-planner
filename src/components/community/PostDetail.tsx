@@ -167,6 +167,7 @@ export function PostDetail() {
       setIsSending(false)
       setComments(fetchMockComments(postId))
       setPost(fetchMockPost(postId))
+      refreshDemoProfile()
       return
     }
 
@@ -271,7 +272,7 @@ export function PostDetail() {
             </div>
           )}
           <span className="text-sm font-medium">{profile.nickname}</span>
-          <LevelBadge level={profile.level} totalLikes={profile.total_likes} compact />
+          <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />
         </div>
       )}
 
@@ -386,7 +387,7 @@ export function PostDetail() {
                   )}
                   <span className="text-xs font-medium">{comment.profiles?.nickname ?? "익명"}</span>
                   {comment.profiles && (
-                    <LevelBadge level={comment.profiles.level} totalLikes={comment.profiles.total_likes} compact />
+                    <LevelBadge level={comment.profiles.level} totalPoints={comment.profiles.total_points} isAdmin={comment.profiles.is_admin} compact />
                   )}
                   <span className="ml-auto text-[10px] text-muted-foreground">
                     {new Date(comment.created_at).toLocaleDateString("ko-KR")}

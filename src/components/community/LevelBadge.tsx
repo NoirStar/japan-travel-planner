@@ -2,7 +2,9 @@ import { getLevelInfo } from "@/types/community"
 
 interface LevelBadgeProps {
   level: number
-  totalLikes: number
+  totalLikes?: number
+  totalPoints?: number
+  isAdmin?: boolean
   compact?: boolean
 }
 
@@ -152,13 +154,49 @@ const LEVEL_COLORS: Record<number, string> = {
   10: "border-amber-500 bg-gradient-to-r from-amber-50 via-red-50 to-amber-50 dark:border-amber-400 dark:from-amber-950/40 dark:via-red-950/40 dark:to-amber-950/40",
 }
 
-export function LevelBadge({ level, totalLikes, compact }: LevelBadgeProps) {
+/* ── 관리자 전용 방패 아이콘 ───────────────────────────── */
+function AdminShieldIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-crown-glow drop-shadow-lg">
+      <defs>
+        <linearGradient id="admin-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f59e0b" />
+          <stop offset="50%" stopColor="#ef4444" />
+          <stop offset="100%" stopColor="#f59e0b" />
+        </linearGradient>
+      </defs>
+      <path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="url(#admin-grad)" stroke="#d97706" strokeWidth="0.5" />
+      <path d="M10 12l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeProps) {
+  // 관리자 전용 배지
+  if (isAdmin) {
+    if (compact) {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs" title="관리자">
+          <AdminShieldIcon size={14} />
+          <span className="font-bold text-amber-500">관리자</span>
+        </span>
+      )
+    }
+    return (
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 bg-gradient-to-r from-amber-50 to-red-50 px-3 py-1 text-sm dark:border-amber-500 dark:from-amber-950/40 dark:to-red-950/40">
+        <AdminShieldIcon size={20} />
+        <span className="font-bold text-amber-600 dark:text-amber-400">관리자</span>
+      </div>
+    )
+  }
+
   const info = getLevelInfo(level)
   const icon = LEVEL_ICONS[info.level] ?? LEVEL_ICONS[1]
+  const pts = totalPoints ?? 0
 
   if (compact) {
     return (
-      <span className="inline-flex items-center gap-1 text-xs" title={`Lv.${info.level} ${info.label} (추천 ${totalLikes}개)`}>
+      <span className="inline-flex items-center gap-1 text-xs" title={`Lv.${info.level} ${info.label} (${pts}P)`}>
         {icon(14)}
         <span className="font-medium text-muted-foreground">{info.label}</span>
       </span>
@@ -170,7 +208,7 @@ export function LevelBadge({ level, totalLikes, compact }: LevelBadgeProps) {
       {icon(20)}
       <span className="font-semibold">Lv.{info.level}</span>
       <span className="text-muted-foreground">{info.label}</span>
-      <span className="text-xs text-muted-foreground">· 추천 {totalLikes}</span>
+      <span className="text-xs text-muted-foreground">· {pts}P</span>
     </div>
   )
 }

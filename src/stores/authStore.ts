@@ -2,7 +2,15 @@ import { create } from "zustand"
 import type { Session, User } from "@supabase/supabase-js"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import type { UserProfile } from "@/types/community"
-import { DEMO_USER_ID, getDemoProfile, updateDemoProfile } from "@/lib/mockCommunity"
+import {
+  DEMO_USER_ID,
+  ADMIN_USER_ID,
+  getDemoProfile,
+  getAdminProfile,
+  updateDemoProfile,
+  checkAttendance,
+  hasCheckedInToday,
+} from "@/lib/mockCommunity"
 
 interface AuthState {
   session: Session | null
@@ -17,9 +25,12 @@ interface AuthState {
   updateProfile: (updates: Partial<Pick<UserProfile, "nickname" | "avatar_url">>) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signInAsDemo: () => void
+  signInAsAdmin: () => void
   signOut: () => Promise<void>
   setShowLoginModal: (show: boolean) => void
   refreshDemoProfile: () => void
+  doAttendance: () => { success: boolean; alreadyDone: boolean }
+  hasCheckedIn: () => boolean
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -31,6 +42,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isDemoMode: false,
 
   initialize: async () => {
+    // 관리자 모드 복원
+    if (localStorage.getItem("admin_logged_in") === "true") {
+      const profile = getAdminProfile()
+      set({
+        user: { id: ADMIN_USER_ID } as User,
+        profile,
+        isLoading: false,
+        isDemoMode: true,
+      })
+      return
+    }
     // 데모 모드 복원
     if (localStorage.getItem("demo_logged_in") === "true") {
       const profile = getDemoProfile()
@@ -70,7 +92,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   fetchProfile: async (userId: string) => {
     if (get().isDemoMode) {
-      set({ profile: getDemoProfile() })
+      const profile = get().profile
+      if (profile?.is_admin) {
+        set({ profile: getAdminProfile() })
+      } else {
+        set({ profile: getDemoProfile() })
+      }
       return
     }
     const { data } = await supabase
@@ -89,6 +116,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!user) return
 
     if (get().isDemoMode) {
+      if (get().profile?.is_admin) return // 관리자는 프로필 수정 불가
       const updated = updateDemoProfile(updates)
       set({ profile: updated })
       return
@@ -113,6 +141,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signInAsDemo: () => {
     const profile = getDemoProfile()
+    localStorage.removeItem("admin_logged_in")
     localStorage.setItem("demo_logged_in", "true")
     set({
       user: { id: DEMO_USER_ID } as User,
@@ -122,9 +151,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     })
   },
 
+  signInAsAdmin: () => {
+    const profile = getAdminProfile()
+    localStorage.removeItem("demo_logged_in")
+    localStorage.setItem("admin_logged_in", "true")
+    set({
+      user: { id: ADMIN_USER_ID } as User,
+      profile,
+      isDemoMode: true,
+      showLoginModal: false,
+    })
+  },
+
   signOut: async () => {
     if (get().isDemoMode) {
       localStorage.removeItem("demo_logged_in")
+      localStorage.removeItem("admin_logged_in")
       set({ session: null, user: null, profile: null, isDemoMode: false })
       return
     }
@@ -136,7 +178,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   refreshDemoProfile: () => {
     if (get().isDemoMode) {
-      set({ profile: getDemoProfile() })
+      if (get().profile?.is_admin) {
+        set({ profile: getAdminProfile() })
+      } else {
+        set({ profile: getDemoProfile() })
+      }
     }
   },
+
+  doAttendance: () => {
+    if (!get().isDemoMode || get().profile?.is_admin) return { success: false, alreadyDone: true }
+    const result = checkAttendance()
+    if (result.success) {
+      set({ profile: getDemoProfile() })
+    }
+    return result
+  },
+
+  hasCheckedIn: () => hasCheckedInToday(),
 }))

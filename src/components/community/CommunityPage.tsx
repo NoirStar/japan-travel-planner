@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { Plus, TrendingUp, Clock } from "lucide-react"
+import { Plus, TrendingUp, Clock, CalendarCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
@@ -10,12 +10,13 @@ import { CreatePostModal } from "./CreatePostModal"
 import { cities } from "@/data/cities"
 
 export function CommunityPage() {
-  const { user, setShowLoginModal } = useAuthStore()
+  const { user, isDemoMode, profile, setShowLoginModal, doAttendance, hasCheckedIn } = useAuthStore()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useState<PostSortOption>("latest")
   const [cityFilter, setCityFilter] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
+  const [attendanceMsg, setAttendanceMsg] = useState("")
 
   const fetchPosts = useCallback(async () => {
     setIsLoading(true)
@@ -61,16 +62,47 @@ export function CommunityPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 pt-20 pb-10">
+      {/* 출석체크 알림 */}
+      {attendanceMsg && (
+        <div className="mb-4 rounded-xl border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-700 dark:border-green-700 dark:bg-green-950/30 dark:text-green-300">
+          {attendanceMsg}
+        </div>
+      )}
+
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">커뮤니티</h1>
           <p className="text-sm text-muted-foreground">다른 여행자들의 일정을 구경하세요</p>
         </div>
-        <Button onClick={handleCreateClick} className="gap-2 rounded-xl">
-          <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">여행 공유</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* 출석체크 */}
+          {user && isDemoMode && !profile?.is_admin && (
+            <Button
+              variant={hasCheckedIn() ? "ghost" : "outline"}
+              size="sm"
+              disabled={hasCheckedIn()}
+              className="gap-1.5 rounded-xl"
+              onClick={() => {
+                const result = doAttendance()
+                if (result.success) {
+                  setAttendanceMsg("✅ 출석 완료! +1P")
+                  setTimeout(() => setAttendanceMsg(""), 3000)
+                } else if (result.alreadyDone) {
+                  setAttendanceMsg("오늘은 이미 출석했어요")
+                  setTimeout(() => setAttendanceMsg(""), 2000)
+                }
+              }}
+            >
+              <CalendarCheck className="h-4 w-4" />
+              <span className="hidden sm:inline">{hasCheckedIn() ? "출석완료" : "출석체크"}</span>
+            </Button>
+          )}
+          <Button onClick={handleCreateClick} className="gap-2 rounded-xl">
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">여행 공유</span>
+          </Button>
+        </div>
       </div>
 
       {/* 필터 바 */}

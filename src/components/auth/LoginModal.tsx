@@ -1,10 +1,10 @@
-import { X, UserCircle } from "lucide-react"
+import { X, UserCircle, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
 export function LoginModal() {
-  const { showLoginModal, setShowLoginModal, signInWithGoogle, signInAsDemo } = useAuthStore()
+  const { showLoginModal, setShowLoginModal, signInWithGoogle, signInAsDemo, signInAsAdmin } = useAuthStore()
 
   if (!showLoginModal) return null
 
@@ -68,6 +68,15 @@ export function LoginModal() {
           >
             <UserCircle className="h-5 w-5 text-primary" />
             데모 계정으로 체험하기
+          </Button>
+
+          <Button
+            onClick={signInAsAdmin}
+            variant="outline"
+            className="w-full gap-3 rounded-xl py-5 border-dashed border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950/30"
+          >
+            <Shield className="h-5 w-5" />
+            관리자로 로그인
           </Button>
         </div>
 

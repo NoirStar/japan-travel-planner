@@ -14,7 +14,7 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalProps) {
-  const { user } = useAuthStore()
+  const { user, refreshDemoProfile } = useAuthStore()
   const { trips } = useScheduleStore()
   const [selectedTripId, setSelectedTripId] = useState("")
   const [title, setTitle] = useState("")
@@ -43,6 +43,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
         trip_data: selectedTrip,
       })
       setIsSubmitting(false)
+      refreshDemoProfile()
       onCreated()
       onClose()
       setTitle("")

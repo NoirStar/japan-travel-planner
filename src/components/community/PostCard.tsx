@@ -73,7 +73,7 @@ export function PostCard({ post }: PostCardProps) {
             <span className="text-xs font-medium text-muted-foreground">
               {profile?.nickname ?? "익명"}
             </span>
-            {profile && <LevelBadge level={profile.level} totalLikes={profile.total_likes} compact />}
+            {profile && <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />}
           </div>
 
           <div className="flex items-center gap-3 text-xs text-muted-foreground">

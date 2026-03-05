@@ -52,7 +52,7 @@ export function Header() {
                   </div>
                 )}
                 <span className="hidden sm:inline text-sm">{profile.nickname}</span>
-                <LevelBadge level={profile.level} totalLikes={profile.total_likes} compact />
+                <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />
               </Button>
             </Link>
           ) : (

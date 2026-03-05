@@ -2,13 +2,15 @@
  * localStorage 기반 커뮤니티 Mock — Supabase 미설정 시 데모 모드 지원
  */
 import type { CommunityPost, Comment, VoteType, UserProfile } from "@/types/community"
-import { calculateLevel } from "@/types/community"
+import { calculateLevel, POINTS } from "@/types/community"
 
 const KEYS = {
   posts: "mock_community_posts",
   comments: "mock_community_comments",
   votes: "mock_community_votes",
   demoUser: "mock_demo_user",
+  pointLog: "mock_point_log",
+  lastAttendance: "mock_last_attendance",
 } as const
 
 // ─── 유틸 ────────────────────────────────────────────────
@@ -28,14 +30,76 @@ function write<T>(key: string, data: T[]) {
   localStorage.setItem(key, JSON.stringify(data))
 }
 
+// ─── 포인트 로그 ─────────────────────────────────────────
+export type PointAction = "attendance" | "comment" | "post" | "like_received"
+
+interface PointEntry {
+  action: PointAction
+  points: number
+  date: string
+}
+
+function addPoints(action: PointAction, pts: number) {
+  const log = read<PointEntry>(KEYS.pointLog)
+  log.push({ action, points: pts, date: new Date().toISOString() })
+  write(KEYS.pointLog, log)
+  recalcProfile()
+}
+
+export function getPointLog(): PointEntry[] {
+  return read<PointEntry>(KEYS.pointLog)
+}
+
+export function getPointBreakdown(): Record<PointAction, number> {
+  const log = read<PointEntry>(KEYS.pointLog)
+  const breakdown: Record<PointAction, number> = { attendance: 0, comment: 0, post: 0, like_received: 0 }
+  for (const e of log) {
+    breakdown[e.action] = (breakdown[e.action] ?? 0) + e.points
+  }
+  return breakdown
+}
+
+function recalcProfile(): UserProfile {
+  const profile = getDemoProfile()
+  const log = read<PointEntry>(KEYS.pointLog)
+  const totalPoints = log.reduce((sum, e) => sum + e.points, 0)
+  // 추천 받은 수도 별도 계산 (likes 기반)
+  const posts = read<CommunityPost>(KEYS.posts).filter((p) => p.user_id === DEMO_USER_ID)
+  const totalLikes = posts.reduce((sum, p) => sum + p.likes_count, 0)
+  const level = calculateLevel(totalPoints)
+  const updated = { ...profile, total_points: totalPoints, total_likes: totalLikes, level, updated_at: new Date().toISOString() }
+  localStorage.setItem(KEYS.demoUser, JSON.stringify(updated))
+  return updated
+}
+
+// ─── 출석 체크 ───────────────────────────────────────────
+export function checkAttendance(): { success: boolean; alreadyDone: boolean } {
+  const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+  const last = localStorage.getItem(KEYS.lastAttendance)
+  if (last === today) return { success: false, alreadyDone: true }
+  localStorage.setItem(KEYS.lastAttendance, today)
+  addPoints("attendance", POINTS.ATTENDANCE)
+  return { success: true, alreadyDone: false }
+}
+
+export function hasCheckedInToday(): boolean {
+  const today = new Date().toISOString().slice(0, 10)
+  return localStorage.getItem(KEYS.lastAttendance) === today
+}
+
 // ─── 데모 유저 ───────────────────────────────────────────
 export const DEMO_USER_ID = "demo-user-0001"
+export const ADMIN_USER_ID = "admin-user-0001"
 
 export function getDemoProfile(): UserProfile {
   const stored = localStorage.getItem(KEYS.demoUser)
   if (stored) {
     try {
-      return JSON.parse(stored)
+      const parsed = JSON.parse(stored)
+      // 마이그레이션: total_points, is_admin 필드 보장
+      if (parsed.total_points === undefined) parsed.total_points = 0
+      if (parsed.is_admin === undefined) parsed.is_admin = false
+      return parsed
     } catch { /* fallthrough */ }
   }
   const profile: UserProfile = {
@@ -43,7 +107,9 @@ export function getDemoProfile(): UserProfile {
     nickname: "タビ旅人",
     avatar_url: null,
     total_likes: 0,
+    total_points: 0,
     level: 1,
+    is_admin: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }
@@ -51,20 +117,23 @@ export function getDemoProfile(): UserProfile {
   return profile
 }
 
+export function getAdminProfile(): UserProfile {
+  return {
+    id: ADMIN_USER_ID,
+    nickname: "관리자",
+    avatar_url: null,
+    total_likes: 0,
+    total_points: 99999,
+    level: 10,
+    is_admin: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+}
+
 export function updateDemoProfile(updates: Partial<Pick<UserProfile, "nickname" | "avatar_url">>): UserProfile {
   const profile = getDemoProfile()
   const updated = { ...profile, ...updates, updated_at: new Date().toISOString() }
-  localStorage.setItem(KEYS.demoUser, JSON.stringify(updated))
-  return updated
-}
-
-function refreshDemoLikes(): UserProfile {
-  const profile = getDemoProfile()
-  // 데모 유저의 게시글에 달린 추천 수 합산
-  const posts = read<CommunityPost>(KEYS.posts).filter((p) => p.user_id === DEMO_USER_ID)
-  const totalLikes = posts.reduce((sum, p) => sum + p.likes_count, 0)
-  const level = calculateLevel(totalLikes)
-  const updated = { ...profile, total_likes: totalLikes, level, updated_at: new Date().toISOString() }
   localStorage.setItem(KEYS.demoUser, JSON.stringify(updated))
   return updated
 }
@@ -100,6 +169,7 @@ export function createMockPost(post: Omit<CommunityPost, "id" | "likes_count" | 
   const posts = read<CommunityPost>(KEYS.posts)
   posts.push(newPost)
   write(KEYS.posts, posts)
+  addPoints("post", POINTS.POST)
   return newPost
 }
 
@@ -123,26 +193,31 @@ export function toggleMockVote(postId: string, userId: string, type: VoteType): 
   let newVote: VoteType | null = type
 
   if (existing?.vote_type === type) {
-    // 같은 투표 → 취소
     votes.splice(existingIdx, 1)
     if (type === "up") post.likes_count = Math.max(0, post.likes_count - 1)
     else post.dislikes_count = Math.max(0, post.dislikes_count - 1)
     newVote = null
   } else {
     if (existing) {
-      // 다른 투표로 변경
       if (existing.vote_type === "up") post.likes_count = Math.max(0, post.likes_count - 1)
       else post.dislikes_count = Math.max(0, post.dislikes_count - 1)
       votes.splice(existingIdx, 1)
     }
     votes.push({ post_id: postId, user_id: userId, vote_type: type })
-    if (type === "up") post.likes_count += 1
-    else post.dislikes_count += 1
+    if (type === "up") {
+      post.likes_count += 1
+      // 글 작성자에게 추천 포인트 (본인 추천 제외)
+      if (post.user_id === DEMO_USER_ID && userId !== DEMO_USER_ID) {
+        addPoints("like_received", POINTS.LIKE_RECEIVED)
+      }
+    } else {
+      post.dislikes_count += 1
+    }
   }
 
   write(KEYS.votes, votes)
   write(KEYS.posts, posts)
-  refreshDemoLikes()
+  recalcProfile()
   return newVote
 }
 
@@ -167,13 +242,13 @@ export function addMockComment(postId: string, userId: string, content: string):
   comments.push(comment)
   write(KEYS.comments, comments)
 
-  // 게시글 댓글 수 증가
   const posts = read<CommunityPost>(KEYS.posts)
   const post = posts.find((p) => p.id === postId)
   if (post) {
     post.comments_count += 1
     write(KEYS.posts, posts)
   }
+  addPoints("comment", POINTS.COMMENT)
   return comment
 }
 

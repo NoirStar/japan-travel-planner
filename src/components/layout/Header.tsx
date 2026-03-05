@@ -1,5 +1,6 @@
-import { Link, useLocation } from "react-router-dom"
-import { Moon, Sun, User, List, Users } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Moon, Sun, User, List, Users, LogOut, Settings, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -7,9 +8,25 @@ import { LevelBadge } from "@/components/community/LevelBadge"
 
 export function Header() {
   const { isDarkMode, toggleDarkMode } = useUIStore()
-  const { user, profile, setShowLoginModal } = useAuthStore()
+  const { user, profile, setShowLoginModal, signOut } = useAuthStore()
   const location = useLocation()
+  const navigate = useNavigate()
   const isPlanner = location.pathname === "/planner"
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [dropdownOpen])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card">
@@ -31,19 +48,16 @@ export function Header() {
               <span className="hidden sm:inline text-sm">커뮤니티</span>
             </Button>
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleDarkMode}
-            aria-label="다크모드 토글"
-            className="rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
-          >
-            {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
 
           {user && profile ? (
-            <Link to="/profile">
-              <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted">
+            /* ── 로그인 상태: 프로필 드롭다운 ──────── */
+            <div className="relative" ref={dropdownRef}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+                onClick={() => setDropdownOpen((v) => !v)}
+              >
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
                 ) : (
@@ -53,18 +67,58 @@ export function Header() {
                 )}
                 <span className="hidden sm:inline text-sm">{profile.nickname}</span>
                 <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />
+                <ChevronDown className={`h-3 w-3 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </Button>
-            </Link>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+                  <button
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                    onClick={() => { setDropdownOpen(false); navigate("/profile"); }}
+                  >
+                    <Settings className="h-4 w-4 text-muted-foreground" />
+                    프로필 설정
+                  </button>
+                  <button
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                    onClick={() => { toggleDarkMode(); }}
+                  >
+                    {isDarkMode ? <Sun className="h-4 w-4 text-muted-foreground" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
+                    {isDarkMode ? "라이트 모드" : "다크 모드"}
+                  </button>
+                  <div className="border-t border-border" />
+                  <button
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-destructive hover:bg-muted transition-colors"
+                    onClick={async () => { setDropdownOpen(false); await signOut(); navigate("/"); }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    로그아웃
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
-            <Button
-              onClick={() => setShowLoginModal(true)}
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
-            >
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">로그인</span>
-            </Button>
+            /* ── 비로그인 상태: 테마 토글 + 로그인 ──── */
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleDarkMode}
+                aria-label="다크모드 토글"
+                className="rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+              >
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              <Button
+                onClick={() => setShowLoginModal(true)}
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">로그인</span>
+              </Button>
+            </>
           )}
         </div>
       </div>

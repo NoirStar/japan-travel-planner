@@ -17,16 +17,26 @@ export interface UserLevel {
 }
 
 export const USER_LEVELS: UserLevel[] = [
-  { level: 1,  label: "새싹",   emoji: "🌱", minPoints: 0 },
-  { level: 2,  label: "사쿠라", emoji: "🌸", minPoints: 15 },
-  { level: 3,  label: "별",     emoji: "⭐", minPoints: 50 },
-  { level: 4,  label: "왕관",   emoji: "👑", minPoints: 120 },
-  { level: 5,  label: "불꽃",   emoji: "🔥", minPoints: 250 },
-  { level: 6,  label: "다이아", emoji: "💎", minPoints: 450 },
-  { level: 7,  label: "용",     emoji: "🐉", minPoints: 700 },
-  { level: 8,  label: "후지산", emoji: "🗻", minPoints: 1000 },
-  { level: 9,  label: "오로라", emoji: "🌌", minPoints: 1400 },
-  { level: 10, label: "전설",   emoji: "✨", minPoints: 1800 },
+  { level: 1,  label: "새싹",     emoji: "🌱", minPoints: 0 },
+  { level: 2,  label: "지도",     emoji: "🗺️", minPoints: 10 },
+  { level: 3,  label: "나침반",   emoji: "🧭", minPoints: 25 },
+  { level: 4,  label: "여권",     emoji: "📘", minPoints: 50 },
+  { level: 5,  label: "배낭",     emoji: "🎒", minPoints: 80 },
+  { level: 6,  label: "기차",     emoji: "🚃", minPoints: 120 },
+  { level: 7,  label: "신칸센",   emoji: "🚄", minPoints: 170 },
+  { level: 8,  label: "온천",     emoji: "♨️", minPoints: 230 },
+  { level: 9,  label: "사쿠라",   emoji: "🌸", minPoints: 300 },
+  { level: 10, label: "도리이",   emoji: "⛩️", minPoints: 380 },
+  { level: 11, label: "성",       emoji: "🏯", minPoints: 470 },
+  { level: 12, label: "마츠리",   emoji: "🏮", minPoints: 580 },
+  { level: 13, label: "사무라이", emoji: "⚔️", minPoints: 700 },
+  { level: 14, label: "닌자",     emoji: "🥷", minPoints: 840 },
+  { level: 15, label: "용",       emoji: "🐉", minPoints: 1000 },
+  { level: 16, label: "후지산",   emoji: "🗻", minPoints: 1180 },
+  { level: 17, label: "오로라",   emoji: "🌌", minPoints: 1380 },
+  { level: 18, label: "왕관",     emoji: "👑", minPoints: 1600 },
+  { level: 19, label: "다이아",   emoji: "💎", minPoints: 1850 },
+  { level: 20, label: "전설",     emoji: "✨", minPoints: 2100 },
 ]
 
 export function getLevelInfo(level: number): UserLevel {

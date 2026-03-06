@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { Plus, TrendingUp, Clock, CalendarCheck, Trophy } from "lucide-react"
+import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, Lightbulb, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
@@ -80,7 +80,7 @@ export function CommunityPage() {
       {/* 로컬스토리지 안내 */}
       {!isSupabaseConfigured && !isDemoMode && (
         <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-600 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-400">
-          💡 현재 데모 모드입니다. 글·댓글·채팅은 이 브라우저에만 저장됩니다.
+          <Lightbulb className="inline h-3.5 w-3.5 mr-1" />현재 데모 모드입니다. 글·댓글·채팅은 이 브라우저에만 저장됩니다.
         </div>
       )}
 
@@ -101,7 +101,7 @@ export function CommunityPage() {
               onClick={() => {
                 const result = doAttendance()
                 if (result.success) {
-                  setAttendanceMsg("✅ 출석 완료! +1P")
+                  setAttendanceMsg("출석 완료! +1P")
                   setTimeout(() => setAttendanceMsg(""), 3000)
                 } else if (result.alreadyDone) {
                   setAttendanceMsg("오늘은 이미 출석했어요")
@@ -177,8 +177,10 @@ export function CommunityPage() {
         </div>
       ) : posts.length === 0 ? (
         <div className="py-20 text-center">
-          <p className="text-4xl">🗾</p>
-          <p className="mt-2 text-lg font-semibold">아직 공유된 여행이 없어요</p>
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+            <MapPin className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+          <p className="mt-3 text-lg font-semibold">아직 공유된 여행이 없어요</p>
           <p className="text-sm text-muted-foreground">첫 번째로 여행을 공유해보세요!</p>
           <Button onClick={handleCreateClick} className="mt-4 gap-2 rounded-xl">
             <Plus className="h-4 w-4" />

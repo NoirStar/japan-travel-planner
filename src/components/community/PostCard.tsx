@@ -1,4 +1,4 @@
-import { ThumbsUp, MessageCircle, MapPin } from "lucide-react"
+import { ThumbsUp, MessageCircle, MapPin, Trophy } from "lucide-react"
 import { Link } from "react-router-dom"
 import type { CommunityPost } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
@@ -34,7 +34,9 @@ export function PostCard({ post }: PostCardProps) {
             className="h-full w-full object-cover transition-transform group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-4xl">🗾</div>
+          <div className="flex h-full items-center justify-center bg-muted">
+            <MapPin className="h-10 w-10 text-muted-foreground/30" />
+          </div>
         )}
         {/* 도시 + 일수 배지 */}
         <div className="absolute bottom-2 left-2 flex gap-1.5">
@@ -50,7 +52,7 @@ export function PostCard({ post }: PostCardProps) {
         </div>
         {post.likes_count >= BEST_THRESHOLD && (
           <div className="absolute top-2 right-2 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-white shadow-md">
-            🏆 베스트
+            <Trophy className="h-3 w-3" /> 베스트
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Camera, LogOut, Save } from "lucide-react"
+import { Camera, LogOut, Save, CalendarDays, MessageCircle, Pencil, ThumbsUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { LevelBadge } from "@/components/community/LevelBadge"
@@ -142,19 +142,19 @@ export function ProfilePage() {
                 <h3 className="mb-3 text-sm font-semibold">포인트 내역</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">📅 출석체크</span>
+                    <span className="text-muted-foreground inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> 출석체크</span>
                     <span className="font-medium">{breakdown.attendance}P</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">💬 댓글 작성</span>
+                    <span className="text-muted-foreground inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" /> 댓글 작성</span>
                     <span className="font-medium">{breakdown.comment}P</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">✏️ 글 작성</span>
+                    <span className="text-muted-foreground inline-flex items-center gap-1"><Pencil className="h-3.5 w-3.5" /> 글 작성</span>
                     <span className="font-medium">{breakdown.post}P</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">👍 추천 받기</span>
+                    <span className="text-muted-foreground inline-flex items-center gap-1"><ThumbsUp className="h-3.5 w-3.5" /> 추천 받기</span>
                     <span className="font-medium">{breakdown.like_received}P</span>
                   </div>
                   <div className="border-t border-border pt-2 flex items-center justify-between font-semibold">

@@ -95,7 +95,7 @@ export function ChatPanel() {
       <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
         {messages.length === 0 ? (
           <p className="py-8 text-center text-xs text-muted-foreground">
-            아직 메시지가 없어요. 첫 메시지를 보내보세요! 💬
+            아직 메시지가 없어요. 첫 메시지를 보내보세요!
           </p>
         ) : (
           messages.map((msg) => {

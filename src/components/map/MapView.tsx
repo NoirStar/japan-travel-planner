@@ -257,7 +257,7 @@ function UnifiedSearchBar({
                   const dLng = toRad(ne.lng() - center.lng())
                   const a = Math.sin(dLat/2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng/2)**2
                   const dist = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-                  radius = Math.max(300, Math.min(Math.round(dist * 0.7), 50000))
+                  radius = Math.max(300, Math.min(Math.round(dist * 0.5), 50000))
                 }
                 onCategoryChange(cat.id as string | undefined, center.lat(), center.lng(), radius)
               }}
@@ -409,8 +409,8 @@ function UnifiedSearchBar({
                 const dLng = toRad(ne.lng() - center.lng())
                 const a = Math.sin(dLat/2)**2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng/2)**2
                 const dist = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-                // 가시 영역의 ~70% 반경으로 검색 (중심 기준)
-                radius = Math.max(300, Math.min(Math.round(dist * 0.7), 50000))
+                // 가시 영역의 ~50% 반경으로 검색 (중심 기준)
+                radius = Math.max(300, Math.min(Math.round(dist * 0.5), 50000))
               }
               onSearch(center.lat(), center.lng(), radius)
             }
@@ -751,7 +751,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
 
         {/* 검색 결과 토스트 메시지 */}
         {searchMessage && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 animate-fade-in">
+          <div className="absolute bottom-24 lg:bottom-8 left-1/2 -translate-x-1/2 z-10 animate-fade-in">
             <div className="rounded-xl bg-card/95 backdrop-blur-sm px-4 py-2 text-xs font-medium text-foreground shadow-lg border border-border">
               {searchMessage}
             </div>

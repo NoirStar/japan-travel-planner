@@ -133,17 +133,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signInWithGoogle: async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    })
-    if (error) {
-      console.error("Google 로그인 실패:", error.message)
-      alert(
-        error.message.includes("provider is not enabled")
-          ? "Google 로그인이 활성화되지 않았습니다.\nSupabase 대시보드 → Authentication → Providers → Google을 활성화해주세요.\n\n데모 계정으로 체험할 수 있습니다."
-          : `로그인 실패: ${error.message}`,
-      )
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin },
+      })
+      if (error) {
+        console.error("Google 로그인 실패:", error.message)
+        if (error.message.includes("provider is not enabled")) {
+          set({ showLoginModal: true })
+          alert("Google 로그인이 아직 설정되지 않았습니다.\n데모 계정 또는 관리자 계정으로 체험해주세요.")
+        } else {
+          alert(`로그인 실패: ${error.message}`)
+        }
+      }
+    } catch (e) {
+      console.error("Google 로그인 에러:", e)
+      alert("로그인 중 오류가 발생했습니다. 데모 계정으로 체험해주세요.")
     }
   },
 

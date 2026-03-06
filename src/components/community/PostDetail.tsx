@@ -9,6 +9,8 @@ import {
   Download,
   Send,
   Trash2,
+  Trophy,
+  Calendar,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -298,7 +300,7 @@ export function PostDetail() {
         <h1 className="text-2xl font-bold">{post.title}</h1>
         {post.likes_count >= BEST_THRESHOLD && (
           <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-            🏆 베스트
+            <Trophy className="h-3 w-3" /> 베스트
           </span>
         )}
       </div>
@@ -337,7 +339,7 @@ export function PostDetail() {
 
       {/* 일정 미리보기 */}
       <div className="mb-6 rounded-2xl border border-border bg-card p-4">
-        <h3 className="mb-3 font-semibold">📅 일정 미리보기</h3>
+        <h3 className="mb-3 font-semibold inline-flex items-center gap-1.5"><Calendar className="h-4 w-4" /> 일정 미리보기</h3>
         <div className="space-y-3">
           {post.trip_data.days.map((day) => (
             <div key={day.id} className="rounded-xl bg-muted/50 p-3">
@@ -444,7 +446,7 @@ export function PostDetail() {
               <div key={comment.id} className={`rounded-xl p-3 ${isBestComment ? "bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800" : "bg-muted/50"}`}>
                 <div className="mb-1 flex items-center gap-2">
                   {isBestComment && (
-                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">🏆 베스트</span>
+                    <span className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-600 dark:text-amber-400"><Trophy className="h-3 w-3" /> 베스트</span>
                   )}
                   {comment.profiles?.avatar_url ? (
                     <img src={comment.profiles.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />

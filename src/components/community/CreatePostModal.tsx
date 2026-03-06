@@ -117,7 +117,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={60}
-            placeholder="예: 3박4일 도쿄 맛집투어 🍣"
+            placeholder="예: 3박4일 도쿄 맛집투어"
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>

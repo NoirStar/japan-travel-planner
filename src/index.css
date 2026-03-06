@@ -1,4 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+
+/* MapleStory 폰트 */
+@font-face {
+  font-family: 'MaplestoryOTFBold';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/MaplestoryOTFBold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -124,7 +134,10 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
+/* ── 메이플스토리 폰트 ───────────────────────────────── */
+.font-maple {
+  font-family: 'MaplestoryOTFBold', 'Noto Sans KR', sans-serif;
+}
 /* ── 모던 버튼 (마젠타/로즈골드 그라디언트) ─────── */
 .btn-gradient {
   background: linear-gradient(135deg, #d4436a 0%, #c23760 50%, #5b4fbe 100%);

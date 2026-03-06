@@ -26,7 +26,7 @@ export function LoginModal() {
         </button>
 
         <div className="mb-6 text-center">
-          <h2 className="text-xl font-bold gradient-text">타비톡 로그인</h2>
+          <h2 className="text-xl font-bold gradient-text font-maple">타비톡 로그인</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             여행을 공유하고 커뮤니티에 참여하세요
           </p>

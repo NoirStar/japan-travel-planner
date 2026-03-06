@@ -27,7 +27,7 @@ export function LandingPage() {
           </div>
 
           <h1 className="mb-3 text-4xl font-black tracking-tight sm:text-5xl">
-            <span className="gradient-text">타비톡</span>
+            <span className="gradient-text font-maple">타비톡</span>
           </h1>
           <p className="mx-auto max-w-sm text-base text-muted-foreground">
             일본 여행, 쉽고 빠르게 계획하고<br />커뮤니티와 채팅으로 함께 소통하세요
@@ -35,7 +35,7 @@ export function LandingPage() {
 
           <motion.button
             onClick={() => navigate("/planner")}
-            className="btn-gradient mt-8 inline-flex items-center gap-2 rounded-2xl px-8 py-3.5 text-sm font-bold shadow-lg"
+            className="btn-gradient mt-8 inline-flex items-center gap-2 rounded-2xl px-8 py-3.5 text-sm font-bold shadow-lg font-maple"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >

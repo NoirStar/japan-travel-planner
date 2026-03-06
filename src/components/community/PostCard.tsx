@@ -1,6 +1,7 @@
 import { ThumbsUp, MessageCircle, MapPin } from "lucide-react"
 import { Link } from "react-router-dom"
 import type { CommunityPost } from "@/types/community"
+import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
 import { cities } from "@/data/cities"
 
@@ -47,6 +48,11 @@ export function PostCard({ post }: PostCardProps) {
             </span>
           )}
         </div>
+        {post.likes_count >= BEST_THRESHOLD && (
+          <div className="absolute top-2 right-2 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-white shadow-md">
+            🏆 베스트
+          </div>
+        )}
       </div>
 
       {/* 콘텐츠 */}

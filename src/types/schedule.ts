@@ -21,6 +21,7 @@ export interface Trip {
   id: string
   title: string
   cityId: string
+  coverImage?: string
   /** ISO date string */
   startDate?: string
   /** ISO date string */

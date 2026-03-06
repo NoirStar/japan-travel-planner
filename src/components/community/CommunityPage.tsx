@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from "react"
-import { Plus, TrendingUp, Clock, CalendarCheck } from "lucide-react"
+import { Plus, TrendingUp, Clock, CalendarCheck, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
 import { useAuthStore } from "@/stores/authStore"
 import type { CommunityPost, PostSortOption } from "@/types/community"
+import { BEST_THRESHOLD } from "@/types/community"
 import { PostCard } from "./PostCard"
 import { CreatePostModal } from "./CreatePostModal"
+import { ChatPanel } from "./ChatPanel"
 import { cities } from "@/data/cities"
 
 export function CommunityPage() {
@@ -22,7 +24,12 @@ export function CommunityPage() {
     setIsLoading(true)
 
     if (!isSupabaseConfigured) {
-      setPosts(fetchMockPosts(sort, cityFilter))
+      const mockSort = sort === "best" ? "popular" : sort
+      let result = fetchMockPosts(mockSort, cityFilter)
+      if (sort === "best") {
+        result = result.filter((p) => p.likes_count >= BEST_THRESHOLD)
+      }
+      setPosts(result)
       setIsLoading(false)
       return
     }
@@ -66,6 +73,13 @@ export function CommunityPage() {
       {attendanceMsg && (
         <div className="mb-4 rounded-xl border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-700 dark:border-green-700 dark:bg-green-950/30 dark:text-green-300">
           {attendanceMsg}
+        </div>
+      )}
+
+      {/* 로컬스토리지 안내 */}
+      {!isSupabaseConfigured && (
+        <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-600 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-400">
+          💡 현재 데모 모드입니다. 글·댓글·채팅은 이 브라우저에만 저장됩니다.
         </div>
       )}
 
@@ -127,6 +141,15 @@ export function CommunityPage() {
             <TrendingUp className="h-3 w-3" />
             인기
           </button>
+          <button
+            onClick={() => setSort("best")}
+            className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              sort === "best" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Trophy className="h-3 w-3" />
+            베스트
+          </button>
         </div>
 
         {/* 도시 필터 */}
@@ -175,6 +198,9 @@ export function CommunityPage() {
         onClose={() => setShowCreate(false)}
         onCreated={fetchPosts}
       />
+
+      {/* 실시간 채팅 */}
+      <ChatPanel />
     </div>
   )
 }

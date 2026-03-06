@@ -94,16 +94,28 @@ export interface PostVote {
   created_at: string
 }
 
+export interface CommentVote {
+  id: string
+  comment_id: string
+  user_id: string
+  vote_type: VoteType
+  created_at: string
+}
+
+export const BEST_THRESHOLD = 5
+
 // ─── 댓글 ───────────────────────────────────────────────
 export interface Comment {
   id: string
   post_id: string
   user_id: string
   content: string
+  likes_count: number
+  dislikes_count: number
   created_at: string
   // join
   profiles?: UserProfile
 }
 
 // ─── 정렬 옵션 ──────────────────────────────────────────
-export type PostSortOption = "latest" | "popular"
+export type PostSortOption = "latest" | "popular" | "best"

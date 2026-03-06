@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { Trip, DaySchedule, ScheduleItem } from "@/types/schedule"
+import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 
 // ─── 유틸: 고유 ID 생성 ─────────────────────────────────
 let counter = 0
@@ -18,7 +19,7 @@ interface ScheduleState {
   createTrip: (cityId: string, title?: string) => Trip
   deleteTrip: (tripId: string) => void
   setActiveTrip: (tripId: string | null) => void
-  updateTrip: (tripId: string, updates: Partial<Pick<Trip, "title" | "startDate" | "endDate">>) => void
+  updateTrip: (tripId: string, updates: Partial<Pick<Trip, "title" | "coverImage" | "startDate" | "endDate">>) => void
 
   // Day CRUD
   addDay: (tripId: string) => DaySchedule
@@ -142,13 +143,22 @@ export const useScheduleStore = create<ScheduleState>()(
         set((state) => ({
           trips: state.trips.map((t) => {
             if (t.id !== tripId) return t
-            return {
+            const updated = {
               ...t,
               days: t.days.map((d) =>
                 d.id === dayId ? { ...d, items: [...d.items, item] } : d,
               ),
               updatedAt: new Date().toISOString(),
             }
+            // Day1 첫 아이템 → 도시 자동 감지
+            const day1 = updated.days.find((d) => d.dayNumber === 1)
+            if (day1 && day1.items.length > 0) {
+              const firstPlace = getAnyPlaceById(day1.items[0].placeId)
+              if (firstPlace?.cityId && firstPlace.cityId !== updated.cityId) {
+                updated.cityId = firstPlace.cityId
+              }
+            }
+            return updated
           }),
         }))
         return item

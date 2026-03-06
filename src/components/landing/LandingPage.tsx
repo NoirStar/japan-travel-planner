@@ -23,14 +23,14 @@ export function LandingPage() {
         <motion.div className="mb-16 text-center" variants={fadeUp}>
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
             <Sparkles className="h-3 w-3 text-sakura-dark" />
-            지도에서 검색하고 드래그로 일정 완성
+            지도에서 검색하고 추가로 일정 완성
           </div>
 
           <h1 className="mb-3 text-4xl font-black tracking-tight sm:text-5xl">
             <span className="gradient-text">타비톡</span>
           </h1>
           <p className="mx-auto max-w-sm text-base text-muted-foreground">
-            일본 여행, 쉽고 빠르게 계획하세요
+            일본 여행, 쉽고 빠르게 계획하고<br />커뮤니티와 채팅으로 함께 소통하세요
           </p>
 
           <motion.button
@@ -78,7 +78,7 @@ export function LandingPage() {
 
         {/* ── Footer ──────────────────────────────────── */}
         <motion.footer className="mt-20 text-center" variants={fadeUp}>
-          <p className="text-xs text-muted-foreground">© 2026 타비톡</p>
+          <p className="text-xs text-muted-foreground">© 2026 타비톡. All rights reserved.</p>
         </motion.footer>
       </motion.div>
     </div>

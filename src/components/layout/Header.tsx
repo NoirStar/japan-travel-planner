@@ -98,27 +98,39 @@ export function Header() {
               )}
             </div>
           ) : (
-            /* ── 비로그인 상태: 테마 토글 + 로그인 ──── */
-            <>
+            /* ── 비로그인 상태: 로그인 드롭다운 ──── */
+            <div className="relative" ref={dropdownRef}>
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleDarkMode}
-                aria-label="다크모드 토글"
-                className="rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
-              >
-                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </Button>
-              <Button
-                onClick={() => setShowLoginModal(true)}
                 variant="ghost"
                 size="sm"
                 className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+                onClick={() => setDropdownOpen((v) => !v)}
               >
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">로그인</span>
+                <span className="hidden sm:inline text-sm">메뉴</span>
+                <ChevronDown className={`h-3 w-3 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </Button>
-            </>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 w-44 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+                  <button
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                    onClick={() => { toggleDarkMode(); }}
+                  >
+                    {isDarkMode ? <Sun className="h-4 w-4 text-muted-foreground" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
+                    {isDarkMode ? "라이트 모드" : "다크 모드"}
+                  </button>
+                  <div className="border-t border-border" />
+                  <button
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                    onClick={() => { setDropdownOpen(false); setShowLoginModal(true); }}
+                  >
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    로그인
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

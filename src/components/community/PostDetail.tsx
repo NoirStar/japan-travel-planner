@@ -19,22 +19,27 @@ import {
   toggleMockVote,
   addMockComment,
   deleteMockComment,
+  deleteMockPost,
+  getMockCommentVote,
+  toggleMockCommentVote,
 } from "@/lib/mockCommunity"
 import { useAuthStore } from "@/stores/authStore"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import type { CommunityPost, Comment, VoteType } from "@/types/community"
+import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
 import { cities } from "@/data/cities"
 
 export function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
-  const { user, setShowLoginModal, refreshDemoProfile } = useAuthStore()
+  const { user, setShowLoginModal, refreshDemoProfile, profile: authProfile } = useAuthStore()
   const { createTrip, addDay, addItem } = useScheduleStore()
 
   const [post, setPost] = useState<CommunityPost | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [myVote, setMyVote] = useState<VoteType | null>(null)
+  const [commentVotes, setCommentVotes] = useState<Record<string, VoteType | null>>({})
   const [commentText, setCommentText] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
@@ -203,6 +208,43 @@ export function PostDetail() {
     navigate("/planner")
   }
 
+  // 관리자 글 삭제
+  const handleDeletePost = () => {
+    if (!postId) return
+    if (!isSupabaseConfigured) {
+      deleteMockPost(postId)
+      navigate("/community")
+    }
+  }
+
+  // 댓글 투표
+  const handleCommentVote = (commentId: string, type: VoteType) => {
+    if (!user) { setShowLoginModal(true); return }
+    if (!isSupabaseConfigured) {
+      const newVote = toggleMockCommentVote(commentId, user.id, type)
+      setCommentVotes((prev) => ({ ...prev, [commentId]: newVote }))
+      setComments(fetchMockComments(postId!))
+    }
+  }
+
+  // 댓글 투표 상태 로드
+  useEffect(() => {
+    if (!user || !comments.length) return
+    const votes: Record<string, VoteType | null> = {}
+    for (const c of comments) {
+      votes[c.id] = getMockCommentVote(c.id, user.id)
+    }
+    setCommentVotes(votes)
+  }, [comments, user])
+
+  // 베스트 댓글 먼저 정렬
+  const sortedComments = [...comments].sort((a, b) => {
+    const aBest = (a.likes_count ?? 0) >= BEST_THRESHOLD ? 1 : 0
+    const bBest = (b.likes_count ?? 0) >= BEST_THRESHOLD ? 1 : 0
+    if (bBest !== aBest) return bBest - aBest
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  })
+
   if (isLoading) {
     return (
       <div className="mx-auto max-w-2xl px-4 pt-20">
@@ -249,7 +291,14 @@ export function PostDetail() {
       </div>
 
       {/* 제목 + 메타 */}
-      <h1 className="mb-2 text-2xl font-bold">{post.title}</h1>
+      <div className="flex items-center gap-2 mb-2">
+        <h1 className="text-2xl font-bold">{post.title}</h1>
+        {post.likes_count >= BEST_THRESHOLD && (
+          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+            🏆 베스트
+          </span>
+        )}
+      </div>
       <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <span className="inline-flex items-center gap-1">
           <MapPin className="h-3.5 w-3.5" />
@@ -338,6 +387,17 @@ export function PostDetail() {
           <Download className="h-4 w-4" />
           내 일정으로 가져오기
         </Button>
+        {authProfile?.is_admin && (
+          <Button
+            variant="destructive"
+            onClick={handleDeletePost}
+            className="gap-1.5 rounded-xl"
+            size="sm"
+          >
+            <Trash2 className="h-4 w-4" />
+            삭제
+          </Button>
+        )}
       </div>
 
       {/* 댓글 */}
@@ -369,15 +429,20 @@ export function PostDetail() {
         </div>
 
         {/* 댓글 목록 */}
-        {comments.length === 0 ? (
+        {sortedComments.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">
             아직 댓글이 없습니다. 첫 댓글을 남겨보세요!
           </p>
         ) : (
           <div className="space-y-3">
-            {comments.map((comment) => (
-              <div key={comment.id} className="rounded-xl bg-muted/50 p-3">
+            {sortedComments.map((comment) => {
+              const isBestComment = (comment.likes_count ?? 0) >= BEST_THRESHOLD
+              return (
+              <div key={comment.id} className={`rounded-xl p-3 ${isBestComment ? "bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800" : "bg-muted/50"}`}>
                 <div className="mb-1 flex items-center gap-2">
+                  {isBestComment && (
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">🏆 베스트</span>
+                  )}
                   {comment.profiles?.avatar_url ? (
                     <img src={comment.profiles.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
                   ) : (
@@ -392,7 +457,7 @@ export function PostDetail() {
                   <span className="ml-auto text-[10px] text-muted-foreground">
                     {new Date(comment.created_at).toLocaleDateString("ko-KR")}
                   </span>
-                  {user?.id === comment.user_id && (
+                  {(user?.id === comment.user_id || authProfile?.is_admin) && (
                     <button
                       onClick={async () => {
                         if (!isSupabaseConfigured) {
@@ -407,14 +472,41 @@ export function PostDetail() {
                         fetchPost()
                       }}
                       className="text-muted-foreground hover:text-destructive"
+                      title={authProfile?.is_admin ? "관리자 삭제" : "삭제"}
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
                   )}
                 </div>
-                <p className="text-sm leading-relaxed">{comment.content}</p>
+                <p className="mb-2 text-sm leading-relaxed">{comment.content}</p>
+                {/* 댓글 투표 */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleCommentVote(comment.id, "up")}
+                    className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs transition-colors ${
+                      commentVotes[comment.id] === "up"
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <ThumbsUp className="h-3 w-3" />
+                    {comment.likes_count ?? 0}
+                  </button>
+                  <button
+                    onClick={() => handleCommentVote(comment.id, "down")}
+                    className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs transition-colors ${
+                      commentVotes[comment.id] === "down"
+                        ? "bg-destructive/10 text-destructive font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <ThumbsDown className="h-3 w-3" />
+                    {comment.dislikes_count ?? 0}
+                  </button>
+                </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

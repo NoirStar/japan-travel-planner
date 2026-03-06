@@ -8,9 +8,11 @@ const KEYS = {
   posts: "mock_community_posts",
   comments: "mock_community_comments",
   votes: "mock_community_votes",
+  commentVotes: "mock_community_comment_votes",
   demoUser: "mock_demo_user",
   pointLog: "mock_point_log",
   lastAttendance: "mock_last_attendance",
+  chatMessages: "mock_chat_messages",
 } as const
 
 // ─── 유틸 ────────────────────────────────────────────────
@@ -124,7 +126,7 @@ export function getAdminProfile(): UserProfile {
     avatar_url: null,
     total_likes: 0,
     total_points: 99999,
-    level: 10,
+    level: 20,
     is_admin: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -235,6 +237,8 @@ export function addMockComment(postId: string, userId: string, content: string):
     post_id: postId,
     user_id: userId,
     content,
+    likes_count: 0,
+    dislikes_count: 0,
     created_at: new Date().toISOString(),
     profiles: profile,
   }
@@ -266,4 +270,87 @@ export function deleteMockComment(commentId: string, postId: string) {
       write(KEYS.posts, posts)
     }
   }
+}
+
+// ─── 관리자 삭제 ─────────────────────────────────────────
+export function deleteMockPost(postId: string) {
+  const posts = read<CommunityPost>(KEYS.posts)
+  write(KEYS.posts, posts.filter((p) => p.id !== postId))
+  // 관련 댓글, 투표도 삭제
+  const comments = read<Comment>(KEYS.comments)
+  write(KEYS.comments, comments.filter((c) => c.post_id !== postId))
+  const votes = read<MockVote>(KEYS.votes)
+  write(KEYS.votes, votes.filter((v) => v.post_id !== postId))
+}
+
+// ─── 댓글 투표 ───────────────────────────────────────────
+interface MockCommentVote { comment_id: string; user_id: string; vote_type: VoteType }
+
+export function getMockCommentVote(commentId: string, userId: string): VoteType | null {
+  const votes = read<MockCommentVote>(KEYS.commentVotes)
+  return votes.find((v) => v.comment_id === commentId && v.user_id === userId)?.vote_type ?? null
+}
+
+export function toggleMockCommentVote(commentId: string, userId: string, type: VoteType): VoteType | null {
+  const votes = read<MockCommentVote>(KEYS.commentVotes)
+  const comments = read<Comment>(KEYS.comments)
+  const comment = comments.find((c) => c.id === commentId)
+  if (!comment) return null
+
+  const existingIdx = votes.findIndex((v) => v.comment_id === commentId && v.user_id === userId)
+  const existing = existingIdx >= 0 ? votes[existingIdx] : null
+  let newVote: VoteType | null = type
+
+  if (existing?.vote_type === type) {
+    votes.splice(existingIdx, 1)
+    if (type === "up") comment.likes_count = Math.max(0, comment.likes_count - 1)
+    else comment.dislikes_count = Math.max(0, comment.dislikes_count - 1)
+    newVote = null
+  } else {
+    if (existing) {
+      if (existing.vote_type === "up") comment.likes_count = Math.max(0, comment.likes_count - 1)
+      else comment.dislikes_count = Math.max(0, comment.dislikes_count - 1)
+      votes.splice(existingIdx, 1)
+    }
+    votes.push({ comment_id: commentId, user_id: userId, vote_type: type })
+    if (type === "up") comment.likes_count += 1
+    else comment.dislikes_count += 1
+  }
+
+  write(KEYS.commentVotes, votes)
+  write(KEYS.comments, comments)
+  return newVote
+}
+
+// ─── 채팅 ────────────────────────────────────────────────
+export interface ChatMessage {
+  id: string
+  user_id: string
+  nickname: string
+  avatar_url: string | null
+  content: string
+  created_at: string
+}
+
+export function getChatMessages(): ChatMessage[] {
+  return read<ChatMessage>(KEYS.chatMessages)
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    .slice(-100) // 최근 100개만
+}
+
+export function addChatMessage(userId: string, nickname: string, avatarUrl: string | null, content: string): ChatMessage {
+  const msg: ChatMessage = {
+    id: uid(),
+    user_id: userId,
+    nickname,
+    avatar_url: avatarUrl,
+    content,
+    created_at: new Date().toISOString(),
+  }
+  const msgs = read<ChatMessage>(KEYS.chatMessages)
+  msgs.push(msg)
+  // 최대 500개 유지
+  if (msgs.length > 500) msgs.splice(0, msgs.length - 500)
+  write(KEYS.chatMessages, msgs)
+  return msg
 }

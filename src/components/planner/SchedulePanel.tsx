@@ -15,11 +15,10 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Bot, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2 } from "lucide-react"
+import { MapPin, Bot, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
-import { getCityConfig } from "@/data/mapConfig"
 import { estimateTravel, formatTravelTime, formatDistance } from "@/lib/utils"
 import type { TransportMode } from "@/lib/utils"
 import { DayTabs } from "./DayTabs"
@@ -37,7 +36,6 @@ interface SchedulePanelProps {
 }
 
 export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace }: SchedulePanelProps) {
-  const cityConfig = getCityConfig(cityId)
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay } = useScheduleStore()
 
@@ -80,6 +78,10 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [editTitle, setEditTitle] = useState("")
+  const [showCoverInput, setShowCoverInput] = useState(false)
+  const [coverUrl, setCoverUrl] = useState("")
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // 마커 클릭 시 해당 카드로 자동 스크롤
@@ -167,9 +169,95 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
     <div className="flex h-full flex-col" data-testid="schedule-panel">
       {/* 헤더 */}
       <div className="border-b border-border p-4">
-        <h2 className="text-base font-bold">
-          {cityConfig.name} 여행
-        </h2>
+        {/* 커버 이미지 */}
+        {trip.coverImage && (
+          <div className="relative -mx-4 -mt-4 mb-3 h-28 overflow-hidden">
+            <img src={trip.coverImage} alt="" className="h-full w-full object-cover" />
+            <button
+              onClick={() => { setShowCoverInput(true); setCoverUrl(trip.coverImage ?? "") }}
+              className="absolute bottom-2 right-2 rounded-lg bg-black/50 p-1.5 text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
+          </div>
+        )}
+
+        {/* 여행 이름 (편집 가능) */}
+        <div className="flex items-center gap-2">
+          {isEditingTitle ? (
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              onBlur={() => {
+                const trimmed = editTitle.trim()
+                if (trimmed) updateTrip(trip.id, { title: trimmed })
+                setIsEditingTitle(false)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const trimmed = editTitle.trim()
+                  if (trimmed) updateTrip(trip.id, { title: trimmed })
+                  setIsEditingTitle(false)
+                } else if (e.key === "Escape") {
+                  setIsEditingTitle(false)
+                }
+              }}
+              maxLength={30}
+              autoFocus
+              className="flex-1 rounded-lg border border-border bg-background px-2 py-1 text-base font-bold outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          ) : (
+            <button
+              onClick={() => { setEditTitle(trip.title); setIsEditingTitle(true) }}
+              className="group flex items-center gap-1.5 text-left"
+            >
+              <h2 className="text-base font-bold">{trip.title}</h2>
+              <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          )}
+          {!trip.coverImage && !showCoverInput && (
+            <button
+              onClick={() => { setShowCoverInput(true); setCoverUrl("") }}
+              className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              title="커버 사진 추가"
+            >
+              <ImagePlus className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* 커버 URL 입력 */}
+        {showCoverInput && (
+          <div className="mt-2 flex gap-2">
+            <input
+              type="url"
+              value={coverUrl}
+              onChange={(e) => setCoverUrl(e.target.value)}
+              placeholder="커버 이미지 URL (https://...)"
+              className="flex-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary/40"
+              autoFocus
+            />
+            <Button
+              size="sm"
+              className="h-7 rounded-lg text-xs"
+              onClick={() => {
+                updateTrip(trip.id, { coverImage: coverUrl || undefined })
+                setShowCoverInput(false)
+              }}
+            >
+              저장
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 rounded-lg text-xs"
+              onClick={() => setShowCoverInput(false)}
+            >
+              취소
+            </Button>
+          </div>
+        )}
         <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 dark:bg-muted">
           <Calendar className="h-4 w-4 shrink-0 text-sakura-dark" />
           <input

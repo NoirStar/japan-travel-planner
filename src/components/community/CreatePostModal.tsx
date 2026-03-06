@@ -14,8 +14,9 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalProps) {
-  const { user, refreshDemoProfile } = useAuthStore()
+  const { user, isDemoMode, refreshDemoProfile } = useAuthStore()
   const { trips } = useScheduleStore()
+  const useSupabase = isSupabaseConfigured && !isDemoMode
   const [selectedTripId, setSelectedTripId] = useState("")
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -33,7 +34,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
 
     const city = cities.find((c) => c.id === selectedTrip.cityId)
 
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured || isDemoMode) {
       createMockPost({
         user_id: user.id,
         title: title.trim(),

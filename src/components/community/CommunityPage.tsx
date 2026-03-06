@@ -22,8 +22,9 @@ export function CommunityPage() {
 
   const fetchPosts = useCallback(async () => {
     setIsLoading(true)
+    const useSupabase = isSupabaseConfigured && !isDemoMode
 
-    if (!isSupabaseConfigured) {
+    if (!useSupabase) {
       const mockSort = sort === "best" ? "popular" : sort
       let result = fetchMockPosts(mockSort, cityFilter)
       if (sort === "best") {
@@ -53,7 +54,7 @@ export function CommunityPage() {
     const { data } = await query
     setPosts((data as CommunityPost[]) ?? [])
     setIsLoading(false)
-  }, [sort, cityFilter])
+  }, [sort, cityFilter, isDemoMode])
 
   useEffect(() => {
     fetchPosts()

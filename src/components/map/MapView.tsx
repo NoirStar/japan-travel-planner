@@ -529,7 +529,7 @@ function buildMapStyles(hiddenPois: Set<string>): google.maps.MapTypeStyle[] {
   return styles
 }
 
-/** 지도 설정 패널 — POI 토글 + 마커 초기화 */
+/** 지도 설정 패널 — 우측 줌 버튼 아래에 초기화 + 레이어 토글 */
 function MapControlPanel({
   hiddenPois,
   onTogglePoi,
@@ -541,29 +541,39 @@ function MapControlPanel({
   onClearMarkers?: () => void
   hasCityPlaces: boolean
 }) {
-  const [open, setOpen] = useState(false)
+  const [layerOpen, setLayerOpen] = useState(false)
 
   return (
-    <div className="absolute top-3 right-14 sm:top-4 sm:right-16 z-10">
-      {/* 토글 버튼 */}
+    <div className="absolute top-28 right-2.5 z-10 flex flex-col items-end gap-1.5">
+      {/* 마커 초기화 버튼 */}
+      {onClearMarkers && hasCityPlaces && (
+        <button
+          onClick={onClearMarkers}
+          className="bg-background/90 backdrop-blur-sm text-foreground p-2 rounded-lg shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
+          title="마커 초기화"
+        >
+          <RotateCcw className="w-4 h-4" />
+        </button>
+      )}
+
+      {/* 레이어 토글 버튼 */}
       <button
-        onClick={() => setOpen(!open)}
-        className={`flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold shadow-md border transition-all ${
-          open
+        onClick={() => setLayerOpen(!layerOpen)}
+        className={`p-2 rounded-lg shadow-md border transition-all ${
+          layerOpen
             ? "bg-sakura-dark text-white border-sakura-dark"
-            : "bg-card/95 backdrop-blur-sm text-foreground border-border hover:bg-muted"
+            : "bg-background/90 backdrop-blur-sm text-foreground border-border/50 hover:bg-muted"
         }`}
-        title="지도 설정"
+        title="지도 레이어"
       >
         <Layers className="w-4 h-4" />
-        <span className="hidden sm:inline">레이어</span>
       </button>
 
-      {/* 드롭다운 패널 */}
-      {open && (
-        <div className="absolute top-full right-0 mt-1.5 w-40 rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1.5 z-50">
-          <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium border-b border-border/50">
-            기본 지도 표시
+      {/* 레이어 설정 드롭다운 */}
+      {layerOpen && (
+        <div className="w-36 rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1.5">
+          <div className="px-3 py-1 text-[10px] text-muted-foreground font-medium border-b border-border/50">
+            지도 표시 설정
           </div>
           {POI_TOGGLES.map((poi) => {
             const Icon = poi.icon
@@ -572,19 +582,15 @@ function MapControlPanel({
               <button
                 key={poi.id}
                 onClick={() => onTogglePoi(poi.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium transition-all ${
-                  isVisible
-                    ? "text-foreground"
-                    : "text-muted-foreground/50"
+                className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium transition-all ${
+                  isVisible ? "text-foreground" : "text-muted-foreground/50"
                 } hover:bg-muted`}
               >
-                <div className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
-                  isVisible
-                    ? "bg-sakura-dark border-sakura-dark"
-                    : "border-border bg-background"
+                <div className={`flex h-3.5 w-3.5 items-center justify-center rounded border transition-colors ${
+                  isVisible ? "bg-sakura-dark border-sakura-dark" : "border-border bg-background"
                 }`}>
                   {isVisible && (
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
@@ -594,23 +600,6 @@ function MapControlPanel({
               </button>
             )
           })}
-
-          {/* 마커 초기화 */}
-          {onClearMarkers && hasCityPlaces && (
-            <>
-              <div className="my-1 border-t border-border/50" />
-              <button
-                onClick={() => {
-                  onClearMarkers()
-                  setOpen(false)
-                }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>검색 마커 초기화</span>
-              </button>
-            </>
-          )}
         </div>
       )}
     </div>
@@ -637,6 +626,16 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
   }, [])
 
   const dynamicStyles = useMemo(() => buildMapStyles(hiddenPois), [hiddenPois])
+
+  // Map 클릭 핸들러 — useCallback으로 안정적인 참조 유지 (불필요한 리렌더 방지)
+  const handleMapClick = useCallback((e: google.maps.MapMouseEvent & { detail: { placeId?: string } }) => {
+    if (e.detail.placeId) {
+      e.stop()
+      onPoiClick?.(e.detail.placeId)
+    } else {
+      onSelectPlace?.(null)
+    }
+  }, [onPoiClick, onSelectPlace])
 
   // Google Maps 인증 실패 글로벌 콜백
   useEffect(() => {
@@ -696,14 +695,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           style={{ width: "100%", height: "100%" }}
           styles={mapId ? undefined : dynamicStyles}
           clickableIcons={true}
-          onClick={(e) => {
-            if (e.detail.placeId) {
-              e.stop()
-              onPoiClick?.(e.detail.placeId)
-            } else {
-              onSelectPlace?.(null)
-            }
-          }}
+          onClick={handleMapClick}
         >
           {/* 도시의 미추가 장소 — 작은 마커 */}
           {unscheduledPlaces.map((place) => (

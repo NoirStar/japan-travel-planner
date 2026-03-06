@@ -75,6 +75,10 @@ export default async function handler(
       ? CATEGORY_TYPES[category]
       : [...CATEGORY_TYPES.attraction, ...CATEGORY_TYPES.restaurant, ...CATEGORY_TYPES.cafe, ...CATEGORY_TYPES.shopping]
 
+    // minRating이 4.0 미만일 때 POPULARITY로 검색하면 고평점 장소만 반환됨
+    // → 낮은 별점 필터 시 DISTANCE 기반 검색으로 다양한 평점의 장소 포함
+    const rankPreference = (minRating !== undefined && minRating < 4.0) ? "DISTANCE" : "POPULARITY"
+
     const requestBody = {
       includedTypes,
       locationRestriction: {
@@ -84,7 +88,7 @@ export default async function handler(
         },
       },
       maxResultCount: maxResults,
-      rankPreference: "POPULARITY",
+      rankPreference,
       languageCode: "ko",
     }
 

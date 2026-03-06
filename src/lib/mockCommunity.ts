@@ -231,7 +231,7 @@ export function fetchMockComments(postId: string): Comment[] {
 }
 
 export function addMockComment(postId: string, userId: string, content: string): Comment {
-  const profile = getDemoProfile()
+  const profile = userId === ADMIN_USER_ID ? getAdminProfile() : getDemoProfile()
   const comment: Comment = {
     id: uid(),
     post_id: postId,

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useMemo, useState, useCallback } from "react"
 import { useSearchParams, useParams } from "react-router-dom"
-import { List, MapIcon } from "lucide-react"
+import { List, MapIcon, LogIn } from "lucide-react"
 import { MapView } from "@/components/map/MapView"
 import { SchedulePanel } from "@/components/planner/SchedulePanel"
 import { getCityConfig } from "@/data/mapConfig"
 import { useScheduleStore } from "@/stores/scheduleStore"
+import { useAuthStore } from "@/stores/authStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
@@ -17,11 +18,13 @@ export function PlannerPage() {
   const cityIdParam = searchParams.get("city") ?? "tokyo"
 
   const { trips, createTrip, setActiveTrip } = useScheduleStore()
+  const { user, setShowLoginModal } = useAuthStore()
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const initialized = useRef(false)
   const [activeDayIndex, setActiveDayIndex] = useState(0)
   const [mobileTab, setMobileTab] = useState<"schedule" | "map">("schedule")
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
+  const [loginToast, setLoginToast] = useState(false)
 
   // 공유 링크에서 여행 데이터 복원
   useEffect(() => {
@@ -165,6 +168,11 @@ export function PlannerPage() {
     const alreadyAdded = currentDay.items.some((item) => item.placeId === placeId)
     if (alreadyAdded) return
     useScheduleStore.getState().addItem(trip.id, currentDay.id, placeId)
+    // 비로그인 시 저장 안 됨 알림
+    if (!user) {
+      setLoginToast(true)
+      setTimeout(() => setLoginToast(false), 4000)
+    }
   }
 
   // 지도에서 번호 마커 클릭하여 일정에서 삭제
@@ -348,6 +356,19 @@ export function PlannerPage() {
           />
         </main>
       </div>
+
+      {/* 비로그인 저장 불가 토스트 */}
+      {loginToast && (
+        <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <button
+            onClick={() => { setLoginToast(false); setShowLoginModal(true) }}
+            className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800 shadow-lg dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+          >
+            <LogIn className="h-4 w-4" />
+            로그인 하면 일정이 자동 저장됩니다
+          </button>
+        </div>
+      )}
 
       {/* 모바일 하단 탭 바 — safe-area 대응 (브라우저 하단 오버레이 회피) */}
       <div className="flex shrink-0 border-t border-border bg-card lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} data-testid="mobile-tab-bar">

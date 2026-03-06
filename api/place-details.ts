@@ -84,7 +84,6 @@ export default async function handler(
       rating: p.rating,
       ratingCount: p.userRatingCount,
       address: p.shortFormattedAddress,
-      description: p.shortFormattedAddress,
       image,
       googlePlaceId: p.id,
       // reviews 필드 제거 — Enterprise 등급 회피

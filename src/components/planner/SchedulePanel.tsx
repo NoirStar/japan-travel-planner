@@ -15,9 +15,10 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Bot, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus } from "lucide-react"
+import { MapPin, Bot, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
+import { useAuthStore } from "@/stores/authStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { estimateTravel, formatTravelTime, formatDistance } from "@/lib/utils"
 import type { TransportMode } from "@/lib/utils"
@@ -38,6 +39,7 @@ interface SchedulePanelProps {
 export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace }: SchedulePanelProps) {
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay } = useScheduleStore()
+  const { user } = useAuthStore()
 
   /** 날짜 변경 시 Day 수 자동 조정 */
   const handleDateChange = (field: "startDate" | "endDate", value: string) => {
@@ -277,10 +279,17 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           />
         </div>
         <div className="mt-1.5 flex items-center justify-end">
-          <span className="flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">
-            <Save className="h-3 w-3" />
-            자동 저장
-          </span>
+          {user ? (
+            <span className="flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">
+              <Save className="h-3 w-3" />
+              자동 저장
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-[10px] text-amber-500" data-testid="auto-save-indicator">
+              <AlertTriangle className="h-3 w-3" />
+              로그인 후 저장 가능
+            </span>
+          )}
         </div>
       </div>
 

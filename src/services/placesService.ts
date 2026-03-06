@@ -92,7 +92,7 @@ function toDetailPlace(p: PlaceDetailsResult, cityId: string): Place {
     rating: p.rating,
     ratingCount: p.ratingCount,
     image: p.image,
-    description: p.description ?? p.address,
+    description: p.description,
     address: p.address,
     googlePlaceId: p.googlePlaceId,
     googleMapsUri: p.googleMapsUri,

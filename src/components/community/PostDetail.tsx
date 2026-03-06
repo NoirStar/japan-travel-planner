@@ -455,7 +455,7 @@ export function PostDetail() {
                     <LevelBadge level={comment.profiles.level} totalPoints={comment.profiles.total_points} isAdmin={comment.profiles.is_admin} compact />
                   )}
                   <span className="ml-auto text-[10px] text-muted-foreground">
-                    {new Date(comment.created_at).toLocaleDateString("ko-KR")}
+                    {new Date(comment.created_at).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                   </span>
                   {(user?.id === comment.user_id || authProfile?.is_admin) && (
                     <button

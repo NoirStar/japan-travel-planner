@@ -3,6 +3,7 @@ import { Send, MessageSquare, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getChatMessages, addChatMessage } from "@/lib/mockCommunity"
 import type { ChatMessage } from "@/lib/mockCommunity"
+import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { useAuthStore } from "@/stores/authStore"
 
 export function ChatPanel() {
@@ -13,8 +14,17 @@ export function ChatPanel() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const loadMessages = useCallback(() => {
-    setMessages(getChatMessages())
+  const loadMessages = useCallback(async () => {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase
+        .from("chat_messages")
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(100)
+      if (data) setMessages(data as ChatMessage[])
+    } else {
+      setMessages(getChatMessages())
+    }
   }, [])
 
   // 폴링으로 메시지 갱신
@@ -32,14 +42,23 @@ export function ChatPanel() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages.length])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!user || !profile) {
       setShowLoginModal(true)
       return
     }
     const trimmed = input.trim()
     if (!trimmed) return
-    addChatMessage(user.id, profile.nickname, profile.avatar_url, trimmed)
+    if (isSupabaseConfigured) {
+      await supabase.from("chat_messages").insert({
+        user_id: user.id,
+        nickname: profile.nickname,
+        avatar_url: profile.avatar_url,
+        content: trimmed,
+      })
+    } else {
+      addChatMessage(user.id, profile.nickname, profile.avatar_url, trimmed)
+    }
     setInput("")
     loadMessages()
   }
@@ -91,9 +110,7 @@ export function ChatPanel() {
                   )
                 )}
                 <div className={`max-w-[75%] ${isMe ? "text-right" : ""}`}>
-                  {!isMe && (
-                    <p className="mb-0.5 text-[10px] font-medium text-muted-foreground">{msg.nickname}</p>
-                  )}
+                  <p className={`mb-0.5 text-[10px] font-medium text-muted-foreground ${isMe ? "text-right" : ""}`}>{msg.nickname}</p>
                   <div
                     className={`inline-block rounded-2xl px-3 py-1.5 text-sm leading-relaxed ${
                       isMe

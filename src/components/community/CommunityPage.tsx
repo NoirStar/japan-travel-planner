@@ -77,7 +77,7 @@ export function CommunityPage() {
       )}
 
       {/* 로컬스토리지 안내 */}
-      {!isSupabaseConfigured && (
+      {!isSupabaseConfigured && !isDemoMode && (
         <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-600 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-400">
           💡 현재 데모 모드입니다. 글·댓글·채팅은 이 브라우저에만 저장됩니다.
         </div>

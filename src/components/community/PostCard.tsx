@@ -11,7 +11,7 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   const city = cities.find((c) => c.id === post.city_id)
-  const dayCount = post.trip_data.days?.length ?? 0
+  const dayCount = post.trip_data?.days?.length ?? 0
   const profile = post.profiles
 
   return (

@@ -10,20 +10,22 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean
   error: Error | null
+  errorInfo: string
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props)
-    this.state = { hasError: false, error: null }
+    this.state = { hasError: false, error: null, errorInfo: "" }
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught:", error, errorInfo)
+    this.setState({ errorInfo: errorInfo.componentStack ?? "" })
   }
 
   handleReload = () => {
@@ -51,11 +53,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               예기치 않은 오류가 발생했습니다. 페이지를 새로고침하거나 홈으로 돌아가주세요.
             </p>
             {this.state.error && (
-              <details className="mt-4 rounded-lg bg-muted/50 p-3 text-left text-xs text-muted-foreground">
+              <details className="mt-4 rounded-lg bg-muted/50 p-3 text-left text-xs text-muted-foreground" open>
                 <summary className="cursor-pointer font-medium">오류 상세</summary>
                 <pre className="mt-2 overflow-auto whitespace-pre-wrap">
                   {this.state.error.message}
                 </pre>
+                {this.state.errorInfo && (
+                  <pre className="mt-2 overflow-auto whitespace-pre-wrap text-[10px] opacity-60">
+                    {this.state.errorInfo}
+                  </pre>
+                )}
               </details>
             )}
             <div className="mt-6 flex justify-center gap-3">

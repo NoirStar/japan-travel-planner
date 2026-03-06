@@ -18,15 +18,19 @@ export function ChatPanel() {
   const useSupabase = isSupabaseConfigured && !isDemoMode
 
   const loadMessages = useCallback(async () => {
-    if (useSupabase) {
-      const { data } = await supabase
-        .from("chat_messages")
-        .select("*")
-        .order("created_at", { ascending: true })
-        .limit(100)
-      if (data) setMessages(data as ChatMessage[])
-    } else {
-      setMessages(getChatMessages())
+    try {
+      if (useSupabase) {
+        const { data } = await supabase
+          .from("chat_messages")
+          .select("*")
+          .order("created_at", { ascending: true })
+          .limit(100)
+        if (data) setMessages(data as ChatMessage[])
+      } else {
+        setMessages(getChatMessages())
+      }
+    } catch (e) {
+      console.error("채팅 로드 실패:", e)
     }
   }, [useSupabase])
 
@@ -52,15 +56,19 @@ export function ChatPanel() {
     }
     const trimmed = input.trim()
     if (!trimmed) return
-    if (useSupabase) {
-      await supabase.from("chat_messages").insert({
-        user_id: user.id,
-        nickname: profile.nickname,
-        avatar_url: profile.avatar_url,
-        content: trimmed,
-      })
-    } else {
-      addChatMessage(user.id, profile.nickname, profile.avatar_url, trimmed)
+    try {
+      if (useSupabase) {
+        await supabase.from("chat_messages").insert({
+          user_id: user.id,
+          nickname: profile.nickname,
+          avatar_url: profile.avatar_url,
+          content: trimmed,
+        })
+      } else {
+        addChatMessage(user.id, profile.nickname, profile.avatar_url, trimmed)
+      }
+    } catch (e) {
+      console.error("채팅 전송 실패:", e)
     }
     setInput("")
     loadMessages()

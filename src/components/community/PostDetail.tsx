@@ -55,14 +55,19 @@ export function PostDetail() {
       setIsLoading(false)
       return
     }
-    const { data } = await supabase
-      .from("posts")
-      .select("*, profiles(*)")
-      .eq("id", postId)
-      .single()
+    try {
+      const { data } = await supabase
+        .from("posts")
+        .select("*, profiles(*)")
+        .eq("id", postId)
+        .single()
 
-    if (data) setPost(data as CommunityPost)
-    setIsLoading(false)
+      if (data) setPost(data as CommunityPost)
+    } catch (e) {
+      console.error("게시글 로드 실패:", e)
+    } finally {
+      setIsLoading(false)
+    }
   }, [postId])
 
   // 댓글 로드
@@ -72,13 +77,17 @@ export function PostDetail() {
       setComments(fetchMockComments(postId))
       return
     }
-    const { data } = await supabase
-      .from("comments")
-      .select("*, profiles(*)")
-      .eq("post_id", postId)
-      .order("created_at", { ascending: true })
+    try {
+      const { data } = await supabase
+        .from("comments")
+        .select("*, profiles(*)")
+        .eq("post_id", postId)
+        .order("created_at", { ascending: true })
 
-    setComments((data as Comment[]) ?? [])
+      setComments((data as Comment[]) ?? [])
+    } catch (e) {
+      console.error("댓글 로드 실패:", e)
+    }
   }, [postId])
 
   // 내 투표 상태 확인

@@ -34,7 +34,7 @@ function setCachedDetail(placeId: string, place: Place) {
   }
 }
 
-// Essentials 등급 응답 (마커용 최소 데이터)
+// 검색 응답 (마커 + 별점)
 interface PlacesSearchResult {
   id: string
   name: string
@@ -42,6 +42,8 @@ interface PlacesSearchResult {
   category: string
   location: { lat: number; lng: number }
   googlePlaceId: string
+  rating?: number
+  ratingCount?: number
 }
 
 // Pro 등급 응답 (Details)
@@ -63,7 +65,7 @@ interface PlaceDetailsResponse {
   place: PlaceDetailsResult
 }
 
-// Essentials 등급 응답 → Place 변환 (마커용 최소 데이터)
+// 검색 응답 → Place 변환 (마커 + 별점)
 function toMarkerPlace(p: PlacesSearchResult, cityId: string): Place {
   return {
     id: p.id,
@@ -73,6 +75,8 @@ function toMarkerPlace(p: PlacesSearchResult, cityId: string): Place {
     cityId,
     location: p.location,
     googlePlaceId: p.googlePlaceId,
+    rating: p.rating,
+    ratingCount: p.ratingCount,
   }
 }
 

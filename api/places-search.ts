@@ -81,13 +81,13 @@ export default async function handler(
       languageCode: "ko",
     }
 
-    // ★ Essentials 등급 (월 10,000건 무료) — 마커 표시용 최소 필드만 요청
+    // ★ Pro 등급 — rating 포함하여 검색 결과에서 바로 별점 표시
     const placesRes = await fetch(PLACES_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.types",
+        "X-Goog-FieldMask": "places.id,places.displayName,places.location,places.types,places.rating,places.userRatingCount",
       },
       body: JSON.stringify(requestBody),
     })
@@ -99,12 +99,13 @@ export default async function handler(
     }
 
     const data = await placesRes.json()
-    // Essentials 등급 — 마커 좌표 + 이름 + 카테고리만 반환
     const places: PlaceResult[] = (data.places ?? []).map((p: {
       id: string
       displayName: { text: string; languageCode: string }
       location: { latitude: number; longitude: number }
       types?: string[]
+      rating?: number
+      userRatingCount?: number
     }) => ({
       id: `google-${p.id}`,
       name: p.displayName?.text ?? "",
@@ -115,6 +116,8 @@ export default async function handler(
         lng: p.location?.longitude ?? 0,
       },
       googlePlaceId: p.id,
+      rating: p.rating,
+      ratingCount: p.userRatingCount,
     }))
 
     return res.status(200).json({ places })

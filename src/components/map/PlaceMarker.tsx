@@ -25,13 +25,13 @@ const CATEGORY_COLORS: Record<string, [string, string]> = {
   other: ["#6b7280", "#475569"],
 }
 
-/** SVG 말풍선 아이콘 (둥근 사각형 + V꼬리 + 번호) */
+/** SVG 원형 마커 (원 + 드롭핀 꼬리 + 번호) — 검색 마커(사각형)와 확실히 구분 */
 function createBalloonSvg(num: number, colors: [string, string], selected: boolean): string {
   const [c1, c2] = colors
   const border = selected ? "#f472b6" : "#ffffff"
   const bw = selected ? 3 : 2.5
   const glow = selected
-    ? `<rect x="2" y="0" width="36" height="36" rx="11" ry="11" fill="none" stroke="#f472b680" stroke-width="5"/>`
+    ? `<circle cx="20" cy="18" r="18" fill="none" stroke="#f472b680" stroke-width="5"/>`
     : ""
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">
@@ -40,15 +40,15 @@ function createBalloonSvg(num: number, colors: [string, string], selected: boole
     <stop offset="0%" stop-color="${c1}"/>
     <stop offset="100%" stop-color="${c2}"/>
   </linearGradient>
-  <filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.25"/></filter>
+  <filter id="s"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter>
 </defs>
 <g filter="url(#s)">
   ${glow}
-  <rect x="4" y="2" width="32" height="32" rx="10" ry="10" fill="url(#bg)" stroke="${border}" stroke-width="${bw}"/>
-  <polygon points="14,33 20,44 26,33" fill="url(#bg)"/>
-  <line x1="14" y1="33" x2="20" y2="44" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
-  <line x1="26" y1="33" x2="20" y2="44" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
-  <rect x="13" y="31" width="14" height="4" fill="url(#bg)"/>
+  <circle cx="20" cy="18" r="15" fill="url(#bg)" stroke="${border}" stroke-width="${bw}"/>
+  <polygon points="14,30 20,44 26,30" fill="url(#bg)"/>
+  <line x1="14" y1="30" x2="20" y2="44" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
+  <line x1="26" y1="30" x2="20" y2="44" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
+  <rect x="13" y="28" width="14" height="4" fill="url(#bg)"/>
 </g>
 <text x="20" y="23" text-anchor="middle" fill="white" font-size="15" font-weight="bold" font-family="Arial,sans-serif">${num}</text>
 </svg>`

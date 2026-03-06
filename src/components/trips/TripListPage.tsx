@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plane, Plus } from "lucide-react"
+import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plane, Plus, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
+import { useAuthStore } from "@/stores/authStore"
 import { getCityConfig } from "@/data/mapConfig"
 
 export function TripListPage() {
   const navigate = useNavigate()
   const { trips, deleteTrip, setActiveTrip } = useScheduleStore()
+  const { user, setShowLoginModal } = useAuthStore()
 
   const handleOpenTrip = (tripId: string, cityId: string) => {
     setActiveTrip(tripId)
@@ -36,8 +38,23 @@ export function TripListPage() {
           <p className="mt-1 text-sm text-muted-foreground">저장된 여행 일정을 관리하세요</p>
         </div>
 
-        {/* 여행 목록 */}
-        {trips.length === 0 ? (
+        {/* 로그인 필요 */}
+        {!user ? (
+          <div className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground">
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted">
+              <LogIn className="h-10 w-10 text-muted-foreground/30" />
+            </div>
+            <p className="text-sm font-medium">로그인이 필요합니다</p>
+            <p className="text-xs opacity-60">여행 일정을 저장하고 관리하려면 로그인하세요</p>
+            <Button
+              onClick={() => setShowLoginModal(true)}
+              className="btn-gradient mt-2 gap-2 rounded-xl"
+            >
+              <LogIn className="h-4 w-4" />
+              로그인
+            </Button>
+          </div>
+        ) : trips.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground">
             <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted">
               <MapPin className="h-10 w-10 text-muted-foreground/30" />

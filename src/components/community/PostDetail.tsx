@@ -33,8 +33,9 @@ import { cities } from "@/data/cities"
 export function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
-  const { user, setShowLoginModal, refreshDemoProfile, profile: authProfile } = useAuthStore()
+  const { user, isDemoMode, setShowLoginModal, refreshDemoProfile, profile: authProfile } = useAuthStore()
   const { createTrip, addDay, addItem } = useScheduleStore()
+  const useMock = !isSupabaseConfigured || isDemoMode
 
   const [post, setPost] = useState<CommunityPost | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
@@ -47,7 +48,7 @@ export function PostDetail() {
   // 게시글 로드
   const fetchPost = useCallback(async () => {
     if (!postId) return
-    if (!isSupabaseConfigured) {
+    if (useMock) {
       setPost(fetchMockPost(postId))
       setIsLoading(false)
       return
@@ -65,7 +66,7 @@ export function PostDetail() {
   // 댓글 로드
   const fetchComments = useCallback(async () => {
     if (!postId) return
-    if (!isSupabaseConfigured) {
+    if (useMock) {
       setComments(fetchMockComments(postId))
       return
     }
@@ -81,7 +82,7 @@ export function PostDetail() {
   // 내 투표 상태 확인
   const fetchMyVote = useCallback(async () => {
     if (!postId || !user) return
-    if (!isSupabaseConfigured) {
+    if (useMock) {
       setMyVote(getMockVote(postId, user.id))
       return
     }
@@ -112,7 +113,7 @@ export function PostDetail() {
     }
     if (!postId) return
 
-    if (!isSupabaseConfigured) {
+    if (useMock) {
       const newVote = toggleMockVote(postId, user.id, type)
       setMyVote(newVote)
       setPost(fetchMockPost(postId))
@@ -166,7 +167,7 @@ export function PostDetail() {
     if (!trimmed || !postId) return
     setIsSending(true)
 
-    if (!isSupabaseConfigured) {
+    if (useMock) {
       addMockComment(postId, user.id, trimmed)
       setCommentText("")
       setIsSending(false)
@@ -211,19 +212,21 @@ export function PostDetail() {
   // 관리자 글 삭제
   const handleDeletePost = () => {
     if (!postId) return
-    if (!isSupabaseConfigured) {
+    if (useMock) {
       deleteMockPost(postId)
       navigate("/community")
+      return
     }
   }
 
   // 댓글 투표
   const handleCommentVote = (commentId: string, type: VoteType) => {
     if (!user) { setShowLoginModal(true); return }
-    if (!isSupabaseConfigured) {
+    if (useMock) {
       const newVote = toggleMockCommentVote(commentId, user.id, type)
       setCommentVotes((prev) => ({ ...prev, [commentId]: newVote }))
       setComments(fetchMockComments(postId!))
+      return
     }
   }
 
@@ -460,7 +463,7 @@ export function PostDetail() {
                   {(user?.id === comment.user_id || authProfile?.is_admin) && (
                     <button
                       onClick={async () => {
-                        if (!isSupabaseConfigured) {
+                        if (useMock) {
                           deleteMockComment(comment.id, postId!)
                           setComments(fetchMockComments(postId!))
                           setPost(fetchMockPost(postId!))

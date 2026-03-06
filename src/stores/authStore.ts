@@ -176,10 +176,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.removeItem("demo_logged_in")
       localStorage.removeItem("admin_logged_in")
       set({ session: null, user: null, profile: null, isDemoMode: false })
-      return
+    } else {
+      await supabase.auth.signOut()
+      set({ session: null, user: null, profile: null })
     }
-    await supabase.auth.signOut()
-    set({ session: null, user: null, profile: null })
+    // 여행 데이터 클리어 & localStorage 삭제
+    const { useScheduleStore } = await import("@/stores/scheduleStore")
+    useScheduleStore.setState({ trips: [], activeTripId: null })
+    localStorage.removeItem("schedule-store")
   },
 
   setShowLoginModal: (show) => set({ showLoginModal: show }),

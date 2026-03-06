@@ -1,7 +1,34 @@
 import { create } from "zustand"
-import { persist } from "zustand/middleware"
+import { persist, type StorageValue } from "zustand/middleware"
 import type { Trip, DaySchedule, ScheduleItem } from "@/types/schedule"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
+
+// ─── 로그인 상태 확인 (순환 의존 방지용) ─────────────────
+function isLoggedIn(): boolean {
+  try {
+    const raw = localStorage.getItem("demo_logged_in") || localStorage.getItem("admin_logged_in")
+    if (raw) return true
+    // Supabase 세션 확인
+    const sbKey = Object.keys(localStorage).find((k) => k.startsWith("sb-") && k.endsWith("-auth-token"))
+    return !!sbKey && !!localStorage.getItem(sbKey!)
+  } catch {
+    return false
+  }
+}
+
+// ─── 조건부 스토리지: 로그인 시만 localStorage 사용 ──────
+const authAwareStorage = {
+  getItem: (name: string): StorageValue<Pick<ScheduleState, "trips" | "activeTripId">> | null => {
+    if (!isLoggedIn()) return null
+    const raw = localStorage.getItem(name)
+    return raw ? JSON.parse(raw) : null
+  },
+  setItem: (name: string, value: StorageValue<Pick<ScheduleState, "trips" | "activeTripId">>) => {
+    if (!isLoggedIn()) return
+    localStorage.setItem(name, JSON.stringify(value))
+  },
+  removeItem: (name: string) => localStorage.removeItem(name),
+}
 
 // ─── 유틸: 고유 ID 생성 ─────────────────────────────────
 let counter = 0
@@ -259,6 +286,7 @@ export const useScheduleStore = create<ScheduleState>()(
     }),
     {
       name: "schedule-store",
+      storage: authAwareStorage,
     },
   ),
 )

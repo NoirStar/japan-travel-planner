@@ -142,7 +142,7 @@ create policy "채팅 작성" on chat_messages for insert with check (auth.uid()
 create or replace function handle_new_user()
 returns trigger as $$
 begin
-  insert into profiles (id, nickname, avatar_url)
+  insert into public.profiles (id, nickname, avatar_url)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'name', 'タビ' || substr(new.id::text, 1, 6)),
@@ -150,7 +150,7 @@ begin
   );
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 create or replace trigger on_auth_user_created
   after insert on auth.users

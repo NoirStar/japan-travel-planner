@@ -352,7 +352,7 @@ export function PostDetail() {
                 <ul className="space-y-1">
                   {day.items.map((item, idx) => (
                     <li key={item.id} className="text-xs text-muted-foreground">
-                      {idx + 1}. {item.placeId}
+                      {idx + 1}. {item.placeName ?? item.placeId}
                       {item.startTime && <span className="ml-1 text-primary">({item.startTime})</span>}
                     </li>
                   ))}

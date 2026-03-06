@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { X, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
@@ -6,6 +6,8 @@ import { useScheduleStore } from "@/stores/scheduleStore"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { createMockPost } from "@/lib/mockCommunity"
 import { cities } from "@/data/cities"
+import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
+import type { Trip } from "@/types/schedule"
 
 interface CreatePostModalProps {
   open: boolean
@@ -15,12 +17,18 @@ interface CreatePostModalProps {
 
 export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalProps) {
   const { user, isDemoMode, refreshDemoProfile } = useAuthStore()
-  const { trips } = useScheduleStore()
+  const trips = useScheduleStore((s) => open ? s.trips : [])
   const [selectedTripId, setSelectedTripId] = useState("")
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+
+  const tripOptions = useMemo(() =>
+    trips.map((trip) => {
+      const city = cities.find((c) => c.id === trip.cityId)
+      return { id: trip.id, label: `${trip.title} (${city?.name ?? trip.cityId}) - ${trip.days.length}일` }
+    }), [trips])
 
   if (!open) return null
 
@@ -33,6 +41,18 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
 
     const city = cities.find((c) => c.id === selectedTrip.cityId)
 
+    // trip_data에 장소 이름을 포함시켜 게시글에서 표시 가능하게
+    const tripWithNames: Trip = {
+      ...selectedTrip,
+      days: selectedTrip.days.map((day) => ({
+        ...day,
+        items: day.items.map((item) => ({
+          ...item,
+          placeName: getAnyPlaceById(item.placeId)?.name ?? item.placeId,
+        })),
+      })),
+    }
+
     if (!isSupabaseConfigured || isDemoMode) {
       createMockPost({
         user_id: user.id,
@@ -40,7 +60,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
         description: description.trim() || null,
         city_id: selectedTrip.cityId,
         cover_image: city?.image ?? null,
-        trip_data: selectedTrip,
+        trip_data: tripWithNames,
       })
       setIsSubmitting(false)
       refreshDemoProfile()
@@ -58,7 +78,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
       description: description.trim() || null,
       city_id: selectedTrip.cityId,
       cover_image: city?.image ?? null,
-      trip_data: selectedTrip,
+      trip_data: tripWithNames,
     })
 
     setIsSubmitting(false)
@@ -98,14 +118,11 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           >
             <option value="">여행을 선택하세요</option>
-            {trips.map((trip) => {
-              const city = cities.find((c) => c.id === trip.cityId)
-              return (
-                <option key={trip.id} value={trip.id}>
-                  {trip.title} ({city?.name ?? trip.cityId}) - {trip.days.length}일
-                </option>
-              )
-            })}
+            {tripOptions.map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
 

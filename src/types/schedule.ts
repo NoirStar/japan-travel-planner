@@ -2,6 +2,8 @@
 export interface ScheduleItem {
   id: string
   placeId: string
+  /** 장소 이름 (게시글 저장 시 denormalize) */
+  placeName?: string
   /** HH:mm 형식, e.g. "09:00" */
   startTime?: string
   memo?: string

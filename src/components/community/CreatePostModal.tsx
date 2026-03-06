@@ -16,7 +16,6 @@ interface CreatePostModalProps {
 export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalProps) {
   const { user, isDemoMode, refreshDemoProfile } = useAuthStore()
   const { trips } = useScheduleStore()
-  const useSupabase = isSupabaseConfigured && !isDemoMode
   const [selectedTripId, setSelectedTripId] = useState("")
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")

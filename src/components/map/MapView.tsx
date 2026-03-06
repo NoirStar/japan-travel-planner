@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react"
-import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
+import { APIProvider, Map, useMap, type MapMouseEvent } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
@@ -628,10 +628,11 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
   const dynamicStyles = useMemo(() => buildMapStyles(hiddenPois), [hiddenPois])
 
   // Map 클릭 핸들러 — useCallback으로 안정적인 참조 유지 (불필요한 리렌더 방지)
-  const handleMapClick = useCallback((e: google.maps.MapMouseEvent & { detail: { placeId?: string } }) => {
-    if (e.detail.placeId) {
+  const handleMapClick = useCallback((e: MapMouseEvent) => {
+    const placeId = (e.detail as { placeId?: string }).placeId
+    if (placeId) {
       e.stop()
-      onPoiClick?.(e.detail.placeId)
+      onPoiClick?.(placeId)
     } else {
       onSelectPlace?.(null)
     }

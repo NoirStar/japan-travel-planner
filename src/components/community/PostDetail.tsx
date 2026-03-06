@@ -201,9 +201,9 @@ export function PostDetail() {
     const newTrip = createTrip(tripData.cityId, `[가져옴] ${post.title}`)
 
     // 기존 Day 하나 제거 후 원본 일정 복제
-    tripData.days.forEach((day, i) => {
+    ;(tripData.days ?? []).forEach((day, i) => {
       const newDay = i === 0 ? newTrip.days[0] : addDay(newTrip.id)
-      day.items.forEach((item) => {
+      ;(day.items ?? []).forEach((item) => {
         addItem(newTrip.id, newDay.id, item.placeId)
       })
     })
@@ -211,14 +211,19 @@ export function PostDetail() {
     navigate("/planner")
   }
 
-  // 관리자 글 삭제
-  const handleDeletePost = () => {
+  // 글 삭제 (본인 또는 관리자)
+  const handleDeletePost = async () => {
     if (!postId) return
+    if (!window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) return
     if (useMock) {
       deleteMockPost(postId)
       navigate("/community")
       return
     }
+    await supabase.from("comments").delete().eq("post_id", postId)
+    await supabase.from("post_votes").delete().eq("post_id", postId)
+    await supabase.from("posts").delete().eq("id", postId)
+    navigate("/community")
   }
 
   // 댓글 투표
@@ -271,7 +276,7 @@ export function PostDetail() {
 
   const profile = post.profiles
   const city = cities.find((c) => c.id === post.city_id)
-  const dayCount = post.trip_data.days?.length ?? 0
+  const dayCount = post.trip_data?.days?.length ?? 0
 
   return (
     <div className="mx-auto max-w-2xl px-4 pt-20 pb-10">
@@ -341,19 +346,19 @@ export function PostDetail() {
       <div className="mb-6 rounded-2xl border border-border bg-card p-4">
         <h3 className="mb-3 font-semibold inline-flex items-center gap-1.5"><Calendar className="h-4 w-4" /> 일정 미리보기</h3>
         <div className="space-y-3">
-          {post.trip_data.days.map((day) => (
-            <div key={day.id} className="rounded-xl bg-muted/50 p-3">
+          {(post.trip_data.days ?? []).map((day) => (
+            <div key={day.id ?? String(day.dayNumber)} className="rounded-xl bg-muted/50 p-3">
               <p className="mb-1 text-xs font-semibold text-primary">
-                Day {day.dayNumber}{day.date && ` · ${day.date}`}
+                Day {String(day.dayNumber)}{day.date && ` · ${String(day.date)}`}
               </p>
-              {day.items.length === 0 ? (
+              {!day.items || day.items.length === 0 ? (
                 <p className="text-xs text-muted-foreground">일정이 비어있습니다</p>
               ) : (
                 <ul className="space-y-1">
                   {day.items.map((item, idx) => (
-                    <li key={item.id} className="text-xs text-muted-foreground">
-                      {idx + 1}. {item.placeName ?? item.placeId}
-                      {item.startTime && <span className="ml-1 text-primary">({item.startTime})</span>}
+                    <li key={item.id ?? idx} className="text-xs text-muted-foreground">
+                      {idx + 1}. {String(item.placeName ?? item.placeId ?? "")}
+                      {item.startTime && typeof item.startTime === "string" && <span className="ml-1 text-primary">({item.startTime})</span>}
                     </li>
                   ))}
                 </ul>
@@ -392,7 +397,7 @@ export function PostDetail() {
           <Download className="h-4 w-4" />
           내 일정으로 가져오기
         </Button>
-        {authProfile?.is_admin && (
+        {(authProfile?.is_admin || user?.id === post.user_id) && (
           <Button
             variant="destructive"
             onClick={handleDeletePost}
@@ -465,6 +470,7 @@ export function PostDetail() {
                   {(user?.id === comment.user_id || authProfile?.is_admin) && (
                     <button
                       onClick={async () => {
+                        if (!window.confirm("댓글을 삭제하시겠습니까?")) return
                         if (useMock) {
                           deleteMockComment(comment.id, postId!)
                           setComments(fetchMockComments(postId!))

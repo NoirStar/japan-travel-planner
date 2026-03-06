@@ -139,9 +139,9 @@ export function PlannerPage() {
     setSelectedPlaceId(placeId)
     if (!placeId) return
 
-    // 이미 상세 정보가 로드된 장소인지 확인 (rating이 있으면 Details 호출 완료)
+    // 이미 상세 정보(사진, 리뷰 링크 등)가 로드된 장소인지 확인
     const existing = googlePlaces.find((p) => p.id === placeId)
-    if (existing?.rating !== undefined) return
+    if (existing?.image && existing?.googleMapsUri) return
 
     // googlePlaceId로 상세 정보 fetch (Pro 등급)
     const gid = existing?.googlePlaceId

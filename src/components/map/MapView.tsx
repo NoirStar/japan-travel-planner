@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState, useRef } from "react"
+import { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps"
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search, Loader2, ArrowUpDown, X } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, RotateCcw, Search, Loader2, ArrowUpDown, X, Layers, TreePine, Bus, Building2 } from "lucide-react"
 import { PlaceMarker } from "./PlaceMarker"
 import { CityPlaceMarker } from "./CityPlaceMarker"
 import { RoutePolyline } from "./RoutePolyline"
@@ -486,19 +486,157 @@ function TextSearchBar({
 }
 
 // ── 간소화된 지도 스타일 (POI/대중교통 등 시각 노이즈 감소) ──
-const CLEAN_MAP_STYLES: google.maps.MapTypeStyle[] = [
-  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+// 비즈니스·도로 라벨 등은 항상 숨기고, 나머지는 토글 가능
+const BASE_HIDDEN_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
-  { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { featureType: "transit.line", stylers: [{ visibility: "simplified" }] },
   { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
+
+// 토글별로 숨기는 스타일
+const POI_STYLES: Record<string, google.maps.MapTypeStyle[]> = {
+  attraction: [
+    { featureType: "poi.attraction", elementType: "labels", stylers: [{ visibility: "off" }] },
+    { featureType: "poi.place_of_worship", elementType: "labels", stylers: [{ visibility: "off" }] },
+    { featureType: "poi.government", elementType: "labels", stylers: [{ visibility: "off" }] },
+    { featureType: "poi.school", elementType: "labels", stylers: [{ visibility: "off" }] },
+    { featureType: "poi.medical", elementType: "labels", stylers: [{ visibility: "off" }] },
+    { featureType: "poi.sports_complex", elementType: "labels", stylers: [{ visibility: "off" }] },
+  ],
+  park: [
+    { featureType: "poi.park", elementType: "labels", stylers: [{ visibility: "off" }] },
+  ],
+  transit: [
+    { featureType: "transit", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+    { featureType: "transit.line", stylers: [{ visibility: "simplified" }] },
+  ],
+}
+
+/** POI 토글 버튼 데이터 */
+const POI_TOGGLES = [
+  { id: "attraction", label: "관광명소", icon: Building2 },
+  { id: "park", label: "공원", icon: TreePine },
+  { id: "transit", label: "교통", icon: Bus },
+] as const
+
+function buildMapStyles(hiddenPois: Set<string>): google.maps.MapTypeStyle[] {
+  const styles = [...BASE_HIDDEN_STYLES]
+  for (const [key, poiStyles] of Object.entries(POI_STYLES)) {
+    if (hiddenPois.has(key)) {
+      styles.push(...poiStyles)
+    }
+  }
+  return styles
+}
+
+/** 지도 설정 패널 — POI 토글 + 마커 초기화 */
+function MapControlPanel({
+  hiddenPois,
+  onTogglePoi,
+  onClearMarkers,
+  hasCityPlaces,
+}: {
+  hiddenPois: Set<string>
+  onTogglePoi: (poiId: string) => void
+  onClearMarkers?: () => void
+  hasCityPlaces: boolean
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="absolute top-3 right-14 sm:top-4 sm:right-16 z-10">
+      {/* 토글 버튼 */}
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold shadow-md border transition-all ${
+          open
+            ? "bg-sakura-dark text-white border-sakura-dark"
+            : "bg-card/95 backdrop-blur-sm text-foreground border-border hover:bg-muted"
+        }`}
+        title="지도 설정"
+      >
+        <Layers className="w-4 h-4" />
+        <span className="hidden sm:inline">레이어</span>
+      </button>
+
+      {/* 드롭다운 패널 */}
+      {open && (
+        <div className="absolute top-full right-0 mt-1.5 w-40 rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1.5 z-50">
+          <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium border-b border-border/50">
+            기본 지도 표시
+          </div>
+          {POI_TOGGLES.map((poi) => {
+            const Icon = poi.icon
+            const isVisible = !hiddenPois.has(poi.id)
+            return (
+              <button
+                key={poi.id}
+                onClick={() => onTogglePoi(poi.id)}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-medium transition-all ${
+                  isVisible
+                    ? "text-foreground"
+                    : "text-muted-foreground/50"
+                } hover:bg-muted`}
+              >
+                <div className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
+                  isVisible
+                    ? "bg-sakura-dark border-sakura-dark"
+                    : "border-border bg-background"
+                }`}>
+                  {isVisible && (
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <Icon className="w-3.5 h-3.5" />
+                <span>{poi.label}</span>
+              </button>
+            )
+          })}
+
+          {/* 마커 초기화 */}
+          {onClearMarkers && hasCityPlaces && (
+            <>
+              <div className="my-1 border-t border-border/50" />
+              <button
+                onClick={() => {
+                  onClearMarkers()
+                  setOpen(false)
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>검색 마커 초기화</span>
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onRemovePlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, sortBy, onSortChange, onTextSearch, isTextSearching }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
+  // POI 토글 상태 (숨긴 POI 카테고리 집합) — 기본: 모든 POI 표시
+  const [hiddenPois, setHiddenPois] = useState<Set<string>>(() => new Set())
+
+  const handleTogglePoi = useCallback((poiId: string) => {
+    setHiddenPois((prev) => {
+      const next = new Set(prev)
+      if (next.has(poiId)) {
+        next.delete(poiId)
+      } else {
+        next.add(poiId)
+      }
+      return next
+    })
+  }, [])
+
+  const dynamicStyles = useMemo(() => buildMapStyles(hiddenPois), [hiddenPois])
 
   // Google Maps 인증 실패 글로벌 콜백
   useEffect(() => {
@@ -556,7 +694,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           disableDefaultUI={false}
           mapTypeControl={false}
           style={{ width: "100%", height: "100%" }}
-          styles={mapId ? undefined : CLEAN_MAP_STYLES}
+          styles={mapId ? undefined : dynamicStyles}
           clickableIcons={true}
           onClick={(e) => {
             if (e.detail.placeId) {
@@ -627,18 +765,13 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           </div>
         )}
 
-        {/* 마커 초기화 버튼 — Google Maps 줌 버튼 아래 */}
-        {onClearMarkers && allCityPlaces.length > 0 && (
-          <div className="absolute top-36 right-2.5 z-10">
-            <button
-              onClick={onClearMarkers}
-              className="bg-background/90 backdrop-blur-sm text-foreground p-2 rounded-full shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
-              title="마커 초기화"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+        {/* 지도 설정 패널 (레이어 토글 + 마커 초기화) */}
+        <MapControlPanel
+          hiddenPois={hiddenPois}
+          onTogglePoi={handleTogglePoi}
+          onClearMarkers={onClearMarkers}
+          hasCityPlaces={allCityPlaces.length > 0}
+        />
       </APIProvider>
     </div>
   )

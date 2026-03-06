@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, memo } from "react"
 import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
-import { Star, Plus, ExternalLink, Clock } from "lucide-react"
+import { Star, Plus, ExternalLink, Clock, X } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
@@ -198,9 +198,17 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
       {isSelected && marker && (
         <InfoWindow
           anchor={marker}
+          headerDisabled
           onCloseClick={() => onSelect?.()}
         >
-          <div className="min-w-[220px] max-w-[280px] dark:bg-gray-800 flex flex-col" style={{ maxHeight: '350px' }}>
+          <div className="min-w-[220px] max-w-[280px] dark:bg-gray-800 flex flex-col relative" style={{ maxHeight: '350px' }}>
+            {/* 닫기 버튼 */}
+            <button
+              onClick={() => onSelect?.()}
+              className="absolute top-1 right-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
             {/* 스크롤 가능한 콘텐츠 영역 */}
             <div className="flex-1 overflow-y-auto p-1.5 min-h-0">
               {place.image && (

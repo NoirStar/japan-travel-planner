@@ -7,15 +7,18 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { useAuthStore } from "@/stores/authStore"
 
 export function ChatPanel() {
-  const { user, profile, setShowLoginModal } = useAuthStore()
+  const { user, profile, isDemoMode, setShowLoginModal } = useAuthStore()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const bottomRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  // 데모 모드에서는 항상 로컬 mock 사용 (Supabase 설정 여부와 무관)
+  const useSupabase = isSupabaseConfigured && !isDemoMode
+
   const loadMessages = useCallback(async () => {
-    if (isSupabaseConfigured) {
+    if (useSupabase) {
       const { data } = await supabase
         .from("chat_messages")
         .select("*")
@@ -25,7 +28,7 @@ export function ChatPanel() {
     } else {
       setMessages(getChatMessages())
     }
-  }, [])
+  }, [useSupabase])
 
   // 폴링으로 메시지 갱신
   useEffect(() => {
@@ -49,7 +52,7 @@ export function ChatPanel() {
     }
     const trimmed = input.trim()
     if (!trimmed) return
-    if (isSupabaseConfigured) {
+    if (useSupabase) {
       await supabase.from("chat_messages").insert({
         user_id: user.id,
         nickname: profile.nickname,

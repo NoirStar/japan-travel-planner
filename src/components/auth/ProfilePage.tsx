@@ -23,8 +23,13 @@ export function ProfilePage() {
     const trimmed = nickname.trim()
     if (!trimmed || trimmed.length > 20) return
     setIsSaving(true)
-    await updateProfile({ nickname: trimmed, avatar_url: avatarUrl || null })
-    setIsSaving(false)
+    try {
+      await updateProfile({ nickname: trimmed, avatar_url: avatarUrl || null })
+    } catch (e) {
+      console.error("프로필 저장 실패:", e)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleSignOut = async () => {
@@ -53,9 +58,16 @@ export function ProfilePage() {
           <label className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow">
             <Camera className="h-4 w-4" />
             <input
-              type="text"
+              type="file"
+              accept="image/*"
               className="hidden"
-              placeholder="이미지 URL"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = () => setAvatarUrl(reader.result as string)
+                reader.readAsDataURL(file)
+              }}
             />
           </label>
         </div>
@@ -78,19 +90,7 @@ export function ProfilePage() {
         <p className="mt-1 text-xs text-muted-foreground">{nickname.length}/20</p>
       </div>
 
-      {/* 아바타 URL */}
-      <div className="mb-6">
-        <label className="mb-1 block text-sm font-medium text-muted-foreground">
-          프로필 이미지 URL
-        </label>
-        <input
-          type="url"
-          value={avatarUrl}
-          onChange={(e) => setAvatarUrl(e.target.value)}
-          placeholder="https://..."
-          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
-        />
-      </div>
+      <div className="mb-6" />
 
       {/* 통계 */}
       {(() => {

@@ -51,9 +51,14 @@ export function CommunityPage() {
 
     query = query.limit(50)
 
-    const { data } = await query
-    setPosts((data as CommunityPost[]) ?? [])
-    setIsLoading(false)
+    try {
+      const { data } = await query
+      setPosts((data as CommunityPost[]) ?? [])
+    } catch (e) {
+      console.error("게시글 로드 실패:", e)
+    } finally {
+      setIsLoading(false)
+    }
   }, [sort, cityFilter, isDemoMode])
 
   useEffect(() => {

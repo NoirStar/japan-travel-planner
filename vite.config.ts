@@ -12,6 +12,7 @@ export default defineConfig({
     },
   },
   server: {
+    open: false,
     proxy: {
       "/api": {
         target: "http://localhost:3001",

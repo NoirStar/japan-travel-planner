@@ -197,7 +197,7 @@ export function CommunityPage() {
       <CreatePostModal
         open={showCreate}
         onClose={() => setShowCreate(false)}
-        onCreated={fetchPosts}
+        onCreated={() => { setSort("latest"); fetchPosts() }}
       />
 
       {/* 실시간 채팅 */}

@@ -157,7 +157,7 @@ export function fetchMockPost(postId: string): CommunityPost | null {
 }
 
 export function createMockPost(post: Omit<CommunityPost, "id" | "likes_count" | "dislikes_count" | "comments_count" | "created_at" | "updated_at" | "profiles">): CommunityPost {
-  const profile = getDemoProfile()
+  const profile = post.user_id === ADMIN_USER_ID ? getAdminProfile() : getDemoProfile()
   const newPost: CommunityPost = {
     ...post,
     id: uid(),

@@ -1,6 +1,5 @@
 import { getLevelInfo } from "@/types/community"
 import { LEVEL_ICONS } from "./levelIconMap"
-import { AdminShieldIcon } from "./LevelIcons"
 
 interface LevelBadgeProps {
   level: number

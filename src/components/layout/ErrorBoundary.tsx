@@ -25,7 +25,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught:", error, errorInfo)
-    this.setState({ errorInfo: errorInfo.componentStack ?? "" })
+    // React minified 에러에서 args 추출
+    let debugInfo = errorInfo.componentStack ?? ""
+    const argsMatch = error.message.match(/args\[\]=([^&\s]+)/g)
+    if (argsMatch) {
+      const decoded = argsMatch.map((a) => {
+        try { return decodeURIComponent(a.replace("args[]=", "")) } catch { return a }
+      })
+      debugInfo = `[에러 인자]: ${decoded.join(", ")}\n\n${debugInfo}`
+    }
+    this.setState({ errorInfo: debugInfo })
   }
 
   handleReload = () => {

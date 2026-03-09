@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, Component, type ReactNode } from "react"
 import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, Lightbulb, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -10,6 +10,42 @@ import { PostCard } from "./PostCard"
 import { CreatePostModal } from "./CreatePostModal"
 import { ChatPanel } from "./ChatPanel"
 import { cities } from "@/data/cities"
+
+/** 개별 PostCard 에러 격리 — 하나의 카드가 깨져도 나머지는 정상 렌더 */
+class CardErrorBoundary extends Component<
+  { postDebug?: unknown; children: ReactNode },
+  { hasError: boolean; msg: string; debugData: string }
+> {
+  constructor(props: { postDebug?: unknown; children: ReactNode }) {
+    super(props)
+    this.state = { hasError: false, msg: "", debugData: "" }
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, msg: error.message }
+  }
+  componentDidCatch(error: Error) {
+    const data = JSON.stringify(this.props.postDebug, (_k, v) =>
+      typeof v === "object" && v !== null && !Array.isArray(v) ? `[Object: ${Object.keys(v).join(",")}]` : v
+    , 2).slice(0, 500)
+    console.error("PostCard 렌더 에러:", error.message, "\nPost data:", data)
+    this.setState({ debugData: data })
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-center text-xs text-muted-foreground">
+          <p>이 게시글을 표시할 수 없습니다</p>
+          <details className="mt-2 max-h-32 w-full overflow-auto text-left text-[10px]">
+            <summary className="cursor-pointer">에러 상세</summary>
+            <pre className="mt-1 whitespace-pre-wrap opacity-60">{this.state.msg}</pre>
+            <pre className="mt-1 whitespace-pre-wrap opacity-40">{this.state.debugData}</pre>
+          </details>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 export function CommunityPage() {
   const { user, isDemoMode, profile, setShowLoginModal, doAttendance, hasCheckedIn } = useAuthStore()
@@ -203,7 +239,9 @@ export function CommunityPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <CardErrorBoundary key={post.id} postDebug={post}>
+              <PostCard post={post} />
+            </CardErrorBoundary>
           ))}
         </div>
       )}

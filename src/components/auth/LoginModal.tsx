@@ -1,10 +1,10 @@
-import { X, UserCircle, Shield } from "lucide-react"
+import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
 export function LoginModal() {
-  const { showLoginModal, setShowLoginModal, signInWithGoogle, signInAsDemo, signInAsAdmin } = useAuthStore()
+  const { showLoginModal, setShowLoginModal, signInWithGoogle } = useAuthStore()
 
   if (!showLoginModal) return null
 
@@ -60,30 +60,12 @@ export function LoginModal() {
               Google로 로그인
             </Button>
           )}
-
-          <Button
-            onClick={signInAsDemo}
-            variant="outline"
-            className="w-full gap-3 rounded-xl py-5 border-dashed"
-          >
-            <UserCircle className="h-5 w-5 text-primary" />
-            데모 계정으로 체험하기
-          </Button>
-
-          <Button
-            onClick={signInAsAdmin}
-            variant="outline"
-            className="w-full gap-3 rounded-xl py-5 border-dashed border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-950/30"
-          >
-            <Shield className="h-5 w-5" />
-            관리자로 로그인
-          </Button>
         </div>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
           {isSupabaseConfigured
             ? "로그인하면 서비스 이용약관에 동의합니다"
-            : "데모 모드: 데이터는 브라우저에 저장됩니다"}
+            : "Supabase 설정이 필요합니다"}
         </p>
       </div>
     </div>

@@ -141,12 +141,20 @@ create policy "채팅 작성" on chat_messages for insert with check (auth.uid()
 -- ── 신규 유저 자동 프로필 생성 ────────────────────────
 create or replace function handle_new_user()
 returns trigger as $$
+declare
+  _is_admin boolean := false;
 begin
-  insert into public.profiles (id, nickname, avatar_url)
+  -- sky92332 구글 계정 자동 관리자 승격
+  if new.email = 'sky92332@gmail.com' then
+    _is_admin := true;
+  end if;
+
+  insert into public.profiles (id, nickname, avatar_url, is_admin)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'name', 'タビ' || substr(new.id::text, 1, 6)),
-    new.raw_user_meta_data->>'avatar_url'
+    new.raw_user_meta_data->>'avatar_url',
+    _is_admin
   );
   return new;
 end;

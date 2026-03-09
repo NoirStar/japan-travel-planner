@@ -33,12 +33,36 @@ const LEVEL_COLORS: Record<number, string> = {
   20: "border-amber-500 bg-gradient-to-r from-amber-50 via-red-50 to-amber-50 dark:border-amber-400 dark:from-amber-950/40 dark:via-red-950/40 dark:to-amber-950/40",
 }
 
+/* compact 모드 레벨별 텍스트 스타일: 레벨이 올라갈수록 화려해짐 */
+const COMPACT_LEVEL_STYLE: Record<number, string> = {
+  1:  "text-green-600 dark:text-green-400",
+  2:  "text-green-600 dark:text-green-400",
+  3:  "text-sky-600 dark:text-sky-400",
+  4:  "text-blue-600 dark:text-blue-400",
+  5:  "text-orange-600 dark:text-orange-400 font-semibold",
+  6:  "text-emerald-600 dark:text-emerald-400 font-semibold",
+  7:  "text-indigo-600 dark:text-indigo-400 font-semibold",
+  8:  "text-cyan-600 dark:text-cyan-400 font-semibold",
+  9:  "text-pink-600 dark:text-pink-400 font-semibold",
+  10: "text-red-600 dark:text-red-400 font-bold",
+  11: "text-amber-600 dark:text-amber-400 font-bold",
+  12: "text-rose-600 dark:text-rose-400 font-bold",
+  13: "text-slate-600 dark:text-slate-300 font-bold",
+  14: "text-gray-700 dark:text-gray-300 font-bold",
+  15: "text-emerald-600 dark:text-emerald-400 font-extrabold",
+  16: "text-blue-600 dark:text-blue-400 font-extrabold",
+  17: "text-indigo-600 dark:text-indigo-400 font-extrabold",
+  18: "text-amber-500 dark:text-amber-400 font-extrabold",
+  19: "text-violet-600 dark:text-violet-400 font-extrabold",
+  20: "text-amber-500 dark:text-amber-300 font-black",
+}
+
 export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeProps) {
   if (isAdmin) {
     if (compact) {
       return (
-        <span className="inline-flex items-center gap-1 text-xs" title="관리자">
-          <AdminShieldIcon size={14} />
+        <span className="inline-flex items-center gap-0.5 text-[11px]" title="관리자">
+          <AdminShieldIcon size={12} />
           <span className="font-bold text-amber-500">관리자</span>
         </span>
       )
@@ -56,10 +80,13 @@ export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeP
   const pts = typeof totalPoints === "number" ? totalPoints : 0
 
   if (compact) {
+    const style = COMPACT_LEVEL_STYLE[info.level] ?? COMPACT_LEVEL_STYLE[1]
     return (
-      <span className="inline-flex items-center gap-1 text-xs" title={`Lv.${info.level} ${info.label} (${pts}P)`}>
-        {icon(14)}
-        <span className="font-medium text-muted-foreground">{info.label}</span>
+      <span
+        className={`inline-flex items-center text-[11px] ${style}`}
+        title={`Lv.${info.level} ${info.label} (${pts}P)`}
+      >
+        Lv.{info.level}
       </span>
     )
   }

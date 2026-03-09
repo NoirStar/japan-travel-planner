@@ -11,8 +11,11 @@ export function ChatPanel() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
+  const [sending, setSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const chatRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // 데모 모드에서는 항상 로컬 mock 사용 (Supabase 설정 여부와 무관)
   const useSupabase = isSupabaseConfigured && !isDemoMode
@@ -37,7 +40,6 @@ export function ChatPanel() {
   // 폴링으로 메시지 갱신
   useEffect(() => {
     if (!open) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- 초기 로드 + 폴링은 effect 내 setState가 의도된 패턴
     void loadMessages()
     intervalRef.current = setInterval(loadMessages, 2000)
     return () => {
@@ -50,13 +52,56 @@ export function ChatPanel() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages.length])
 
+  // 모바일 가상 키보드 대응 — visualViewport resize 시 채팅창 위치 조정
+  useEffect(() => {
+    if (!open) return
+    const vv = window.visualViewport
+    if (!vv) return
+
+    const handleResize = () => {
+      const el = chatRef.current
+      if (!el) return
+      const keyboardOffset = window.innerHeight - vv.height - vv.offsetTop
+      if (keyboardOffset > 50) {
+        // 키보드가 열림 — 채팅창을 키보드 위로 올림
+        el.style.bottom = `${keyboardOffset + 8}px`
+        el.style.maxHeight = `${vv.height - 16}px`
+      } else {
+        el.style.bottom = ""
+        el.style.maxHeight = ""
+      }
+      bottomRef.current?.scrollIntoView({ behavior: "instant" })
+    }
+
+    vv.addEventListener("resize", handleResize)
+    vv.addEventListener("scroll", handleResize)
+    return () => {
+      vv.removeEventListener("resize", handleResize)
+      vv.removeEventListener("scroll", handleResize)
+    }
+  }, [open])
+
   const handleSend = async () => {
     if (!user || !profile) {
       setShowLoginModal(true)
       return
     }
     const trimmed = input.trim()
-    if (!trimmed) return
+    if (!trimmed || sending) return
+
+    // 낙관적 업데이트 — 즉시 UI에 반영
+    const optimisticMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      user_id: user.id,
+      nickname: profile.nickname,
+      avatar_url: profile.avatar_url,
+      content: trimmed,
+      created_at: new Date().toISOString(),
+    }
+    setMessages((prev) => [...prev, optimisticMsg])
+    setInput("")
+    setSending(true)
+
     try {
       if (useSupabase) {
         await supabase.from("chat_messages").insert({
@@ -70,9 +115,11 @@ export function ChatPanel() {
       }
     } catch (e) {
       console.error("채팅 전송 실패:", e)
+      // 실패 시 낙관적 메시지 롤백
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
+    } finally {
+      setSending(false)
     }
-    setInput("")
-    loadMessages()
   }
 
   if (!open) {
@@ -88,7 +135,7 @@ export function ChatPanel() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex h-[28rem] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-96">
+    <div ref={chatRef} className="fixed bottom-6 right-6 z-50 flex h-[28rem] max-h-[calc(100dvh-3rem)] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-96 transition-[bottom,max-height] duration-150">
       {/* 헤더 */}
       <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
         <span className="flex items-center gap-2 text-sm font-bold">
@@ -147,17 +194,23 @@ export function ChatPanel() {
       <div className="border-t border-border p-2">
         <div className="flex gap-2">
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                e.preventDefault()
+                handleSend()
+              }
+            }}
             placeholder={user ? "메시지를 입력하세요..." : "로그인 후 채팅 가능"}
             maxLength={300}
             className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
           <Button
             onClick={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || sending}
             size="icon"
             className="shrink-0 rounded-xl"
           >

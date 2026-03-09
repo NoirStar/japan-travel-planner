@@ -369,9 +369,9 @@ export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeP
     )
   }
 
-  const info = getLevelInfo(level)
+  const info = getLevelInfo(typeof level === "number" ? level : 1)
   const icon = LEVEL_ICONS[info.level] ?? LEVEL_ICONS[1]
-  const pts = totalPoints ?? 0
+  const pts = typeof totalPoints === "number" ? totalPoints : 0
 
   if (compact) {
     return (

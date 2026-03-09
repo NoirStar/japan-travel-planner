@@ -12,7 +12,8 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const city = cities.find((c) => c.id === post.city_id)
   const dayCount = post.trip_data?.days?.length ?? 0
-  const profile = post.profiles
+  const rawProfile = post.profiles
+  const profile = Array.isArray(rawProfile) ? rawProfile[0] : rawProfile
 
   return (
     <Link
@@ -87,11 +88,11 @@ export function PostCard({ post }: PostCardProps) {
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               <ThumbsUp className="h-3 w-3" />
-              {post.likes_count}
+              {Number(post.likes_count) || 0}
             </span>
             <span className="inline-flex items-center gap-1">
               <MessageCircle className="h-3 w-3" />
-              {post.comments_count}
+              {Number(post.comments_count) || 0}
             </span>
           </div>
         </div>

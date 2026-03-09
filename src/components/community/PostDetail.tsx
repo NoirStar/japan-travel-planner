@@ -62,7 +62,16 @@ export function PostDetail() {
         .eq("id", postId)
         .single()
 
-      if (data) setPost(data as CommunityPost)
+      if (data) {
+        const p = data as CommunityPost
+        setPost({
+          ...p,
+          profiles: Array.isArray(p.profiles) ? p.profiles[0] : p.profiles,
+          likes_count: Number(p.likes_count) || 0,
+          dislikes_count: Number(p.dislikes_count) || 0,
+          comments_count: Number(p.comments_count) || 0,
+        })
+      }
     } catch (e) {
       console.error("게시글 로드 실패:", e)
     } finally {
@@ -84,7 +93,12 @@ export function PostDetail() {
         .eq("post_id", postId)
         .order("created_at", { ascending: true })
 
-      setComments((data as Comment[]) ?? [])
+      setComments(((data as Comment[]) ?? []).map((c) => ({
+        ...c,
+        profiles: Array.isArray(c.profiles) ? c.profiles[0] : c.profiles,
+        likes_count: Number(c.likes_count) || 0,
+        dislikes_count: Number(c.dislikes_count) || 0,
+      })))
     } catch (e) {
       console.error("댓글 로드 실패:", e)
     }
@@ -283,7 +297,8 @@ export function PostDetail() {
     )
   }
 
-  const profile = post.profiles
+  const rawProfile = post.profiles
+  const profile = Array.isArray(rawProfile) ? rawProfile[0] : rawProfile
   const city = cities.find((c) => c.id === post.city_id)
   const dayCount = post.trip_data?.days?.length ?? 0
 
@@ -386,7 +401,7 @@ export function PostDetail() {
           size="sm"
         >
           <ThumbsUp className="h-4 w-4" />
-          추천 {post.likes_count}
+          추천 {Number(post.likes_count) || 0}
         </Button>
         <Button
           variant={myVote === "down" ? "destructive" : "outline"}
@@ -395,7 +410,7 @@ export function PostDetail() {
           size="sm"
         >
           <ThumbsDown className="h-4 w-4" />
-          {post.dislikes_count}
+          {Number(post.dislikes_count) || 0}
         </Button>
         <Button
           variant="outline"
@@ -462,17 +477,22 @@ export function PostDetail() {
                   {isBestComment && (
                     <span className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-600 dark:text-amber-400"><Trophy className="h-3 w-3" /> 베스트</span>
                   )}
-                  {comment.profiles?.avatar_url ? (
-                    <img src={comment.profiles.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
-                  ) : (
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
-                      {comment.profiles?.nickname?.charAt(0) ?? "?"}
-                    </div>
-                  )}
-                  <span className="text-xs font-medium">{comment.profiles?.nickname ?? "익명"}</span>
-                  {comment.profiles && (
-                    <LevelBadge level={comment.profiles.level} totalPoints={comment.profiles.total_points} isAdmin={comment.profiles.is_admin} compact />
-                  )}
+                  {(() => {
+                    const cp = Array.isArray(comment.profiles) ? comment.profiles[0] : comment.profiles
+                    return <>
+                      {cp?.avatar_url ? (
+                        <img src={cp.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
+                      ) : (
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
+                          {cp?.nickname?.charAt(0) ?? "?"}
+                        </div>
+                      )}
+                      <span className="text-xs font-medium">{cp?.nickname ?? "익명"}</span>
+                      {cp && (
+                        <LevelBadge level={cp.level} totalPoints={cp.total_points} isAdmin={cp.is_admin} compact />
+                      )}
+                    </>
+                  })()}
                   <span className="ml-auto text-[10px] text-muted-foreground">
                     {new Date(comment.created_at).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                   </span>
@@ -510,7 +530,7 @@ export function PostDetail() {
                     }`}
                   >
                     <ThumbsUp className="h-3 w-3" />
-                    {comment.likes_count ?? 0}
+                    {Number(comment.likes_count) || 0}
                   </button>
                   <button
                     onClick={() => handleCommentVote(comment.id, "down")}
@@ -521,7 +541,7 @@ export function PostDetail() {
                     }`}
                   >
                     <ThumbsDown className="h-3 w-3" />
-                    {comment.dislikes_count ?? 0}
+                    {Number(comment.dislikes_count) || 0}
                   </button>
                 </div>
               </div>

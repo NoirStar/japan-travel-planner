@@ -263,3 +263,8 @@ begin
   end if;
 end;
 $$ language plpgsql security definer;
+
+-- ═══════════════════════════════════════════════════════
+-- Realtime — 채팅 메시지 실시간 구독용
+-- ═══════════════════════════════════════════════════════
+alter publication supabase_realtime add table chat_messages;

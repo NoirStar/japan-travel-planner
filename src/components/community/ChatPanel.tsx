@@ -13,13 +13,14 @@ export function ChatPanel() {
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const chatRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  // 낙관적 메시지 ID 추적 — Realtime으로 실제 메시지 도착 시 교체
+  const pendingIdsRef = useRef<Set<string>>(new Set())
 
-  // 데모 모드에서는 항상 로컬 mock 사용 (Supabase 설정 여부와 무관)
   const useSupabase = isSupabaseConfigured && !isDemoMode
 
+  // 초기 메시지 로드 (한 번만)
   const loadMessages = useCallback(async () => {
     try {
       if (useSupabase) {
@@ -37,22 +38,58 @@ export function ChatPanel() {
     }
   }, [useSupabase])
 
-  // 폴링으로 메시지 갱신
+  // Supabase Realtime 구독 — INSERT 이벤트만 수신
   useEffect(() => {
-    if (!open) return
+    if (!open || !useSupabase) return
+
     void loadMessages()
-    intervalRef.current = setInterval(loadMessages, 2000)
+
+    const channel = supabase
+      .channel("chat-realtime")
+      .on(
+        "postgres_changes" as "system",
+        { event: "INSERT", schema: "public", table: "chat_messages" } as Record<string, string>,
+        (payload: { new: ChatMessage }) => {
+          const newMsg = payload.new as ChatMessage
+          setMessages((prev) => {
+            // 낙관적 메시지가 있으면 교체, 없으면 추가 (타인의 메시지)
+            if (pendingIdsRef.current.size > 0) {
+              // content+user_id 매칭으로 낙관적 메시지 찾아 교체
+              const pendingIdx = prev.findIndex(
+                (m) => pendingIdsRef.current.has(m.id) && m.user_id === newMsg.user_id && m.content === newMsg.content,
+              )
+              if (pendingIdx >= 0) {
+                pendingIdsRef.current.delete(prev[pendingIdx].id)
+                const updated = [...prev]
+                updated[pendingIdx] = newMsg
+                return updated
+              }
+            }
+            // 중복 방지
+            if (prev.some((m) => m.id === newMsg.id)) return prev
+            return [...prev, newMsg]
+          })
+        },
+      )
+      .subscribe()
+
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
+      supabase.removeChannel(channel)
     }
-  }, [open, loadMessages])
+  }, [open, useSupabase, loadMessages])
+
+  // Mock 모드: 초기 로드만 (폴링 불필요 — 현재 사용자만 메시지 씀)
+  useEffect(() => {
+    if (!open || useSupabase) return
+    void loadMessages()
+  }, [open, useSupabase, loadMessages])
 
   // 새 메시지 시 스크롤
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages.length])
 
-  // 모바일 가상 키보드 대응 — visualViewport resize 시 채팅창 위치 조정
+  // 모바일 가상 키보드 대응
   useEffect(() => {
     if (!open) return
     const vv = window.visualViewport
@@ -63,7 +100,6 @@ export function ChatPanel() {
       if (!el) return
       const keyboardOffset = window.innerHeight - vv.height - vv.offsetTop
       if (keyboardOffset > 50) {
-        // 키보드가 열림 — 채팅창을 키보드 위로 올림
         el.style.bottom = `${keyboardOffset + 8}px`
         el.style.maxHeight = `${vv.height - 16}px`
       } else {
@@ -89,15 +125,16 @@ export function ChatPanel() {
     const trimmed = input.trim()
     if (!trimmed || sending) return
 
-    // 낙관적 업데이트 — 즉시 UI에 반영
+    const optimisticId = crypto.randomUUID()
     const optimisticMsg: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: optimisticId,
       user_id: user.id,
       nickname: profile.nickname,
       avatar_url: profile.avatar_url,
       content: trimmed,
       created_at: new Date().toISOString(),
     }
+    pendingIdsRef.current.add(optimisticId)
     setMessages((prev) => [...prev, optimisticMsg])
     setInput("")
     setSending(true)
@@ -112,11 +149,12 @@ export function ChatPanel() {
         })
       } else {
         addChatMessage(user.id, profile.nickname, profile.avatar_url, trimmed)
+        pendingIdsRef.current.delete(optimisticId)
       }
     } catch (e) {
       console.error("채팅 전송 실패:", e)
-      // 실패 시 낙관적 메시지 롤백
-      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
+      pendingIdsRef.current.delete(optimisticId)
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticId))
     } finally {
       setSending(false)
     }

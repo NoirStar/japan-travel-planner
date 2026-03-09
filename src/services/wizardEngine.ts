@@ -120,9 +120,7 @@ export function getNextStep(selections: WizardSelections): WizardStepInfo | null
 // ─── 식사 선택지 생성 ────────────────────────────────────
 function getMealOptions(
   cityId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _themeId: DayThemeId,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _mealType: "lunch" | "dinner",
 ): WizardOption[] {
   const places = getPlacesByCity(cityId)

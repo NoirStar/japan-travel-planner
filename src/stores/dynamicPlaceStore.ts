@@ -11,7 +11,7 @@ interface DynamicPlaceState {
   places: Record<string, Place>
   /** 장소 추가/업데이트 */
   addPlace: (place: Place) => void
-  /** ID로 장소 조회 (큐레이션 데이터 우선, 없으면 동적 장소) */
+  /** ID로 장소 조회 */
   getPlace: (id: string) => Place | undefined
 }
 
@@ -36,7 +36,7 @@ export const useDynamicPlaceStore = create<DynamicPlaceState>()(
 )
 
 /**
- * 동적 장소 조회 (모든 장소는 dinamicPlaceStore에서 관리).
+ * 동적 장소 조회 (모든 장소는 dynamicPlaceStore에서 관리).
  * PlaceCard, PlaceMarker 등에서 사용.
  */
 export function getAnyPlaceById(id: string): Place | undefined {

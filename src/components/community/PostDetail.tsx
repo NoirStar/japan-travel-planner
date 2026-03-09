@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import {
   ThumbsUp,
@@ -77,7 +77,7 @@ export function PostDetail() {
     } finally {
       setIsLoading(false)
     }
-  }, [postId])
+  }, [postId, useMock])
 
   // 댓글 로드
   const fetchComments = useCallback(async () => {
@@ -102,7 +102,7 @@ export function PostDetail() {
     } catch (e) {
       console.error("댓글 로드 실패:", e)
     }
-  }, [postId])
+  }, [postId, useMock])
 
   // 내 투표 상태 확인
   const fetchMyVote = useCallback(async () => {
@@ -119,7 +119,7 @@ export function PostDetail() {
       .maybeSingle()
 
     setMyVote((data?.vote_type as VoteType) ?? null)
-  }, [postId, user])
+  }, [postId, user, useMock])
 
   useEffect(() => {
     fetchPost()
@@ -270,13 +270,13 @@ export function PostDetail() {
     setCommentVotes(votes)
   }, [comments, user])
 
-  // 베스트 댓글 먼저 정렬
-  const sortedComments = [...comments].sort((a, b) => {
+  // 베스트 댓글 먼저 정렬 (메모이제이션)
+  const sortedComments = useMemo(() => [...comments].sort((a, b) => {
     const aBest = (a.likes_count ?? 0) >= BEST_THRESHOLD ? 1 : 0
     const bBest = (b.likes_count ?? 0) >= BEST_THRESHOLD ? 1 : 0
     if (bBest !== aBest) return bBest - aBest
     return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-  })
+  }), [comments])
 
   if (isLoading) {
     return (

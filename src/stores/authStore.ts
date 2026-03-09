@@ -77,7 +77,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await get().fetchProfile(session.user.id)
       }
 
-      supabase.auth.onAuthStateChange(async (_event, session) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
         set({ session, user: session?.user ?? null })
         if (session?.user) {
           await get().fetchProfile(session.user.id)
@@ -85,6 +85,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           set({ profile: null })
         }
       })
+      // 구독 해제 함수를 window unload 시 호출
+      window.addEventListener("beforeunload", () => subscription.unsubscribe(), { once: true })
     } catch {
       set({ isLoading: false })
     }
@@ -142,14 +144,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         console.error("Google 로그인 실패:", error.message)
         if (error.message.includes("provider is not enabled")) {
           set({ showLoginModal: true })
-          alert("Google 로그인이 아직 설정되지 않았습니다.\n데모 계정 또는 관리자 계정으로 체험해주세요.")
-        } else {
-          alert(`로그인 실패: ${error.message}`)
         }
       }
     } catch (e) {
       console.error("Google 로그인 에러:", e)
-      alert("로그인 중 오류가 발생했습니다. 데모 계정으로 체험해주세요.")
     }
   },
 

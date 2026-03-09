@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import {
   DndContext,
   DragOverlay,
@@ -105,6 +105,30 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
     }),
   )
 
+  const currentDay = trip?.days[activeDayIndex]
+  const items = useMemo(() => currentDay?.items ?? [], [currentDay?.items])
+
+  // sortable 아이디 배열 (메모이제이션)
+  const itemIds = useMemo(() => items.map((item) => item.id), [items])
+
+  // 이동시간 사전 계산 (메모이제이션)
+  const travelDataMap = useMemo(() => {
+    const map = new Map<number, { minutes: number; mode: TransportMode; distanceKm: number }>()
+    for (let i = 1; i < items.length; i++) {
+      const prev = getAnyPlaceById(items[i - 1].placeId)
+      const curr = getAnyPlaceById(items[i].placeId)
+      if (prev && curr) {
+        map.set(i, estimateTravel(prev.location.lat, prev.location.lng, curr.location.lat, curr.location.lng))
+      }
+    }
+    return map
+  }, [items])
+
+  const totalTravelMinutes = useMemo(
+    () => Array.from(travelDataMap.values()).reduce((sum, d) => sum + d.minutes, 0),
+    [travelDataMap],
+  )
+
   if (!trip) {
     return (
       <div className="flex h-full items-center justify-center p-4 text-muted-foreground" data-testid="schedule-panel">
@@ -112,12 +136,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       </div>
     )
   }
-
-  const currentDay = trip.days[activeDayIndex]
-  const items = currentDay?.items ?? []
-
-  // sortable 아이디 배열
-  const itemIds = items.map((item) => item.id)
 
   // 드래그 오버레이에 표시할 장소 정보
   const activeItem = activeItemId
@@ -327,26 +345,16 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   const place = getAnyPlaceById(item.placeId)
                   if (!place) return null
 
-                  // 이전 장소와의 이동시간 커넥터
-                  const prevItem = index > 0 ? items[index - 1] : null
-                  const prevPlace = prevItem ? getAnyPlaceById(prevItem.placeId) : null
-                  let travelMinutes = 0
-                  let travelMode: TransportMode = "metro"
-                  let distanceKm = 0
-                  if (prevPlace && place) {
-                    const est = estimateTravel(
-                      prevPlace.location.lat, prevPlace.location.lng,
-                      place.location.lat, place.location.lng,
-                    )
-                    travelMinutes = est.minutes
-                    travelMode = est.mode
-                    distanceKm = est.distanceKm
-                  }
+                  // 사전 계산된 이동시간 사용
+                  const travelData = travelDataMap.get(index)
+                  const travelMinutes = travelData?.minutes ?? 0
+                  const travelMode = travelData?.mode ?? "metro"
+                  const distanceKm = travelData?.distanceKm ?? 0
 
                   return (
                     <div key={item.id}>
                       {/* 이동시간 커넥터 */}
-                      {prevPlace && (
+                      {travelData && (
                         <div className="flex items-center gap-2 py-1.5 pl-3" data-testid={`travel-connector-${index}`}>
                           <div className="flex flex-col items-center">
                             <div className="h-3 w-px bg-border" />
@@ -406,18 +414,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
       {/* Day 요약 */}
       {items.length > 0 && (() => {
-        // 총 이동시간 계산
-        let totalTravelMinutes = 0
-        for (let i = 1; i < items.length; i++) {
-          const prev = getAnyPlaceById(items[i - 1].placeId)
-          const curr = getAnyPlaceById(items[i].placeId)
-          if (prev && curr) {
-            totalTravelMinutes += estimateTravel(
-              prev.location.lat, prev.location.lng,
-              curr.location.lat, curr.location.lng,
-            ).minutes
-          }
-        }
         return (
           <div className="border-t border-border bg-muted px-4 py-2.5 text-xs text-muted-foreground flex items-center justify-between" data-testid="day-summary">
             <div>

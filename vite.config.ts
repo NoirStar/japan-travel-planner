@@ -8,6 +8,15 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "google-maps": ["@vis.gl/react-google-maps"],
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "ui-vendor": ["zustand", "@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
+        },
+      },
+    },
   },
   resolve: {
     alias: {

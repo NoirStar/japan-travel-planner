@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, Component, type ReactNode } from "react"
+import { useState, useEffect, useCallback, useRef, Component, type ReactNode } from "react"
 import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, Lightbulb, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -55,6 +55,8 @@ export function CommunityPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [attendanceMsg, setAttendanceMsg] = useState("")
+  const [displayCount, setDisplayCount] = useState(9)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
 
   const fetchPosts = useCallback(async () => {
     setIsLoading(true)
@@ -108,6 +110,26 @@ export function CommunityPage() {
   useEffect(() => {
     fetchPosts()
   }, [fetchPosts])
+
+  // 필터/정렬 변경 시 displayCount 초기화
+  useEffect(() => {
+    setDisplayCount(9)
+  }, [sort, cityFilter])
+
+  // IntersectionObserver 기반 무한스크롤
+  useEffect(() => {
+    if (displayCount >= posts.length) return
+    const el = loadMoreRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setDisplayCount((c) => c + 9) },
+      { rootMargin: "200px" },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [displayCount, posts.length])
+
+  const visiblePosts = posts.slice(0, displayCount)
 
   const handleCreateClick = () => {
     if (!user) {
@@ -238,11 +260,18 @@ export function CommunityPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {visiblePosts.map((post) => (
             <CardErrorBoundary key={post.id} postDebug={post}>
               <PostCard post={post} />
             </CardErrorBoundary>
           ))}
+        </div>
+      )}
+
+      {/* 무한스크롤 sentinel */}
+      {displayCount < posts.length && (
+        <div ref={loadMoreRef} className="flex justify-center py-6">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       )}
 

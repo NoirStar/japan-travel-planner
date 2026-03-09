@@ -37,7 +37,8 @@ export function ChatPanel() {
   // 폴링으로 메시지 갱신
   useEffect(() => {
     if (!open) return
-    loadMessages()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 초기 로드 + 폴링은 effect 내 setState가 의도된 패턴
+    void loadMessages()
     intervalRef.current = setInterval(loadMessages, 2000)
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)

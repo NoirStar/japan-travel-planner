@@ -11,9 +11,6 @@ export interface CityInfo {
   zoom: number
 }
 
-/** @deprecated CityCard는 CityInfo로 통합됨. 하위 호환용 alias */
-export type CityCard = CityInfo
-
 // ─── 장소 카테고리 ──────────────────────────────────────
 export const PlaceCategory = {
   RESTAURANT: "restaurant",

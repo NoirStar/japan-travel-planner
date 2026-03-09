@@ -175,6 +175,43 @@ export function createMockPost(post: Omit<CommunityPost, "id" | "likes_count" | 
   return newPost
 }
 
+// ─── 투표 토글 공통 로직 ─────────────────────────────────
+interface Votable { likes_count: number; dislikes_count: number }
+
+function applyVoteToggle<V extends { user_id: string; vote_type: VoteType }>(
+  votes: V[],
+  target: Votable,
+  findExisting: (v: V) => boolean,
+  createVote: () => V,
+  type: VoteType,
+  onUpvote?: () => void,
+): VoteType | null {
+  const existingIdx = votes.findIndex(findExisting)
+  const existing = existingIdx >= 0 ? votes[existingIdx] : null
+
+  if (existing?.vote_type === type) {
+    votes.splice(existingIdx, 1)
+    if (type === "up") target.likes_count = Math.max(0, target.likes_count - 1)
+    else target.dislikes_count = Math.max(0, target.dislikes_count - 1)
+    return null
+  }
+
+  if (existing) {
+    if (existing.vote_type === "up") target.likes_count = Math.max(0, target.likes_count - 1)
+    else target.dislikes_count = Math.max(0, target.dislikes_count - 1)
+    votes.splice(existingIdx, 1)
+  }
+
+  votes.push(createVote())
+  if (type === "up") {
+    target.likes_count += 1
+    onUpvote?.()
+  } else {
+    target.dislikes_count += 1
+  }
+  return type
+}
+
 // ─── 투표 ────────────────────────────────────────────────
 interface MockVote { post_id: string; user_id: string; vote_type: VoteType }
 
@@ -189,33 +226,18 @@ export function toggleMockVote(postId: string, userId: string, type: VoteType): 
   const post = posts.find((p) => p.id === postId)
   if (!post) return null
 
-  const existingIdx = votes.findIndex((v) => v.post_id === postId && v.user_id === userId)
-  const existing = existingIdx >= 0 ? votes[existingIdx] : null
-
-  let newVote: VoteType | null = type
-
-  if (existing?.vote_type === type) {
-    votes.splice(existingIdx, 1)
-    if (type === "up") post.likes_count = Math.max(0, post.likes_count - 1)
-    else post.dislikes_count = Math.max(0, post.dislikes_count - 1)
-    newVote = null
-  } else {
-    if (existing) {
-      if (existing.vote_type === "up") post.likes_count = Math.max(0, post.likes_count - 1)
-      else post.dislikes_count = Math.max(0, post.dislikes_count - 1)
-      votes.splice(existingIdx, 1)
-    }
-    votes.push({ post_id: postId, user_id: userId, vote_type: type })
-    if (type === "up") {
-      post.likes_count += 1
-      // 글 작성자에게 추천 포인트 (본인 추천 제외)
+  const newVote = applyVoteToggle(
+    votes,
+    post,
+    (v) => v.post_id === postId && v.user_id === userId,
+    () => ({ post_id: postId, user_id: userId, vote_type: type }),
+    type,
+    () => {
       if (post.user_id === DEMO_USER_ID && userId !== DEMO_USER_ID) {
         addPoints("like_received", POINTS.LIKE_RECEIVED)
       }
-    } else {
-      post.dislikes_count += 1
-    }
-  }
+    },
+  )
 
   write(KEYS.votes, votes)
   write(KEYS.posts, posts)
@@ -297,25 +319,13 @@ export function toggleMockCommentVote(commentId: string, userId: string, type: V
   const comment = comments.find((c) => c.id === commentId)
   if (!comment) return null
 
-  const existingIdx = votes.findIndex((v) => v.comment_id === commentId && v.user_id === userId)
-  const existing = existingIdx >= 0 ? votes[existingIdx] : null
-  let newVote: VoteType | null = type
-
-  if (existing?.vote_type === type) {
-    votes.splice(existingIdx, 1)
-    if (type === "up") comment.likes_count = Math.max(0, comment.likes_count - 1)
-    else comment.dislikes_count = Math.max(0, comment.dislikes_count - 1)
-    newVote = null
-  } else {
-    if (existing) {
-      if (existing.vote_type === "up") comment.likes_count = Math.max(0, comment.likes_count - 1)
-      else comment.dislikes_count = Math.max(0, comment.dislikes_count - 1)
-      votes.splice(existingIdx, 1)
-    }
-    votes.push({ comment_id: commentId, user_id: userId, vote_type: type })
-    if (type === "up") comment.likes_count += 1
-    else comment.dislikes_count += 1
-  }
+  const newVote = applyVoteToggle(
+    votes,
+    comment,
+    (v) => v.comment_id === commentId && v.user_id === userId,
+    () => ({ comment_id: commentId, user_id: userId, vote_type: type }),
+    type,
+  )
 
   write(KEYS.commentVotes, votes)
   write(KEYS.comments, comments)

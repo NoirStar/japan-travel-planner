@@ -4,13 +4,20 @@ import type { Trip, DaySchedule, ScheduleItem } from "@/types/schedule"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 
 // ─── 로그인 상태 확인 (순환 의존 방지용) ─────────────────
+let _supabaseAuthKey: string | null = null
+
 function isLoggedIn(): boolean {
   try {
-    const raw = localStorage.getItem("demo_logged_in") || localStorage.getItem("admin_logged_in")
-    if (raw) return true
-    // Supabase 세션 확인
-    const sbKey = Object.keys(localStorage).find((k) => k.startsWith("sb-") && k.endsWith("-auth-token"))
-    return !!sbKey && !!localStorage.getItem(sbKey!)
+    if (localStorage.getItem("demo_logged_in") || localStorage.getItem("admin_logged_in")) {
+      return true
+    }
+    // Supabase 세션 확인 (키 캐싱으로 매번 스캔 방지)
+    if (!_supabaseAuthKey) {
+      _supabaseAuthKey = Object.keys(localStorage).find(
+        (k) => k.startsWith("sb-") && k.endsWith("-auth-token"),
+      ) ?? ""
+    }
+    return _supabaseAuthKey !== "" && !!localStorage.getItem(_supabaseAuthKey)
   } catch {
     return false
   }

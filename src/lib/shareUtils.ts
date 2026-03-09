@@ -22,8 +22,11 @@ export function encodeTrip(trip: Trip): string {
   }
 
   const json = JSON.stringify(compact)
-  // Base64 URL-safe encoding
-  const base64 = btoa(unescape(encodeURIComponent(json)))
+  // Base64 URL-safe encoding (TextEncoder 사용)
+  const bytes = new TextEncoder().encode(json)
+  let binary = ""
+  for (const b of bytes) binary += String.fromCharCode(b)
+  const base64 = btoa(binary)
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "")
@@ -35,11 +38,13 @@ export function encodeTrip(trip: Trip): string {
  */
 export function decodeTrip(encoded: string): Trip | null {
   try {
-    // Base64 URL-safe decoding
+    // Base64 URL-safe decoding (TextDecoder 사용)
     let base64 = encoded.replace(/-/g, "+").replace(/_/g, "/")
     // Pad if needed
     while (base64.length % 4) base64 += "="
-    const json = decodeURIComponent(escape(atob(base64)))
+    const binary = atob(base64)
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0))
+    const json = new TextDecoder().decode(bytes)
     const compact = JSON.parse(json)
 
     const now = new Date().toISOString()

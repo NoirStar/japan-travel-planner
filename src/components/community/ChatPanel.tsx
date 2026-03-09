@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Send, MessageSquare, X } from "lucide-react"
+import { Send, MessageSquare, X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getChatMessages, addChatMessage } from "@/lib/mockCommunity"
 import type { ChatMessage } from "@/lib/mockCommunity"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { useAuthStore } from "@/stores/authStore"
+
+const PAGE_SIZE = 20
 
 export function ChatPanel() {
   const { user, profile, isDemoMode, setShowLoginModal } = useAuthStore()
@@ -12,37 +14,110 @@ export function ChatPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
+  const [loadingOlder, setLoadingOlder] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const chatRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  // 낙관적 메시지 ID 추적 — Realtime으로 실제 메시지 도착 시 교체
   const pendingIdsRef = useRef<Set<string>>(new Set())
 
   const useSupabase = isSupabaseConfigured && !isDemoMode
 
-  // 초기 메시지 로드 (한 번만)
-  const loadMessages = useCallback(async () => {
+  // 최근 N개만 로드 (내림차순 → 뒤집기)
+  const loadRecentMessages = useCallback(async () => {
+    setInitialLoading(true)
     try {
       if (useSupabase) {
         const { data } = await supabase
           .from("chat_messages")
           .select("*")
-          .order("created_at", { ascending: true })
-          .limit(100)
-        if (data) setMessages(data as ChatMessage[])
+          .order("created_at", { ascending: false })
+          .limit(PAGE_SIZE)
+        if (data) {
+          const sorted = [...data].reverse()
+          setMessages(sorted)
+          setHasMore(data.length >= PAGE_SIZE)
+        }
       } else {
-        setMessages(getChatMessages())
+        const all = getChatMessages()
+        const recent = all.slice(-PAGE_SIZE)
+        setMessages(recent)
+        setHasMore(all.length > PAGE_SIZE)
       }
     } catch (e) {
       console.error("채팅 로드 실패:", e)
+    } finally {
+      setInitialLoading(false)
     }
   }, [useSupabase])
 
-  // Supabase Realtime 구독 — INSERT 이벤트만 수신
+  // 위로 스크롤 시 이전 메시지 로드
+  const loadOlderMessages = useCallback(async () => {
+    if (loadingOlder || !hasMore || messages.length === 0) return
+    const oldestMsg = messages[0]
+    setLoadingOlder(true)
+
+    const container = scrollContainerRef.current
+    const prevScrollHeight = container?.scrollHeight ?? 0
+
+    try {
+      if (useSupabase) {
+        const { data } = await supabase
+          .from("chat_messages")
+          .select("*")
+          .lt("created_at", oldestMsg.created_at)
+          .order("created_at", { ascending: false })
+          .limit(PAGE_SIZE)
+        if (data) {
+          const sorted = [...data].reverse()
+          setMessages((prev) => [...sorted, ...prev])
+          setHasMore(data.length >= PAGE_SIZE)
+        }
+      } else {
+        const all = getChatMessages()
+        const idx = all.findIndex((m) => m.id === oldestMsg.id)
+        if (idx > 0) {
+          const older = all.slice(Math.max(0, idx - PAGE_SIZE), idx)
+          setMessages((prev) => [...older, ...prev])
+          setHasMore(idx - PAGE_SIZE > 0)
+        } else {
+          setHasMore(false)
+        }
+      }
+      // 스크롤 위치 유지 — 이전 메시지 추가 후 기존 위치 복원
+      requestAnimationFrame(() => {
+        if (container) {
+          container.scrollTop = container.scrollHeight - prevScrollHeight
+        }
+      })
+    } catch (e) {
+      console.error("이전 메시지 로드 실패:", e)
+    } finally {
+      setLoadingOlder(false)
+    }
+  }, [loadingOlder, hasMore, messages, useSupabase])
+
+  // 스크롤 최상단 감지 → 이전 메시지 로드
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container || !open) return
+
+    const handleScroll = () => {
+      if (container.scrollTop < 40 && hasMore && !loadingOlder) {
+        loadOlderMessages()
+      }
+    }
+    container.addEventListener("scroll", handleScroll, { passive: true })
+    return () => container.removeEventListener("scroll", handleScroll)
+  }, [open, hasMore, loadingOlder, loadOlderMessages])
+
+  // Supabase Realtime 구독
   useEffect(() => {
     if (!open || !useSupabase) return
 
-    void loadMessages()
+    void loadRecentMessages()
 
     const channel = supabase
       .channel("chat-realtime")
@@ -52,9 +127,7 @@ export function ChatPanel() {
         (payload: { new: ChatMessage }) => {
           const newMsg = payload.new as ChatMessage
           setMessages((prev) => {
-            // 낙관적 메시지가 있으면 교체, 없으면 추가 (타인의 메시지)
             if (pendingIdsRef.current.size > 0) {
-              // content+user_id 매칭으로 낙관적 메시지 찾아 교체
               const pendingIdx = prev.findIndex(
                 (m) => pendingIdsRef.current.has(m.id) && m.user_id === newMsg.user_id && m.content === newMsg.content,
               )
@@ -65,7 +138,6 @@ export function ChatPanel() {
                 return updated
               }
             }
-            // 중복 방지
             if (prev.some((m) => m.id === newMsg.id)) return prev
             return [...prev, newMsg]
           })
@@ -76,18 +148,28 @@ export function ChatPanel() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [open, useSupabase, loadMessages])
+  }, [open, useSupabase, loadRecentMessages])
 
-  // Mock 모드: 초기 로드만 (폴링 불필요 — 현재 사용자만 메시지 씀)
+  // Mock 모드: 초기 로드만
   useEffect(() => {
     if (!open || useSupabase) return
-    void loadMessages()
-  }, [open, useSupabase, loadMessages])
+    void loadRecentMessages()
+  }, [open, useSupabase, loadRecentMessages])
 
-  // 새 메시지 시 스크롤
+  // 새 메시지 시 맨 아래로 스크롤
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages.length])
+    if (!initialLoading) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages.length, initialLoading])
+
+  // 초기 로드 완료 시 맨 아래로 스크롤 (instant)
+  useEffect(() => {
+    if (!initialLoading && messages.length > 0) {
+      bottomRef.current?.scrollIntoView({ behavior: "instant" })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- initialLoading false 전환 시 1회만
+  }, [initialLoading])
 
   // 모바일 가상 키보드 대응
   useEffect(() => {
@@ -186,8 +268,23 @@ export function ChatPanel() {
       </div>
 
       {/* 메시지 영역 */}
-      <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
-        {messages.length === 0 ? (
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
+        {/* 이전 메시지 로딩 인디케이터 */}
+        {loadingOlder && (
+          <div className="flex items-center justify-center gap-2 py-2">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+            <span className="text-[11px] text-muted-foreground">이전 메시지를 불러오는 중...</span>
+          </div>
+        )}
+        {!hasMore && messages.length > 0 && (
+          <p className="py-2 text-center text-[10px] text-muted-foreground">— 처음 메시지입니다 —</p>
+        )}
+        {initialLoading ? (
+          <div className="flex flex-col items-center justify-center gap-2 py-12">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <span className="text-xs text-muted-foreground">채팅을 불러오는 중...</span>
+          </div>
+        ) : messages.length === 0 ? (
           <p className="py-8 text-center text-xs text-muted-foreground">
             아직 메시지가 없어요. 첫 메시지를 보내보세요!
           </p>

@@ -113,17 +113,11 @@ body {
 
 /* ── 그라데이션 텍스트 ───────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #E8685A 0%, #2B8A9E 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #E8685A;
 }
 
 .dark .gradient-text {
-  background: linear-gradient(135deg, #F08272 0%, #4EAAB8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #F08272;
 }
 /* ── 브랜드 폰트 (heavy weight) ────────────────────── */
 .font-maple {

@@ -5,7 +5,7 @@ export const cities: CityInfo[] = [
     id: "tokyo",
     name: "도쿄",
     nameEn: "Tokyo",
-    image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=400&h=300&fit=crop",
     description: "일본의 수도, 전통과 현대의 조화",
     center: { lat: 35.6762, lng: 139.6503 },
     zoom: 12,

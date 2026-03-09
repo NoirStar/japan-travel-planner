@@ -61,17 +61,11 @@ export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeP
   if (isAdmin) {
     if (compact) {
       return (
-        <span className="inline-flex items-center gap-0.5 text-[11px]" title="관리자">
-          <AdminShieldIcon size={12} />
-          <span className="font-bold text-amber-500">관리자</span>
-        </span>
+        <span className="text-[11px] font-bold text-amber-500" title="관리자">관리자</span>
       )
     }
     return (
-      <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 bg-gradient-to-r from-amber-50 to-red-50 px-3 py-1 text-sm dark:border-amber-500 dark:from-amber-950/40 dark:to-red-950/40">
-        <AdminShieldIcon size={20} />
-        <span className="font-bold text-amber-600 dark:text-amber-400">관리자</span>
-      </div>
+      <span className="text-sm font-bold text-amber-600 dark:text-amber-400">관리자</span>
     )
   }
 

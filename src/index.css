@@ -1,13 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
-
-/* MapleStory 폰트 */
-@font-face {
-  font-family: 'MaplestoryOTFBold';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/MaplestoryOTFBold.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 
 @import "tailwindcss";
 
@@ -70,7 +61,7 @@
 }
 
 body {
-  font-family: "Noto Sans KR", "Inter", system-ui, -apple-system, sans-serif;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   background-color: var(--color-background);
   color: var(--color-foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -134,28 +125,28 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-/* ── 메이플스토리 폰트 ───────────────────────────────── */
+/* ── 브랜드 폰트 (heavy weight) ────────────────────── */
 .font-maple {
-  font-family: 'MaplestoryOTFBold', 'Noto Sans KR', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
-/* ── 모던 버튼 (마젠타/로즈골드 그라디언트) ─────── */
+/* ── 모던 버튼 (클린 솔리드) ─────────────────────── */
 .btn-gradient {
-  background: linear-gradient(135deg, #d4436a 0%, #c23760 50%, #5b4fbe 100%);
+  background: #d4436a;
   color: white;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 .btn-gradient:hover {
-  background: linear-gradient(135deg, #c23760 0%, #b02d56 50%, #4a3fad 100%);
-  box-shadow: 0 6px 20px rgba(212, 67, 106, 0.3);
-  transform: translateY(-2px);
+  background: #c23760;
+  box-shadow: 0 4px 14px rgba(212, 67, 106, 0.25);
 }
 
 .dark .btn-gradient {
-  background: linear-gradient(135deg, #e86b8a 0%, #d4436a 50%, #8b7fd4 100%);
+  background: #e86b8a;
 }
 .dark .btn-gradient:hover {
-  background: linear-gradient(135deg, #d4436a 0%, #c23760 50%, #7b6fc4 100%);
-  box-shadow: 0 6px 20px rgba(232, 107, 138, 0.25);
+  background: #d4436a;
+  box-shadow: 0 4px 14px rgba(232, 107, 138, 0.2);
 }
 
 /* ── 카드 그림자 (또렷한/깊은) ────────────────── */

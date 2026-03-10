@@ -38,6 +38,7 @@ export function CreateFreePostModal({ open, onClose, onCreated }: Props) {
           title: title.trim(),
           content: content.trim(),
           city_id: "",
+          trip_data: {},
         })
         if (insertError) {
           setError("작성 중 오류가 발생했습니다.")

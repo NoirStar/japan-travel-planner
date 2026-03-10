@@ -131,6 +131,7 @@ export function CreateFreePostPage() {
             description: "",
             content: htmlContent,
             city_id: "",
+            trip_data: {},
           })
           .select("id")
           .single()

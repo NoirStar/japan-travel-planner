@@ -62,9 +62,6 @@ export function ChatPanel() {
     setLoadingOlder(true)
     isLoadingOlderRef.current = true
 
-    const container = scrollContainerRef.current
-    const prevScrollHeight = container?.scrollHeight ?? 0
-
     try {
       if (useSupabase) {
         const { data } = await supabase

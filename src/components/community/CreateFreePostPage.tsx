@@ -129,8 +129,6 @@ export function CreateFreePostPage() {
             board_type: "free",
             title: title.trim(),
             content: htmlContent,
-            city_id: "",
-            trip_data: null,
           })
           .select("id")
           .single()

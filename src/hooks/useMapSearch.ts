@@ -18,6 +18,9 @@ export function useMapSearch(cityId: string) {
   const lastSearchRef = useRef<{ lat: number; lng: number; radius: number } | null>(null)
   // API에서 카테고리 검색이 적용되었는지 추적 (이중 필터링 방지)
   const lastSearchCategory = useRef<string | undefined>(undefined)
+  // 이전 요청 취소용 AbortController
+  const searchAbortRef = useRef<AbortController | null>(null)
+  const textSearchAbortRef = useRef<AbortController | null>(null)
 
   // Google 장소 목록 (별점 필터 적용 — 클라이언트 사이드)
   const filteredPlaces = useMemo(() => {
@@ -67,11 +70,15 @@ export function useMapSearch(cityId: string) {
     setSearchMessage(null)
     lastSearchRef.current = { lat, lng, radius }
     lastSearchCategory.current = searchCategory
+    searchAbortRef.current?.abort()
+    const controller = new AbortController()
+    searchAbortRef.current = controller
     try {
       const res = await fetch("/api/places-nearby", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cityId, lat, lng, category: searchCategory, minRating, radius }),
+        signal: controller.signal,
       })
       if (!res.ok) {
         console.error("Search API error:", res.status)
@@ -111,10 +118,11 @@ export function useMapSearch(cityId: string) {
         setSearchMessage("이 지역에서 장소를 찾지 못했습니다. 지도를 이동해보세요.")
       }
     } catch (error) {
+      if ((error as Error).name === "AbortError") return
       console.error("Search area error:", error)
       setSearchMessage("네트워크 오류가 발생했습니다.")
     } finally {
-      setIsSearching(false)
+      if (!controller.signal.aborted) setIsSearching(false)
       setTimeout(() => setSearchMessage(null), 4000)
     }
   }, [cityId, activeCategory, minRating])
@@ -141,6 +149,9 @@ export function useMapSearch(cityId: string) {
   const handleTextSearch = useCallback(async (query: string) => {
     setIsTextSearching(true)
     setSearchMessage(null)
+    textSearchAbortRef.current?.abort()
+    const controller = new AbortController()
+    textSearchAbortRef.current = controller
     try {
       const results = await searchGooglePlaces(query, cityId)
       if (results.length > 0) {
@@ -151,10 +162,11 @@ export function useMapSearch(cityId: string) {
       } else {
         setSearchMessage(`"${query}" 검색 결과가 없습니다`)
       }
-    } catch {
+    } catch (error) {
+      if ((error as Error).name === "AbortError") return
       setSearchMessage("검색 중 오류가 발생했습니다")
     } finally {
-      setIsTextSearching(false)
+      if (!controller.signal.aborted) setIsTextSearching(false)
       setTimeout(() => setSearchMessage(null), 4000)
     }
   }, [cityId])

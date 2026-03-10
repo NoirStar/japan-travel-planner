@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react"
 import { Send, MessageSquare, X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getChatMessages, addChatMessage } from "@/lib/mockCommunity"
@@ -22,6 +22,8 @@ export function ChatPanel() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const pendingIdsRef = useRef<Set<string>>(new Set())
+  const isLoadingOlderRef = useRef(false)
+  const isNearBottomRef = useRef(true)
 
   const useSupabase = isSupabaseConfigured && !isDemoMode
 
@@ -58,6 +60,7 @@ export function ChatPanel() {
     if (loadingOlder || !hasMore || messages.length === 0) return
     const oldestMsg = messages[0]
     setLoadingOlder(true)
+    isLoadingOlderRef.current = true
 
     const container = scrollContainerRef.current
     const prevScrollHeight = container?.scrollHeight ?? 0
@@ -86,12 +89,6 @@ export function ChatPanel() {
           setHasMore(false)
         }
       }
-      // 스크롤 위치 유지 — 이전 메시지 추가 후 기존 위치 복원
-      requestAnimationFrame(() => {
-        if (container) {
-          container.scrollTop = container.scrollHeight - prevScrollHeight
-        }
-      })
     } catch (e) {
       console.error("이전 메시지 로드 실패:", e)
     } finally {
@@ -105,6 +102,10 @@ export function ChatPanel() {
     if (!container || !open) return
 
     const handleScroll = () => {
+      // 하단 근처(80px 이내)인지 추적
+      const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+      isNearBottomRef.current = distanceFromBottom < 80
+
       if (container.scrollTop < 40 && hasMore && !loadingOlder) {
         loadOlderMessages()
       }
@@ -156,9 +157,26 @@ export function ChatPanel() {
     void loadRecentMessages()
   }, [open, useSupabase, loadRecentMessages])
 
-  // 새 메시지 시 맨 아래로 스크롤
+  // 이전 메시지 로드 후 스크롤 위치 복원 (DOM 변경 직후 실행)
+  const prevScrollHeightRef = useRef(0)
+  useLayoutEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container || !isLoadingOlderRef.current) return
+    const newScrollHeight = container.scrollHeight
+    container.scrollTop = newScrollHeight - prevScrollHeightRef.current
+    isLoadingOlderRef.current = false
+  }, [messages])
+
+  // 이전 메시지 로드 시작 시 현재 scrollHeight 저장
   useEffect(() => {
-    if (!initialLoading) {
+    if (loadingOlder) {
+      prevScrollHeightRef.current = scrollContainerRef.current?.scrollHeight ?? 0
+    }
+  }, [loadingOlder])
+
+  // 새 메시지 시 하단 근처면 맨 아래로 스크롤
+  useEffect(() => {
+    if (!initialLoading && !isLoadingOlderRef.current && isNearBottomRef.current) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages.length, initialLoading])

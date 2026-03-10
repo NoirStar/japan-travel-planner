@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Camera, LogOut, Save, CalendarDays, MessageCircle, Pencil, ThumbsUp, Plane, List } from "lucide-react"
+import { Camera, LogOut, Save, CalendarDays, MessageCircle, Pencil, ThumbsUp, Compass, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { LevelBadge } from "@/components/community/LevelBadge"
@@ -174,7 +174,7 @@ export function ProfilePage() {
           onClick={() => navigate("/planner")}
           className="h-auto flex-col gap-2 rounded-2xl py-4"
         >
-          <Plane className="h-5 w-5" />
+          <Compass className="h-5 w-5" />
           <span>여행 만들기</span>
         </Button>
         <Button

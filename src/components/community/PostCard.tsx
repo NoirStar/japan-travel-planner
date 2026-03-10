@@ -18,7 +18,11 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <Link
       to={`/community/${post.id}`}
-      className="group block overflow-hidden rounded-2xl border border-border bg-card transition-all hover:shadow-lg hover:border-primary/30"
+      className={`group block overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg ${
+        post.likes_count >= BEST_THRESHOLD
+          ? "border-amber-300 dark:border-amber-600 ring-1 ring-amber-200/50 dark:ring-amber-700/30"
+          : "border-border hover:border-primary/30"
+      }`}
     >
       {/* 커버 이미지 */}
       <div className="relative h-40 overflow-hidden bg-muted">
@@ -52,7 +56,7 @@ export function PostCard({ post }: PostCardProps) {
           )}
         </div>
         {post.likes_count >= BEST_THRESHOLD && (
-          <div className="absolute top-2 right-2 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-white shadow-md">
+          <div className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-md">
             <Trophy className="h-3 w-3" /> 베스트
           </div>
         )}

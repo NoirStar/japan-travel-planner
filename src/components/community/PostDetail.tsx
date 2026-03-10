@@ -46,6 +46,7 @@ export function PostDetail() {
   const [commentText, setCommentText] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
+  const [isVoting, setIsVoting] = useState(false)
 
   // 게시글 로드
   const fetchPost = useCallback(async () => {
@@ -130,13 +131,13 @@ export function PostDetail() {
     fetchMyVote()
   }, [fetchMyVote])
 
-  // 추천/비추천
+  // 추천/비추천 (optimistic UI + 중복 클릭 방지)
   const handleVote = async (type: VoteType) => {
     if (!user) {
       setShowLoginModal(true)
       return
     }
-    if (!postId) return
+    if (!postId || isVoting) return
 
     if (useMock) {
       const newVote = toggleMockVote(postId, user.id, type)
@@ -146,40 +147,64 @@ export function PostDetail() {
       return
     }
 
-    if (myVote === type) {
-      // 투표 취소
-      await supabase
-        .from("post_votes")
-        .delete()
-        .eq("post_id", postId)
-        .eq("user_id", user.id)
+    // Optimistic update
+    const prevVote = myVote
+    const prevPost = post ? { ...post } : null
+    const isCancelling = myVote === type
+    const isSwitching = myVote && myVote !== type
 
-      const col = type === "up" ? "likes_count" : "dislikes_count"
-      await supabase.rpc("decrement_count", { row_id: postId, col_name: col })
-      setMyVote(null)
-    } else {
-      if (myVote) {
-        // 기존 투표 삭제
+    setMyVote(isCancelling ? null : type)
+    if (post) {
+      const updated = { ...post }
+      if (isCancelling) {
+        if (type === "up") updated.likes_count = Math.max(0, (updated.likes_count ?? 0) - 1)
+        else updated.dislikes_count = Math.max(0, (updated.dislikes_count ?? 0) - 1)
+      } else {
+        if (isSwitching) {
+          if (myVote === "up") updated.likes_count = Math.max(0, (updated.likes_count ?? 0) - 1)
+          else updated.dislikes_count = Math.max(0, (updated.dislikes_count ?? 0) - 1)
+        }
+        if (type === "up") updated.likes_count = (updated.likes_count ?? 0) + 1
+        else updated.dislikes_count = (updated.dislikes_count ?? 0) + 1
+      }
+      setPost(updated)
+    }
+
+    setIsVoting(true)
+    try {
+      if (isCancelling) {
         await supabase
           .from("post_votes")
           .delete()
           .eq("post_id", postId)
           .eq("user_id", user.id)
-
-        const oldCol = myVote === "up" ? "likes_count" : "dislikes_count"
-        await supabase.rpc("decrement_count", { row_id: postId, col_name: oldCol })
+        const col = type === "up" ? "likes_count" : "dislikes_count"
+        await supabase.rpc("decrement_count", { row_id: postId, col_name: col })
+      } else {
+        if (isSwitching) {
+          await supabase
+            .from("post_votes")
+            .delete()
+            .eq("post_id", postId)
+            .eq("user_id", user.id)
+          const oldCol = myVote === "up" ? "likes_count" : "dislikes_count"
+          await supabase.rpc("decrement_count", { row_id: postId, col_name: oldCol })
+        }
+        await supabase.from("post_votes").insert({
+          post_id: postId,
+          user_id: user.id,
+          vote_type: type,
+        })
+        const newCol = type === "up" ? "likes_count" : "dislikes_count"
+        await supabase.rpc("increment_count", { row_id: postId, col_name: newCol })
       }
-      // 새 투표
-      await supabase.from("post_votes").insert({
-        post_id: postId,
-        user_id: user.id,
-        vote_type: type,
-      })
-      const newCol = type === "up" ? "likes_count" : "dislikes_count"
-      await supabase.rpc("increment_count", { row_id: postId, col_name: newCol })
-      setMyVote(type)
+    } catch {
+      // 실패 시 롤백
+      setMyVote(prevVote)
+      if (prevPost) setPost(prevPost)
+    } finally {
+      setIsVoting(false)
     }
-    fetchPost()
   }
 
   // 댓글 작성
@@ -328,7 +353,7 @@ export function PostDetail() {
       <div className="flex items-center gap-2 mb-2">
         <h1 className="text-2xl font-bold">{post.title}</h1>
         {post.likes_count >= BEST_THRESHOLD && (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
             <Trophy className="h-3 w-3" /> 베스트
           </span>
         )}
@@ -397,6 +422,7 @@ export function PostDetail() {
         <Button
           variant={myVote === "up" ? "default" : "outline"}
           onClick={() => handleVote("up")}
+          disabled={isVoting}
           className="gap-1.5 rounded-xl"
           size="sm"
         >
@@ -406,6 +432,7 @@ export function PostDetail() {
         <Button
           variant={myVote === "down" ? "destructive" : "outline"}
           onClick={() => handleVote("down")}
+          disabled={isVoting}
           className="gap-1.5 rounded-xl"
           size="sm"
         >

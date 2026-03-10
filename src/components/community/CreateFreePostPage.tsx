@@ -128,6 +128,7 @@ export function CreateFreePostPage() {
             user_id: user.id,
             board_type: "free",
             title: title.trim(),
+            description: "",
             content: htmlContent,
             city_id: "",
           })
@@ -135,7 +136,8 @@ export function CreateFreePostPage() {
           .single()
 
         if (insertError) {
-          setError("작성 중 오류가 발생했습니다.")
+          console.error("Supabase insert error:", insertError)
+          setError(`작성 중 오류: ${insertError.message}`)
           setIsSubmitting(false)
           return
         }

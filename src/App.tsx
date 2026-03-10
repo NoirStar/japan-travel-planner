@@ -13,6 +13,7 @@ const AIChatWizard = lazy(() => import("@/components/chat/AIChatWizard").then((m
 const TripListPage = lazy(() => import("@/components/trips/TripListPage").then((m) => ({ default: m.TripListPage })))
 const CommunityPage = lazy(() => import("@/components/community/CommunityPage").then((m) => ({ default: m.CommunityPage })))
 const FreeBoardPage = lazy(() => import("@/components/community/FreeBoardPage").then((m) => ({ default: m.FreeBoardPage })))
+const CreateFreePostPage = lazy(() => import("@/components/community/CreateFreePostPage").then((m) => ({ default: m.CreateFreePostPage })))
 const PostDetail = lazy(() => import("@/components/community/PostDetail").then((m) => ({ default: m.PostDetail })))
 const ProfilePage = lazy(() => import("@/components/auth/ProfilePage").then((m) => ({ default: m.ProfilePage })))
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="/share/:shareId" element={<PlannerPage />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/community/free" element={<FreeBoardPage />} />
+            <Route path="/community/free/write" element={<CreateFreePostPage />} />
             <Route path="/community/:postId" element={<PostDetail />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Routes>

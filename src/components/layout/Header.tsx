@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Moon, Sun, User, List, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare } from "lucide-react"
+import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, PlusCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -42,10 +42,10 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-1">
-          <Link to="/trips">
+          <Link to="/planner">
             <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted">
-              <List className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">내 여행</span>
+              <PlusCircle className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">여행 만들기</span>
             </Button>
           </Link>
 

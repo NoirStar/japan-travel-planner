@@ -31,6 +31,7 @@ import type { CommunityPost, Comment, VoteType } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
 import { cities } from "@/data/cities"
+import DOMPurify from "dompurify"
 
 export function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
@@ -400,9 +401,10 @@ export function PostDetail() {
 
       {/* 본문 (free board) */}
       {post.board_type === "free" && post.content && (
-        <div className="mb-6 whitespace-pre-wrap text-sm leading-relaxed">
-          {post.content}
-        </div>
+        <div
+          className="mb-6 prose prose-sm dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content, { ADD_TAGS: ["img"], ADD_ATTR: ["src", "alt", "style"] }) }}
+        />
       )}
 
       {/* 일정 미리보기 (travel only) */}
@@ -492,7 +494,12 @@ export function PostDetail() {
             type="text"
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleComment()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                e.preventDefault()
+                handleComment()
+              }
+            }}
             placeholder={user ? "댓글을 입력하세요..." : "로그인 후 댓글을 작성할 수 있습니다"}
             maxLength={500}
             className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"

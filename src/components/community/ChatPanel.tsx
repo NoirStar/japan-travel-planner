@@ -341,13 +341,13 @@ export function ChatPanel() {
             }}
             placeholder={user ? "메시지를 입력하세요..." : "로그인 후 채팅 가능"}
             maxLength={300}
-            className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+            className="min-w-0 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
           <Button
             onClick={handleSend}
             disabled={!input.trim() || sending}
             size="icon"
-            className="shrink-0 rounded-xl"
+            className="h-10 w-10 shrink-0 rounded-xl"
           >
             <Send className="h-4 w-4" />
           </Button>

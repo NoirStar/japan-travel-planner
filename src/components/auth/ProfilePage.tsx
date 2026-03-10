@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Camera, LogOut, Save, CalendarDays, MessageCircle, Pencil, ThumbsUp } from "lucide-react"
+import { Camera, LogOut, Save, CalendarDays, MessageCircle, Pencil, ThumbsUp, Plane, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { LevelBadge } from "@/components/community/LevelBadge"
@@ -167,6 +167,25 @@ export function ProfilePage() {
           </div>
         )
       })()}
+
+      <div className="mb-6 grid grid-cols-2 gap-3">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/planner")}
+          className="h-auto flex-col gap-2 rounded-2xl py-4"
+        >
+          <Plane className="h-5 w-5" />
+          <span>여행 만들기</span>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/trips")}
+          className="h-auto flex-col gap-2 rounded-2xl py-4"
+        >
+          <List className="h-5 w-5" />
+          <span>내 여행 목록</span>
+        </Button>
+      </div>
 
       {/* 버튼 */}
       <div className="space-y-3">

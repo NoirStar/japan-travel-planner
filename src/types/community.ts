@@ -66,14 +66,18 @@ export interface UserProfile {
 }
 
 // ─── 커뮤니티 게시글 ────────────────────────────────────
+export type BoardType = "travel" | "free"
+
 export interface CommunityPost {
   id: string
   user_id: string
+  board_type?: BoardType
   title: string
   description: string | null
+  content?: string | null
   city_id: string
   cover_image: string | null
-  trip_data: Trip
+  trip_data: Trip | null
   likes_count: number
   dislikes_count: number
   comments_count: number

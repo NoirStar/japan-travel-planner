@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef, Component, type ReactNode } from "react"
-import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, Lightbulb, MapPin } from "lucide-react"
+import { useState, useEffect, useCallback, useRef, useMemo, Component, type ReactNode } from "react"
+import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, Lightbulb, MapPin, Search, ThumbsUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
@@ -52,11 +52,20 @@ export function CommunityPage() {
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useState<PostSortOption>("latest")
   const [cityFilter, setCityFilter] = useState("")
+  const [searchInput, setSearchInput] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [minLikes, setMinLikes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
   const [attendanceMsg, setAttendanceMsg] = useState("")
   const [displayCount, setDisplayCount] = useState(9)
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchQuery(searchInput), 300)
+    return () => clearTimeout(timer)
+  }, [searchInput])
 
   const fetchPosts = useCallback(async () => {
     setIsLoading(true)
@@ -64,7 +73,7 @@ export function CommunityPage() {
 
     if (!useSupabase) {
       const mockSort = sort === "best" ? "popular" : sort
-      let result = fetchMockPosts(mockSort, cityFilter)
+      let result = fetchMockPosts(mockSort, cityFilter, searchQuery)
       if (sort === "best") {
         result = result.filter((p) => p.likes_count >= BEST_THRESHOLD)
       }
@@ -76,9 +85,14 @@ export function CommunityPage() {
     let query = supabase
       .from("posts")
       .select("*, profiles(*)")
+      .eq("board_type", "travel")
 
     if (cityFilter) {
       query = query.eq("city_id", cityFilter)
+    }
+
+    if (searchQuery) {
+      query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
     }
 
     if (sort === "popular") {
@@ -105,7 +119,7 @@ export function CommunityPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [sort, cityFilter, isDemoMode])
+  }, [sort, cityFilter, searchQuery, isDemoMode])
 
   useEffect(() => {
     fetchPosts()
@@ -114,11 +128,16 @@ export function CommunityPage() {
   // 필터/정렬 변경 시 displayCount 초기화
   useEffect(() => {
     setDisplayCount(9)
-  }, [sort, cityFilter])
+  }, [sort, cityFilter, searchQuery, minLikes])
+
+  const filteredPosts = useMemo(() => {
+    if (minLikes <= 0) return posts
+    return posts.filter((p) => p.likes_count >= minLikes)
+  }, [posts, minLikes])
 
   // IntersectionObserver 기반 무한스크롤
   useEffect(() => {
-    if (displayCount >= posts.length) return
+    if (displayCount >= filteredPosts.length) return
     const el = loadMoreRef.current
     if (!el) return
     const observer = new IntersectionObserver(
@@ -127,9 +146,9 @@ export function CommunityPage() {
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [displayCount, posts.length])
+  }, [displayCount, filteredPosts.length])
 
-  const visiblePosts = posts.slice(0, displayCount)
+  const visiblePosts = filteredPosts.slice(0, displayCount)
 
   const handleCreateClick = () => {
     if (!user) {
@@ -158,7 +177,7 @@ export function CommunityPage() {
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">커뮤니티</h1>
+          <h1 className="text-2xl font-bold">여행 공유</h1>
           <p className="text-sm text-muted-foreground">다른 여행자들의 일정을 구경하세요</p>
         </div>
         <div className="flex items-center gap-2">
@@ -189,6 +208,18 @@ export function CommunityPage() {
             <span className="hidden sm:inline">여행 공유</span>
           </Button>
         </div>
+      </div>
+
+      {/* 검색 */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="제목 또는 설명으로 검색..."
+          className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+        />
       </div>
 
       {/* 필터 바 */}
@@ -237,6 +268,24 @@ export function CommunityPage() {
             </option>
           ))}
         </select>
+
+        {/* 추천수 필터 */}
+        <div className="flex rounded-xl border border-border bg-card p-0.5">
+          {[{ value: 0, label: "전체" }, { value: 5, label: "5+" }, { value: 10, label: "10+" }].map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setMinLikes(f.value)}
+              className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                minLikes === f.value
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f.value > 0 && <ThumbsUp className="h-2.5 w-2.5" />}
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 게시글 그리드 */}
@@ -269,7 +318,7 @@ export function CommunityPage() {
       )}
 
       {/* 무한스크롤 sentinel */}
-      {displayCount < posts.length && (
+      {displayCount < filteredPosts.length && (
         <div ref={loadMoreRef} className="flex justify-center py-6">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>

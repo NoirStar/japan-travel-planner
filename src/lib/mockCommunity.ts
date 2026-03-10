@@ -141,15 +141,35 @@ export function updateDemoProfile(updates: Partial<Pick<UserProfile, "nickname" 
 }
 
 // ─── 게시글 CRUD ─────────────────────────────────────────
-export function fetchMockPosts(sort: "latest" | "popular", cityFilter: string): CommunityPost[] {
+export function fetchMockPosts(sort: "latest" | "popular", cityFilter: string, search?: string): CommunityPost[] {
   let posts = read<CommunityPost>(KEYS.posts)
+    .filter((p) => (p.board_type ?? "travel") === "travel")
   if (cityFilter) posts = posts.filter((p) => p.city_id === cityFilter)
+  if (search) {
+    const q = search.toLowerCase()
+    posts = posts.filter((p) => p.title.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q))
+  }
   if (sort === "popular") {
     posts.sort((a, b) => b.likes_count - a.likes_count)
   } else {
     posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
   }
   return posts.slice(0, 50)
+}
+
+export function fetchMockFreePosts(sort: "latest" | "popular", search?: string): CommunityPost[] {
+  let posts = read<CommunityPost>(KEYS.posts)
+    .filter((p) => p.board_type === "free")
+  if (search) {
+    const q = search.toLowerCase()
+    posts = posts.filter((p) => p.title.toLowerCase().includes(q) || p.content?.toLowerCase().includes(q))
+  }
+  if (sort === "popular") {
+    posts.sort((a, b) => b.likes_count - a.likes_count)
+  } else {
+    posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  }
+  return posts.slice(0, 100)
 }
 
 export function fetchMockPost(postId: string): CommunityPost | null {
@@ -160,7 +180,34 @@ export function createMockPost(post: Omit<CommunityPost, "id" | "likes_count" | 
   const profile = post.user_id === ADMIN_USER_ID ? getAdminProfile() : getDemoProfile()
   const newPost: CommunityPost = {
     ...post,
+    board_type: post.board_type ?? "travel",
     id: uid(),
+    likes_count: 0,
+    dislikes_count: 0,
+    comments_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    profiles: profile,
+  }
+  const posts = read<CommunityPost>(KEYS.posts)
+  posts.push(newPost)
+  write(KEYS.posts, posts)
+  addPoints("post", POINTS.POST)
+  return newPost
+}
+
+export function createMockFreePost(userId: string, title: string, content: string): CommunityPost {
+  const profile = userId === ADMIN_USER_ID ? getAdminProfile() : getDemoProfile()
+  const newPost: CommunityPost = {
+    id: uid(),
+    user_id: userId,
+    board_type: "free",
+    title,
+    description: null,
+    content,
+    city_id: "",
+    cover_image: null,
+    trip_data: null,
     likes_count: 0,
     dislikes_count: 0,
     comments_count: 0,

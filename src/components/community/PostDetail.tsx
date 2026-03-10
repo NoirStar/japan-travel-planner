@@ -244,7 +244,7 @@ export function PostDetail() {
 
   // 일정 가져오기
   const handleImport = () => {
-    if (!post) return
+    if (!post?.trip_data?.days?.length) return
     const tripData = post.trip_data
     const newTrip = createTrip(tripData.cityId, `[가져옴] ${post.title}`)
 
@@ -263,15 +263,16 @@ export function PostDetail() {
   const handleDeletePost = async () => {
     if (!postId) return
     if (!window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) return
+    const backTo = post?.board_type === "free" ? "/community/free" : "/community"
     if (useMock) {
       deleteMockPost(postId)
-      navigate("/community")
+      navigate(backTo)
       return
     }
     await supabase.from("comments").delete().eq("post_id", postId)
     await supabase.from("post_votes").delete().eq("post_id", postId)
     await supabase.from("posts").delete().eq("id", postId)
-    navigate("/community")
+    navigate(backTo)
   }
 
   // 댓글 투표
@@ -331,23 +332,23 @@ export function PostDetail() {
     <div className="mx-auto max-w-2xl px-4 pt-20 pb-10">
       {/* 뒤로가기 */}
       <button
-        onClick={() => navigate("/community")}
+        onClick={() => navigate(post.board_type === "free" ? "/community/free" : "/community")}
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        커뮤니티
+        {post.board_type === "free" ? "자유게시판" : "여행 공유"}
       </button>
 
       {/* 커버 */}
-      <div className="mb-4 h-48 overflow-hidden rounded-2xl bg-muted">
-        {(post.cover_image || city?.image) && (
+      {(post.cover_image || (post.board_type !== "free" && city?.image)) && (
+        <div className="mb-4 h-48 overflow-hidden rounded-2xl bg-muted">
           <img
             src={post.cover_image ?? city?.image}
             alt={post.title}
             className="h-full w-full object-cover"
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 제목 + 메타 */}
       <div className="flex items-center gap-2 mb-2">
@@ -358,16 +359,22 @@ export function PostDetail() {
           </span>
         )}
       </div>
-      <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <MapPin className="h-3.5 w-3.5" />
-          {city?.name ?? post.city_id}
-        </span>
-        <span>·</span>
-        <span>{dayCount}일 일정</span>
-        <span>·</span>
-        <span>{new Date(post.created_at).toLocaleDateString("ko-KR")}</span>
-      </div>
+      {post.board_type !== "free" ? (
+        <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <MapPin className="h-3.5 w-3.5" />
+            {city?.name ?? post.city_id}
+          </span>
+          <span>·</span>
+          <span>{dayCount}일 일정</span>
+          <span>·</span>
+          <span>{new Date(post.created_at).toLocaleDateString("ko-KR")}</span>
+        </div>
+      ) : (
+        <div className="mb-4 text-sm text-muted-foreground">
+          {new Date(post.created_at).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })}
+        </div>
+      )}
 
       {/* 작성자 */}
       {profile && (
@@ -391,11 +398,19 @@ export function PostDetail() {
         </p>
       )}
 
-      {/* 일정 미리보기 */}
+      {/* 본문 (free board) */}
+      {post.board_type === "free" && post.content && (
+        <div className="mb-6 whitespace-pre-wrap text-sm leading-relaxed">
+          {post.content}
+        </div>
+      )}
+
+      {/* 일정 미리보기 (travel only) */}
+      {post.board_type !== "free" && post.trip_data && (
       <div className="mb-6 rounded-2xl border border-border bg-card p-4">
         <h3 className="mb-3 font-semibold inline-flex items-center gap-1.5"><Calendar className="h-4 w-4" /> 일정 미리보기</h3>
         <div className="space-y-3">
-          {(post.trip_data.days ?? []).map((day) => (
+          {(post.trip_data?.days ?? []).map((day) => (
             <div key={day.id ?? String(day.dayNumber)} className="rounded-xl bg-muted/50 p-3">
               <p className="mb-1 text-xs font-semibold text-primary">
                 Day {String(day.dayNumber)}{day.date && ` · ${String(day.date)}`}
@@ -416,6 +431,7 @@ export function PostDetail() {
           ))}
         </div>
       </div>
+      )}
 
       {/* 액션 버튼 */}
       <div className="mb-6 flex items-center gap-2">
@@ -439,15 +455,17 @@ export function PostDetail() {
           <ThumbsDown className="h-4 w-4" />
           {Number(post.dislikes_count) || 0}
         </Button>
-        <Button
-          variant="outline"
-          onClick={handleImport}
-          className="ml-auto gap-1.5 rounded-xl"
-          size="sm"
-        >
-          <Download className="h-4 w-4" />
-          내 일정으로 가져오기
-        </Button>
+        {post.board_type !== "free" && (
+          <Button
+            variant="outline"
+            onClick={handleImport}
+            className="ml-auto gap-1.5 rounded-xl"
+            size="sm"
+          >
+            <Download className="h-4 w-4" />
+            내 일정으로 가져오기
+          </Button>
+        )}
         {(authProfile?.is_admin || user?.id === post.user_id) && (
           <Button
             variant="destructive"

@@ -23,11 +23,13 @@ create unique index if not exists profiles_nickname_idx on profiles (lower(nickn
 create table if not exists posts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
+  board_type text not null default 'travel',
   title text not null,
   description text,
-  city_id text not null,
+  content text,
+  city_id text not null default '',
   cover_image text,
-  trip_data jsonb not null,          -- 여행 일정 전체 (Trip 구조)
+  trip_data jsonb,                   -- 여행 일정 (travel만), 자유게시판은 null
   likes_count int not null default 0,
   dislikes_count int not null default 0,
   comments_count int not null default 0,
@@ -35,6 +37,7 @@ create table if not exists posts (
   updated_at timestamptz not null default now()
 );
 
+create index if not exists posts_board_type_idx on posts (board_type);
 create index if not exists posts_city_id_idx on posts (city_id);
 create index if not exists posts_user_id_idx on posts (user_id);
 create index if not exists posts_created_at_idx on posts (created_at desc);

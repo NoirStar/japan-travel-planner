@@ -12,7 +12,6 @@ export function useMapSearch(cityId: string) {
   const [minRating, setMinRating] = useState<number | undefined>(undefined)
   const [isSearching, setIsSearching] = useState(false)
   const [searchMessage, setSearchMessage] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<string>("popularity")
   const [isTextSearching, setIsTextSearching] = useState(false)
 
   // 마지막 검색 좌표 (카테고리 변경 시 자동 재검색용)
@@ -20,31 +19,11 @@ export function useMapSearch(cityId: string) {
   // API에서 카테고리 검색이 적용되었는지 추적 (이중 필터링 방지)
   const lastSearchCategory = useRef<string | undefined>(undefined)
 
-  // Google 장소 목록 (별점 필터 + 정렬 적용 — 클라이언트 사이드)
+  // Google 장소 목록 (별점 필터 적용 — 클라이언트 사이드)
   const filteredPlaces = useMemo(() => {
-    let filtered = googlePlaces
-    if (minRating) {
-      filtered = filtered.filter((p) => (p.rating ?? 0) >= minRating)
-    }
-    const sorted = [...filtered]
-    switch (sortBy) {
-      case "rating-desc":
-        sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
-        break
-      case "rating-asc":
-        sorted.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0))
-        break
-      case "reviews-desc":
-        sorted.sort((a, b) => (b.ratingCount ?? 0) - (a.ratingCount ?? 0))
-        break
-      case "name-asc":
-        sorted.sort((a, b) => a.name.localeCompare(b.name, "ko"))
-        break
-      default:
-        break
-    }
-    return sorted
-  }, [googlePlaces, minRating, sortBy])
+    if (!minRating) return googlePlaces
+    return googlePlaces.filter((p) => (p.rating ?? 0) >= minRating)
+  }, [googlePlaces, minRating])
 
   // 장소 선택 시 상세 정보 lazy-load
   const handleSelectPlace = useCallback(async (placeId: string | null, setSelectedPlaceId: (id: string | null) => void) => {
@@ -187,8 +166,6 @@ export function useMapSearch(cityId: string) {
     minRating,
     isSearching,
     searchMessage,
-    sortBy,
-    setSortBy,
     isTextSearching,
     // handlers
     handleSelectPlace,

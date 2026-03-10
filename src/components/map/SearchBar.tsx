@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useMap } from "@vis.gl/react-google-maps"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, Search, Loader2, ArrowUpDown, X } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, Search, Loader2, X } from "lucide-react"
 import { getVisibleRadius } from "@/lib/mapUtils"
 
 // ── 카테고리 필터 ────────────────────────────
@@ -24,15 +24,6 @@ const RATING_OPTIONS = [
   { value: undefined, label: "전체 (필터 해제)" },
 ] as const
 
-// ── 정렬 옵션 ──────────────────────────────────────
-const SORT_OPTIONS = [
-  { value: "popularity", label: "인기순" },
-  { value: "rating-desc", label: "별점 높은순" },
-  { value: "rating-asc", label: "별점 낮은순" },
-  { value: "reviews-desc", label: "리뷰 많은순" },
-  { value: "name-asc", label: "이름순" },
-] as const
-
 const TUTORIAL_KEY = "tabitalk-search-tutorial-seen"
 
 /** 통합 검색바: 카테고리 필터 + Google 별점 드롭다운 + 정렬 + 검색 버튼 */
@@ -43,8 +34,6 @@ export function UnifiedSearchBar({
   onCategoryChange,
   minRating,
   onMinRatingChange,
-  sortBy,
-  onSortChange,
 }: {
   onSearch: (lat: number, lng: number, radius: number) => void
   isSearching?: boolean
@@ -52,15 +41,11 @@ export function UnifiedSearchBar({
   onCategoryChange: (category: string | undefined, lat: number, lng: number, radius: number) => void
   minRating?: number
   onMinRatingChange: (rating: number | undefined) => void
-  sortBy?: string
-  onSortChange?: (sort: string) => void
 }) {
   const map = useMap()
   const [hasClicked, setHasClicked] = useState(false)
   const [ratingOpen, setRatingOpen] = useState(false)
-  const [sortOpen, setSortOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const sortDropdownRef = useRef<HTMLDivElement>(null)
   const [showTooltip, setShowTooltip] = useState(() => {
     try { return !localStorage.getItem(TUTORIAL_KEY) } catch { return true }
   })
@@ -83,18 +68,15 @@ export function UnifiedSearchBar({
 
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
-    if (!ratingOpen && !sortOpen) return
+    if (!ratingOpen) return
     const handler = (e: MouseEvent) => {
-      if (ratingOpen && dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setRatingOpen(false)
-      }
-      if (sortOpen && sortDropdownRef.current && !sortDropdownRef.current.contains(e.target as Node)) {
-        setSortOpen(false)
       }
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
-  }, [ratingOpen, sortOpen])
+  }, [ratingOpen])
 
   return (
     <div className="absolute bottom-3 left-2 right-2 sm:bottom-6 sm:left-3 sm:right-3 z-10 flex flex-col items-center pointer-events-none">
@@ -166,7 +148,7 @@ export function UnifiedSearchBar({
           {ratingOpen && (
             <div className="absolute bottom-full left-0 mb-1 min-w-[140px] rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1 z-50">
               <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium border-b border-border/50">
-                Google 별점 필터
+                별점 필터 (검색 결과 내)
               </div>
               {RATING_OPTIONS.map((opt) => {
                 const isActive = minRating === opt.value
@@ -194,56 +176,6 @@ export function UnifiedSearchBar({
             </div>
           )}
         </div>
-
-        {/* 정렬 드롭다운 */}
-        {onSortChange && (
-          <div className="relative shrink-0" ref={sortDropdownRef}>
-            <button
-              onClick={() => setSortOpen(!sortOpen)}
-              className={`flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                sortBy && sortBy !== "popularity"
-                  ? "bg-indigo-400/20 text-indigo-700 dark:text-indigo-300"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <ArrowUpDown className="w-3.5 h-3.5 shrink-0" />
-              <span>{SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? "인기순"}</span>
-              <svg className={`w-3 h-3 transition-transform ${sortOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
-              </svg>
-            </button>
-
-            {sortOpen && (
-              <div className="absolute bottom-full left-0 mb-1 min-w-[140px] rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1 z-50">
-                <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium border-b border-border/50">
-                  정렬 기준
-                </div>
-                {SORT_OPTIONS.map((opt) => {
-                  const isActive = sortBy === opt.value
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => {
-                        onSortChange(opt.value)
-                        setSortOpen(false)
-                      }}
-                      className={`w-full text-left px-3 py-1.5 text-xs font-medium transition-all ${
-                        isActive
-                          ? "bg-indigo-400/20 text-indigo-700 dark:text-indigo-300"
-                          : "text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        {isActive && <span className="text-indigo-500">✓</span>}
-                        {opt.label}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* 구분선 */}
         <div className="w-px h-6 bg-border/60 mx-1 shrink-0" />

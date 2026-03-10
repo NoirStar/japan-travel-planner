@@ -164,8 +164,6 @@ export function PlannerPage() {
             minRating={search.minRating}
             onMinRatingChange={search.handleMinRatingChange}
             onClearMarkers={search.handleClearMarkers}
-            sortBy={search.sortBy}
-            onSortChange={search.setSortBy}
             onTextSearch={search.handleTextSearch}
             isTextSearching={search.isTextSearching}
           />

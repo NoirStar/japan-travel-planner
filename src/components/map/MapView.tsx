@@ -51,10 +51,6 @@ interface MapViewProps {
   onMinRatingChange?: (rating: number | undefined) => void
   /** 마커 초기화 콜백 */
   onClearMarkers?: () => void
-  /** 현재 정렬 기준 */
-  sortBy?: string
-  /** 정렬 변경 콜백 */
-  onSortChange?: (sort: string) => void
   /** 텍스트 검색 콜백 */
   onTextSearch?: (query: string) => void
   /** 텍스트 검색 진행 중 여부 */
@@ -247,7 +243,7 @@ function MapControlPanel({
   )
 }
 
-export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onRemovePlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, sortBy, onSortChange, onTextSearch, isTextSearching }: MapViewProps) {
+export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onRemovePlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, onTextSearch, isTextSearching }: MapViewProps) {
   const { isDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
@@ -385,8 +381,6 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
             onCategoryChange={onCategoryChange}
             minRating={minRating}
             onMinRatingChange={onMinRatingChange}
-            sortBy={sortBy}
-            onSortChange={onSortChange}
           />
         )}
 

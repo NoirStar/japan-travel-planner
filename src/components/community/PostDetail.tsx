@@ -380,7 +380,7 @@ export function PostDetail() {
       p_vote_type: type,
     })
 
-    void request.then(({ data, error }) => {
+    void Promise.resolve(request).then(({ data, error }) => {
       if (error) {
         throw error
       }

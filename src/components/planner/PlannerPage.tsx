@@ -76,7 +76,7 @@ export function PlannerPage() {
       setActiveTrip(existingTrip.id)
     } else {
       createTrip(cityId, `${cityConfig.name} 여행`)
-      showToast(`${cityConfig.name} 여행이 시작됐어요!`, "✈️")
+      showToast(`${cityConfig.name} 여행을 시작합니다`)
     }
   }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip])
 

@@ -147,7 +147,8 @@ export function PostDetail() {
       const newVote = toggleMockVote(postId, user.id, type)
       setMyVote(newVote)
       setPost(fetchMockPost(postId))
-      refreshDemoProfile()
+      // Defer profile refresh so UI updates instantly
+      setTimeout(() => refreshDemoProfile(), 0)
       if (type === "up" && newVote === "up") {
         setLikePopped(true)
         setTimeout(() => setLikePopped(false), 500)

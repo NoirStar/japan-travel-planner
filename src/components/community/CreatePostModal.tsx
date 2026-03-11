@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react"
 import { X, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { showToast, showConfetti } from "@/components/ui/CelebrationOverlay"
+import { showToast } from "@/components/ui/CelebrationOverlay"
 import { useAuthStore } from "@/stores/authStore"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -68,8 +68,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
       refreshDemoProfile()
       onCreated()
       onClose()
-      showConfetti(20)
-      showToast("여행이 공유되었어요!", "🌟")
+      showToast("여행이 공유됐어요")
       setTitle("")
       setDescription("")
       setSelectedTripId("")
@@ -94,8 +93,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
 
     onCreated()
     onClose()
-    showConfetti(20)
-    showToast("여행이 공유되었어요!", "🌟")
+    showToast("여행이 공유됐어요")
     setTitle("")
     setDescription("")
     setSelectedTripId("")

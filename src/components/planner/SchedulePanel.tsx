@@ -108,6 +108,12 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const currentDay = trip?.days[activeDayIndex]
   const items = useMemo(() => currentDay?.items ?? [], [currentDay?.items])
 
+  // 전체 일정 완성도 — 모든 Day에 장소가 있으면 완성
+  const allDaysFilled = useMemo(() => {
+    if (!trip || trip.days.length === 0) return false
+    return trip.days.every((d) => d.items.length > 0)
+  }, [trip])
+
   // sortable 아이디 배열 (메모이제이션)
   const itemIds = useMemo(() => items.map((item) => item.id), [items])
 
@@ -415,13 +421,14 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       {/* Day 요약 */}
       {items.length > 0 && (() => {
         return (
-          <div className="border-t border-border bg-muted px-4 py-2.5 text-xs text-muted-foreground flex items-center justify-between" data-testid="day-summary">
-            <div>
-              <span className="mr-1 inline-flex items-center"><BarChart3 className="mr-1 inline h-3.5 w-3.5" /></span>Day {currentDay?.dayNumber} 요약 — <span className="font-semibold text-foreground">장소 {items.length}개</span>
-              {totalTravelMinutes > 0 && (
-                <> · <span className="font-semibold text-foreground">이동 {formatTravelTime(totalTravelMinutes)}</span></>
-              )}
-            </div>
+          <div className="border-t border-border bg-muted px-4 py-2.5 text-xs text-muted-foreground flex flex-col gap-1" data-testid="day-summary">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="mr-1 inline-flex items-center"><BarChart3 className="mr-1 inline h-3.5 w-3.5" /></span>Day {currentDay?.dayNumber} 요약 — <span className="font-semibold text-foreground">장소 {items.length}개</span>
+                {totalTravelMinutes > 0 && (
+                  <> · <span className="font-semibold text-foreground">이동 {formatTravelTime(totalTravelMinutes)}</span></>
+                )}
+              </div>
             {/* 일정 초기화 */}
             {!showClearConfirm ? (
               <button
@@ -450,6 +457,10 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   취소
                 </button>
               </div>
+            )}
+            </div>
+            {allDaysFilled && trip.days.length > 1 && (
+              <p className="text-[10px] text-muted-foreground/70">여행이 모양새를 갖추고 있어요</p>
             )}
           </div>
         )

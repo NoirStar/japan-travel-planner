@@ -1,7 +1,5 @@
 import { useState, useMemo, useCallback, useRef } from "react"
 import { X, Plus, Star, Search, Check, Globe, Loader2, Trash2 } from "lucide-react"
-import { showToast } from "@/components/ui/CelebrationOverlay"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PlaceCategory, CATEGORY_LABELS } from "@/types/place"
 import type { Place } from "@/types/place"
@@ -94,7 +92,6 @@ export function PlaceSheet({
       useDynamicPlaceStore.getState().addPlace(place)
     }
     addItem(tripId, dayId, place.id)
-    showToast(`${place.name} 추가됨`, "📍")
   }
 
   // Google Places 검색
@@ -230,51 +227,41 @@ export function PlaceSheet({
                 return (
                   <div
                     key={place.id}
-                    className={`flex items-center gap-3 rounded-xl border p-3 transition-all ${
+                    className={`flex items-center gap-2 rounded-lg border p-2 transition-all ${
                       isAdded ? "border-sakura/30 bg-sakura/5" : "border-border hover:border-sakura/30 hover:shadow-sm"
                     }`}
                     data-testid={`place-item-${place.id}`}
                   >
                     {/* 이미지 썸네일 */}
                     {place.image && (
-                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg">
+                      <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg">
                         <img src={place.image} alt={place.name} className="h-full w-full object-cover" loading="lazy" />
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">{place.name}</p>
-                      <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <p className="truncate text-[13px] font-semibold leading-tight">{place.name}</p>
+                      <div className="mt-0.5 flex items-center gap-2 text-[10px] text-muted-foreground">
                         <span>{CATEGORY_LABELS[place.category] ?? place.category}</span>
                         {place.rating && (
                           <span className="flex items-center gap-0.5">
-                            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                            <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
                             {place.rating}
                           </span>
                         )}
                       </div>
-                      {place.address && (
-                        <p className="mt-0.5 truncate text-[10px] text-muted-foreground/60">{place.address}</p>
-                      )}
                     </div>
-                    <Button
-                      variant={isAdded ? "secondary" : "default"}
-                      size="sm"
+                    <button
                       disabled={isAdded}
                       onClick={() => handleAdd(place)}
-                      className={`shrink-0 gap-1 rounded-full text-xs ${
-                        isAdded ? "" : "btn-gradient border-0 shadow-sm"
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors ${
+                        isAdded
+                          ? "bg-muted text-muted-foreground"
+                          : "btn-gradient border-0 text-white shadow-sm active:scale-95"
                       }`}
                       data-testid={`place-add-${place.id}`}
                     >
-                      {isAdded ? (
-                        <><Check className="h-3 w-3" /> 추가됨</>
-                      ) : (
-                        <>
-                          <Plus className="h-3 w-3" />
-                          추가
-                        </>
-                      )}
-                    </Button>
+                      {isAdded ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    </button>
                   </div>
                 )
               })}

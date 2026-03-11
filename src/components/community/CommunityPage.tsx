@@ -191,7 +191,7 @@ export function CommunityPage() {
               onClick={() => {
                 const result = doAttendance()
                 if (result.success) {
-                  setAttendanceMsg("출석 완료! +1P 🎉")
+                  setAttendanceMsg("출석 완료! +1P")
                   setTimeout(() => setAttendanceMsg(""), 3000)
                 } else if (result.alreadyDone) {
                   setAttendanceMsg("오늘은 이미 출석했어요")

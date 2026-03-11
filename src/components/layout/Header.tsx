@@ -54,12 +54,27 @@ export function Header() {
     }
   }, [dropdownOpen, communityOpen, notiOpen])
 
+  // 시간대별 인사 (플래너 진입 시)
+  const timeGreeting = (() => {
+    if (!user || !isPlanner) return null
+    const h = new Date().getHours()
+    if (h < 6) return "늦은 밤까지 여행 계획 중"
+    if (h < 12) return "좋은 아침"
+    if (h < 18) return "오후의 여행 계획"
+    return "저녁 시간 여행 준비"
+  })()
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card">
       <div className={`flex h-14 items-center justify-between px-4 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
-        <Link to="/" className="group flex items-center gap-2 transition-all hover:opacity-80">
-          <span className="text-lg font-bold tracking-tight gradient-text font-maple">타비톡</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to="/" className="group flex items-center gap-2 transition-all hover:opacity-80">
+            <span className="text-lg font-bold tracking-tight gradient-text font-maple">타비톡</span>
+          </Link>
+          {timeGreeting && (
+            <span className="hidden sm:inline text-[11px] text-muted-foreground/60">{timeGreeting}</span>
+          )}
+        </div>
 
         <div className="flex items-center gap-1">
           <Link to="/planner">
@@ -136,7 +151,7 @@ export function Header() {
                     {(() => {
                       const notifications = getMockNotifications(user.id).slice(0, 20)
                       if (notifications.length === 0) {
-                        return <p className="px-4 py-6 text-center text-xs text-muted-foreground">알림이 없습니다 🔔</p>
+                        return <p className="px-4 py-6 text-center text-xs text-muted-foreground">알림이 없습니다</p>
                       }
                       return notifications.map((n) => (
                         <button

@@ -217,7 +217,7 @@ export function AIChatWizard() {
 
     setCompleted(true)
     showConfetti()
-    showToast("여행 일정이 완성됐어요!", "🎉")
+    showToast("일정이 완성됐어요, 좋은 여행 되세요!")
     navigate(`/planner?city=${selections.cityId}`)
   }, [selections, navigate, setCompleted])
 
@@ -265,7 +265,7 @@ export function AIChatWizard() {
 
         setCompleted(true)
         showConfetti()
-        showToast("AI 맞춤 일정이 완성됐어요!", "🎉")
+        showToast("맞춤 일정이 완성됐어요!")
 
         // 3초 후 자동 이동
         setTimeout(() => {

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
 import { getCityConfig } from "@/data/mapConfig"
+import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 
 export function TripListPage() {
   const navigate = useNavigate()
@@ -24,7 +25,7 @@ export function TripListPage() {
   }
 
   const totalPlaces = (trip: (typeof trips)[0]) =>
-    trip.days.reduce((sum, day) => sum + day.items.length, 0)
+    trip.days.reduce((sum, day) => sum + day.items.filter((item) => getAnyPlaceById(item.placeId)).length, 0)
 
   return (
     <div className="min-h-screen bg-background pt-14" data-testid="trip-list-page">
@@ -89,6 +90,16 @@ export function TripListPage() {
           </motion.div>
         ) : (
           <div className="space-y-3">
+            {/* 새 여행 만들기 버튼 */}
+            <Button
+              onClick={() => navigate("/")}
+              className="btn-gradient w-full gap-2 rounded-xl"
+              data-testid="create-new-trip"
+            >
+              <Plus className="h-4 w-4" />
+              새 여행 만들기
+            </Button>
+
             <AnimatePresence mode="popLayout">
               {trips.map((trip) => {
                 const cityConfig = getCityConfig(trip.cityId)

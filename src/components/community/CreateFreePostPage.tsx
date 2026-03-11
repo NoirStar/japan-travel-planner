@@ -18,8 +18,8 @@ function EditorLoader() {
 
 export function CreateFreePostPage() {
   const navigate = useNavigate()
-  const { user, isDemoMode, refreshDemoProfile } = useAuthStore()
-  const useMock = !isSupabaseConfigured || isDemoMode
+  const { user, refreshDemoProfile } = useAuthStore()
+  const useMock = !isSupabaseConfigured
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
 

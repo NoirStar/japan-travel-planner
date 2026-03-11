@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { TrendingUp, Clock, Trophy, Search, ThumbsUp, MessageCircle, PenSquare, Lightbulb, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
+import { TrendingUp, Clock, Trophy, Search, ThumbsUp, MessageCircle, PenSquare, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockFreePosts } from "@/lib/mockCommunity"
@@ -41,8 +41,8 @@ const PAGE_SIZE = 20
 
 export function FreeBoardPage() {
   const navigate = useNavigate()
-  const { user, isDemoMode, setShowLoginModal } = useAuthStore()
-  const useMock = !isSupabaseConfigured || isDemoMode
+  const { user, setShowLoginModal } = useAuthStore()
+  const useMock = !isSupabaseConfigured
 
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useState<PostSortOption>("latest")
@@ -170,13 +170,6 @@ export function FreeBoardPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pt-20 pb-10">
-      {/* 로컬스토리지 안내 */}
-      {!isSupabaseConfigured && !isDemoMode && (
-        <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-600 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-400">
-          <Lightbulb className="inline h-3.5 w-3.5 mr-1" />현재 데모 모드입니다. 글·댓글은 이 브라우저에만 저장됩니다.
-        </div>
-      )}
-
       {/* 헤더 */}
       <div className="mb-5 flex items-center justify-between">
         <div>

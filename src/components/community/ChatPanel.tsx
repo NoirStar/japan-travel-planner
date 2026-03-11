@@ -9,7 +9,7 @@ import { useAuthStore } from "@/stores/authStore"
 const PAGE_SIZE = 20
 
 export function ChatPanel() {
-  const { user, profile, isDemoMode, setShowLoginModal } = useAuthStore()
+  const { user, profile, setShowLoginModal } = useAuthStore()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
@@ -27,7 +27,7 @@ export function ChatPanel() {
   const messagesRef = useRef<ChatMessage[]>([])
   messagesRef.current = messages
 
-  const useSupabase = isSupabaseConfigured && !isDemoMode
+  const useSupabase = isSupabaseConfigured
 
   // 최근 N개만 로드 (내림차순 → 뒤집기)
   const loadRecentMessages = useCallback(async () => {

@@ -119,6 +119,17 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   // sortable 아이디 배열 (메모이제이션)
   const itemIds = useMemo(() => items.map((item) => item.id), [items])
 
+  // 해석 불가 장소(orphan) 자동 정리
+  useEffect(() => {
+    if (!trip) return
+    for (const day of trip.days) {
+      const orphans = day.items.filter((item) => !getAnyPlaceById(item.placeId))
+      for (const orphan of orphans) {
+        removeItem(trip.id, day.id, orphan.id)
+      }
+    }
+  }, [trip?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // 이동시간 사전 계산 (메모이제이션)
   const estimatedTravelDataMap = useMemo(() => {
     const map = new Map<number, { minutes: number; mode: TransportMode; distanceKm: number }>()

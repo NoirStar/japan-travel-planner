@@ -13,9 +13,10 @@ import { useMapSearch } from "@/hooks/useMapSearch"
 import type { Place } from "@/types/place"
 
 export function PlannerPage() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { shareId } = useParams<{ shareId?: string }>()
   const cityIdParam = searchParams.get("city") ?? "tokyo"
+  const forceNew = searchParams.get("new") === "true"
 
   const { trips, createTrip, setActiveTrip } = useScheduleStore()
   const { user, setShowLoginModal } = useAuthStore()
@@ -29,38 +30,37 @@ export function PlannerPage() {
   // 공유 링크에서 여행 데이터 복원
   useEffect(() => {
     if (!shareId || initialized.current) return
-    initialized.current = true
 
     const sharedTrip = decodeTrip(shareId)
-    if (sharedTrip) {
-      const existing = trips.find((t) => t.id === sharedTrip.id)
-      if (existing) {
-        setActiveTrip(existing.id)
-      } else {
-        const newTrip = createTrip(sharedTrip.cityId, sharedTrip.title)
-        const store = useScheduleStore.getState()
-        for (const day of sharedTrip.days) {
-          if (day.dayNumber > 1) store.addDay(newTrip.id)
-        }
-        const updatedTrip = store.trips.find((t) => t.id === newTrip.id)
-        if (updatedTrip) {
-          for (let di = 0; di < sharedTrip.days.length; di++) {
-            const sharedDay = sharedTrip.days[di]
-            const targetDay = updatedTrip.days[di]
-            if (!targetDay) continue
-            for (const item of sharedDay.items) {
-              const newItem = store.addItem(newTrip.id, targetDay.id, item.placeId)
-              if (item.startTime || item.memo) {
-                store.updateItem(newTrip.id, targetDay.id, newItem.id, {
-                  startTime: item.startTime,
-                  memo: item.memo,
-                })
-              }
+    if (!sharedTrip) return // 유효하지 않은 공유 ID → 기본 여행 생성 효과로 위임
+
+    initialized.current = true
+    const existing = trips.find((t) => t.id === sharedTrip.id)
+    if (existing) {
+      setActiveTrip(existing.id)
+    } else {
+      const newTrip = createTrip(sharedTrip.cityId, sharedTrip.title)
+      const store = useScheduleStore.getState()
+      for (const day of sharedTrip.days) {
+        if (day.dayNumber > 1) store.addDay(newTrip.id)
+      }
+      const updatedTrip = store.trips.find((t) => t.id === newTrip.id)
+      if (updatedTrip) {
+        for (let di = 0; di < sharedTrip.days.length; di++) {
+          const sharedDay = sharedTrip.days[di]
+          const targetDay = updatedTrip.days[di]
+          if (!targetDay) continue
+          for (const item of sharedDay.items) {
+            const newItem = store.addItem(newTrip.id, targetDay.id, item.placeId)
+            if (item.startTime || item.memo) {
+              store.updateItem(newTrip.id, targetDay.id, newItem.id, {
+                startTime: item.startTime,
+                memo: item.memo,
+              })
             }
           }
         }
       }
-      return
     }
   }, [shareId, trips, createTrip, setActiveTrip])
 
@@ -71,6 +71,18 @@ export function PlannerPage() {
     if (initialized.current) return
     initialized.current = true
 
+    if (forceNew) {
+      createTrip(cityId, `${cityConfig.name} 여행`)
+      showToast(`${cityConfig.name} 여행을 시작합니다`)
+      // ?new=true 파라미터 제거 (뒤로 가기 시 재생성 방지)
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev)
+        next.delete("new")
+        return next
+      }, { replace: true })
+      return
+    }
+
     const existingTrip = trips.find((t) => t.cityId === cityId)
     if (existingTrip) {
       setActiveTrip(existingTrip.id)
@@ -78,7 +90,7 @@ export function PlannerPage() {
       createTrip(cityId, `${cityConfig.name} 여행`)
       showToast(`${cityConfig.name} 여행을 시작합니다`)
     }
-  }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip])
+  }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip, forceNew, setSearchParams])
 
   // ── 검색 관련 state/handler ──
   const search = useMapSearch(cityId)

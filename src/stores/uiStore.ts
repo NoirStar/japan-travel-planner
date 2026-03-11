@@ -3,13 +3,16 @@ import { persist } from "zustand/middleware"
 
 interface UIState {
   isDarkMode: boolean
+  isMapDarkMode: boolean
   toggleDarkMode: () => void
+  toggleMapDarkMode: () => void
 }
 
 export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
       isDarkMode: false,
+      isMapDarkMode: false,
       toggleDarkMode: () =>
         set((state) => {
           const newMode = !state.isDarkMode
@@ -20,6 +23,8 @@ export const useUIStore = create<UIState>()(
           }
           return { isDarkMode: newMode }
         }),
+      toggleMapDarkMode: () =>
+        set((state) => ({ isMapDarkMode: !state.isMapDarkMode })),
     }),
     {
       name: "ui-store",

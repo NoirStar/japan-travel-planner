@@ -42,9 +42,9 @@ import DOMPurify from "dompurify"
 export function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
-  const { user, isDemoMode, setShowLoginModal, refreshDemoProfile, profile: authProfile } = useAuthStore()
+  const { user, setShowLoginModal, refreshDemoProfile, profile: authProfile } = useAuthStore()
   const { createTrip, addDay, addItem } = useScheduleStore()
-  const useMock = !isSupabaseConfigured || isDemoMode
+  const useMock = !isSupabaseConfigured
 
   const [post, setPost] = useState<CommunityPost | null>(null)
   const [comments, setComments] = useState<Comment[]>([])

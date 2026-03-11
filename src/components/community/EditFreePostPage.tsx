@@ -18,8 +18,8 @@ function EditorLoader() {
 export function EditFreePostPage() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
-  const { user, isDemoMode } = useAuthStore()
-  const useMock = !isSupabaseConfigured || isDemoMode
+  const { user } = useAuthStore()
+  const useMock = !isSupabaseConfigured
 
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")

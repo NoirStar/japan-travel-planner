@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, Component, type ReactNode } from "react"
-import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, Lightbulb, MapPin, Search, ThumbsUp } from "lucide-react"
+import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, MapPin, Search, ThumbsUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
@@ -49,7 +49,7 @@ class CardErrorBoundary extends Component<
 }
 
 export function CommunityPage() {
-  const { user, isDemoMode, profile, setShowLoginModal, doAttendance, hasCheckedIn } = useAuthStore()
+  const { user, profile, setShowLoginModal, doAttendance, hasCheckedIn } = useAuthStore()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useState<PostSortOption>("latest")
   const [cityFilter, setCityFilter] = useState("")
@@ -70,9 +70,7 @@ export function CommunityPage() {
 
   const fetchPosts = useCallback(async () => {
     setIsLoading(true)
-    const useSupabase = isSupabaseConfigured && !isDemoMode
-
-    if (!useSupabase) {
+    if (!isSupabaseConfigured) {
       const mockSort = sort === "best" ? "popular" : sort
       let result = fetchMockPosts(mockSort, cityFilter, searchQuery)
       if (sort === "best") {
@@ -114,7 +112,7 @@ export function CommunityPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [sort, cityFilter, searchQuery, isDemoMode])
+  }, [sort, cityFilter, searchQuery])
 
   useEffect(() => {
     fetchPosts()
@@ -162,13 +160,6 @@ export function CommunityPage() {
         </div>
       )}
 
-      {/* 로컬스토리지 안내 */}
-      {!isSupabaseConfigured && !isDemoMode && (
-        <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-600 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-400">
-          <Lightbulb className="inline h-3.5 w-3.5 mr-1" />현재 데모 모드입니다. 글·댓글·채팅은 이 브라우저에만 저장됩니다.
-        </div>
-      )}
-
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -177,7 +168,7 @@ export function CommunityPage() {
         </div>
         <div className="flex items-center gap-2">
           {/* 출석체크 */}
-          {user && isDemoMode && !profile?.is_admin && (
+          {user && !profile?.is_admin && (
             <Button
               variant={hasCheckedIn() ? "ghost" : "outline"}
               size="sm"

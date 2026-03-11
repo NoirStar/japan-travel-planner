@@ -17,7 +17,7 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalProps) {
-  const { user, isDemoMode, refreshDemoProfile } = useAuthStore()
+  const { user, refreshDemoProfile } = useAuthStore()
   const allTrips = useScheduleStore((s) => s.trips)
   const trips = useMemo(() => (open ? allTrips : []), [open, allTrips])
   const [selectedTripId, setSelectedTripId] = useState("")
@@ -59,7 +59,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
       })),
     }
 
-    if (!isSupabaseConfigured || isDemoMode) {
+    if (!isSupabaseConfigured) {
       createMockPost({
         user_id: user.id,
         title: title.trim(),

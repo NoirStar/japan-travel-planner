@@ -3,7 +3,7 @@ import { APIProvider, Map, useMap, type MapMouseEvent } from "@vis.gl/react-goog
 import { useUIStore } from "@/stores/uiStore"
 import type { MapCenter } from "@/types/map"
 import type { Place } from "@/types/place"
-import { MapPin, RotateCcw, Layers, TreePine, Bus, Building2 } from "lucide-react"
+import { MapPin, RotateCcw, Layers, TreePine, Bus, Building2, Moon, Sun } from "lucide-react"
 import { PlaceMarker } from "./PlaceMarker"
 import { CityPlaceMarker } from "./CityPlaceMarker"
 import { RoutePolyline } from "./RoutePolyline"
@@ -172,16 +172,33 @@ function MapControlPanel({
   onTogglePoi,
   onClearMarkers,
   hasCityPlaces,
+  isMapDark,
+  onToggleMapDark,
 }: {
   hiddenPois: Set<string>
   onTogglePoi: (poiId: string) => void
   onClearMarkers?: () => void
   hasCityPlaces: boolean
+  isMapDark: boolean
+  onToggleMapDark: () => void
 }) {
   const [layerOpen, setLayerOpen] = useState(false)
 
   return (
     <div className="absolute top-28 right-2.5 z-10 flex flex-col items-end gap-1.5">
+      {/* 지도 다크모드 토글 */}
+      <button
+        onClick={onToggleMapDark}
+        className={`p-2 rounded-lg shadow-md border transition-all ${
+          isMapDark
+            ? "bg-slate-800 text-amber-300 border-slate-700"
+            : "bg-background/90 backdrop-blur-sm text-foreground border-border/50 hover:bg-muted"
+        }`}
+        title={isMapDark ? "지도 밝게" : "지도 어둡게"}
+      >
+        {isMapDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </button>
+
       {/* 마커 초기화 버튼 */}
       {onClearMarkers && hasCityPlaces && (
         <button
@@ -244,7 +261,7 @@ function MapControlPanel({
 }
 
 export function MapView({ center, zoom, className = "", places = [], allCityPlaces = [], activeDayIndex = 0, selectedPlaceId, onSelectPlace, onAddPlace, onRemovePlace, onPoiClick, onSearchArea, isSearching, searchMessage, activeCategory, onCategoryChange, minRating, onMinRatingChange, onClearMarkers, onTextSearch, isTextSearching }: MapViewProps) {
-  const { isDarkMode } = useUIStore()
+  const { isMapDarkMode, toggleMapDarkMode } = useUIStore()
   const { apiKey, darkMapId, lightMapId } = getEnv()
   const [mapError, setMapError] = useState(false)
   // POI 토글 상태 (숨긴 POI 카테고리 집합) — 기본: 모든 POI 표시
@@ -315,7 +332,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
     )
   }
 
-  const mapId = isDarkMode ? darkMapId : lightMapId
+  const mapId = isMapDarkMode ? darkMapId : lightMapId
 
   return (
     <div className={`h-full w-full relative ${className}`} data-testid="map-container">
@@ -399,6 +416,8 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
           onTogglePoi={handleTogglePoi}
           onClearMarkers={onClearMarkers}
           hasCityPlaces={allCityPlaces.length > 0}
+          isMapDark={isMapDarkMode}
+          onToggleMapDark={toggleMapDarkMode}
         />
       </APIProvider>
     </div>

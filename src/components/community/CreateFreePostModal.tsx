@@ -12,8 +12,8 @@ interface Props {
 }
 
 export function CreateFreePostModal({ open, onClose, onCreated }: Props) {
-  const { user, isDemoMode, refreshDemoProfile } = useAuthStore()
-  const useMock = !isSupabaseConfigured || isDemoMode
+  const { user, refreshDemoProfile } = useAuthStore()
+  const useMock = !isSupabaseConfigured
 
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")

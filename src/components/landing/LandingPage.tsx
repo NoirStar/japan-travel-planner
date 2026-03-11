@@ -43,7 +43,7 @@ export function LandingPage() {
 
           <div className="mt-10 flex items-center justify-center gap-3">
             <motion.button
-              onClick={() => navigate("/planner")}
+              onClick={() => navigate("/planner?new=true")}
               className="btn-gradient inline-flex items-center gap-2 rounded-xl px-7 py-3 text-sm font-semibold shadow-sm"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -82,7 +82,7 @@ export function LandingPage() {
             {cities.map((city) => (
               <motion.button
                 key={city.id}
-                onClick={() => navigate(`/planner?city=${city.id}`)}
+                onClick={() => navigate(`/planner?city=${city.id}&new=true`)}
                 className="group relative overflow-hidden rounded-2xl border border-border bg-card text-left card-shadow"
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.98 }}

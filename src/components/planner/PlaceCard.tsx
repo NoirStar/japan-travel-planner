@@ -132,7 +132,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                   ref={timeInputRef}
                   type="time"
                   defaultValue={startTime ?? ""}
-                  className="h-8 w-[84px] appearance-none rounded-lg bg-card px-2 text-xs font-medium text-foreground outline-none border border-sakura-dark shadow-sm focus:ring-2 focus:ring-sakura/30 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  className="h-8 w-[100px] shrink-0 appearance-none rounded-lg bg-card px-2 text-xs font-medium text-foreground outline-none border border-sakura-dark shadow-sm focus:ring-2 focus:ring-sakura/30 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:leading-[30px]"
                   onBlur={(e) => {
                     setIsEditingTime(false)
                     onStartTimeChange?.(e.target.value)

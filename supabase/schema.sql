@@ -228,18 +228,26 @@ returns trigger as $$
 declare
   total_likes_val int;
   pts int;
+  current_pts int;
+  final_pts int;
   new_level int;
 begin
   select coalesce(sum(p.likes_count), 0) into total_likes_val
   from posts p where p.user_id = coalesce(new.user_id, old.user_id);
 
-  -- 포인트 = 좋아요 × 10 (나머지 포인트는 클라이언트에서 관리)
+  -- 포인트 = 좋아요 × 10
   pts := total_likes_val * 10;
-  new_level := calculate_level(pts);
+
+  -- 기존 total_points와 비교하여 큰 값 사용 (외부 포인트 보존)
+  select total_points into current_pts
+  from profiles where id = coalesce(new.user_id, old.user_id);
+
+  final_pts := greatest(coalesce(current_pts, 0), pts);
+  new_level := calculate_level(final_pts);
 
   update profiles
   set total_likes = total_likes_val,
-      total_points = greatest(total_points, pts),
+      total_points = final_pts,
       level = new_level
   where id = coalesce(new.user_id, old.user_id);
 
@@ -442,6 +450,20 @@ begin
   return query
     select p_vote_type, c.likes_count, c.dislikes_count
     from comments c where c.id = p_comment_id;
+end;
+$$ language plpgsql security definer;
+
+-- ── RPC: 프로필 레벨 즉시 동기화 (total_points → level) ──
+create or replace function sync_my_level()
+returns void as $$
+begin
+  if auth.uid() is null then
+    raise exception 'Authentication required';
+  end if;
+
+  update profiles
+  set level = calculate_level(total_points)
+  where id = auth.uid();
 end;
 $$ language plpgsql security definer;
 

@@ -37,12 +37,13 @@ import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
 import { CommentVoteButtons } from "./CommentVoteButtons"
 import { cities } from "@/data/cities"
+import { showToast } from "@/components/ui/CelebrationOverlay"
 import DOMPurify from "dompurify"
 
 export function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
-  const { user, setShowLoginModal, refreshDemoProfile, profile: authProfile } = useAuthStore()
+  const { user, setShowLoginModal, refreshDemoProfile, fetchProfile, profile: authProfile } = useAuthStore()
   const { createTrip, addDay, addItem } = useScheduleStore()
   const useMock = !isSupabaseConfigured
 
@@ -206,7 +207,6 @@ export function PostDetail() {
       setPost(updated)
     }
 
-    setIsVoting(true)
     try {
       const { data, error } = await supabase.rpc("toggle_post_vote", {
         p_post_id: postId,
@@ -226,6 +226,9 @@ export function PostDetail() {
           dislikes_count: Number(result.dislikes_count) || 0,
         } : current)
 
+        // 투표 후 프로필 갱신 (레벨/포인트 반영)
+        if (user) void fetchProfile(user.id)
+
         if (type === "up" && result.vote_type === "up" && post && post.user_id !== user.id && authProfile?.nickname) {
           void createNotification({
             userId: post.user_id,
@@ -236,8 +239,9 @@ export function PostDetail() {
           })
         }
       }
-    } catch {
-      // 실패 시 롤백
+    } catch (err) {
+      console.error("투표 처리 실패:", err)
+      showToast("투표 처리에 실패했어요")
       setMyVote(prevVote)
       if (prevPost) setPost(prevPost)
     } finally {
@@ -394,7 +398,9 @@ export function PostDetail() {
         likes_count: Number(result.likes_count) || 0,
         dislikes_count: Number(result.dislikes_count) || 0,
       } : comment))
-    }, () => {
+    }, (err) => {
+      console.error("댓글 투표 처리 실패:", err)
+      showToast("투표 처리에 실패했어요")
       setCommentVotes((prev) => ({ ...prev, [commentId]: prevVote }))
       void fetchComments()
     }).finally(() => {

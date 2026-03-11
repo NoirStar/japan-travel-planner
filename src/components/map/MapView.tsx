@@ -130,6 +130,28 @@ const BASE_HIDDEN_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
 ]
 
+// ── 다크모드 스타일 (Cloud Map ID 없을 때 CSS 폴백) ──
+const DARK_MODE_STYLES: google.maps.MapTypeStyle[] = [
+  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+  { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }] },
+  { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }] },
+  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }] },
+  { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }] },
+  { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f3948" }] },
+  { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
+  { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] },
+]
+
 // 토글별로 숨기는 스타일
 const POI_STYLES: Record<string, google.maps.MapTypeStyle[]> = {
   attraction: [
@@ -156,8 +178,9 @@ const POI_TOGGLES = [
   { id: "transit", label: "교통", icon: Bus },
 ] as const
 
-function buildMapStyles(hiddenPois: Set<string>): google.maps.MapTypeStyle[] {
-  const styles = [...BASE_HIDDEN_STYLES]
+function buildMapStyles(hiddenPois: Set<string>, isDark: boolean): google.maps.MapTypeStyle[] {
+  const styles: google.maps.MapTypeStyle[] = isDark ? [...DARK_MODE_STYLES] : []
+  styles.push(...BASE_HIDDEN_STYLES)
   for (const [key, poiStyles] of Object.entries(POI_STYLES)) {
     if (hiddenPois.has(key)) {
       styles.push(...poiStyles)
@@ -279,7 +302,7 @@ export function MapView({ center, zoom, className = "", places = [], allCityPlac
     })
   }, [])
 
-  const dynamicStyles = useMemo(() => buildMapStyles(hiddenPois), [hiddenPois])
+  const dynamicStyles = useMemo(() => buildMapStyles(hiddenPois, isMapDarkMode), [hiddenPois, isMapDarkMode])
 
   // Map 클릭 핸들러 — useCallback으로 안정적인 참조 유지 (불필요한 리렌더 방지)
   const handleMapClick = useCallback((e: MapMouseEvent) => {

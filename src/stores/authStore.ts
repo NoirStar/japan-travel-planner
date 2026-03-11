@@ -116,7 +116,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       .single()
 
     if (data) {
-      set({ profile: data as UserProfile })
+      const profile = data as UserProfile
+      // DB의 level과 total_points 기반 계산 레벨이 다르면 동기화
+      const { calculateLevel } = await import("@/types/community")
+      const expectedLevel = calculateLevel(profile.total_points ?? 0)
+      if (profile.level !== expectedLevel) {
+        profile.level = expectedLevel
+        // 서버에도 동기화 시도
+        void supabase.rpc("sync_my_level").catch(() => {})
+      }
+      set({ profile })
     }
   },
 

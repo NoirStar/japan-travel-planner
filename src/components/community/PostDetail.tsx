@@ -11,6 +11,7 @@ import {
   Trash2,
   Trophy,
   Calendar,
+  Pencil,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -469,15 +470,28 @@ export function PostDetail() {
           </Button>
         )}
         {(authProfile?.is_admin || user?.id === post.user_id) && (
-          <Button
-            variant="destructive"
-            onClick={handleDeletePost}
-            className="gap-1.5 rounded-xl"
-            size="sm"
-          >
-            <Trash2 className="h-4 w-4" />
-            삭제
-          </Button>
+          <>
+            {user?.id === post.user_id && post.board_type === "free" && (
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/community/free/edit/${postId}`)}
+                className="gap-1.5 rounded-xl"
+                size="sm"
+              >
+                <Pencil className="h-4 w-4" />
+                수정
+              </Button>
+            )}
+            <Button
+              variant="destructive"
+              onClick={handleDeletePost}
+              className="gap-1.5 rounded-xl"
+              size="sm"
+            >
+              <Trash2 className="h-4 w-4" />
+              삭제
+            </Button>
+          </>
         )}
       </div>
 

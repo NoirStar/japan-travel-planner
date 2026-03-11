@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState, useCallback, useEffect } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Underline from "@tiptap/extension-underline"
@@ -33,7 +33,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
-import { createMockFreePost } from "@/lib/mockCommunity"
+import { fetchMockPost, updateMockPost } from "@/lib/mockCommunity"
 
 const COLORS = [
   { label: "기본", value: "" },
@@ -47,13 +47,15 @@ const COLORS = [
   { label: "회색", value: "#6b7280" },
 ]
 
-export function CreateFreePostPage() {
+export function EditFreePostPage() {
+  const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
-  const { user, isDemoMode, refreshDemoProfile, setShowLoginModal } = useAuthStore()
+  const { user, isDemoMode, setShowLoginModal } = useAuthStore()
   const useMock = !isSupabaseConfigured || isDemoMode
 
   const [title, setTitle] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoadingPost, setIsLoadingPost] = useState(true)
   const [error, setError] = useState("")
   const [showColorPicker, setShowColorPicker] = useState(false)
 
@@ -124,6 +126,33 @@ export function CreateFreePostPage() {
     }
   }, [editor, useMock])
 
+  // 기존 게시글 로드
+  useEffect(() => {
+    if (!postId) return
+    async function load() {
+      if (useMock) {
+        const post = fetchMockPost(postId!)
+        if (post) {
+          setTitle(post.title)
+          editor?.commands.setContent(post.content ?? "")
+        }
+        setIsLoadingPost(false)
+        return
+      }
+      const { data } = await supabase
+        .from("posts")
+        .select("*")
+        .eq("id", postId!)
+        .single()
+      if (data) {
+        setTitle(data.title)
+        editor?.commands.setContent(data.content ?? "")
+      }
+      setIsLoadingPost(false)
+    }
+    if (editor) load()
+  }, [postId, useMock, editor])
+
   const addImage = useCallback(() => {
     const input = document.createElement("input")
     input.type = "file"
@@ -142,7 +171,7 @@ export function CreateFreePostPage() {
   }
 
   const handleSubmit = async () => {
-    if (!editor || !title.trim() || isSubmitting) return
+    if (!editor || !title.trim() || isSubmitting || !postId) return
     const htmlContent = editor.getHTML()
     const textContent = editor.getText()
     if (!textContent.trim()) {
@@ -154,41 +183,36 @@ export function CreateFreePostPage() {
 
     try {
       if (useMock) {
-        const newPost = createMockFreePost(user.id, title.trim(), htmlContent)
-        refreshDemoProfile()
-        navigate(`/community/${newPost.id}`)
+        updateMockPost(postId, { title: title.trim(), content: htmlContent })
+        navigate(`/community/${postId}`)
       } else {
-        const { data, error: insertError } = await supabase
+        const { error: updateError } = await supabase
           .from("posts")
-          .insert({
-            user_id: user.id,
-            board_type: "free",
+          .update({
             title: title.trim(),
-            description: "",
             content: htmlContent,
-            city_id: "",
-            trip_data: {},
+            updated_at: new Date().toISOString(),
           })
-          .select("id")
-          .single()
+          .eq("id", postId)
 
-        if (insertError) {
-          setError("작성 중 오류가 발생했습니다.")
+        if (updateError) {
+          setError("수정 중 오류가 발생했습니다.")
           setIsSubmitting(false)
           return
         }
-
-        if (!data?.id) {
-          setError("작성은 완료됐지만 이동할 글 정보를 찾지 못했습니다.")
-          setIsSubmitting(false)
-          return
-        }
-
-        navigate(`/community/${data.id}`)
+        navigate(`/community/${postId}`)
       }
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (isLoadingPost) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
   }
 
   return (
@@ -196,16 +220,16 @@ export function CreateFreePostPage() {
       {/* 상단 */}
       <div className="mb-4 flex items-center justify-between">
         <button
-          onClick={() => navigate("/community/free")}
+          onClick={() => navigate(`/community/${postId}`)}
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          자유게시판
+          돌아가기
         </button>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={() => navigate("/community/free")}
+            onClick={() => navigate(`/community/${postId}`)}
             className="rounded-xl"
           >
             취소
@@ -216,7 +240,7 @@ export function CreateFreePostPage() {
             className="gap-2 rounded-xl"
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? "작성 중..." : "게시하기"}
+            {isSubmitting ? "수정 중..." : "수정 완료"}
           </Button>
         </div>
       </div>
@@ -235,133 +259,33 @@ export function CreateFreePostPage() {
       {/* 에디터 툴바 */}
       {editor && (
         <div className="sticky top-16 z-30 mb-1 flex flex-wrap items-center gap-0.5 rounded-xl border border-border bg-card p-1.5 shadow-sm">
-          {/* 서식 */}
-          <ToolBtn
-            active={editor.isActive("bold")}
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            title="굵게"
-          >
-            <Bold className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive("italic")}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            title="기울임"
-          >
-            <Italic className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive("underline")}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            title="밑줄"
-          >
-            <UnderlineIcon className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive("strike")}
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-            title="취소선"
-          >
-            <Strikethrough className="h-4 w-4" />
-          </ToolBtn>
-
+          <ToolBtn active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="굵게"><Bold className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} title="기울임"><Italic className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} title="밑줄"><UnderlineIcon className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()} title="취소선"><Strikethrough className="h-4 w-4" /></ToolBtn>
           <Divider />
-
-          {/* 제목 */}
-          <ToolBtn
-            active={editor.isActive("heading", { level: 1 })}
-            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            title="제목 1"
-          >
-            <Heading1 className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive("heading", { level: 2 })}
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            title="제목 2"
-          >
-            <Heading2 className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive("heading", { level: 3 })}
-            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            title="제목 3"
-          >
-            <Heading3 className="h-4 w-4" />
-          </ToolBtn>
-
+          <ToolBtn active={editor.isActive("heading", { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} title="제목 1"><Heading1 className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive("heading", { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="제목 2"><Heading2 className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive("heading", { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} title="제목 3"><Heading3 className="h-4 w-4" /></ToolBtn>
           <Divider />
-
-          {/* 정렬 */}
-          <ToolBtn
-            active={editor.isActive({ textAlign: "left" })}
-            onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            title="왼쪽 정렬"
-          >
-            <AlignLeft className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive({ textAlign: "center" })}
-            onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            title="가운데 정렬"
-          >
-            <AlignCenter className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive({ textAlign: "right" })}
-            onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            title="오른쪽 정렬"
-          >
-            <AlignRight className="h-4 w-4" />
-          </ToolBtn>
-
+          <ToolBtn active={editor.isActive({ textAlign: "left" })} onClick={() => editor.chain().focus().setTextAlign("left").run()} title="왼쪽 정렬"><AlignLeft className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive({ textAlign: "center" })} onClick={() => editor.chain().focus().setTextAlign("center").run()} title="가운데 정렬"><AlignCenter className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive({ textAlign: "right" })} onClick={() => editor.chain().focus().setTextAlign("right").run()} title="오른쪽 정렬"><AlignRight className="h-4 w-4" /></ToolBtn>
           <Divider />
-
-          {/* 리스트 */}
-          <ToolBtn
-            active={editor.isActive("bulletList")}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            title="글머리 기호"
-          >
-            <List className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive("orderedList")}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            title="번호 목록"
-          >
-            <ListOrdered className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            active={editor.isActive("blockquote")}
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            title="인용문"
-          >
-            <Quote className="h-4 w-4" />
-          </ToolBtn>
-
+          <ToolBtn active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} title="글머리 기호"><List className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="번호 목록"><ListOrdered className="h-4 w-4" /></ToolBtn>
+          <ToolBtn active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="인용문"><Quote className="h-4 w-4" /></ToolBtn>
           <Divider />
-
-          {/* 색상 */}
           <div className="relative">
-            <ToolBtn
-              active={showColorPicker}
-              onClick={() => setShowColorPicker(!showColorPicker)}
-              title="글자 색상"
-            >
-              <Type className="h-4 w-4" />
-            </ToolBtn>
+            <ToolBtn active={showColorPicker} onClick={() => setShowColorPicker(!showColorPicker)} title="글자 색상"><Type className="h-4 w-4" /></ToolBtn>
             {showColorPicker && (
               <div className="absolute left-0 top-full mt-1 flex gap-1 rounded-xl border border-border bg-card p-2 shadow-lg z-50">
                 {COLORS.map((c) => (
                   <button
                     key={c.value || "default"}
                     onClick={() => {
-                      if (c.value) {
-                        editor.chain().focus().setColor(c.value).run()
-                      } else {
-                        editor.chain().focus().unsetColor().run()
-                      }
+                      if (c.value) editor.chain().focus().setColor(c.value).run()
+                      else editor.chain().focus().unsetColor().run()
                       setShowColorPicker(false)
                     }}
                     className="h-6 w-6 rounded-full border border-border transition-transform hover:scale-125"
@@ -372,35 +296,11 @@ export function CreateFreePostPage() {
               </div>
             )}
           </div>
-
-          {/* 이미지 & 구분선 */}
-          <ToolBtn onClick={addImage} title="이미지 삽입">
-            <ImageIcon className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            onClick={() => editor.chain().focus().setHorizontalRule().run()}
-            title="구분선"
-          >
-            <Minus className="h-4 w-4" />
-          </ToolBtn>
-
+          <ToolBtn onClick={addImage} title="이미지 삽입"><ImageIcon className="h-4 w-4" /></ToolBtn>
+          <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="구분선"><Minus className="h-4 w-4" /></ToolBtn>
           <Divider />
-
-          {/* 되돌리기/다시실행 */}
-          <ToolBtn
-            onClick={() => editor.chain().focus().undo().run()}
-            disabled={!editor.can().undo()}
-            title="되돌리기"
-          >
-            <Undo className="h-4 w-4" />
-          </ToolBtn>
-          <ToolBtn
-            onClick={() => editor.chain().focus().redo().run()}
-            disabled={!editor.can().redo()}
-            title="다시실행"
-          >
-            <Redo className="h-4 w-4" />
-          </ToolBtn>
+          <ToolBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="되돌리기"><Undo className="h-4 w-4" /></ToolBtn>
+          <ToolBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="다시실행"><Redo className="h-4 w-4" /></ToolBtn>
         </div>
       )}
 
@@ -416,7 +316,6 @@ export function CreateFreePostPage() {
   )
 }
 
-/* ── 툴바 버튼 ────────────────────────────────────────── */
 function ToolBtn({
   children,
   active,

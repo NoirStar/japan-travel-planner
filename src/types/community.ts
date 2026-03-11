@@ -123,3 +123,17 @@ export interface Comment {
 
 // ─── 정렬 옵션 ──────────────────────────────────────────
 export type PostSortOption = "latest" | "popular" | "best"
+
+// ─── 알림 ───────────────────────────────────────────────
+export type NotificationType = "comment" | "like"
+
+export interface Notification {
+  id: string
+  user_id: string
+  type: NotificationType
+  post_id: string
+  post_title: string
+  actor_nickname: string
+  read: boolean
+  created_at: string
+}

@@ -14,6 +14,7 @@ const TripListPage = lazy(() => import("@/components/trips/TripListPage").then((
 const CommunityPage = lazy(() => import("@/components/community/CommunityPage").then((m) => ({ default: m.CommunityPage })))
 const FreeBoardPage = lazy(() => import("@/components/community/FreeBoardPage").then((m) => ({ default: m.FreeBoardPage })))
 const CreateFreePostPage = lazy(() => import("@/components/community/CreateFreePostPage").then((m) => ({ default: m.CreateFreePostPage })))
+const EditFreePostPage = lazy(() => import("@/components/community/EditFreePostPage").then((m) => ({ default: m.EditFreePostPage })))
 const PostDetail = lazy(() => import("@/components/community/PostDetail").then((m) => ({ default: m.PostDetail })))
 const ProfilePage = lazy(() => import("@/components/auth/ProfilePage").then((m) => ({ default: m.ProfilePage })))
 
@@ -47,6 +48,7 @@ function App() {
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/community/free" element={<FreeBoardPage />} />
             <Route path="/community/free/write" element={<CreateFreePostPage />} />
+            <Route path="/community/free/edit/:postId" element={<EditFreePostPage />} />
             <Route path="/community/:postId" element={<PostDetail />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Routes>

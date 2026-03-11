@@ -9,25 +9,33 @@ import type { Place } from "@/types/place"
 interface DynamicPlaceState {
   /** Google 등에서 추가된 동적 장소 */
   places: Record<string, Place>
+  /** 추가 순서 (최신이 마지막) */
+  addOrder: string[]
   /** 장소 추가/업데이트 */
   addPlace: (place: Place) => void
   /** ID로 장소 조회 */
   getPlace: (id: string) => Place | undefined
+  /** 캐시 전체 삭제 */
+  clearPlaces: () => void
 }
 
 export const useDynamicPlaceStore = create<DynamicPlaceState>()(
   persist(
     (set, get) => ({
       places: {},
+      addOrder: [],
 
       addPlace: (place) =>
         set((state) => ({
           places: { ...state.places, [place.id]: place },
+          addOrder: [...state.addOrder.filter((id) => id !== place.id), place.id],
         })),
 
       getPlace: (id) => {
         return get().places[id]
       },
+
+      clearPlaces: () => set({ places: {}, addOrder: [] }),
     }),
     {
       name: "dynamic-places",

@@ -1,7 +1,7 @@
 /**
  * localStorage 기반 커뮤니티 Mock — Supabase 미설정 시 데모 모드 지원
  */
-import type { CommunityPost, Comment, VoteType, UserProfile } from "@/types/community"
+import type { CommunityPost, Comment, VoteType, UserProfile, Notification, NotificationType } from "@/types/community"
 import { calculateLevel, POINTS } from "@/types/community"
 
 const KEYS = {
@@ -13,6 +13,7 @@ const KEYS = {
   pointLog: "mock_point_log",
   lastAttendance: "mock_last_attendance",
   chatMessages: "mock_chat_messages",
+  notifications: "mock_notifications",
 } as const
 
 // ─── 유틸 ────────────────────────────────────────────────
@@ -280,8 +281,10 @@ export function toggleMockVote(postId: string, userId: string, type: VoteType): 
     () => ({ post_id: postId, user_id: userId, vote_type: type }),
     type,
     () => {
-      if (post.user_id === DEMO_USER_ID && userId !== DEMO_USER_ID) {
+      if (post.user_id !== userId) {
         addPoints("like_received", POINTS.LIKE_RECEIVED)
+        const profile = userId === ADMIN_USER_ID ? getAdminProfile() : getDemoProfile()
+        addMockNotification(post.user_id, "like", postId, post.title, profile.nickname)
       }
     },
   )
@@ -320,6 +323,10 @@ export function addMockComment(postId: string, userId: string, content: string):
   if (post) {
     post.comments_count += 1
     write(KEYS.posts, posts)
+    // 알림: 내 글에 댓글이 달리면 알림
+    if (post.user_id !== userId) {
+      addMockNotification(post.user_id, "comment", postId, post.title, profile.nickname)
+    }
   }
   addPoints("comment", POINTS.COMMENT)
   return comment
@@ -350,6 +357,18 @@ export function deleteMockPost(postId: string) {
   write(KEYS.comments, comments.filter((c) => c.post_id !== postId))
   const votes = read<MockVote>(KEYS.votes)
   write(KEYS.votes, votes.filter((v) => v.post_id !== postId))
+}
+
+// ─── 게시글 수정 ─────────────────────────────────────────
+export function updateMockPost(postId: string, updates: { title?: string; content?: string }): CommunityPost | null {
+  const posts = read<CommunityPost>(KEYS.posts)
+  const post = posts.find((p) => p.id === postId)
+  if (!post) return null
+  if (updates.title !== undefined) post.title = updates.title
+  if (updates.content !== undefined) post.content = updates.content
+  post.updated_at = new Date().toISOString()
+  write(KEYS.posts, posts)
+  return post
 }
 
 // ─── 댓글 투표 ───────────────────────────────────────────
@@ -410,4 +429,46 @@ export function addChatMessage(userId: string, nickname: string, avatarUrl: stri
   if (msgs.length > 500) msgs.splice(0, msgs.length - 500)
   write(KEYS.chatMessages, msgs)
   return msg
+}
+
+// ─── 알림 ────────────────────────────────────────────────
+export function addMockNotification(
+  userId: string,
+  type: NotificationType,
+  postId: string,
+  postTitle: string,
+  actorNickname: string,
+) {
+  const notifications = read<Notification>(KEYS.notifications)
+  notifications.push({
+    id: uid(),
+    user_id: userId,
+    type,
+    post_id: postId,
+    post_title: postTitle,
+    actor_nickname: actorNickname,
+    read: false,
+    created_at: new Date().toISOString(),
+  })
+  // 최대 100개 유지
+  if (notifications.length > 100) notifications.splice(0, notifications.length - 100)
+  write(KEYS.notifications, notifications)
+}
+
+export function getMockNotifications(userId: string): Notification[] {
+  return read<Notification>(KEYS.notifications)
+    .filter((n) => n.user_id === userId)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+}
+
+export function getUnreadNotificationCount(userId: string): number {
+  return read<Notification>(KEYS.notifications).filter((n) => n.user_id === userId && !n.read).length
+}
+
+export function markNotificationsRead(userId: string) {
+  const notifications = read<Notification>(KEYS.notifications)
+  for (const n of notifications) {
+    if (n.user_id === userId) n.read = true
+  }
+  write(KEYS.notifications, notifications)
 }

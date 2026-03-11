@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { TrendingUp, Clock, Trophy, Search, ThumbsUp, MessageCircle, PenSquare, Lightbulb, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -47,6 +47,7 @@ export function FreeBoardPage() {
   const [sort, setSort] = useState<PostSortOption>("latest")
   const [searchInput, setSearchInput] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchType, setSearchType] = useState<"all" | "title" | "author">("all")
   const [minLikes, setMinLikes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
@@ -54,16 +55,29 @@ export function FreeBoardPage() {
   // 썸네일 호버
   const [hoverImg, setHoverImg] = useState<{ src: string; x: number; y: number } | null>(null)
 
+  const fetchIdRef = useRef(0)
+
   const fetchPosts = useCallback(async () => {
+    const id = ++fetchIdRef.current
     setIsLoading(true)
     if (useMock) {
       const mockSort = sort === "best" ? "popular" : sort
-      let result = fetchMockFreePosts(mockSort, searchQuery)
+      let result = fetchMockFreePosts(mockSort, searchType === "author" ? undefined : searchQuery)
+      // 작성자 검색 (mock)
+      if (searchQuery && searchType === "author") {
+        const q = searchQuery.toLowerCase()
+        result = result.filter((p) => {
+          const prof = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles
+          return prof?.nickname?.toLowerCase().includes(q)
+        })
+      }
       if (sort === "best") {
         result = result.filter((p) => p.likes_count >= BEST_THRESHOLD)
       }
-      setPosts(result)
-      setIsLoading(false)
+      if (id === fetchIdRef.current) {
+        setPosts(result)
+        setIsLoading(false)
+      }
       return
     }
 
@@ -73,7 +87,12 @@ export function FreeBoardPage() {
       .eq("board_type", "free")
 
     if (searchQuery) {
-      query = query.or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
+      if (searchType === "title") {
+        query = query.ilike("title", `%${searchQuery}%`)
+      } else if (searchType === "all") {
+        query = query.or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
+      }
+      // 작성자 검색은 클라이언트 필터링 (profiles join 후)
     }
 
     if (sort === "popular" || sort === "best") {
@@ -85,7 +104,13 @@ export function FreeBoardPage() {
     query = query.limit(500)
 
     try {
-      const { data } = await query
+      const { data, error } = await query
+      if (id !== fetchIdRef.current) return // stale request
+      if (error) {
+        console.error("게시글 로드 실패:", error)
+        setPosts([])
+        return
+      }
       let normalized = ((data as CommunityPost[]) ?? []).map((p) => ({
         ...p,
         profiles: Array.isArray(p.profiles) ? p.profiles[0] : p.profiles,
@@ -93,16 +118,27 @@ export function FreeBoardPage() {
         dislikes_count: Number(p.dislikes_count) || 0,
         comments_count: Number(p.comments_count) || 0,
       }))
+      // 작성자 검색 클라이언트 필터링
+      if (searchQuery && searchType === "author") {
+        const q = searchQuery.toLowerCase()
+        normalized = normalized.filter((p) => {
+          const prof = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles
+          return prof?.nickname?.toLowerCase().includes(q)
+        })
+      }
       if (sort === "best") {
         normalized = normalized.filter((p) => p.likes_count >= BEST_THRESHOLD)
       }
       setPosts(normalized)
     } catch (e) {
-      console.error("게시글 로드 실패:", e)
+      if (id === fetchIdRef.current) {
+        console.error("게시글 로드 실패:", e)
+        setPosts([])
+      }
     } finally {
-      setIsLoading(false)
+      if (id === fetchIdRef.current) setIsLoading(false)
     }
-  }, [sort, searchQuery, useMock])
+  }, [sort, searchQuery, searchType, useMock])
 
   useEffect(() => { fetchPosts() }, [fetchPosts])
   useEffect(() => { setPage(1) }, [sort, searchQuery, minLikes])
@@ -160,6 +196,15 @@ export function FreeBoardPage() {
 
       {/* 검색 (버튼 방식) */}
       <div className="mb-4 flex gap-2">
+        <select
+          value={searchType}
+          onChange={(e) => setSearchType(e.target.value as "all" | "title" | "author")}
+          className="shrink-0 rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+        >
+          <option value="all">제목+내용</option>
+          <option value="title">제목</option>
+          <option value="author">작성자</option>
+        </select>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
@@ -167,7 +212,7 @@ export function FreeBoardPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={handleSearchKeyDown}
-            placeholder="제목 또는 내용으로 검색..."
+            placeholder={searchType === "author" ? "작성자 닉네임 검색..." : "제목 또는 내용으로 검색..."}
             className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>

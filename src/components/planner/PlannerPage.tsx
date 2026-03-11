@@ -21,7 +21,7 @@ export function PlannerPage() {
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const initialized = useRef(false)
   const [activeDayIndex, setActiveDayIndex] = useState(0)
-  const [mobileTab, setMobileTab] = useState<"schedule" | "map">("schedule")
+  const [mobileTab, setMobileTab] = useState<"schedule" | "map">("map")
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
   const [loginToast, setLoginToast] = useState(false)
 

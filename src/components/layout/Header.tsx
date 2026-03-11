@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List } from "lucide-react"
+import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
 import { LevelBadge } from "@/components/community/LevelBadge"
+import { getMockNotifications, getUnreadNotificationCount, markNotificationsRead } from "@/lib/mockCommunity"
 
 export function Header() {
   const { isDarkMode, toggleDarkMode } = useUIStore()
@@ -15,8 +16,12 @@ export function Header() {
   const isCommunity = location.pathname.startsWith("/community")
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [communityOpen, setCommunityOpen] = useState(false)
+  const [notiOpen, setNotiOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const communityRef = useRef<HTMLDivElement>(null)
+  const notiRef = useRef<HTMLDivElement>(null)
+
+  const unreadCount = user ? getUnreadNotificationCount(user.id) : 0
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -27,12 +32,15 @@ export function Header() {
       if (communityRef.current && !communityRef.current.contains(e.target as Node)) {
         setCommunityOpen(false)
       }
+      if (notiRef.current && !notiRef.current.contains(e.target as Node)) {
+        setNotiOpen(false)
+      }
     }
-    if (dropdownOpen || communityOpen) {
+    if (dropdownOpen || communityOpen || notiOpen) {
       document.addEventListener("mousedown", handleClickOutside)
       return () => document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [dropdownOpen, communityOpen])
+  }, [dropdownOpen, communityOpen, notiOpen])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card">
@@ -87,7 +95,62 @@ export function Header() {
           </div>
 
           {user && profile ? (
-            /* ── 로그인 상태: 프로필 드롭다운 ──────── */
+            /* ── 알림 벨 아이콘 ───────────────────── */
+            <>
+            <div className="relative" ref={notiRef}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted p-2"
+                onClick={() => {
+                  setNotiOpen((v) => !v)
+                  setDropdownOpen(false)
+                  setCommunityOpen(false)
+                  if (!notiOpen && user) markNotificationsRead(user.id)
+                }}
+              >
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </Button>
+
+              {notiOpen && (
+                <div className="absolute right-0 top-full mt-1 w-72 overflow-hidden rounded-xl border border-border bg-card shadow-lg z-50">
+                  <div className="border-b border-border px-4 py-2.5 text-sm font-semibold">알림</div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {(() => {
+                      const notifications = getMockNotifications(user.id).slice(0, 20)
+                      if (notifications.length === 0) {
+                        return <p className="px-4 py-6 text-center text-xs text-muted-foreground">알림이 없습니다</p>
+                      }
+                      return notifications.map((n) => (
+                        <button
+                          key={n.id}
+                          className={`flex w-full flex-col gap-0.5 px-4 py-2.5 text-left text-sm transition-colors hover:bg-muted ${
+                            !n.read ? "bg-primary/5" : ""
+                          }`}
+                          onClick={() => {
+                            setNotiOpen(false)
+                            navigate(`/community/${n.post_id}`)
+                          }}
+                        >
+                          <span className="text-xs">
+                            <span className="font-medium">{n.actor_nickname}</span>
+                            {n.type === "comment" ? "님이 댓글을 남겼습니다" : "님이 추천했습니다"}
+                          </span>
+                          <span className="truncate text-xs text-muted-foreground">{n.post_title}</span>
+                        </button>
+                      ))
+                    })()}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ── 로그인 상태: 프로필 드롭다운 ──────── */}
             <div className="relative" ref={dropdownRef}>
               <Button
                 variant="ghost"
@@ -141,6 +204,7 @@ export function Header() {
                 </div>
               )}
             </div>
+            </>
           ) : (
             /* ── 비로그인 상태: 로그인 드롭다운 ──── */
             <div className="relative" ref={dropdownRef}>

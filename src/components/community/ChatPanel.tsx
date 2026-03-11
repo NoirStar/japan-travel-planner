@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react"
+import { useState, useEffect, useRef, useCallback, useLayoutEffect, memo } from "react"
 import { Send, MessageSquare, X, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getChatMessages, addChatMessage } from "@/lib/mockCommunity"
@@ -24,6 +24,8 @@ export function ChatPanel() {
   const pendingIdsRef = useRef<Set<string>>(new Set())
   const isLoadingOlderRef = useRef(false)
   const isNearBottomRef = useRef(true)
+  const messagesRef = useRef<ChatMessage[]>([])
+  messagesRef.current = messages
 
   const useSupabase = isSupabaseConfigured && !isDemoMode
 
@@ -57,8 +59,8 @@ export function ChatPanel() {
 
   // 위로 스크롤 시 이전 메시지 로드
   const loadOlderMessages = useCallback(async () => {
-    if (loadingOlder || !hasMore || messages.length === 0) return
-    const oldestMsg = messages[0]
+    if (loadingOlder || !hasMore || messagesRef.current.length === 0) return
+    const oldestMsg = messagesRef.current[0]
     setLoadingOlder(true)
     isLoadingOlderRef.current = true
 
@@ -91,7 +93,7 @@ export function ChatPanel() {
     } finally {
       setLoadingOlder(false)
     }
-  }, [loadingOlder, hasMore, messages, useSupabase])
+  }, [loadingOlder, hasMore, useSupabase])
 
   // 스크롤 최상단 감지 → 이전 메시지 로드
   useEffect(() => {
@@ -304,38 +306,9 @@ export function ChatPanel() {
             아직 메시지가 없어요. 첫 메시지를 보내보세요!
           </p>
         ) : (
-          messages.map((msg) => {
-            const isMe = msg.user_id === user?.id
-            return (
-              <div key={msg.id} className={`flex gap-2 ${isMe ? "flex-row-reverse" : ""}`}>
-                {/* 아바타 */}
-                {!isMe && (
-                  msg.avatar_url ? (
-                    <img src={msg.avatar_url} alt="" className="mt-1 h-6 w-6 shrink-0 rounded-full object-cover" />
-                  ) : (
-                    <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
-                      {msg.nickname.charAt(0)}
-                    </div>
-                  )
-                )}
-                <div className={`max-w-[75%] ${isMe ? "text-right" : ""}`}>
-                  <p className={`mb-0.5 text-[10px] font-medium text-muted-foreground ${isMe ? "text-right" : ""}`}>{msg.nickname}</p>
-                  <div
-                    className={`inline-block rounded-2xl px-3 py-1.5 text-sm leading-relaxed ${
-                      isMe
-                        ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-muted rounded-bl-md"
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                  <p className="mt-0.5 text-[9px] text-muted-foreground">
-                    {new Date(msg.created_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                </div>
-              </div>
-            )
-          })
+          messages.map((msg) => (
+              <ChatBubble key={msg.id} msg={msg} isMe={msg.user_id === user?.id} />
+          ))
         )}
         <div ref={bottomRef} />
       </div>
@@ -371,3 +344,34 @@ export function ChatPanel() {
     </div>
   )
 }
+
+const ChatBubble = memo(function ChatBubble({ msg, isMe }: { msg: ChatMessage; isMe: boolean }) {
+  return (
+    <div className={`flex gap-2 ${isMe ? "flex-row-reverse" : ""}`}>
+      {!isMe && (
+        msg.avatar_url ? (
+          <img src={msg.avatar_url} alt="" className="mt-1 h-6 w-6 shrink-0 rounded-full object-cover" />
+        ) : (
+          <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
+            {msg.nickname.charAt(0)}
+          </div>
+        )
+      )}
+      <div className={`max-w-[75%] ${isMe ? "text-right" : ""}`}>
+        <p className={`mb-0.5 text-[10px] font-medium text-muted-foreground ${isMe ? "text-right" : ""}`}>{msg.nickname}</p>
+        <div
+          className={`inline-block rounded-2xl px-3 py-1.5 text-sm leading-relaxed ${
+            isMe
+              ? "bg-primary text-primary-foreground rounded-br-md"
+              : "bg-muted rounded-bl-md"
+          }`}
+        >
+          {msg.content}
+        </div>
+        <p className="mt-0.5 text-[9px] text-muted-foreground">
+          {new Date(msg.created_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+        </p>
+      </div>
+    </div>
+  )
+})

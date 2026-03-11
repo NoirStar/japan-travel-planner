@@ -190,12 +190,12 @@ export function PlaceSheet({
         </div>
 
         {/* 카테고리 필터 */}
-        <div className="flex gap-1 overflow-x-auto border-b border-border px-3 py-1.5 scrollbar-none" data-testid="category-filter">
+        <div className="flex flex-wrap gap-1 border-b border-border px-3 py-1.5" data-testid="category-filter">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setActiveCategory(cat.value)}
-              className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-all ${
+              className={`rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
                 activeCategory === cat.value
                   ? "bg-sakura-dark text-white shadow-sm"
                   : "bg-muted text-muted-foreground hover:bg-muted hover:text-foreground"

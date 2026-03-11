@@ -9,15 +9,28 @@ import { useAuthStore } from "@/stores/authStore"
 import { Loader2 } from "lucide-react"
 
 /* ── Route-level code splitting ─────────────────────────── */
-const PlannerPage = lazy(() => import("@/components/planner/PlannerPage").then((m) => ({ default: m.PlannerPage })))
-const AIChatWizard = lazy(() => import("@/components/chat/AIChatWizard").then((m) => ({ default: m.AIChatWizard })))
-const TripListPage = lazy(() => import("@/components/trips/TripListPage").then((m) => ({ default: m.TripListPage })))
-const CommunityPage = lazy(() => import("@/components/community/CommunityPage").then((m) => ({ default: m.CommunityPage })))
-const FreeBoardPage = lazy(() => import("@/components/community/FreeBoardPage").then((m) => ({ default: m.FreeBoardPage })))
-const CreateFreePostPage = lazy(() => import("@/components/community/CreateFreePostPage").then((m) => ({ default: m.CreateFreePostPage })))
-const EditFreePostPage = lazy(() => import("@/components/community/EditFreePostPage").then((m) => ({ default: m.EditFreePostPage })))
-const PostDetail = lazy(() => import("@/components/community/PostDetail").then((m) => ({ default: m.PostDetail })))
-const ProfilePage = lazy(() => import("@/components/auth/ProfilePage").then((m) => ({ default: m.ProfilePage })))
+// 배포 후 stale chunk 에러 방지: import 실패 시 페이지 새로고침
+function lazyRetry<T extends Record<string, unknown>>(factory: () => Promise<T>): Promise<T> {
+  return factory().catch(() => {
+    // chunk가 없으면 새 배포 후 캐시 불일치 → 한 번만 새로고침
+    const key = "chunk-retry"
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, "1")
+      window.location.reload()
+    }
+    return factory()
+  })
+}
+
+const PlannerPage = lazy(() => lazyRetry(() => import("@/components/planner/PlannerPage")).then((m) => ({ default: m.PlannerPage })))
+const AIChatWizard = lazy(() => lazyRetry(() => import("@/components/chat/AIChatWizard")).then((m) => ({ default: m.AIChatWizard })))
+const TripListPage = lazy(() => lazyRetry(() => import("@/components/trips/TripListPage")).then((m) => ({ default: m.TripListPage })))
+const CommunityPage = lazy(() => lazyRetry(() => import("@/components/community/CommunityPage")).then((m) => ({ default: m.CommunityPage })))
+const FreeBoardPage = lazy(() => lazyRetry(() => import("@/components/community/FreeBoardPage")).then((m) => ({ default: m.FreeBoardPage })))
+const CreateFreePostPage = lazy(() => lazyRetry(() => import("@/components/community/CreateFreePostPage")).then((m) => ({ default: m.CreateFreePostPage })))
+const EditFreePostPage = lazy(() => lazyRetry(() => import("@/components/community/EditFreePostPage")).then((m) => ({ default: m.EditFreePostPage })))
+const PostDetail = lazy(() => lazyRetry(() => import("@/components/community/PostDetail")).then((m) => ({ default: m.PostDetail })))
+const ProfilePage = lazy(() => lazyRetry(() => import("@/components/auth/ProfilePage")).then((m) => ({ default: m.ProfilePage })))
 
 function PageLoader() {
   return (

@@ -16,6 +16,14 @@ const KEYS = {
   notifications: "mock_notifications",
 } as const
 
+const MOCK_NOTIFICATIONS_CHANGED = "mock-notifications-changed"
+
+function emitMockNotificationsChanged() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(MOCK_NOTIFICATIONS_CHANGED))
+  }
+}
+
 // ─── 유틸 ────────────────────────────────────────────────
 function uid(): string {
   return crypto.randomUUID()
@@ -453,6 +461,7 @@ export function addMockNotification(
   // 최대 100개 유지
   if (notifications.length > 100) notifications.splice(0, notifications.length - 100)
   write(KEYS.notifications, notifications)
+  emitMockNotificationsChanged()
 }
 
 export function getMockNotifications(userId: string): Notification[] {
@@ -471,4 +480,7 @@ export function markNotificationsRead(userId: string) {
     if (n.user_id === userId) n.read = true
   }
   write(KEYS.notifications, notifications)
+  emitMockNotificationsChanged()
 }
+
+export const mockNotificationsChangedEvent = MOCK_NOTIFICATIONS_CHANGED

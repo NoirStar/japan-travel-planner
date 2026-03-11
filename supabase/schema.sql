@@ -80,6 +80,20 @@ create table if not exists comment_votes (
 
 create index if not exists comment_votes_comment_id_idx on comment_votes (comment_id);
 
+-- ── 알림 ──────────────────────────────────────────────
+create table if not exists notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  type text not null check (type in ('comment', 'like')),
+  post_id uuid not null references posts(id) on delete cascade,
+  post_title text not null,
+  actor_nickname text not null,
+  read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists notifications_user_id_idx on notifications (user_id, created_at desc);
+
 -- ── 실시간 채팅 ───────────────────────────────────────
 create table if not exists chat_messages (
   id uuid primary key default gen_random_uuid(),
@@ -100,6 +114,7 @@ alter table posts enable row level security;
 alter table post_votes enable row level security;
 alter table comments enable row level security;
 alter table comment_votes enable row level security;
+alter table notifications enable row level security;
 alter table chat_messages enable row level security;
 
 -- profiles: 누구나 조회, 본인만 수정
@@ -110,6 +125,13 @@ create policy "프로필 생성" on profiles for insert with check (auth.uid() =
 -- posts: 누구나 조회, 로그인한 사용자만 작성, 본인 또는 관리자만 삭제
 create policy "게시글 공개 조회" on posts for select using (true);
 create policy "게시글 작성" on posts for insert with check (auth.uid() = user_id);
+create policy "게시글 수정" on posts for update using (
+  auth.uid() = user_id
+  or exists (select 1 from profiles where id = auth.uid() and is_admin = true)
+) with check (
+  auth.uid() = user_id
+  or exists (select 1 from profiles where id = auth.uid() and is_admin = true)
+);
 create policy "게시글 삭제" on posts for delete using (
   auth.uid() = user_id
   or exists (select 1 from profiles where id = auth.uid() and is_admin = true)
@@ -132,6 +154,10 @@ create policy "댓글 삭제" on comments for delete using (
 create policy "댓글투표 조회" on comment_votes for select using (true);
 create policy "댓글투표 등록" on comment_votes for insert with check (auth.uid() = user_id);
 create policy "댓글투표 삭제" on comment_votes for delete using (auth.uid() = user_id);
+
+-- notifications: 본인만 조회/읽음 처리
+create policy "알림 조회" on notifications for select using (auth.uid() = user_id);
+create policy "알림 읽음 처리" on notifications for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- chat_messages: 누구나 조회, 로그인한 사용자만 작성
 create policy "채팅 조회" on chat_messages for select using (true);
@@ -275,7 +301,152 @@ begin
 end;
 $$ language plpgsql security definer;
 
+-- ── RPC: 알림 생성 ────────────────────────────────────
+create or replace function create_notification(
+  p_target_user_id uuid,
+  p_type text,
+  p_post_id uuid,
+  p_post_title text,
+  p_actor_nickname text
+)
+returns void as $$
+begin
+  if auth.uid() is null or auth.uid() = p_target_user_id then
+    return;
+  end if;
+
+  insert into notifications (user_id, type, post_id, post_title, actor_nickname)
+  values (p_target_user_id, p_type, p_post_id, p_post_title, p_actor_nickname);
+
+  delete from notifications
+  where id in (
+    select id
+    from notifications
+    where user_id = p_target_user_id
+    order by created_at desc
+    offset 100
+  );
+end;
+$$ language plpgsql security definer;
+
+-- ── RPC: 게시글 투표 토글 (카운터 포함) ───────────────
+create or replace function toggle_post_vote(
+  p_post_id uuid,
+  p_vote_type text
+)
+returns table (
+  vote_type text,
+  likes_count int,
+  dislikes_count int
+) as $$
+declare
+  current_vote text;
+begin
+  if auth.uid() is null then
+    raise exception 'Authentication required';
+  end if;
+
+  select pv.vote_type into current_vote
+  from post_votes pv
+  where pv.post_id = p_post_id and pv.user_id = auth.uid();
+
+  if current_vote = p_vote_type then
+    delete from post_votes where post_id = p_post_id and user_id = auth.uid();
+    if p_vote_type = 'up' then
+      update posts set likes_count = greatest(likes_count - 1, 0) where id = p_post_id;
+    else
+      update posts set dislikes_count = greatest(dislikes_count - 1, 0) where id = p_post_id;
+    end if;
+    return query
+      select null::text, p.likes_count, p.dislikes_count
+      from posts p where p.id = p_post_id;
+    return;
+  end if;
+
+  if current_vote is not null then
+    delete from post_votes where post_id = p_post_id and user_id = auth.uid();
+    if current_vote = 'up' then
+      update posts set likes_count = greatest(likes_count - 1, 0) where id = p_post_id;
+    else
+      update posts set dislikes_count = greatest(dislikes_count - 1, 0) where id = p_post_id;
+    end if;
+  end if;
+
+  insert into post_votes (post_id, user_id, vote_type)
+  values (p_post_id, auth.uid(), p_vote_type);
+
+  if p_vote_type = 'up' then
+    update posts set likes_count = likes_count + 1 where id = p_post_id;
+  else
+    update posts set dislikes_count = dislikes_count + 1 where id = p_post_id;
+  end if;
+
+  return query
+    select p_vote_type, p.likes_count, p.dislikes_count
+    from posts p where p.id = p_post_id;
+end;
+$$ language plpgsql security definer;
+
+-- ── RPC: 댓글 투표 토글 (카운터 포함) ────────────────
+create or replace function toggle_comment_vote(
+  p_comment_id uuid,
+  p_vote_type text
+)
+returns table (
+  vote_type text,
+  likes_count int,
+  dislikes_count int
+) as $$
+declare
+  current_vote text;
+begin
+  if auth.uid() is null then
+    raise exception 'Authentication required';
+  end if;
+
+  select cv.vote_type into current_vote
+  from comment_votes cv
+  where cv.comment_id = p_comment_id and cv.user_id = auth.uid();
+
+  if current_vote = p_vote_type then
+    delete from comment_votes where comment_id = p_comment_id and user_id = auth.uid();
+    if p_vote_type = 'up' then
+      update comments set likes_count = greatest(likes_count - 1, 0) where id = p_comment_id;
+    else
+      update comments set dislikes_count = greatest(dislikes_count - 1, 0) where id = p_comment_id;
+    end if;
+    return query
+      select null::text, c.likes_count, c.dislikes_count
+      from comments c where c.id = p_comment_id;
+    return;
+  end if;
+
+  if current_vote is not null then
+    delete from comment_votes where comment_id = p_comment_id and user_id = auth.uid();
+    if current_vote = 'up' then
+      update comments set likes_count = greatest(likes_count - 1, 0) where id = p_comment_id;
+    else
+      update comments set dislikes_count = greatest(dislikes_count - 1, 0) where id = p_comment_id;
+    end if;
+  end if;
+
+  insert into comment_votes (comment_id, user_id, vote_type)
+  values (p_comment_id, auth.uid(), p_vote_type);
+
+  if p_vote_type = 'up' then
+    update comments set likes_count = likes_count + 1 where id = p_comment_id;
+  else
+    update comments set dislikes_count = dislikes_count + 1 where id = p_comment_id;
+  end if;
+
+  return query
+    select p_vote_type, c.likes_count, c.dislikes_count
+    from comments c where c.id = p_comment_id;
+end;
+$$ language plpgsql security definer;
+
 -- ═══════════════════════════════════════════════════════
 -- Realtime — 채팅 메시지 실시간 구독용
 -- ═══════════════════════════════════════════════════════
 alter publication supabase_realtime add table chat_messages;
+alter publication supabase_realtime add table notifications;

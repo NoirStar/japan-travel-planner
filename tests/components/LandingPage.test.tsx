@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest"
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
 import { LandingPage } from "@/components/landing/LandingPage"
 
@@ -29,7 +29,7 @@ describe("LandingPage", () => {
 
   it("서브타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText(/지도에서 검색하고/)).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("나만의 일정을 만들고") ?? false))).toBeInTheDocument()
   })
 
 

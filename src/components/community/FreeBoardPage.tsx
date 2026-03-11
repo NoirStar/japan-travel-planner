@@ -4,6 +4,7 @@ import { TrendingUp, Clock, Trophy, Search, ThumbsUp, MessageCircle, PenSquare, 
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockFreePosts } from "@/lib/mockCommunity"
+import { normalizeCommunityPost, unwrapProfile } from "@/lib/communityTransforms"
 import { useAuthStore } from "@/stores/authStore"
 import type { CommunityPost, PostSortOption } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
@@ -111,18 +112,12 @@ export function FreeBoardPage() {
         setPosts([])
         return
       }
-      let normalized = ((data as CommunityPost[]) ?? []).map((p) => ({
-        ...p,
-        profiles: Array.isArray(p.profiles) ? p.profiles[0] : p.profiles,
-        likes_count: Number(p.likes_count) || 0,
-        dislikes_count: Number(p.dislikes_count) || 0,
-        comments_count: Number(p.comments_count) || 0,
-      }))
+      let normalized = ((data as CommunityPost[]) ?? []).map(normalizeCommunityPost)
       // 작성자 검색 클라이언트 필터링
       if (searchQuery && searchType === "author") {
         const q = searchQuery.toLowerCase()
         normalized = normalized.filter((p) => {
-          const prof = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles
+          const prof = unwrapProfile(p.profiles)
           return prof?.nickname?.toLowerCase().includes(q)
         })
       }
@@ -315,7 +310,7 @@ export function FreeBoardPage() {
           </div>
 
           {visiblePosts.map((post, idx) => {
-            const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles
+            const profile = unwrapProfile(post.profiles)
             const isBest = post.likes_count >= BEST_THRESHOLD
             const hasImage = !!(extractFirstImage(post.content) || post.cover_image)
 

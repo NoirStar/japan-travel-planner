@@ -21,6 +21,7 @@ import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { estimateTravel, formatTravelTime, formatDistance } from "@/lib/utils"
+import { getTravelTime } from "@/lib/travelTimes"
 import type { TransportMode } from "@/lib/utils"
 import { DayTabs } from "./DayTabs"
 import { PlaceCard } from "./PlaceCard"
@@ -84,6 +85,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [editTitle, setEditTitle] = useState("")
   const [showCoverInput, setShowCoverInput] = useState(false)
   const [coverUrl, setCoverUrl] = useState("")
+  const [liveTravelDataMap, setLiveTravelDataMap] = useState<Map<number, { minutes: number; mode: TransportMode; distanceKm: number; source: "estimated" | "live" }>>(new Map())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // 마커 클릭 시 해당 카드로 자동 스크롤
@@ -118,7 +120,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const itemIds = useMemo(() => items.map((item) => item.id), [items])
 
   // 이동시간 사전 계산 (메모이제이션)
-  const travelDataMap = useMemo(() => {
+  const estimatedTravelDataMap = useMemo(() => {
     const map = new Map<number, { minutes: number; mode: TransportMode; distanceKm: number }>()
     for (let i = 1; i < items.length; i++) {
       const prev = getAnyPlaceById(items[i - 1].placeId)
@@ -129,6 +131,58 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
     }
     return map
   }, [items])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function hydrateTravelTimes() {
+      if (items.length < 2) {
+        setLiveTravelDataMap(new Map())
+        return
+      }
+
+      const entries = await Promise.all(items.slice(1).map(async (item, offset) => {
+        const index = offset + 1
+        const prev = getAnyPlaceById(items[index - 1].placeId)
+        const curr = getAnyPlaceById(item.placeId)
+        if (!prev || !curr) return null
+
+        const travel = await getTravelTime(
+          prev.location.lat,
+          prev.location.lng,
+          curr.location.lat,
+          curr.location.lng,
+        )
+
+        return [index, travel] as const
+      }))
+
+      if (cancelled) return
+
+      setLiveTravelDataMap(new Map(entries.filter((entry): entry is readonly [number, { minutes: number; mode: TransportMode; distanceKm: number; source: "estimated" | "live" }] => entry !== null)))
+    }
+
+    void hydrateTravelTimes()
+
+    return () => {
+      cancelled = true
+    }
+  }, [items])
+
+  const travelDataMap = useMemo(() => {
+    if (liveTravelDataMap.size === 0) {
+      return new Map(Array.from(estimatedTravelDataMap.entries()).map(([index, travel]) => [index, { ...travel, source: "estimated" as const }]))
+    }
+
+    const merged = new Map<number, { minutes: number; mode: TransportMode; distanceKm: number; source: "estimated" | "live" }>()
+    for (const [index, travel] of estimatedTravelDataMap.entries()) {
+      merged.set(index, { ...travel, source: "estimated" })
+    }
+    for (const [index, travel] of liveTravelDataMap.entries()) {
+      merged.set(index, travel)
+    }
+    return merged
+  }, [estimatedTravelDataMap, liveTravelDataMap])
 
   const totalTravelMinutes = useMemo(
     () => Array.from(travelDataMap.values()).reduce((sum, d) => sum + d.minutes, 0),
@@ -378,6 +432,11 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                           <span className="text-[10px] font-medium text-muted-foreground">
                             {formatTravelTime(travelMinutes, travelMode)} · {formatDistance(distanceKm)}
                           </span>
+                          {travelData?.source === "live" && (
+                            <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              ETA
+                            </span>
+                          )}
                         </div>
                       )}
                       <SortablePlaceCard

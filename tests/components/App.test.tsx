@@ -5,7 +5,7 @@ import App from "@/App"
 describe("App", () => {
   it("랜딩 페이지가 정상 렌더링된다", () => {
     render(<App />)
-    expect(screen.getByText(/지도에서 검색하고/)).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("나만의 일정을 만들고") ?? false))).toBeInTheDocument()
   })
 
   it("헤더에 서비스명이 표시된다", () => {

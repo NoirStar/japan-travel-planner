@@ -84,7 +84,7 @@ export interface CommunityPost {
   created_at: string
   updated_at: string
   // join
-  profiles?: UserProfile
+  profiles?: UserProfile | UserProfile[]
 }
 
 // ─── 투표 ───────────────────────────────────────────────
@@ -118,7 +118,7 @@ export interface Comment {
   dislikes_count: number
   created_at: string
   // join
-  profiles?: UserProfile
+  profiles?: UserProfile | UserProfile[]
 }
 
 // ─── 정렬 옵션 ──────────────────────────────────────────

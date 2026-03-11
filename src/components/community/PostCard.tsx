@@ -2,6 +2,7 @@ import { ThumbsUp, MessageCircle, MapPin, Trophy } from "lucide-react"
 import { Link } from "react-router-dom"
 import type { CommunityPost } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
+import { unwrapProfile } from "@/lib/communityTransforms"
 import { LevelBadge } from "./LevelBadge"
 import { cities } from "@/data/cities"
 
@@ -12,8 +13,7 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const city = cities.find((c) => c.id === post.city_id)
   const dayCount = post.trip_data?.days?.length ?? 0
-  const rawProfile = post.profiles
-  const profile = Array.isArray(rawProfile) ? rawProfile[0] : rawProfile
+  const profile = unwrapProfile(post.profiles)
 
   return (
     <Link

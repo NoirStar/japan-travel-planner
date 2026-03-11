@@ -26,11 +26,14 @@ import {
   getMockCommentVote,
   toggleMockCommentVote,
 } from "@/lib/mockCommunity"
+import { createNotification } from "@/lib/notificationService"
+import { normalizeComment, normalizeCommunityPost, unwrapProfile } from "@/lib/communityTransforms"
 import { useAuthStore } from "@/stores/authStore"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import type { CommunityPost, Comment, VoteType } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
+import { CommentVoteButtons } from "./CommentVoteButtons"
 import { cities } from "@/data/cities"
 import DOMPurify from "dompurify"
 
@@ -68,14 +71,7 @@ export function PostDetail() {
         .single()
 
       if (data) {
-        const p = data as CommunityPost
-        setPost({
-          ...p,
-          profiles: Array.isArray(p.profiles) ? p.profiles[0] : p.profiles,
-          likes_count: Number(p.likes_count) || 0,
-          dislikes_count: Number(p.dislikes_count) || 0,
-          comments_count: Number(p.comments_count) || 0,
-        })
+        setPost(normalizeCommunityPost(data as CommunityPost))
       }
     } catch (e) {
       console.error("게시글 로드 실패:", e)
@@ -98,12 +94,7 @@ export function PostDetail() {
         .eq("post_id", postId)
         .order("created_at", { ascending: true })
 
-      setComments(((data as Comment[]) ?? []).map((c) => ({
-        ...c,
-        profiles: Array.isArray(c.profiles) ? c.profiles[0] : c.profiles,
-        likes_count: Number(c.likes_count) || 0,
-        dislikes_count: Number(c.dislikes_count) || 0,
-      })))
+      setComments(((data as Comment[]) ?? []).map(normalizeComment))
     } catch (e) {
       console.error("댓글 로드 실패:", e)
     }
@@ -135,6 +126,38 @@ export function PostDetail() {
     fetchMyVote()
   }, [fetchMyVote])
 
+  useEffect(() => {
+    if (!user || comments.length === 0) {
+      setCommentVotes({})
+      return
+    }
+
+    if (useMock) {
+      const votes: Record<string, VoteType | null> = {}
+      for (const c of comments) {
+        votes[c.id] = getMockCommentVote(c.id, user.id)
+      }
+      setCommentVotes(votes)
+      return
+    }
+
+    void supabase
+      .from("comment_votes")
+      .select("comment_id, vote_type")
+      .eq("user_id", user.id)
+      .in("comment_id", comments.map((comment) => comment.id))
+      .then(({ data }) => {
+        const nextVotes: Record<string, VoteType | null> = {}
+        for (const comment of comments) {
+          nextVotes[comment.id] = null
+        }
+        for (const vote of data ?? []) {
+          nextVotes[vote.comment_id] = vote.vote_type as VoteType
+        }
+        setCommentVotes(nextVotes)
+      })
+  }, [comments, user, useMock])
+
   // 추천/비추천 (optimistic UI + 중복 클릭 방지)
   const handleVote = async (type: VoteType) => {
     if (!user) {
@@ -160,7 +183,6 @@ export function PostDetail() {
     const prevVote = myVote
     const prevPost = post ? { ...post } : null
     const isCancelling = myVote === type
-    const isSwitching = myVote && myVote !== type
 
     setMyVote(isCancelling ? null : type)
     if (post) {
@@ -169,7 +191,7 @@ export function PostDetail() {
         if (type === "up") updated.likes_count = Math.max(0, (updated.likes_count ?? 0) - 1)
         else updated.dislikes_count = Math.max(0, (updated.dislikes_count ?? 0) - 1)
       } else {
-        if (isSwitching) {
+        if (myVote && myVote !== type) {
           if (myVote === "up") updated.likes_count = Math.max(0, (updated.likes_count ?? 0) - 1)
           else updated.dislikes_count = Math.max(0, (updated.dislikes_count ?? 0) - 1)
         }
@@ -181,31 +203,33 @@ export function PostDetail() {
 
     setIsVoting(true)
     try {
-      if (isCancelling) {
-        await supabase
-          .from("post_votes")
-          .delete()
-          .eq("post_id", postId)
-          .eq("user_id", user.id)
-        const col = type === "up" ? "likes_count" : "dislikes_count"
-        await supabase.rpc("decrement_count", { row_id: postId, col_name: col })
-      } else {
-        if (isSwitching) {
-          await supabase
-            .from("post_votes")
-            .delete()
-            .eq("post_id", postId)
-            .eq("user_id", user.id)
-          const oldCol = myVote === "up" ? "likes_count" : "dislikes_count"
-          await supabase.rpc("decrement_count", { row_id: postId, col_name: oldCol })
+      const { data, error } = await supabase.rpc("toggle_post_vote", {
+        p_post_id: postId,
+        p_vote_type: type,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      const result = data?.[0] as { vote_type: VoteType | null; likes_count: number; dislikes_count: number } | undefined
+      if (result) {
+        setMyVote(result.vote_type)
+        setPost((current) => current ? {
+          ...current,
+          likes_count: Number(result.likes_count) || 0,
+          dislikes_count: Number(result.dislikes_count) || 0,
+        } : current)
+
+        if (type === "up" && result.vote_type === "up" && post && post.user_id !== user.id && authProfile?.nickname) {
+          void createNotification({
+            userId: post.user_id,
+            type: "like",
+            postId,
+            postTitle: post.title,
+            actorNickname: authProfile.nickname,
+          })
         }
-        await supabase.from("post_votes").insert({
-          post_id: postId,
-          user_id: user.id,
-          vote_type: type,
-        })
-        const newCol = type === "up" ? "likes_count" : "dislikes_count"
-        await supabase.rpc("increment_count", { row_id: postId, col_name: newCol })
       }
     } catch {
       // 실패 시 롤백
@@ -244,6 +268,16 @@ export function PostDetail() {
 
     // 댓글 수 증가
     await supabase.rpc("increment_count", { row_id: postId, col_name: "comments_count" })
+
+    if (post && post.user_id !== user.id && authProfile?.nickname) {
+      void createNotification({
+        userId: post.user_id,
+        type: "comment",
+        postId,
+        postTitle: post.title,
+        actorNickname: authProfile.nickname,
+      })
+    }
 
     setCommentText("")
     setIsSending(false)
@@ -293,17 +327,58 @@ export function PostDetail() {
       setComments(fetchMockComments(postId!))
       return
     }
-  }
 
-  // 댓글 투표 상태 로드
-  useEffect(() => {
-    if (!user || !comments.length) return
-    const votes: Record<string, VoteType | null> = {}
-    for (const c of comments) {
-      votes[c.id] = getMockCommentVote(c.id, user.id)
-    }
-    setCommentVotes(votes)
-  }, [comments, user])
+    const prevVote = commentVotes[commentId] ?? null
+    const isCancelling = prevVote === type
+    const nextVote = isCancelling ? null : type
+
+    setCommentVotes((prev) => ({ ...prev, [commentId]: nextVote }))
+    setComments((prev) => prev.map((comment) => {
+      if (comment.id !== commentId) return comment
+      let likes = comment.likes_count ?? 0
+      let dislikes = comment.dislikes_count ?? 0
+
+      if (isCancelling) {
+        if (type === "up") likes = Math.max(0, likes - 1)
+        else dislikes = Math.max(0, dislikes - 1)
+      } else {
+        if (prevVote === "up") likes = Math.max(0, likes - 1)
+        if (prevVote === "down") dislikes = Math.max(0, dislikes - 1)
+        if (type === "up") likes += 1
+        else dislikes += 1
+      }
+
+      return {
+        ...comment,
+        likes_count: likes,
+        dislikes_count: dislikes,
+      }
+    }))
+
+    const request = supabase.rpc("toggle_comment_vote", {
+      p_comment_id: commentId,
+      p_vote_type: type,
+    })
+
+    void request.then(({ data, error }) => {
+      if (error) {
+        throw error
+      }
+
+      const result = data?.[0] as { vote_type: VoteType | null; likes_count: number; dislikes_count: number } | undefined
+      if (!result) return
+
+      setCommentVotes((prev) => ({ ...prev, [commentId]: result.vote_type }))
+      setComments((prev) => prev.map((comment) => comment.id === commentId ? {
+        ...comment,
+        likes_count: Number(result.likes_count) || 0,
+        dislikes_count: Number(result.dislikes_count) || 0,
+      } : comment))
+    }, () => {
+      setCommentVotes((prev) => ({ ...prev, [commentId]: prevVote }))
+      void fetchComments()
+    })
+  }
 
   // 베스트 댓글 먼저 정렬 (메모이제이션)
   const sortedComments = useMemo(() => [...comments].sort((a, b) => {
@@ -332,8 +407,7 @@ export function PostDetail() {
     )
   }
 
-  const rawProfile = post.profiles
-  const profile = Array.isArray(rawProfile) ? rawProfile[0] : rawProfile
+  const profile = unwrapProfile(post.profiles)
   const city = cities.find((c) => c.id === post.city_id)
   const dayCount = post.trip_data?.days?.length ?? 0
 
@@ -449,7 +523,6 @@ export function PostDetail() {
           ref={likeBtnRef}
           variant={myVote === "up" ? "default" : "outline"}
           onClick={() => handleVote("up")}
-          disabled={isVoting}
           className={`gap-1.5 rounded-xl ${likePopped ? "animate-like-pop" : ""}`}
           size="sm"
         >
@@ -459,7 +532,6 @@ export function PostDetail() {
         <Button
           variant={myVote === "down" ? "destructive" : "outline"}
           onClick={() => handleVote("down")}
-          disabled={isVoting}
           className="gap-1.5 rounded-xl"
           size="sm"
         >
@@ -552,7 +624,7 @@ export function PostDetail() {
                     <span className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-600 dark:text-amber-400"><Trophy className="h-3 w-3" /> 베스트</span>
                   )}
                   {(() => {
-                    const cp = Array.isArray(comment.profiles) ? comment.profiles[0] : comment.profiles
+                    const cp = unwrapProfile(comment.profiles)
                     return <>
                       {cp?.avatar_url ? (
                         <img src={cp.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
@@ -594,30 +666,13 @@ export function PostDetail() {
                 </div>
                 <p className="mb-2 text-sm leading-relaxed">{comment.content}</p>
                 {/* 댓글 투표 */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleCommentVote(comment.id, "up")}
-                    className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs transition-colors ${
-                      commentVotes[comment.id] === "up"
-                        ? "bg-primary/10 text-primary font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <ThumbsUp className="h-3 w-3" />
-                    {Number(comment.likes_count) || 0}
-                  </button>
-                  <button
-                    onClick={() => handleCommentVote(comment.id, "down")}
-                    className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-xs transition-colors ${
-                      commentVotes[comment.id] === "down"
-                        ? "bg-destructive/10 text-destructive font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <ThumbsDown className="h-3 w-3" />
-                    {Number(comment.dislikes_count) || 0}
-                  </button>
-                </div>
+                <CommentVoteButtons
+                  commentId={comment.id}
+                  likesCount={Number(comment.likes_count) || 0}
+                  dislikesCount={Number(comment.dislikes_count) || 0}
+                  currentVote={commentVotes[comment.id]}
+                  onVote={handleCommentVote}
+                />
               </div>
               )
             })}

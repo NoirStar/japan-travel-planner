@@ -3,6 +3,7 @@ import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, Lightbulb, MapPin, Sear
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
+import { normalizeCommunityPost } from "@/lib/communityTransforms"
 import { useAuthStore } from "@/stores/authStore"
 import type { CommunityPost, PostSortOption } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
@@ -106,13 +107,7 @@ export function CommunityPage() {
     try {
       const { data } = await query
       // Supabase 조인 데이터 정규화: profiles가 배열로 오는 경우 단일 객체로 변환
-      const normalized = ((data as CommunityPost[]) ?? []).map((p) => ({
-        ...p,
-        profiles: Array.isArray(p.profiles) ? p.profiles[0] : p.profiles,
-        likes_count: Number(p.likes_count) || 0,
-        dislikes_count: Number(p.dislikes_count) || 0,
-        comments_count: Number(p.comments_count) || 0,
-      }))
+      const normalized = ((data as CommunityPost[]) ?? []).map(normalizeCommunityPost)
       setPosts(normalized)
     } catch (e) {
       console.error("게시글 로드 실패:", e)

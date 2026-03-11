@@ -1,353 +1,127 @@
-import { useState, useCallback, useEffect } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { useEditor, EditorContent } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
-import Underline from "@tiptap/extension-underline"
-import TextAlign from "@tiptap/extension-text-align"
-import ImageExt from "@tiptap/extension-image"
-import Color from "@tiptap/extension-color"
-import { TextStyle } from "@tiptap/extension-text-style"
-import Placeholder from "@tiptap/extension-placeholder"
-import {
-  ArrowLeft,
-  Bold,
-  Italic,
-  UnderlineIcon,
-  Strikethrough,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  Quote,
-  ImageIcon,
-  Minus,
-  Undo,
-  Redo,
-  Loader2,
-  Type,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPost, updateMockPost } from "@/lib/mockCommunity"
 
-const COLORS = [
-  { label: "기본", value: "" },
-  { label: "빨강", value: "#ef4444" },
-  { label: "주황", value: "#f97316" },
-  { label: "노랑", value: "#eab308" },
-  { label: "초록", value: "#22c55e" },
-  { label: "파랑", value: "#3b82f6" },
-  { label: "보라", value: "#a855f7" },
-  { label: "분홍", value: "#ec4899" },
-  { label: "회색", value: "#6b7280" },
-]
+const FreePostEditor = lazy(() => import("@/components/community/FreePostEditor").then((m) => ({ default: m.FreePostEditor })))
+
+function EditorLoader() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  )
+}
 
 export function EditFreePostPage() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
-  const { user, isDemoMode, setShowLoginModal } = useAuthStore()
+  const { user, isDemoMode } = useAuthStore()
   const useMock = !isSupabaseConfigured || isDemoMode
 
   const [title, setTitle] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [content, setContent] = useState("")
   const [isLoadingPost, setIsLoadingPost] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const [showColorPicker, setShowColorPicker] = useState(false)
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: { levels: [1, 2, 3] },
-      }),
-      Underline,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      ImageExt.configure({ allowBase64: true, inline: false }),
-      TextStyle,
-      Color,
-      Placeholder.configure({ placeholder: "내용을 입력하세요..." }),
-    ],
-    editorProps: {
-      attributes: {
-        class: "prose prose-sm dark:prose-invert max-w-none min-h-[300px] px-5 py-4 outline-none focus:outline-none",
-      },
-      handleDrop: (_view, event) => {
-        const file = event.dataTransfer?.files?.[0]
-        if (file?.type.startsWith("image/")) {
-          event.preventDefault()
-          handleImageFile(file)
-          return true
-        }
-        return false
-      },
-      handlePaste: (_view, event) => {
-        const file = event.clipboardData?.files?.[0]
-        if (file?.type.startsWith("image/")) {
-          event.preventDefault()
-          handleImageFile(file)
-          return true
-        }
-        return false
-      },
-    },
-  })
-
-  const handleImageFile = useCallback(async (file: File) => {
-    if (!editor) return
-    if (file.size > 5 * 1024 * 1024) {
-      setError("이미지는 5MB 이하만 업로드 가능합니다.")
-      return
-    }
-    if (!useMock) {
-      const ext = file.name.split(".").pop() ?? "jpg"
-      const path = `posts/${crypto.randomUUID()}.${ext}`
-      const { error: uploadError } = await supabase.storage
-        .from("images")
-        .upload(path, file, { contentType: file.type })
-      if (uploadError) {
-        setError("이미지 업로드에 실패했습니다.")
-        return
-      }
-      const { data: urlData } = supabase.storage.from("images").getPublicUrl(path)
-      editor.chain().focus().setImage({ src: urlData.publicUrl }).run()
-    } else {
-      const reader = new FileReader()
-      reader.onload = () => {
-        const result = reader.result
-        if (typeof result === "string") {
-          editor.chain().focus().setImage({ src: result }).run()
-        }
-      }
-      reader.readAsDataURL(file)
-    }
-  }, [editor, useMock])
-
-  // 기존 게시글 로드
   useEffect(() => {
     if (!postId) return
+    const targetPostId = postId
+
     async function load() {
+      setIsLoadingPost(true)
+      setError("")
+
       if (useMock) {
-        const post = fetchMockPost(postId!)
-        if (post) {
-          setTitle(post.title)
-          editor?.commands.setContent(post.content ?? "")
+        const post = fetchMockPost(targetPostId)
+        if (!post) {
+          setError("게시글을 찾을 수 없습니다.")
+          setIsLoadingPost(false)
+          return
         }
+        setTitle(post.title)
+        setContent(post.content ?? "")
         setIsLoadingPost(false)
         return
       }
-      const { data } = await supabase
+
+      const { data, error: loadError } = await supabase
         .from("posts")
-        .select("*")
-        .eq("id", postId!)
+        .select("id, user_id, title, content, board_type")
+        .eq("id", targetPostId)
+        .eq("board_type", "free")
         .single()
-      if (data) {
-        setTitle(data.title)
-        editor?.commands.setContent(data.content ?? "")
+
+      if (loadError || !data) {
+        setError("게시글을 불러오지 못했습니다.")
+        setIsLoadingPost(false)
+        return
       }
+
+      if (user && data.user_id !== user.id) {
+        navigate(`/community/${targetPostId}`, { replace: true })
+        return
+      }
+
+      setTitle(data.title)
+      setContent(data.content ?? "")
       setIsLoadingPost(false)
     }
-    if (editor) load()
-  }, [postId, useMock, editor])
 
-  const addImage = useCallback(() => {
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = "image/*"
-    input.onchange = () => {
-      const file = input.files?.[0]
-      if (file) handleImageFile(file)
-    }
-    input.click()
-  }, [handleImageFile])
+    void load()
+  }, [navigate, postId, useMock, user])
 
-  if (!user) {
-    setShowLoginModal(true)
-    navigate("/community/free")
-    return null
-  }
+  const handleSubmit = async ({ title: nextTitle, htmlContent }: { title: string; htmlContent: string }) => {
+    if (!postId) return
 
-  const handleSubmit = async () => {
-    if (!editor || !title.trim() || isSubmitting || !postId) return
-    const htmlContent = editor.getHTML()
-    const textContent = editor.getText()
-    if (!textContent.trim()) {
-      setError("내용을 입력해주세요.")
-      return
-    }
     setIsSubmitting(true)
     setError("")
 
     try {
       if (useMock) {
-        updateMockPost(postId, { title: title.trim(), content: htmlContent })
+        updateMockPost(postId, { title: nextTitle, content: htmlContent })
         navigate(`/community/${postId}`)
-      } else {
-        const { error: updateError } = await supabase
-          .from("posts")
-          .update({
-            title: title.trim(),
-            content: htmlContent,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", postId)
-
-        if (updateError) {
-          setError("수정 중 오류가 발생했습니다.")
-          setIsSubmitting(false)
-          return
-        }
-        navigate(`/community/${postId}`)
+        return
       }
+
+      const { error: updateError } = await supabase
+        .from("posts")
+        .update({
+          title: nextTitle,
+          content: htmlContent,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", postId)
+        .eq("user_id", user?.id ?? "")
+
+      if (updateError) {
+        setError("수정 중 오류가 발생했습니다.")
+        return
+      }
+
+      navigate(`/community/${postId}`)
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  if (isLoadingPost) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-20 pb-10">
-      {/* 상단 */}
-      <div className="mb-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate(`/community/${postId}`)}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          돌아가기
-        </button>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/community/${postId}`)}
-            className="rounded-xl"
-          >
-            취소
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={!title.trim() || isSubmitting}
-            className="gap-2 rounded-xl"
-          >
-            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? "수정 중..." : "수정 완료"}
-          </Button>
-        </div>
-      </div>
-
-      {/* 제목 */}
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="제목을 입력하세요"
-        maxLength={100}
-        autoFocus
-        className="mb-4 w-full border-b-2 border-border bg-transparent px-1 pb-3 text-2xl font-bold outline-none placeholder:text-muted-foreground/50 focus:border-primary"
+    <Suspense fallback={<EditorLoader />}>
+      <FreePostEditor
+        initialTitle={title}
+        initialContent={content}
+        isLoading={isLoadingPost}
+        submitLabel="수정 완료"
+        submittingLabel="수정 중..."
+        isSubmitting={isSubmitting}
+        error={error}
+        onBack={() => navigate(`/community/${postId}`)}
+        onSubmit={handleSubmit}
+        useMock={useMock}
       />
-
-      {/* 에디터 툴바 */}
-      {editor && (
-        <div className="sticky top-16 z-30 mb-1 flex flex-wrap items-center gap-0.5 rounded-xl border border-border bg-card p-1.5 shadow-sm">
-          <ToolBtn active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="굵게"><Bold className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} title="기울임"><Italic className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} title="밑줄"><UnderlineIcon className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()} title="취소선"><Strikethrough className="h-4 w-4" /></ToolBtn>
-          <Divider />
-          <ToolBtn active={editor.isActive("heading", { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} title="제목 1"><Heading1 className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive("heading", { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="제목 2"><Heading2 className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive("heading", { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} title="제목 3"><Heading3 className="h-4 w-4" /></ToolBtn>
-          <Divider />
-          <ToolBtn active={editor.isActive({ textAlign: "left" })} onClick={() => editor.chain().focus().setTextAlign("left").run()} title="왼쪽 정렬"><AlignLeft className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive({ textAlign: "center" })} onClick={() => editor.chain().focus().setTextAlign("center").run()} title="가운데 정렬"><AlignCenter className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive({ textAlign: "right" })} onClick={() => editor.chain().focus().setTextAlign("right").run()} title="오른쪽 정렬"><AlignRight className="h-4 w-4" /></ToolBtn>
-          <Divider />
-          <ToolBtn active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} title="글머리 기호"><List className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="번호 목록"><ListOrdered className="h-4 w-4" /></ToolBtn>
-          <ToolBtn active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="인용문"><Quote className="h-4 w-4" /></ToolBtn>
-          <Divider />
-          <div className="relative">
-            <ToolBtn active={showColorPicker} onClick={() => setShowColorPicker(!showColorPicker)} title="글자 색상"><Type className="h-4 w-4" /></ToolBtn>
-            {showColorPicker && (
-              <div className="absolute left-0 top-full mt-1 flex gap-1 rounded-xl border border-border bg-card p-2 shadow-lg z-50">
-                {COLORS.map((c) => (
-                  <button
-                    key={c.value || "default"}
-                    onClick={() => {
-                      if (c.value) editor.chain().focus().setColor(c.value).run()
-                      else editor.chain().focus().unsetColor().run()
-                      setShowColorPicker(false)
-                    }}
-                    className="h-6 w-6 rounded-full border border-border transition-transform hover:scale-125"
-                    style={{ backgroundColor: c.value || "var(--foreground)" }}
-                    title={c.label}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          <ToolBtn onClick={addImage} title="이미지 삽입"><ImageIcon className="h-4 w-4" /></ToolBtn>
-          <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="구분선"><Minus className="h-4 w-4" /></ToolBtn>
-          <Divider />
-          <ToolBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="되돌리기"><Undo className="h-4 w-4" /></ToolBtn>
-          <ToolBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="다시실행"><Redo className="h-4 w-4" /></ToolBtn>
-        </div>
-      )}
-
-      {/* 에디터 본문 */}
-      <div className="rounded-xl border border-border bg-card shadow-sm">
-        <EditorContent editor={editor} />
-      </div>
-
-      {error && (
-        <p className="mt-3 text-sm text-destructive">{error}</p>
-      )}
-    </div>
+    </Suspense>
   )
-}
-
-function ToolBtn({
-  children,
-  active,
-  disabled,
-  onClick,
-  title,
-}: {
-  children: React.ReactNode
-  active?: boolean
-  disabled?: boolean
-  onClick?: () => void
-  title?: string
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      title={title}
-      className={`rounded-lg p-1.5 transition-colors ${
-        active
-          ? "bg-primary text-primary-foreground"
-          : disabled
-            ? "text-muted-foreground/40 cursor-not-allowed"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-      }`}
-    >
-      {children}
-    </button>
-  )
-}
-
-function Divider() {
-  return <div className="mx-0.5 h-5 w-px bg-border" />
 }

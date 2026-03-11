@@ -5,6 +5,7 @@ import { LandingPage } from "@/components/landing/LandingPage"
 import { LoginModal } from "@/components/auth/LoginModal"
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary"
 import { CelebrationProvider } from "@/components/ui/CelebrationOverlay"
+import { RequireAuth } from "@/components/routing/RequireAuth"
 import { useAuthStore } from "@/stores/authStore"
 import { Loader2 } from "lucide-react"
 
@@ -58,14 +59,14 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/planner" element={<PlannerPage />} />
             <Route path="/wizard" element={<AIChatWizard />} />
-            <Route path="/trips" element={<TripListPage />} />
+            <Route path="/trips" element={<RequireAuth redirectTo="/"><TripListPage /></RequireAuth>} />
             <Route path="/share/:shareId" element={<PlannerPage />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/community/free" element={<FreeBoardPage />} />
-            <Route path="/community/free/write" element={<CreateFreePostPage />} />
-            <Route path="/community/free/edit/:postId" element={<EditFreePostPage />} />
+            <Route path="/community/free/write" element={<RequireAuth redirectTo="/community/free"><CreateFreePostPage /></RequireAuth>} />
+            <Route path="/community/free/edit/:postId" element={<RequireAuth redirectTo="/community/free"><EditFreePostPage /></RequireAuth>} />
             <Route path="/community/:postId" element={<PostDetail />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile" element={<RequireAuth redirectTo="/"><ProfilePage /></RequireAuth>} />
           </Routes>
         </Suspense>
       </ErrorBoundary>

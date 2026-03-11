@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plane, Plus, LogIn } from "lucide-react"
+import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plane, Plus, LogIn, Compass } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -40,10 +40,19 @@ export function TripListPage() {
 
         {/* 로그인 필요 */}
         {!user ? (
-          <div className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted">
+          <motion.div
+            className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div
+              className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted"
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            >
               <LogIn className="h-10 w-10 text-muted-foreground/30" />
-            </div>
+            </motion.div>
             <p className="text-sm font-medium">로그인이 필요합니다</p>
             <p className="text-xs opacity-60">여행 일정을 저장하고 관리하려면 로그인하세요</p>
             <Button
@@ -53,14 +62,23 @@ export function TripListPage() {
               <LogIn className="h-4 w-4" />
               로그인
             </Button>
-          </div>
+          </motion.div>
         ) : trips.length === 0 ? (
-          <div className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted">
-              <MapPin className="h-10 w-10 text-muted-foreground/30" />
-            </div>
+          <motion.div
+            className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.div
+              className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10"
+              animate={{ y: [0, -8, 0], rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Compass className="h-10 w-10 text-primary/40" />
+            </motion.div>
             <p className="text-sm font-medium">아직 저장된 여행이 없습니다</p>
-            <p className="text-xs opacity-60">랜딩 페이지에서 새 여행을 시작해보세요</p>
+            <p className="text-xs opacity-60">첫 번째 여행을 만들어볼까요?</p>
             <Button
               onClick={() => navigate("/")}
               className="btn-gradient mt-2 gap-2 rounded-xl"
@@ -68,7 +86,7 @@ export function TripListPage() {
               <Plus className="h-4 w-4" />
               새 여행 만들기
             </Button>
-          </div>
+          </motion.div>
         ) : (
           <div className="space-y-3">
             <AnimatePresence mode="popLayout">

@@ -13,6 +13,7 @@ import {
 } from "@/services/aiRecommendService"
 import { ChatBubble } from "./ChatBubble"
 import { TripSummary } from "./TripSummary"
+import { showConfetti, showToast } from "@/components/ui/CelebrationOverlay"
 import { CityStep } from "./steps/CityStep"
 import { DurationStep } from "./steps/DurationStep"
 import { StyleStep } from "./steps/StyleStep"
@@ -215,6 +216,8 @@ export function AIChatWizard() {
     }))
 
     setCompleted(true)
+    showConfetti()
+    showToast("여행 일정이 완성됐어요!", "🎉")
     navigate(`/planner?city=${selections.cityId}`)
   }, [selections, navigate, setCompleted])
 
@@ -261,6 +264,8 @@ export function AIChatWizard() {
         }))
 
         setCompleted(true)
+        showConfetti()
+        showToast("AI 맞춤 일정이 완성됐어요!", "🎉")
 
         // 3초 후 자동 이동
         setTimeout(() => {

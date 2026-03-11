@@ -221,6 +221,51 @@ body {
   animation: fade-in 0.3s ease-out;
 }
 
+/* ── Shimmer 로딩 (skeleton 대체) ──────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted) 25%,
+    var(--color-border) 50%,
+    var(--color-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ── 알림 벨 흔들림 ─────────────────────────────────────── */
+@keyframes bell-ring {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-12deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-8deg); }
+  50% { transform: rotate(4deg); }
+  60% { transform: rotate(0deg); }
+}
+
+.animate-bell {
+  animation: bell-ring 1s ease-in-out;
+  transform-origin: top center;
+}
+
+/* ── 좋아요 하트 펄스 ──────────────────────────────────── */
+@keyframes like-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.35); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.animate-like-pop {
+  animation: like-pop 0.4s ease-out;
+}
+
 /* ── Google Maps InfoWindow 다크모드 ─────────────────────── */
 .dark .gm-style-iw-d {
   overflow: auto !important;

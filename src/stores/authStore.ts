@@ -246,19 +246,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   refreshDemoProfile: () => {
     if (get().isDemoMode) {
+      const oldLevel = get().profile?.level ?? 1
+      let newProfile: UserProfile
       if (get().profile?.is_admin) {
-        set({ profile: getAdminProfile() })
+        newProfile = getAdminProfile()
       } else {
-        set({ profile: getDemoProfile() })
+        newProfile = getDemoProfile()
+      }
+      set({ profile: newProfile })
+      // 레벨업 감지 → 축하 이벤트
+      if (newProfile.level > oldLevel) {
+        import("@/components/ui/CelebrationOverlay").then(({ showLevelUp }) => {
+          showLevelUp(newProfile.level)
+        })
       }
     }
   },
 
   doAttendance: () => {
     if (!get().isDemoMode || get().profile?.is_admin) return { success: false, alreadyDone: true }
+    const oldLevel = get().profile?.level ?? 1
     const result = checkAttendance()
     if (result.success) {
-      set({ profile: getDemoProfile() })
+      const newProfile = getDemoProfile()
+      set({ profile: newProfile })
+      if (newProfile.level > oldLevel) {
+        import("@/components/ui/CelebrationOverlay").then(({ showLevelUp }) => {
+          showLevelUp(newProfile.level)
+        })
+      }
     }
     return result
   },

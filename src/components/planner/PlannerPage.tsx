@@ -8,6 +8,7 @@ import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
+import { showToast } from "@/components/ui/CelebrationOverlay"
 import { useMapSearch } from "@/hooks/useMapSearch"
 import type { Place } from "@/types/place"
 
@@ -75,6 +76,7 @@ export function PlannerPage() {
       setActiveTrip(existingTrip.id)
     } else {
       createTrip(cityId, `${cityConfig.name} 여행`)
+      showToast(`${cityConfig.name} 여행이 시작됐어요!`, "✈️")
     }
   }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip])
 

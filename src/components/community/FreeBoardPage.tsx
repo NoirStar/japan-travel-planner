@@ -283,13 +283,13 @@ export function FreeBoardPage() {
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />
+            <div key={i} className="h-14 animate-shimmer rounded-xl" />
           ))}
         </div>
       ) : filteredPosts.length === 0 ? (
         <div className="py-20 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-            <PenSquare className="h-8 w-8 text-muted-foreground/40" />
+          <div className="mx-auto flex h-16 w-16 animate-float items-center justify-center rounded-2xl bg-primary/10">
+            <PenSquare className="h-8 w-8 text-primary/50" />
           </div>
           <p className="mt-3 text-lg font-semibold">
             {searchQuery ? "검색 결과가 없습니다" : "아직 글이 없어요"}

@@ -191,7 +191,7 @@ export function CommunityPage() {
               onClick={() => {
                 const result = doAttendance()
                 if (result.success) {
-                  setAttendanceMsg("출석 완료! +1P")
+                  setAttendanceMsg("출석 완료! +1P 🎉")
                   setTimeout(() => setAttendanceMsg(""), 3000)
                 } else if (result.alreadyDone) {
                   setAttendanceMsg("오늘은 이미 출석했어요")
@@ -292,13 +292,13 @@ export function CommunityPage() {
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-64 animate-pulse rounded-2xl border border-border bg-muted" />
+            <div key={i} className="h-64 animate-shimmer rounded-2xl border border-border" />
           ))}
         </div>
       ) : posts.length === 0 ? (
         <div className="py-20 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-            <MapPin className="h-8 w-8 text-muted-foreground/40" />
+          <div className="mx-auto flex h-16 w-16 animate-float items-center justify-center rounded-2xl bg-primary/10">
+            <MapPin className="h-8 w-8 text-primary/50" />
           </div>
           <p className="mt-3 text-lg font-semibold">아직 공유된 여행이 없어요</p>
           <p className="text-sm text-muted-foreground">첫 번째로 여행을 공유해보세요!</p>

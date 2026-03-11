@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import {
   ThumbsUp,
@@ -49,6 +49,8 @@ export function PostDetail() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [isVoting, setIsVoting] = useState(false)
+  const [likePopped, setLikePopped] = useState(false)
+  const likeBtnRef = useRef<HTMLButtonElement>(null)
 
   // 게시글 로드
   const fetchPost = useCallback(async () => {
@@ -146,6 +148,10 @@ export function PostDetail() {
       setMyVote(newVote)
       setPost(fetchMockPost(postId))
       refreshDemoProfile()
+      if (type === "up" && newVote === "up") {
+        setLikePopped(true)
+        setTimeout(() => setLikePopped(false), 500)
+      }
       return
     }
 
@@ -439,10 +445,11 @@ export function PostDetail() {
       {/* 액션 버튼 */}
       <div className="mb-6 flex items-center gap-2">
         <Button
+          ref={likeBtnRef}
           variant={myVote === "up" ? "default" : "outline"}
           onClick={() => handleVote("up")}
           disabled={isVoting}
-          className="gap-1.5 rounded-xl"
+          className={`gap-1.5 rounded-xl ${likePopped ? "animate-like-pop" : ""}`}
           size="sm"
         >
           <ThumbsUp className="h-4 w-4" />

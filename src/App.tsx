@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header"
 import { LandingPage } from "@/components/landing/LandingPage"
 import { LoginModal } from "@/components/auth/LoginModal"
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary"
+import { CelebrationProvider } from "@/components/ui/CelebrationOverlay"
 import { useAuthStore } from "@/stores/authStore"
 import { Loader2 } from "lucide-react"
 
@@ -38,6 +39,7 @@ function App() {
       <ErrorBoundary>
         <Header />
         <LoginModal />
+        <CelebrationProvider />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />

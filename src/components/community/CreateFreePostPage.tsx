@@ -6,6 +6,7 @@ import Underline from "@tiptap/extension-underline"
 import TextAlign from "@tiptap/extension-text-align"
 import ImageExt from "@tiptap/extension-image"
 import Color from "@tiptap/extension-color"
+import { showToast } from "@/components/ui/CelebrationOverlay"
 import { TextStyle } from "@tiptap/extension-text-style"
 import Placeholder from "@tiptap/extension-placeholder"
 import {
@@ -156,6 +157,7 @@ export function CreateFreePostPage() {
       if (useMock) {
         const newPost = createMockFreePost(user.id, title.trim(), htmlContent)
         refreshDemoProfile()
+        showToast("글이 작성되었어요!", "✏️")
         navigate(`/community/${newPost.id}`)
       } else {
         const { data, error: insertError } = await supabase

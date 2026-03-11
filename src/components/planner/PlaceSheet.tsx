@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from "react"
 import { X, Plus, Star, Search, Check, Globe, Loader2, Trash2 } from "lucide-react"
+import { showToast } from "@/components/ui/CelebrationOverlay"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PlaceCategory, CATEGORY_LABELS } from "@/types/place"
@@ -93,6 +94,7 @@ export function PlaceSheet({
       useDynamicPlaceStore.getState().addPlace(place)
     }
     addItem(tripId, dayId, place.id)
+    showToast(`${place.name} 추가됨`, "📍")
   }
 
   // Google Places 검색

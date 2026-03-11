@@ -22,6 +22,18 @@ export function Header() {
   const notiRef = useRef<HTMLDivElement>(null)
 
   const unreadCount = user ? getUnreadNotificationCount(user.id) : 0
+  const [bellAnimate, setBellAnimate] = useState(false)
+  const prevUnreadRef = useRef(unreadCount)
+
+  // 새 알림이 오면 벨 흔들림
+  useEffect(() => {
+    if (unreadCount > prevUnreadRef.current) {
+      setBellAnimate(true)
+      const timer = setTimeout(() => setBellAnimate(false), 1000)
+      return () => clearTimeout(timer)
+    }
+    prevUnreadRef.current = unreadCount
+  }, [unreadCount])
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -109,7 +121,7 @@ export function Header() {
                   if (!notiOpen && user) markNotificationsRead(user.id)
                 }}
               >
-                <Bell className="h-4 w-4" />
+                <Bell className={`h-4 w-4 ${bellAnimate ? "animate-bell" : ""}`} />
                 {unreadCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white">
                     {unreadCount > 9 ? "9+" : unreadCount}
@@ -124,7 +136,7 @@ export function Header() {
                     {(() => {
                       const notifications = getMockNotifications(user.id).slice(0, 20)
                       if (notifications.length === 0) {
-                        return <p className="px-4 py-6 text-center text-xs text-muted-foreground">알림이 없습니다</p>
+                        return <p className="px-4 py-6 text-center text-xs text-muted-foreground">알림이 없습니다 🔔</p>
                       }
                       return notifications.map((n) => (
                         <button

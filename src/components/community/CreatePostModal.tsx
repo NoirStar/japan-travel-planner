@@ -43,15 +43,19 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
 
     const city = cities.find((c) => c.id === selectedTrip.cityId)
 
-    // trip_data에 장소 이름을 포함시켜 게시글에서 표시 가능하게
+    // trip_data에 장소 데이터를 포함시켜 가져오기 시 복원 가능하게
     const tripWithNames: Trip = {
       ...selectedTrip,
       days: selectedTrip.days.map((day) => ({
         ...day,
-        items: day.items.map((item) => ({
-          ...item,
-          placeName: getAnyPlaceById(item.placeId)?.name ?? item.placeId,
-        })),
+        items: day.items.map((item) => {
+          const place = getAnyPlaceById(item.placeId)
+          return {
+            ...item,
+            placeName: place?.name ?? item.placeId,
+            placeData: place ?? undefined,
+          }
+        }),
       })),
     }
 

@@ -29,10 +29,10 @@ export function PlannerPage() {
   // 공유 링크에서 여행 데이터 복원
   useEffect(() => {
     if (!shareId || initialized.current) return
+    initialized.current = true
 
     const sharedTrip = decodeTrip(shareId)
     if (sharedTrip) {
-      initialized.current = true
       const existing = trips.find((t) => t.id === sharedTrip.id)
       if (existing) {
         setActiveTrip(existing.id)

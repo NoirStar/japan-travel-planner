@@ -30,7 +30,9 @@ import { createNotification } from "@/lib/notificationService"
 import { normalizeComment, normalizeCommunityPost, unwrapProfile } from "@/lib/communityTransforms"
 import { useAuthStore } from "@/stores/authStore"
 import { useScheduleStore } from "@/stores/scheduleStore"
+import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import type { CommunityPost, Comment, VoteType } from "@/types/community"
+import type { Place } from "@/types/place"
 import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
 import { CommentVoteButtons } from "./CommentVoteButtons"
@@ -52,6 +54,7 @@ export function PostDetail() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [isVoting, setIsVoting] = useState(false)
+  const [votingCommentIds, setVotingCommentIds] = useState<Set<string>>(new Set())
   const [likePopped, setLikePopped] = useState(false)
   const likeBtnRef = useRef<HTMLButtonElement>(null)
 
@@ -166,16 +169,18 @@ export function PostDetail() {
     }
     if (!postId || isVoting) return
 
+    setIsVoting(true)
+
     if (useMock) {
       const newVote = toggleMockVote(postId, user.id, type)
       setMyVote(newVote)
       setPost(fetchMockPost(postId))
-      // Defer profile refresh so UI updates instantly
       setTimeout(() => refreshDemoProfile(), 0)
       if (type === "up" && newVote === "up") {
         setLikePopped(true)
         setTimeout(() => setLikePopped(false), 500)
       }
+      setIsVoting(false)
       return
     }
 
@@ -291,6 +296,16 @@ export function PostDetail() {
     const tripData = post.trip_data
     const newTrip = createTrip(tripData.cityId, `[가져옴] ${post.title}`)
 
+    // trip_data에 포함된 장소 데이터를 dynamicPlaceStore에 복원
+    const { addPlace } = useDynamicPlaceStore.getState()
+    for (const day of tripData.days ?? []) {
+      for (const item of day.items ?? []) {
+        if ((item as unknown as { placeData?: Place }).placeData) {
+          addPlace((item as unknown as { placeData: Place }).placeData)
+        }
+      }
+    }
+
     // 기존 Day 하나 제거 후 원본 일정 복제
     ;(tripData.days ?? []).forEach((day, i) => {
       const newDay = i === 0 ? newTrip.days[0] : addDay(newTrip.id)
@@ -321,10 +336,15 @@ export function PostDetail() {
   // 댓글 투표
   const handleCommentVote = (commentId: string, type: VoteType) => {
     if (!user) { setShowLoginModal(true); return }
+    if (votingCommentIds.has(commentId)) return
+
+    setVotingCommentIds((prev) => new Set(prev).add(commentId))
+
     if (useMock) {
       const newVote = toggleMockCommentVote(commentId, user.id, type)
       setCommentVotes((prev) => ({ ...prev, [commentId]: newVote }))
       setComments(fetchMockComments(postId!))
+      setVotingCommentIds((prev) => { const next = new Set(prev); next.delete(commentId); return next })
       return
     }
 
@@ -377,6 +397,8 @@ export function PostDetail() {
     }, () => {
       setCommentVotes((prev) => ({ ...prev, [commentId]: prevVote }))
       void fetchComments()
+    }).finally(() => {
+      setVotingCommentIds((prev) => { const next = new Set(prev); next.delete(commentId); return next })
     })
   }
 

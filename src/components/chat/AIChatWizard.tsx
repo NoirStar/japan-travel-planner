@@ -62,10 +62,10 @@ export function AIChatWizard() {
     const prompt = searchParams.get("prompt")
     if (prompt && !initialPromptHandled.current) {
       initialPromptHandled.current = true
-      // 약간의 딜레이 후 AI 호출
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         handleFreeChat(prompt)
       }, 500)
+      return () => clearTimeout(timer)
     }
   }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
 

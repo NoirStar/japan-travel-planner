@@ -59,7 +59,6 @@ export function FreeBoardPage() {
   // 썸네일 호버
   const [hoverImg, setHoverImg] = useState<{ src: string; x: number; y: number } | null>(null)
 
-  const fetchIdRef = useRef(0)
   const abortRef = useRef<AbortController | null>(null)
 
   const fetchPosts = useCallback(async () => {

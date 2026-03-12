@@ -87,8 +87,8 @@ export function PostDetail() {
         .from("posts")
         .select("*, profiles(*)")
         .eq("id", postId)
-        .single()
         .abortSignal(controller.signal)
+        .single()
 
       if (error) {
         console.error("게시글 로드 실패:", error)

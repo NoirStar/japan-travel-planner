@@ -220,19 +220,19 @@ export function PostDetail() {
         throw error
       }
 
-      const result = data?.[0] as { out_vote_type: VoteType | null; out_likes_count: number; out_dislikes_count: number } | undefined
+      const result = data?.[0] as { vote_type: VoteType | null; likes_count: number; dislikes_count: number } | undefined
       if (result) {
-        setMyVote(result.out_vote_type)
+        setMyVote(result.vote_type)
         setPost((current) => current ? {
           ...current,
-          likes_count: Number(result.out_likes_count) || 0,
-          dislikes_count: Number(result.out_dislikes_count) || 0,
+          likes_count: Number(result.likes_count) || 0,
+          dislikes_count: Number(result.dislikes_count) || 0,
         } : current)
 
         // 투표 후 프로필 갱신 (레벨/포인트 반영)
         if (user) void fetchProfile(user.id)
 
-        if (type === "up" && result.out_vote_type === "up" && post && post.user_id !== user.id && authProfile?.nickname) {
+        if (type === "up" && result.vote_type === "up" && post && post.user_id !== user.id && authProfile?.nickname) {
           void createNotification({
             userId: post.user_id,
             type: "like",
@@ -395,14 +395,14 @@ export function PostDetail() {
         return
       }
 
-      const result = data?.[0] as { out_vote_type: VoteType | null; out_likes_count: number; out_dislikes_count: number } | undefined
+      const result = data?.[0] as { vote_type: VoteType | null; likes_count: number; dislikes_count: number } | undefined
       if (!result) return
 
-      setCommentVotes((prev) => ({ ...prev, [commentId]: result.out_vote_type }))
+      setCommentVotes((prev) => ({ ...prev, [commentId]: result.vote_type }))
       setComments((prev) => prev.map((comment) => comment.id === commentId ? {
         ...comment,
-        likes_count: Number(result.out_likes_count) || 0,
-        dislikes_count: Number(result.out_dislikes_count) || 0,
+        likes_count: Number(result.likes_count) || 0,
+        dislikes_count: Number(result.dislikes_count) || 0,
       } : comment))
     }).catch((err) => {
       console.error("댓글 투표 처리 실패:", err)

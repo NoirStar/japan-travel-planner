@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { Send, Coffee, ArrowLeft, Bug, Lightbulb, HelpCircle, MoreHorizontal, CheckCircle2, Clock, XCircle, Trash2, MessageSquareText, Reply } from "lucide-react"
+import { Send, Coffee, ArrowLeft, Bug, Lightbulb, HelpCircle, MoreHorizontal, CheckCircle2, Clock, XCircle, Trash2, MessageSquareText, Reply, ClipboardList } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { useAuthStore } from "@/stores/authStore"
@@ -95,7 +95,7 @@ export function ContactPage() {
 
       if (error) throw error
 
-      showToast("문의가 접수되었습니다! 빠르게 확인하겠습니다 🙏")
+      showToast("문의가 접수되었습니다! 빠르게 확인하겠습니다.")
       setTitle("")
       setContent("")
       setCategory("question")
@@ -149,7 +149,7 @@ export function ContactPage() {
         뒤로가기
       </button>
 
-      <h1 className="mb-1 text-2xl font-bold">💬 개발자에게 의견 보내기</h1>
+      <h1 className="mb-1 flex items-center gap-2 text-2xl font-bold"><MessageSquareText className="h-6 w-6" />개발자에게 의견 보내기</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         버그 신고, 기능 제안, 질문 등 자유롭게 남겨주세요. 소중한 의견 감사합니다!
       </p>
@@ -225,14 +225,14 @@ export function ContactPage() {
       {/* ── 커피 사주기 ───────────────────────── */}
       <div className="mb-8 rounded-2xl border border-border bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 p-5 text-center">
         <Coffee className="mx-auto mb-2 h-8 w-8 text-amber-600 dark:text-amber-400" />
-        <h3 className="mb-1 font-semibold">개발자에게 커피 사주기 ☕</h3>
+        <h3 className="mb-1 font-semibold">개발자에게 커피 사주기</h3>
         <p className="mb-3 text-xs text-muted-foreground">
           타비톡이 유용하셨다면 커피 한 잔으로 응원해주세요!
         </p>
         <Button
           variant="outline"
           className="gap-2 rounded-xl border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/40"
-          onClick={() => showToast("준비 중입니다! 곧 오픈할게요 ☕")}
+          onClick={() => showToast("준비 중입니다! 곧 오픈할게요.")}
         >
           <Coffee className="h-4 w-4" />
           커피 한 잔 보내기
@@ -242,7 +242,8 @@ export function ContactPage() {
       {/* ── 문의 목록 ─────────────────────────── */}
       <div className="rounded-2xl border border-border bg-card p-5">
         <h2 className="mb-4 flex items-center gap-2 font-semibold">
-          {isAdmin ? "📋 전체 문의 목록 (관리자)" : "📋 내 문의 내역"}
+          <ClipboardList className="h-4 w-4" />
+          {isAdmin ? "전체 문의 목록 (관리자)" : "내 문의 내역"}
         </h2>
 
         {isLoading ? (

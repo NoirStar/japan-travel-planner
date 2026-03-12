@@ -372,10 +372,11 @@ create or replace function toggle_post_vote(
   p_vote_type text
 )
 returns table (
-  out_vote_type text,
-  out_likes_count int,
-  out_dislikes_count int
+  vote_type text,
+  likes_count int,
+  dislikes_count int
 ) as $$
+#variable_conflict use_column
 declare
   current_vote text;
 begin
@@ -430,10 +431,11 @@ create or replace function toggle_comment_vote(
   p_vote_type text
 )
 returns table (
-  out_vote_type text,
-  out_likes_count int,
-  out_dislikes_count int
+  vote_type text,
+  likes_count int,
+  dislikes_count int
 ) as $$
+#variable_conflict use_column
 declare
   current_vote text;
 begin

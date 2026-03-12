@@ -154,7 +154,7 @@ export function LandingPage() {
                 { step: "01", icon: CalendarDays, title: "도시 & 일정 선택", desc: "여행할 도시와 날짜를 선택하세요" },
                 { step: "02", icon: MapPin, title: "장소 추가", desc: "지도에서 장소를 검색하고 일정에 드래그" },
                 { step: "03", icon: MessageCircle, title: "공유 & 소통", desc: "완성된 여행을 공유하고 후기를 남기세요" },
-              ].map(({ step, icon: Icon, title, desc }) => (
+              ].map(({ step, title, desc }) => (
                 <div key={step} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-extrabold text-primary">{step}</span>
                   <div>

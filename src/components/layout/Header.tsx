@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell, MessageSquareText, Sparkles } from "lucide-react"
+import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell, MessageSquareText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -15,7 +15,6 @@ export function Header() {
   const navigate = useNavigate()
   const isPlanner = location.pathname === "/planner"
   const isCommunity = location.pathname.startsWith("/community")
-  const isWizard = location.pathname === "/wizard"
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [communityOpen, setCommunityOpen] = useState(false)
   const [notiOpen, setNotiOpen] = useState(false)
@@ -90,15 +89,6 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-0.5 sm:gap-1">
-          <Link to="/wizard">
-            <Button variant="ghost" size="sm" className={`gap-1.5 rounded-lg hover:bg-primary/10 ${
-              isWizard ? "text-primary bg-primary/5 font-semibold" : "text-muted-foreground hover:text-primary"
-            }`}>
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">AI 추천</span>
-            </Button>
-          </Link>
-
           <Link to="/planner">
             <Button variant="ghost" size="sm" className={`gap-1.5 rounded-lg hover:bg-muted ${
               isPlanner ? "text-foreground bg-muted font-semibold" : "text-muted-foreground hover:text-foreground"

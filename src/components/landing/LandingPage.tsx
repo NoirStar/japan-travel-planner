@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { ArrowRight, MapPin, Users, Sparkles, Map, MessageCircle, CalendarDays } from "lucide-react"
+import { ArrowRight, MapPin, Users, Map, MessageCircle, CalendarDays, Globe } from "lucide-react"
 import { cities } from "@/data/cities"
 
 const fadeUp = {
@@ -9,15 +9,15 @@ const fadeUp = {
 }
 
 const features = [
-  { icon: Map, title: "지도 기반 플래너", desc: "구글맵에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다." },
-  { icon: Sparkles, title: "AI 여행 추천", desc: "여행 스타일과 관심사를 알려주면, AI가 맞춤 코스를 추천해드려요." },
-  { icon: Users, title: "여행 커뮤니티", desc: "다른 여행자의 일정을 구경하고, 후기를 나누고, 실시간 채팅으로 소통하세요." },
+  { icon: Map, title: "지도 기반 플래너", desc: "Google Maps에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다.", link: "/planner?new=true" as const, cta: "플래너 시작" },
+  { icon: Users, title: "여행 커뮤니티", desc: "다른 여행자가 만든 일정을 구경하고, 나만의 여행도 공유해보세요. 추천과 댓글로 소통할 수 있어요.", link: "/community" as const, cta: "커뮤니티 가기" },
+  { icon: Globe, title: "일본 전역 커버", desc: "도쿄, 오사카는 물론 소도시까지. Google Maps 기반이라 일본 어디든 자유롭게 여행 계획을 세울 수 있어요.", link: "/planner?new=true" as const, cta: "도시 선택하기" },
 ]
 
 const stats = [
-  { value: "8", label: "지원 도시" },
-  { value: "Google", label: "지도 연동" },
-  { value: "실시간", label: "채팅" },
+  { value: "일본 전역", label: "커버리지" },
+  { value: "Google Maps", label: "지도 연동" },
+  { value: "여행 공유", label: "커뮤니티" },
 ]
 
 export function LandingPage() {
@@ -40,30 +40,30 @@ export function LandingPage() {
                 <span className="text-foreground">타비톡으로 완성하세요</span>
               </h1>
               <p className="mx-auto mb-8 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                AI가 추천하는 맞춤 코스부터 지도 기반 플래닝,
+                Google Maps 기반 일정 플래너부터
                 <br className="hidden sm:block" />
                 여행자 커뮤니티까지 한곳에서.
               </p>
 
               <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                 <motion.button
-                  onClick={() => navigate("/wizard")}
+                  onClick={() => navigate("/planner?new=true")}
                   className="btn-gradient inline-flex w-full items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-sm font-bold shadow-md sm:w-auto"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Sparkles className="h-4 w-4" />
-                  AI 맞춤 추천 받기
+                  <Map className="h-4 w-4" />
+                  여행 일정 만들기
                   <ArrowRight className="h-4 w-4" />
                 </motion.button>
                 <motion.button
-                  onClick={() => navigate("/planner?new=true")}
+                  onClick={() => navigate("/community")}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-8 py-3.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-muted sm:w-auto"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <MapPin className="h-4 w-4" />
-                  직접 일정 만들기
+                  <Users className="h-4 w-4" />
+                  다른 여행자 구경하기
                 </motion.button>
               </div>
             </div>
@@ -85,10 +85,10 @@ export function LandingPage() {
             <p className="mb-8 text-center text-lg font-bold text-foreground">여행 준비의 모든 것</p>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {features.map(({ icon: Icon, title, desc }, i) => (
+              {features.map(({ icon: Icon, title, desc, cta, link }) => (
                 <motion.button
                   key={title}
-                  onClick={() => i === 0 ? navigate("/planner?new=true") : i === 1 ? navigate("/wizard") : navigate("/community")}
+                  onClick={() => navigate(link)}
                   className="group flex flex-col items-start rounded-2xl border border-border bg-card p-6 text-left transition-all hover:border-primary/30 card-shadow"
                   whileHover={{ y: -2 }}
                 >
@@ -98,7 +98,7 @@ export function LandingPage() {
                   <h3 className="mb-2 text-sm font-bold text-foreground">{title}</h3>
                   <p className="text-xs leading-relaxed text-muted-foreground">{desc}</p>
                   <span className="mt-3 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    {i === 0 ? "플래너 시작" : i === 1 ? "AI 추천 받기" : "커뮤니티 가기"} →
+                    {cta} →
                   </span>
                 </motion.button>
               ))}
@@ -110,14 +110,12 @@ export function LandingPage() {
             <div className="mb-8 flex items-end justify-between">
               <div>
                 <h2 className="text-lg font-bold text-foreground">어디로 떠나볼까요?</h2>
-                <p className="text-sm text-muted-foreground">도시를 선택하면 바로 플래닝이 시작됩니다</p>
+                <p className="text-sm text-muted-foreground">인기 도시를 선택하거나 검색으로 어디든 플래닝하세요</p>
               </div>
-              <button
-                onClick={() => navigate("/planner?new=true")}
-                className="hidden text-xs font-semibold text-primary hover:underline sm:block"
-              >
-                전체 보기
-              </button>
+              <div className="hidden items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 sm:flex">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#EA4335"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
+                <span className="text-[11px] font-medium text-muted-foreground">Google Maps</span>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {cities.map((city) => (
@@ -173,16 +171,17 @@ export function LandingPage() {
               <p className="mb-6 text-sm text-muted-foreground">회원가입 없이도 플래닝이 가능합니다</p>
               <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                 <button
-                  onClick={() => navigate("/wizard")}
+                  onClick={() => navigate("/planner?new=true")}
                   className="btn-gradient inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-bold shadow-sm"
                 >
-                  <Sparkles className="h-4 w-4" />
-                  AI 추천으로 시작
+                  <Map className="h-4 w-4" />
+                  일정 만들기
                 </button>
                 <button
                   onClick={() => navigate("/community")}
                   className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-8 py-3 text-sm font-semibold text-foreground shadow-sm hover:bg-muted"
                 >
+                  <Users className="h-4 w-4" />
                   다른 여행자 구경하기
                 </button>
               </div>

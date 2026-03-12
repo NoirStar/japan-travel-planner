@@ -36,6 +36,7 @@ import type { Place } from "@/types/place"
 import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
 import { CommentVoteButtons } from "./CommentVoteButtons"
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { cities } from "@/data/cities"
 import { showToast } from "@/components/ui/CelebrationOverlay"
 import DOMPurify from "dompurify"
@@ -58,6 +59,8 @@ export function PostDetail() {
   const [votingCommentIds, setVotingCommentIds] = useState<Set<string>>(new Set())
   const [likePopped, setLikePopped] = useState(false)
   const likeBtnRef = useRef<HTMLButtonElement>(null)
+  const [confirmDeletePost, setConfirmDeletePost] = useState(false)
+  const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState<string | null>(null)
 
   // 게시글 로드
   const fetchPost = useCallback(async () => {
@@ -324,7 +327,6 @@ export function PostDetail() {
   // 글 삭제 (본인 또는 관리자)
   const handleDeletePost = async () => {
     if (!postId) return
-    if (!window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) return
     const backTo = post?.board_type === "free" ? "/community/free" : "/community"
     if (useMock) {
       deleteMockPost(postId)
@@ -386,7 +388,11 @@ export function PostDetail() {
 
     void Promise.resolve(request).then(({ data, error }) => {
       if (error) {
-        throw error
+        console.error("댓글 투표 처리 실패:", error)
+        showToast("투표 처리에 실패했어요")
+        setCommentVotes((prev) => ({ ...prev, [commentId]: prevVote }))
+        void fetchComments()
+        return
       }
 
       const result = data?.[0] as { vote_type: VoteType | null; likes_count: number; dislikes_count: number } | undefined
@@ -398,7 +404,7 @@ export function PostDetail() {
         likes_count: Number(result.likes_count) || 0,
         dislikes_count: Number(result.dislikes_count) || 0,
       } : comment))
-    }, (err) => {
+    }).catch((err) => {
       console.error("댓글 투표 처리 실패:", err)
       showToast("투표 처리에 실패했어요")
       setCommentVotes((prev) => ({ ...prev, [commentId]: prevVote }))
@@ -592,7 +598,7 @@ export function PostDetail() {
             )}
             <Button
               variant="destructive"
-              onClick={handleDeletePost}
+              onClick={() => setConfirmDeletePost(true)}
               className="gap-1.5 rounded-xl"
               size="sm"
             >
@@ -672,19 +678,7 @@ export function PostDetail() {
                   </span>
                   {(user?.id === comment.user_id || authProfile?.is_admin) && (
                     <button
-                      onClick={async () => {
-                        if (!window.confirm("댓글을 삭제하시겠습니까?")) return
-                        if (useMock) {
-                          deleteMockComment(comment.id, postId!)
-                          setComments(fetchMockComments(postId!))
-                          setPost(fetchMockPost(postId!))
-                          return
-                        }
-                        await supabase.from("comments").delete().eq("id", comment.id)
-                        await supabase.rpc("decrement_count", { row_id: postId!, col_name: "comments_count" })
-                        fetchComments()
-                        fetchPost()
-                      }}
+                      onClick={() => setConfirmDeleteCommentId(comment.id)}
                       className="text-muted-foreground hover:text-destructive"
                       title={authProfile?.is_admin ? "관리자 삭제" : "삭제"}
                     >
@@ -707,6 +701,40 @@ export function PostDetail() {
           </div>
         )}
       </div>
+
+      {/* 게시글 삭제 확인 */}
+      <ConfirmDialog
+        open={confirmDeletePost}
+        onOpenChange={setConfirmDeletePost}
+        title="게시글을 삭제하시겠습니까?"
+        description="삭제된 게시글은 복구할 수 없습니다."
+        confirmLabel="삭제"
+        variant="destructive"
+        onConfirm={handleDeletePost}
+      />
+
+      {/* 댓글 삭제 확인 */}
+      <ConfirmDialog
+        open={!!confirmDeleteCommentId}
+        onOpenChange={(open) => { if (!open) setConfirmDeleteCommentId(null) }}
+        title="댓글을 삭제하시겠습니까?"
+        confirmLabel="삭제"
+        variant="destructive"
+        onConfirm={async () => {
+          const cid = confirmDeleteCommentId
+          if (!cid || !postId) return
+          if (useMock) {
+            deleteMockComment(cid, postId)
+            setComments(fetchMockComments(postId))
+            setPost(fetchMockPost(postId))
+            return
+          }
+          await supabase.from("comments").delete().eq("id", cid)
+          await supabase.rpc("decrement_count", { row_id: postId, col_name: "comments_count" })
+          fetchComments()
+          fetchPost()
+        }}
+      />
     </div>
   )
 }

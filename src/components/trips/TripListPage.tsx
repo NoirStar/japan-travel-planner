@@ -1,7 +1,9 @@
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plane, Plus, LogIn, Compass } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
 import { getCityConfig } from "@/data/mapConfig"
@@ -11,6 +13,7 @@ export function TripListPage() {
   const navigate = useNavigate()
   const { trips, deleteTrip, setActiveTrip } = useScheduleStore()
   const { user, setShowLoginModal } = useAuthStore()
+  const [deletingTripId, setDeletingTripId] = useState<string | null>(null)
 
   const handleOpenTrip = (tripId: string, cityId: string) => {
     setActiveTrip(tripId)
@@ -19,9 +22,7 @@ export function TripListPage() {
 
   const handleDelete = (e: React.MouseEvent, tripId: string) => {
     e.stopPropagation()
-    if (window.confirm("이 여행을 삭제하시겠습니까?")) {
-      deleteTrip(tripId)
-    }
+    setDeletingTripId(tripId)
   }
 
   const totalPlaces = (trip: (typeof trips)[0]) =>
@@ -162,6 +163,16 @@ export function TripListPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deletingTripId}
+        onOpenChange={(open) => { if (!open) setDeletingTripId(null) }}
+        title="이 여행을 삭제하시겠습니까?"
+        description="삭제된 여행은 복구할 수 없습니다."
+        confirmLabel="삭제"
+        variant="destructive"
+        onConfirm={() => { if (deletingTripId) deleteTrip(deletingTripId) }}
+      />
     </div>
   )
 }

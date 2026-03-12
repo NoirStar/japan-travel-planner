@@ -41,7 +41,8 @@ export function CreateFreePostModal({ open, onClose, onCreated }: Props) {
           trip_data: {},
         })
         if (insertError) {
-          setError("작성 중 오류가 발생했습니다.")
+          console.error("글 작성 실패:", insertError)
+          setError(`작성 실패: ${insertError.message}`)
           return
         }
       }

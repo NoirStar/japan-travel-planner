@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useRef } from "react"
 import { X, Plus, Star, Search, Check, Globe, Loader2, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { PlaceCategory, CATEGORY_LABELS } from "@/types/place"
 import type { Place } from "@/types/place"
 import { useScheduleStore } from "@/stores/scheduleStore"
@@ -37,6 +38,7 @@ export function PlaceSheet({
   const [googleResults, setGoogleResults] = useState<Place[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showAll, setShowAll] = useState(false)
+  const [confirmClearCache, setConfirmClearCache] = useState(false)
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { addItem } = useScheduleStore()
   const trip = useScheduleStore((s) => s.getActiveTrip())
@@ -149,12 +151,7 @@ export function PlaceSheet({
             <div className="ml-auto flex items-center">
               {cachedPlaceCount > 0 && (
                 <button
-                  onClick={() => {
-                    if (window.confirm("저장된 장소 캐시를 모두 삭제할까요?")) {
-                      clearPlaces()
-                      setShowAll(false)
-                    }
-                  }}
+                  onClick={() => setConfirmClearCache(true)}
                   className="flex items-center gap-0.5 rounded-full px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:text-destructive"
                 >
                   <Trash2 className="h-3 w-3" />
@@ -278,6 +275,16 @@ export function PlaceSheet({
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmClearCache}
+        onOpenChange={setConfirmClearCache}
+        title="저장된 장소 캐시를 모두 삭제할까요?"
+        description="검색했던 장소 데이터가 초기화됩니다."
+        confirmLabel="삭제"
+        variant="destructive"
+        onConfirm={() => { clearPlaces(); setShowAll(false) }}
+      />
     </>
   )
 }

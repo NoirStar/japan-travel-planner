@@ -52,7 +52,12 @@ export function CreateFreePostPage() {
         .select("id")
         .single()
 
-      if (insertError || !data?.id) {
+      if (insertError) {
+        console.error("글 작성 실패:", insertError)
+        setError(`작성 실패: ${insertError.message}`)
+        return
+      }
+      if (!data?.id) {
         setError("작성 중 오류가 발생했습니다.")
         return
       }

@@ -81,6 +81,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
 
     const { error: insertError } = await supabase.from("posts").insert({
       user_id: user.id,
+      board_type: "travel",
       title: title.trim(),
       description: description.trim() || null,
       city_id: selectedTrip.cityId,
@@ -91,7 +92,8 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
     setIsSubmitting(false)
 
     if (insertError) {
-      setError("게시글 작성 중 오류가 발생했습니다.")
+      console.error("게시글 작성 실패:", insertError)
+      setError(`게시글 작성 실패: ${insertError.message}`)
       return
     }
 

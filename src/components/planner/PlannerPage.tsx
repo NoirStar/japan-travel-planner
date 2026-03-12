@@ -15,7 +15,7 @@ import type { Place } from "@/types/place"
 export function PlannerPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { shareId } = useParams<{ shareId?: string }>()
-  const cityIdParam = searchParams.get("city") ?? "tokyo"
+  const cityIdParam = searchParams.get("city") || "tokyo"
   const forceNew = searchParams.get("new") === "true"
 
   const { trips, createTrip, setActiveTrip } = useScheduleStore()
@@ -72,8 +72,9 @@ export function PlannerPage() {
     initialized.current = true
 
     if (forceNew) {
-      createTrip(cityId, `${cityConfig.name} 여행`)
-      showToast(`${cityConfig.name} 여행을 시작합니다`)
+      const newCityConfig = getCityConfig(cityIdParam)
+      createTrip(cityIdParam, `${newCityConfig.name} 여행`)
+      showToast(`${newCityConfig.name} 여행을 시작합니다`)
       // ?new=true 파라미터 제거 (뒤로 가기 시 재생성 방지)
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev)

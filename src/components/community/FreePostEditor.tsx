@@ -200,7 +200,7 @@ export function FreePostEditor({
   }, [editor, isSubmitting, onSubmit, title])
 
   const toolbar = useMemo(() => editor && (
-    <div className="sticky top-16 z-30 mb-1 flex flex-wrap items-center gap-0.5 rounded-xl border border-border bg-card p-1.5 shadow-sm">
+    <div className="sticky top-16 z-30 mb-1 flex items-center gap-0.5 overflow-x-auto rounded-xl border border-border bg-card p-1.5 shadow-sm scrollbar-hide">
       <ToolBtn active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="굵게"><Bold className="h-4 w-4" /></ToolBtn>
       <ToolBtn active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} title="기울임"><Italic className="h-4 w-4" /></ToolBtn>
       <ToolBtn active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} title="밑줄"><UnderlineIcon className="h-4 w-4" /></ToolBtn>
@@ -325,7 +325,7 @@ function ToolBtn({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
         active
           ? "bg-primary text-primary-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -337,5 +337,5 @@ function ToolBtn({
 }
 
 function Divider() {
-  return <div className="mx-1 h-6 w-px bg-border" />
+  return <div className="mx-1 h-6 w-px shrink-0 bg-border" />
 }

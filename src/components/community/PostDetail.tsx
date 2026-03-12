@@ -244,7 +244,8 @@ export function PostDetail() {
       }
     } catch (err) {
       console.error("투표 처리 실패:", err)
-      showToast("투표 처리에 실패했어요")
+      const msg = (err as { message?: string })?.message ?? ""
+      showToast(msg ? `투표 실패: ${msg}` : "투표 처리에 실패했어요")
       setMyVote(prevVote)
       if (prevPost) setPost(prevPost)
     } finally {
@@ -389,7 +390,7 @@ export function PostDetail() {
     void Promise.resolve(request).then(({ data, error }) => {
       if (error) {
         console.error("댓글 투표 처리 실패:", error)
-        showToast("투표 처리에 실패했어요")
+        showToast(error.message ? `투표 실패: ${error.message}` : "투표 처리에 실패했어요")
         setCommentVotes((prev) => ({ ...prev, [commentId]: prevVote }))
         void fetchComments()
         return
@@ -406,7 +407,8 @@ export function PostDetail() {
       } : comment))
     }).catch((err) => {
       console.error("댓글 투표 처리 실패:", err)
-      showToast("투표 처리에 실패했어요")
+      const msg = (err as { message?: string })?.message ?? ""
+      showToast(msg ? `투표 실패: ${msg}` : "투표 처리에 실패했어요")
       setCommentVotes((prev) => ({ ...prev, [commentId]: prevVote }))
       void fetchComments()
     }).finally(() => {

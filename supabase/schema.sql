@@ -253,7 +253,7 @@ begin
 
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 create or replace trigger on_post_likes_change
   after update of likes_count on posts
@@ -271,7 +271,7 @@ begin
     update posts set comments_count = comments_count + 1 where id = row_id;
   end if;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 create or replace function decrement_count(row_id uuid, col_name text)
 returns void as $$
@@ -284,7 +284,7 @@ begin
     update posts set comments_count = greatest(comments_count - 1, 0) where id = row_id;
   end if;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- ── RPC: 댓글 카운터 증감 ────────────────────────────
 create or replace function increment_comment_count(row_id uuid, col_name text)
@@ -296,7 +296,7 @@ begin
     update comments set dislikes_count = dislikes_count + 1 where id = row_id;
   end if;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 create or replace function decrement_comment_count(row_id uuid, col_name text)
 returns void as $$
@@ -307,7 +307,7 @@ begin
     update comments set dislikes_count = greatest(dislikes_count - 1, 0) where id = row_id;
   end if;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- ── RPC: 알림 생성 ────────────────────────────────────
 create or replace function create_notification(
@@ -335,7 +335,7 @@ begin
     offset 100
   );
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- ── RPC: 게시글 투표 토글 (카운터 포함) ───────────────
 create or replace function toggle_post_vote(
@@ -393,7 +393,7 @@ begin
     select p_vote_type, p.likes_count, p.dislikes_count
     from posts p where p.id = p_post_id;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- ── RPC: 댓글 투표 토글 (카운터 포함) ────────────────
 create or replace function toggle_comment_vote(
@@ -451,7 +451,7 @@ begin
     select p_vote_type, c.likes_count, c.dislikes_count
     from comments c where c.id = p_comment_id;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- ── RPC: 프로필 레벨 즉시 동기화 (total_points → level) ──
 create or replace function sync_my_level()
@@ -465,10 +465,23 @@ begin
   set level = calculate_level(total_points)
   where id = auth.uid();
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- ═══════════════════════════════════════════════════════
 -- Realtime — 채팅 메시지 실시간 구독용
 -- ═══════════════════════════════════════════════════════
 alter publication supabase_realtime add table chat_messages;
 alter publication supabase_realtime add table notifications;
+
+-- ═══════════════════════════════════════════════════════
+-- GRANT — authenticated 역할에 RPC 실행 권한 부여
+-- (Supabase 최신 프로젝트는 기본적으로 PUBLIC EXECUTE 회수)
+-- ═══════════════════════════════════════════════════════
+grant execute on function increment_count(uuid, text) to authenticated;
+grant execute on function decrement_count(uuid, text) to authenticated;
+grant execute on function increment_comment_count(uuid, text) to authenticated;
+grant execute on function decrement_comment_count(uuid, text) to authenticated;
+grant execute on function create_notification(uuid, text, uuid, text, text) to authenticated;
+grant execute on function toggle_post_vote(uuid, text) to authenticated;
+grant execute on function toggle_comment_vote(uuid, text) to authenticated;
+grant execute on function sync_my_level() to authenticated;

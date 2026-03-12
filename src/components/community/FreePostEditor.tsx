@@ -30,7 +30,7 @@ import {
   Undo,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { supabase } from "@/lib/supabase"
+import { uploadImage } from "@/lib/uploadImage"
 
 const COLORS = [
   { label: "기본", value: "" },
@@ -136,37 +136,13 @@ export function FreePostEditor({
 
   const handleImageFile = useCallback(async (file: File) => {
     if (!editor) return
-    if (file.size > 5 * 1024 * 1024) {
-      setLocalError("이미지는 5MB 이하만 업로드 가능합니다.")
+    const result = await uploadImage(file)
+    if ("error" in result) {
+      setLocalError(result.error)
       return
     }
-
-    if (!useMock) {
-      const ext = file.name.split(".").pop() ?? "jpg"
-      const path = `posts/${crypto.randomUUID()}.${ext}`
-      const { error: uploadError } = await supabase.storage
-        .from("images")
-        .upload(path, file, { contentType: file.type })
-
-      if (uploadError) {
-        setLocalError("이미지 업로드에 실패했습니다.")
-        return
-      }
-
-      const { data: urlData } = supabase.storage.from("images").getPublicUrl(path)
-      editor.chain().focus().setImage({ src: urlData.publicUrl }).run()
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = reader.result
-      if (typeof result === "string") {
-        editor.chain().focus().setImage({ src: result }).run()
-      }
-    }
-    reader.readAsDataURL(file)
-  }, [editor, useMock])
+    editor.chain().focus().setImage({ src: result.url }).run()
+  }, [editor])
 
   const addImage = useCallback(() => {
     const input = document.createElement("input")
@@ -200,7 +176,7 @@ export function FreePostEditor({
   }, [editor, isSubmitting, onSubmit, title])
 
   const toolbar = useMemo(() => editor && (
-    <div className="sticky top-16 z-30 mb-1 flex flex-wrap items-center gap-0.5 rounded-xl border border-border bg-card p-1.5 shadow-sm">
+    <div className="sticky top-16 z-30 mb-1 flex flex-wrap items-center gap-px rounded-xl border border-border bg-card p-1 shadow-sm">
       <ToolBtn active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="굵게"><Bold className="h-4 w-4" /></ToolBtn>
       <ToolBtn active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} title="기울임"><Italic className="h-4 w-4" /></ToolBtn>
       <ToolBtn active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} title="밑줄"><UnderlineIcon className="h-4 w-4" /></ToolBtn>
@@ -325,7 +301,7 @@ function ToolBtn({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
+      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
         active
           ? "bg-primary text-primary-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -337,5 +313,5 @@ function ToolBtn({
 }
 
 function Divider() {
-  return <div className="mx-1 h-6 w-px shrink-0 bg-border" />
+  return <div className="mx-0.5 h-5 w-px shrink-0 bg-border" />
 }

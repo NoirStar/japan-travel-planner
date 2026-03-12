@@ -1,9 +1,10 @@
-import { useState } from "react"
-import { X, Loader2 } from "lucide-react"
+import { useState, useRef } from "react"
+import { X, Loader2, ImagePlus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { createMockFreePost } from "@/lib/mockCommunity"
+import { uploadImage } from "@/lib/uploadImage"
 
 interface Props {
   open: boolean
@@ -19,8 +20,26 @@ export function CreateFreePostModal({ open, onClose, onCreated }: Props) {
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [coverImage, setCoverImage] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   if (!open) return null
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setIsUploading(true)
+    setError("")
+    const result = await uploadImage(file)
+    setIsUploading(false)
+    if ("error" in result) {
+      setError(result.error)
+      return
+    }
+    setCoverImage(result.url)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
 
   const handleSubmit = async () => {
     if (!user || !title.trim() || !content.trim() || isSubmitting) return
@@ -38,6 +57,7 @@ export function CreateFreePostModal({ open, onClose, onCreated }: Props) {
           title: title.trim(),
           content: content.trim(),
           city_id: "",
+          cover_image: coverImage,
           trip_data: {},
         })
         if (insertError) {
@@ -48,6 +68,7 @@ export function CreateFreePostModal({ open, onClose, onCreated }: Props) {
       }
       setTitle("")
       setContent("")
+      setCoverImage(null)
       onCreated()
       onClose()
     } finally {
@@ -96,6 +117,34 @@ export function CreateFreePostModal({ open, onClose, onCreated }: Props) {
               className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-primary/40"
             />
             <p className="mt-1 text-right text-[11px] text-muted-foreground">{content.length}/5000</p>
+          </div>
+
+          {/* 이미지 첨부 */}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">이미지 첨부</label>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+            {coverImage ? (
+              <div className="relative rounded-xl overflow-hidden border border-border">
+                <img src={coverImage} alt="첨부 이미지" className="h-32 w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setCoverImage(null)}
+                  className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-6 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+              >
+                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
+                {isUploading ? "업로드 중..." : "이미지 추가"}
+              </button>
+            )}
           </div>
 
           {error && (

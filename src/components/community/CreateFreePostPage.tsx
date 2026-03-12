@@ -29,6 +29,10 @@ export function CreateFreePostPage() {
     setIsSubmitting(true)
     setError("")
 
+    // 본문 HTML에서 첫 번째 <img> src를 커버 이미지로 추출
+    const imgMatch = htmlContent.match(/<img[^>]+src="([^"]+)"/)
+    const coverImage = imgMatch?.[1] || null
+
     try {
       if (useMock) {
         const newPost = createMockFreePost(user.id, title, htmlContent)
@@ -47,6 +51,7 @@ export function CreateFreePostPage() {
           description: "",
           content: htmlContent,
           city_id: "",
+          cover_image: coverImage,
           trip_data: {},
         })
         .select("id")

@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react"
-import { X, Share2 } from "lucide-react"
+import { useState, useMemo, useRef } from "react"
+import { X, Share2, ImagePlus, Trash2, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { showToast } from "@/components/ui/CelebrationOverlay"
 import { useAuthStore } from "@/stores/authStore"
@@ -8,6 +8,7 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { createMockPost } from "@/lib/mockCommunity"
 import { cities } from "@/data/cities"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
+import { uploadImage } from "@/lib/uploadImage"
 import type { Trip } from "@/types/schedule"
 
 interface CreatePostModalProps {
@@ -25,6 +26,9 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
   const [description, setDescription] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [customCover, setCustomCover] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const tripOptions = useMemo(() =>
     trips.map((trip) => {
@@ -35,6 +39,23 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
   if (!open) return null
 
   const selectedTrip = trips.find((t) => t.id === selectedTripId)
+  const city = selectedTrip ? cities.find((c) => c.id === selectedTrip.cityId) : undefined
+  const finalCover = customCover || city?.image || null
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setIsUploading(true)
+    setError("")
+    const result = await uploadImage(file)
+    setIsUploading(false)
+    if ("error" in result) {
+      setError(result.error)
+      return
+    }
+    setCustomCover(result.url)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
 
   const handleSubmit = async () => {
     if (!user || !selectedTrip || !title.trim()) return
@@ -65,7 +86,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
         title: title.trim(),
         description: description.trim() || null,
         city_id: selectedTrip.cityId,
-        cover_image: city?.image ?? null,
+        cover_image: finalCover,
         trip_data: tripWithNames,
       })
       setIsSubmitting(false)
@@ -76,6 +97,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
       setTitle("")
       setDescription("")
       setSelectedTripId("")
+      setCustomCover(null)
       return
     }
 
@@ -85,7 +107,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
       title: title.trim(),
       description: description.trim() || null,
       city_id: selectedTrip.cityId,
-      cover_image: city?.image ?? null,
+      cover_image: finalCover,
       trip_data: tripWithNames,
     })
 
@@ -103,6 +125,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
     setTitle("")
     setDescription("")
     setSelectedTripId("")
+    setCustomCover(null)
   }
 
   return (
@@ -160,6 +183,46 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
             placeholder="여행 일정에 대한 간단한 소개를 작성하세요"
             className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
+        </div>
+
+        {/* 커버 이미지 */}
+        <div className="mb-4">
+          <label className="mb-1 block text-sm font-medium text-muted-foreground">커버 이미지</label>
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+          {finalCover ? (
+            <div className="relative rounded-xl overflow-hidden border border-border">
+              <img src={finalCover} alt="커버" className="h-32 w-full object-cover" />
+              <div className="absolute right-2 top-2 flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                >
+                  {isUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
+                </button>
+                {customCover && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomCover(null)}
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-6 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
+              {isUploading ? "업로드 중..." : "이미지 추가"}
+            </button>
+          )}
         </div>
 
         {error && <p className="mb-3 text-sm text-destructive">{error}</p>}

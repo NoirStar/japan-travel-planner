@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, Component, type ReactNode } from "react"
-import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, MapPin, Search, ThumbsUp } from "lucide-react"
+import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, MapPin, Search, ThumbsUp, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
@@ -59,10 +59,12 @@ export function CommunityPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [minLikes, setMinLikes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [showCreate, setShowCreate] = useState(false)
   const [attendanceMsg, setAttendanceMsg] = useState("")
   const [displayCount, setDisplayCount] = useState(9)
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   // Debounced search
   useEffect(() => {
@@ -71,7 +73,12 @@ export function CommunityPage() {
   }, [searchInput])
 
   const fetchPosts = useCallback(async () => {
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
     setIsLoading(true)
+    setFetchError(null)
+
     if (!isSupabaseConfigured) {
       const mockSort = sort === "best" ? "popular" : sort
       let result = fetchMockPosts(mockSort, cityFilter, searchQuery)
@@ -102,30 +109,30 @@ export function CommunityPage() {
       query = query.order("created_at", { ascending: false })
     }
 
-    query = query.limit(50)
+    query = query.limit(50).abortSignal(controller.signal)
 
     try {
-      const { data } = await query
-      // Supabase 조인 데이터 정규화: profiles가 배열로 오는 경우 단일 객체로 변환
+      const { data, error } = await query
+      if (error) {
+        console.error("게시글 로드 실패:", error)
+        setFetchError("게시글을 불러오지 못했어요")
+        return
+      }
       const normalized = ((data as CommunityPost[]) ?? []).map(normalizeCommunityPost)
       setPosts(normalized)
     } catch (e) {
+      if (controller.signal.aborted) return
       console.error("게시글 로드 실패:", e)
+      setFetchError("게시글을 불러오지 못했어요")
     } finally {
-      setIsLoading(false)
+      if (!controller.signal.aborted) setIsLoading(false)
     }
   }, [sort, cityFilter, searchQuery])
 
   useEffect(() => {
     fetchPosts()
+    return () => { abortRef.current?.abort() }
   }, [fetchPosts])
-
-  // 로딩 안전장치: 5초 후에도 로딩 중이면 강제 해제
-  useEffect(() => {
-    if (!isLoading) return
-    const timer = setTimeout(() => setIsLoading(false), 5000)
-    return () => clearTimeout(timer)
-  }, [isLoading])
 
   // 필터/정렬 변경 시 displayCount 초기화
   useEffect(() => {
@@ -289,6 +296,14 @@ export function CommunityPage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-64 animate-shimmer rounded-2xl border border-border" />
           ))}
+        </div>
+      ) : fetchError ? (
+        <div className="py-20 text-center">
+          <p className="text-lg font-semibold">{fetchError}</p>
+          <p className="mt-1 text-sm text-muted-foreground">네트워크 상태를 확인하고 다시 시도해주세요</p>
+          <Button onClick={fetchPosts} variant="outline" className="mt-4 gap-2 rounded-xl">
+            <RefreshCw className="h-4 w-4" /> 다시 시도
+          </Button>
         </div>
       ) : posts.length === 0 ? (
         <div className="py-20 text-center">

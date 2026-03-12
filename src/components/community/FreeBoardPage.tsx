@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { TrendingUp, Clock, Trophy, Search, ThumbsUp, MessageCircle, PenSquare, ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react"
+import { TrendingUp, Clock, Trophy, Search, ThumbsUp, MessageCircle, PenSquare, ChevronLeft, ChevronRight, ImageIcon, X, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockFreePosts } from "@/lib/mockCommunity"
@@ -51,6 +51,7 @@ export function FreeBoardPage() {
   const [searchType, setSearchType] = useState<"all" | "title" | "author">("all")
   const [minLikes, setMinLikes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   // 작성자 필터
   const [authorFilter, setAuthorFilter] = useState<{ userId: string; nickname: string } | null>(null)
@@ -62,17 +63,15 @@ export function FreeBoardPage() {
   const abortRef = useRef<AbortController | null>(null)
 
   const fetchPosts = useCallback(async () => {
-    // 이전 요청 취소
     abortRef.current?.abort()
     const controller = new AbortController()
     abortRef.current = controller
-    const id = ++fetchIdRef.current
     setIsLoading(true)
+    setFetchError(null)
 
     if (useMock) {
       const mockSort = sort === "best" ? "popular" : sort
       let result = fetchMockFreePosts(mockSort, searchType === "author" ? undefined : searchQuery)
-      // 작성자 검색 (mock)
       if (searchQuery && searchType === "author") {
         const q = searchQuery.toLowerCase()
         result = result.filter((p) => {
@@ -86,10 +85,8 @@ export function FreeBoardPage() {
       if (sort === "best") {
         result = result.filter((p) => p.likes_count >= BEST_THRESHOLD)
       }
-      if (id === fetchIdRef.current) {
-        setPosts(result)
-        setIsLoading(false)
-      }
+      setPosts(result)
+      setIsLoading(false)
       return
     }
 
@@ -108,7 +105,6 @@ export function FreeBoardPage() {
       } else if (searchType === "all") {
         query = query.or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
       }
-      // 작성자 검색은 클라이언트 필터링 (profiles join 후)
     }
 
     if (sort === "popular" || sort === "best") {
@@ -117,18 +113,16 @@ export function FreeBoardPage() {
       query = query.order("created_at", { ascending: false })
     }
 
-    query = query.limit(500)
+    query = query.limit(500).abortSignal(controller.signal)
 
     try {
       const { data, error } = await query
-      if (controller.signal.aborted) return // 취소된 요청 무시
       if (error) {
-        console.error("게시글 로드 실패:", error)
-        setPosts([])
+        console.error("\uac8c\uc2dc\uae00 \ub85c\ub4dc \uc2e4\ud328:", error)
+        setFetchError("\uac8c\uc2dc\uae00\uc744 \ubd88\ub7ec\uc624\uc9c0 \ubabb\ud588\uc5b4\uc694")
         return
       }
       let normalized = ((data as CommunityPost[]) ?? []).map(normalizeCommunityPost)
-      // 작성자 검색 클라이언트 필터링
       if (searchQuery && searchType === "author") {
         const q = searchQuery.toLowerCase()
         normalized = normalized.filter((p) => {
@@ -141,10 +135,9 @@ export function FreeBoardPage() {
       }
       setPosts(normalized)
     } catch (e) {
-      if (!controller.signal.aborted) {
-        console.error("게시글 로드 실패:", e)
-        setPosts([])
-      }
+      if (controller.signal.aborted) return
+      console.error("\uac8c\uc2dc\uae00 \ub85c\ub4dc \uc2e4\ud328:", e)
+      setFetchError("\uac8c\uc2dc\uae00\uc744 \ubd88\ub7ec\uc624\uc9c0 \ubabb\ud588\uc5b4\uc694")
     } finally {
       if (!controller.signal.aborted) setIsLoading(false)
     }
@@ -155,13 +148,6 @@ export function FreeBoardPage() {
     return () => { abortRef.current?.abort() }
   }, [fetchPosts])
   useEffect(() => { setPage(1) }, [sort, searchQuery, minLikes, authorFilter])
-
-  // 로딩 안전장치: 5초 후에도 로딩 중이면 강제 해제
-  useEffect(() => {
-    if (!isLoading) return
-    const timer = setTimeout(() => setIsLoading(false), 5000)
-    return () => clearTimeout(timer)
-  }, [isLoading])
 
   const filteredPosts = useMemo(() => {
     if (minLikes <= 0) return posts
@@ -317,6 +303,14 @@ export function FreeBoardPage() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="h-14 animate-shimmer rounded-xl" />
           ))}
+        </div>
+      ) : fetchError ? (
+        <div className="py-20 text-center">
+          <p className="text-lg font-semibold">{fetchError}</p>
+          <p className="mt-1 text-sm text-muted-foreground">네트워크 상태를 확인하고 다시 시도해주세요</p>
+          <Button onClick={fetchPosts} variant="outline" className="mt-4 gap-2 rounded-xl">
+            <RefreshCw className="h-4 w-4" /> 다시 시도
+          </Button>
         </div>
       ) : filteredPosts.length === 0 ? (
         <div className="py-20 text-center">

@@ -12,6 +12,7 @@ import {
   Trophy,
   Calendar,
   Pencil,
+  RefreshCw,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -54,6 +55,7 @@ export function PostDetail() {
   const [commentVotes, setCommentVotes] = useState<Record<string, VoteType | null>>({})
   const [commentText, setCommentText] = useState("")
   const [isLoading, setIsLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [isVoting, setIsVoting] = useState(false)
   const [votingCommentIds, setVotingCommentIds] = useState<Set<string>>(new Set())
@@ -61,6 +63,7 @@ export function PostDetail() {
   const likeBtnRef = useRef<HTMLButtonElement>(null)
   const [confirmDeletePost, setConfirmDeletePost] = useState(false)
   const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState<string | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   // 게시글 로드
   const fetchPost = useCallback(async () => {
@@ -68,25 +71,39 @@ export function PostDetail() {
       setIsLoading(false)
       return
     }
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+    setIsLoading(true)
+    setFetchError(null)
+
     if (useMock) {
       setPost(fetchMockPost(postId))
       setIsLoading(false)
       return
     }
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("posts")
         .select("*, profiles(*)")
         .eq("id", postId)
         .single()
+        .abortSignal(controller.signal)
 
+      if (error) {
+        console.error("게시글 로드 실패:", error)
+        setFetchError("게시글을 불러오지 못했어요")
+        return
+      }
       if (data) {
         setPost(normalizeCommunityPost(data as CommunityPost))
       }
     } catch (e) {
+      if (controller.signal.aborted) return
       console.error("게시글 로드 실패:", e)
+      setFetchError("게시글을 불러오지 못했어요")
     } finally {
-      setIsLoading(false)
+      if (!controller.signal.aborted) setIsLoading(false)
     }
   }, [postId, useMock])
 
@@ -128,18 +145,10 @@ export function PostDetail() {
   }, [postId, user, useMock])
 
   useEffect(() => {
-    let cancelled = false
-    fetchPost().finally(() => { if (cancelled) setIsLoading(false) })
+    fetchPost()
     fetchComments()
-    return () => { cancelled = true }
+    return () => { abortRef.current?.abort() }
   }, [fetchPost, fetchComments])
-
-  // 로딩 안전장치: 5초 후에도 로딩 중이면 강제 해제
-  useEffect(() => {
-    if (!isLoading) return
-    const timer = setTimeout(() => setIsLoading(false), 5000)
-    return () => clearTimeout(timer)
-  }, [isLoading])
 
   useEffect(() => {
     fetchMyVote()
@@ -438,6 +447,23 @@ export function PostDetail() {
     return (
       <div className="mx-auto max-w-2xl px-4 pt-20">
         <div className="h-48 animate-pulse rounded-2xl bg-muted" />
+      </div>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 pt-20 text-center">
+        <p className="text-lg font-semibold">{fetchError}</p>
+        <p className="mt-1 text-sm text-muted-foreground">네트워크 상태를 확인하고 다시 시도해주세요</p>
+        <Button onClick={fetchPost} variant="outline" className="mt-4 gap-2 rounded-xl">
+          <RefreshCw className="h-4 w-4" /> 다시 시도
+        </Button>
+        <div className="mt-2">
+          <Link to="/community" className="text-sm text-primary underline">
+            커뮤니티로 돌아가기
+          </Link>
+        </div>
       </div>
     )
   }

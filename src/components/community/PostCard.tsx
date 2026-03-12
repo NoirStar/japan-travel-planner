@@ -25,32 +25,34 @@ export function PostCard({ post }: PostCardProps) {
       }`}
     >
       {/* 커버 이미지 */}
-      <div className="relative h-40 overflow-hidden bg-muted">
+      <div className="relative h-44 overflow-hidden bg-muted">
         {post.cover_image ? (
           <img
             src={post.cover_image}
             alt={post.title}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : city?.image ? (
           <img
             src={city.image}
             alt={city.name}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-muted">
             <MapPin className="h-10 w-10 text-muted-foreground/30" />
           </div>
         )}
+        {/* 하단 그라데이션 오버레이 */}
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
         {/* 도시 + 일수 배지 */}
-        <div className="absolute bottom-2 left-2 flex gap-1.5">
-          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white backdrop-blur-sm">
+        <div className="absolute bottom-2.5 left-3 flex gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
             <MapPin className="h-3 w-3" />
             {city?.name ?? post.city_id}
           </span>
           {dayCount > 0 && (
-            <span className="rounded-full bg-black/60 px-2 py-0.5 text-xs text-white backdrop-blur-sm">
+            <span className="rounded-full bg-black/50 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
               {dayCount}일
             </span>
           )}
@@ -63,12 +65,12 @@ export function PostCard({ post }: PostCardProps) {
       </div>
 
       {/* 콘텐츠 */}
-      <div className="p-4">
-        <h3 className="mb-1 line-clamp-1 text-sm font-semibold group-hover:text-primary">
+      <div className="p-3.5">
+        <h3 className="mb-1 line-clamp-1 text-[13px] font-bold leading-snug group-hover:text-primary transition-colors">
           {post.title}
         </h3>
         {post.description && (
-          <p className="mb-3 line-clamp-2 text-xs text-muted-foreground">
+          <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
             {post.description}
           </p>
         )}

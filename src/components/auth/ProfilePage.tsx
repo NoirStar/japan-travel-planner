@@ -39,40 +39,45 @@ export function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-lg px-4 pt-20 pb-10">
-      <h1 className="mb-6 text-2xl font-bold">프로필</h1>
+      {/* 프로필 헤더 */}
+      <div className="mb-6 rounded-2xl border border-border bg-gradient-to-br from-primary/5 via-card to-card p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative h-24 w-24">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="avatar"
+                className="h-24 w-24 rounded-full border-2 border-primary/20 object-cover ring-4 ring-primary/5"
+              />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-primary/20 bg-primary/10 text-3xl font-bold text-primary ring-4 ring-primary/5">
+                {profile.nickname.charAt(0)}
+              </div>
+            )}
+            <label className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-md hover:bg-primary/90 transition-colors">
+              <Camera className="h-4 w-4" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  const reader = new FileReader()
+                  reader.onload = () => setAvatarUrl(reader.result as string)
+                  reader.readAsDataURL(file)
+                }}
+              />
+            </label>
+          </div>
 
-      {/* 아바타 */}
-      <div className="mb-6 flex flex-col items-center gap-3">
-        <div className="relative h-24 w-24">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt="avatar"
-              className="h-24 w-24 rounded-full border-2 border-border object-cover"
-            />
-          ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-border bg-muted text-3xl font-bold text-muted-foreground">
-              {profile.nickname.charAt(0)}
+          <div className="text-center">
+            <h1 className="text-lg font-bold">{profile.nickname}</h1>
+            <div className="mt-1">
+              <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} />
             </div>
-          )}
-          <label className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow">
-            <Camera className="h-4 w-4" />
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                const reader = new FileReader()
-                reader.onload = () => setAvatarUrl(reader.result as string)
-                reader.readAsDataURL(file)
-              }}
-            />
-          </label>
+          </div>
         </div>
-
-        <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} />
       </div>
 
       {/* 닉네임 */}

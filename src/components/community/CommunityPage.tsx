@@ -180,7 +180,7 @@ export function CommunityPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">여행 공유</h1>
-          <p className="text-sm text-muted-foreground">다른 여행자들의 일정을 구경하세요</p>
+          <p className="text-sm text-muted-foreground">다른 여행자들의 일본 일정을 구경하세요 ✈️</p>
         </div>
         <div className="flex items-center gap-2">
           {/* 출석체크 */}
@@ -189,7 +189,7 @@ export function CommunityPage() {
               variant={hasCheckedIn() ? "ghost" : "outline"}
               size="sm"
               disabled={hasCheckedIn()}
-              className="gap-1.5 rounded-xl"
+              className="gap-1.5 rounded-xl text-xs"
               onClick={() => {
                 const result = doAttendance()
                 if (result.success) {
@@ -201,12 +201,12 @@ export function CommunityPage() {
                 }
               }}
             >
-              <CalendarCheck className="h-4 w-4" />
+              <CalendarCheck className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{hasCheckedIn() ? "출석완료" : "출석체크"}</span>
             </Button>
           )}
-          <Button onClick={handleCreateClick} className="gap-2 rounded-xl">
-            <Plus className="h-4 w-4" />
+          <Button onClick={handleCreateClick} className="gap-1.5 rounded-xl btn-gradient text-xs">
+            <Plus className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">여행 공유</span>
           </Button>
         </div>

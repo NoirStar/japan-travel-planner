@@ -1,4 +1,4 @@
-import { X } from "lucide-react"
+import { X, MapPin, Sparkles, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { isSupabaseConfigured } from "@/lib/supabase"
@@ -17,27 +17,39 @@ export function LoginModal() {
       />
 
       {/* modal */}
-      <div className="relative w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl">
-        <button
-          onClick={() => setShowLoginModal(false)}
-          className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
-        >
-          <X className="h-5 w-5" />
-        </button>
+      <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
+        {/* 브랜드 헤더 */}
+        <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 pt-8 pb-6 text-center">
+          <button
+            onClick={() => setShowLoginModal(false)}
+            className="absolute right-3 top-3 rounded-lg p-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
 
-        <div className="mb-6 text-center">
-          <h2 className="text-xl font-bold gradient-text font-maple">타비톡 로그인</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            여행을 공유하고 커뮤니티에 참여하세요
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
+            <span className="text-2xl">🗾</span>
+          </div>
+          <h2 className="text-xl font-bold gradient-text font-maple">타비톡</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            일본 여행을 계획하고 공유하세요
           </p>
         </div>
 
-        <div className="space-y-3">
+        {/* 기능 하이라이트 */}
+        <div className="mx-6 -mt-1 mb-4 flex justify-center gap-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1"><MapPin className="h-3 w-3 text-primary" />일정 관리</span>
+          <span className="flex items-center gap-1"><Sparkles className="h-3 w-3 text-primary" />AI 추천</span>
+          <span className="flex items-center gap-1"><Users className="h-3 w-3 text-primary" />커뮤니티</span>
+        </div>
+
+        {/* 로그인 버튼 */}
+        <div className="px-6 pb-6">
           {isSupabaseConfigured && (
             <Button
               onClick={signInWithGoogle}
               variant="outline"
-              className="w-full gap-3 rounded-xl py-5"
+              className="w-full gap-3 rounded-xl py-5 font-medium hover:bg-muted/50"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
@@ -57,16 +69,16 @@ export function LoginModal() {
                   fill="#EA4335"
                 />
               </svg>
-              Google로 로그인
+              Google로 계속하기
             </Button>
           )}
-        </div>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          {isSupabaseConfigured
-            ? "로그인하면 서비스 이용약관에 동의합니다"
-            : "Supabase 설정이 필요합니다"}
-        </p>
+          <p className="mt-3 text-center text-[11px] text-muted-foreground/70">
+            {isSupabaseConfigured
+              ? "로그인하면 서비스 이용약관에 동의합니다"
+              : "Supabase 설정이 필요합니다"}
+          </p>
+        </div>
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell, MessageSquareText } from "lucide-react"
+import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell, MessageSquareText, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -15,6 +15,7 @@ export function Header() {
   const navigate = useNavigate()
   const isPlanner = location.pathname === "/planner"
   const isCommunity = location.pathname.startsWith("/community")
+  const isWizard = location.pathname === "/wizard"
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [communityOpen, setCommunityOpen] = useState(false)
   const [notiOpen, setNotiOpen] = useState(false)
@@ -77,7 +78,7 @@ export function Header() {
   })()
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm">
       <div className={`flex h-14 items-center justify-between px-4 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
         <div className="flex items-center gap-2">
           <Link to="/" className="group flex items-center gap-2 transition-all hover:opacity-80">
@@ -88,11 +89,22 @@ export function Header() {
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1">
+          <Link to="/wizard">
+            <Button variant="ghost" size="sm" className={`gap-1.5 rounded-lg hover:bg-primary/10 ${
+              isWizard ? "text-primary bg-primary/5 font-semibold" : "text-muted-foreground hover:text-primary"
+            }`}>
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">AI 추천</span>
+            </Button>
+          </Link>
+
           <Link to="/planner">
-            <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted">
+            <Button variant="ghost" size="sm" className={`gap-1.5 rounded-lg hover:bg-muted ${
+              isPlanner ? "text-foreground bg-muted font-semibold" : "text-muted-foreground hover:text-foreground"
+            }`}>
               <Compass className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">여행 만들기</span>
+              <span className="hidden sm:inline text-sm">플래너</span>
             </Button>
           </Link>
 
@@ -102,7 +114,7 @@ export function Header() {
               variant="ghost"
               size="sm"
               className={`gap-1.5 rounded-lg hover:bg-muted ${
-                isCommunity ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                isCommunity ? "text-foreground bg-muted font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => { setCommunityOpen((v) => !v); setDropdownOpen(false) }}
             >
@@ -252,39 +264,25 @@ export function Header() {
             </div>
             </>
           ) : (
-            /* ── 비로그인 상태: 로그인 드롭다운 ──── */
-            <div className="relative" ref={dropdownRef}>
+            /* ── 비로그인 상태: 다크모드 + 로그인 CTA ──── */
+            <>
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
-                onClick={() => setDropdownOpen((v) => !v)}
+                className="rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted p-2"
+                onClick={() => { toggleDarkMode(); }}
               >
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">메뉴</span>
-                <ChevronDown className={`h-3 w-3 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-
-              {dropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 w-44 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
-                  <button
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
-                    onClick={() => { toggleDarkMode(); }}
-                  >
-                    {isDarkMode ? <Sun className="h-4 w-4 text-muted-foreground" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
-                    {isDarkMode ? "라이트 모드" : "다크 모드"}
-                  </button>
-                  <div className="border-t border-border" />
-                  <button
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
-                    onClick={() => { setDropdownOpen(false); setShowLoginModal(true); }}
-                  >
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    로그인
-                  </button>
-                </div>
-              )}
-            </div>
+              <Button
+                size="sm"
+                className="gap-1.5 rounded-lg btn-gradient text-xs font-semibold px-4"
+                onClick={() => { setShowLoginModal(true); }}
+              >
+                <User className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">로그인</span>
+              </Button>
+            </>
           )}
         </div>
       </div>

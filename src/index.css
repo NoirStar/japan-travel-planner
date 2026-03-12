@@ -5,59 +5,62 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ══════════════════════════════════════════════════════
-   모던 트래블 테마 — 코랄/틸 기반
-   - 따뜻한 코랄 + 시원한 틸블루 액센트
-   - 여행 감성의 자연스러운 컬러
+   타비톡 — warm ivory / coral red / deep indigo
+   여행 편집 매거진 + 실용적 플래너 톤
    ══════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #fafaf9;
-  --color-foreground: #1c1917;
-  --color-card: #ffffff;
-  --color-card-foreground: #1c1917;
+  --color-background: #f6f4ef;
+  --color-foreground: #1a1814;
+  --color-card: #fefdf9;
+  --color-card-foreground: #1a1814;
   --color-primary: #E8685A;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #f5f4f1;
-  --color-secondary-foreground: #1c1917;
-  --color-muted: #f5f4f1;
-  --color-muted-foreground: #78716c;
+  --color-secondary: #edeae3;
+  --color-secondary-foreground: #1a1814;
+  --color-muted: #f0ede6;
+  --color-muted-foreground: #6b6560;
   --color-accent: #E8685A;
   --color-accent-foreground: #ffffff;
-  --color-border: #e7e5e4;
-  --color-input: #e7e5e4;
+  --color-border: #ddd8ce;
+  --color-input: #ddd8ce;
   --color-ring: #E8685A;
   --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
   --radius: 0.75rem;
   --color-sakura: #f0a4b8;
   --color-sakura-dark: #E8685A;
-  --color-indigo: #2B8A9E;
-  --color-indigo-light: #4EAAB8;
+  --color-indigo: #2B6B8A;
+  --color-indigo-light: #3D8EA6;
+  --color-surface: #faf8f4;
+  --color-elevated: #ffffff;
 }
 
 .dark {
   color-scheme: dark;
-  --color-background: #0c0a09;
-  --color-foreground: #fafaf9;
-  --color-card: #1c1917;
-  --color-card-foreground: #fafaf9;
+  --color-background: #0f0d0a;
+  --color-foreground: #f5f3ef;
+  --color-card: #1c1a16;
+  --color-card-foreground: #f5f3ef;
   --color-primary: #F08272;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #292524;
-  --color-secondary-foreground: #fafaf9;
-  --color-muted: #292524;
-  --color-muted-foreground: #a8a29e;
+  --color-secondary: #2a2723;
+  --color-secondary-foreground: #f5f3ef;
+  --color-muted: #252320;
+  --color-muted-foreground: #9e9890;
   --color-accent: #F08272;
   --color-accent-foreground: #ffffff;
-  --color-border: #44403c;
-  --color-input: #44403c;
+  --color-border: #3d3930;
+  --color-input: #3d3930;
   --color-ring: #F08272;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
   --color-sakura: #F08272;
   --color-sakura-dark: #E8685A;
-  --color-indigo: #4EAAB8;
-  --color-indigo-light: #6BBEC9;
+  --color-indigo: #3D8EA6;
+  --color-indigo-light: #5CAABB;
+  --color-surface: #18160f;
+  --color-elevated: #222018;
 }
 
 body {
@@ -84,20 +87,21 @@ body {
   background: var(--color-muted-foreground);
 }
 
-/* ── 사쿠라 배경 패턴 (모던 스타일: 은은한 메쉬) ──── */
+/* ── 배경 패턴 — 은은한 종이/지도 레이어감 ──── */
 .bg-sakura-pattern {
   background-color: var(--color-background);
   background-image:
-    radial-gradient(ellipse at 10% 40%, rgba(232, 104, 90, 0.04) 0%, transparent 55%),
-    radial-gradient(ellipse at 90% 20%, rgba(43, 138, 158, 0.04) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 85%, rgba(232, 104, 90, 0.03) 0%, transparent 55%);
+    radial-gradient(ellipse at 15% 30%, rgba(232, 104, 90, 0.035) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(43, 107, 138, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(180, 160, 120, 0.025) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
 }
 
 .dark .bg-sakura-pattern {
   background-image:
-    radial-gradient(ellipse at 10% 40%, rgba(240, 130, 114, 0.05) 0%, transparent 55%),
-    radial-gradient(ellipse at 90% 20%, rgba(78, 170, 184, 0.04) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 85%, rgba(240, 130, 114, 0.03) 0%, transparent 55%);
+    radial-gradient(ellipse at 15% 30%, rgba(240, 130, 114, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(61, 142, 166, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(240, 130, 114, 0.025) 0%, transparent 50%);
 }
 
 /* ── 글래스 → Airbnb 솔리드 카드 ─────────────────────── */
@@ -143,18 +147,30 @@ body {
   box-shadow: 0 4px 14px rgba(240, 130, 114, 0.2);
 }
 
-/* ── 카드 그림자 (또렷한/깊은) ────────────────── */
+/* ── 카드 그림자 (warm undertone) ────────────────── */
 .card-shadow {
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 4px 16px rgba(0, 0, 0, 0.04);
+    0 1px 2px rgba(60, 45, 30, 0.06),
+    0 4px 12px rgba(60, 45, 30, 0.04);
   transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card-shadow:hover {
   box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.08),
-    0 12px 32px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+    0 4px 8px rgba(60, 45, 30, 0.08),
+    0 8px 24px rgba(60, 45, 30, 0.1);
+  transform: translateY(-1px);
+}
+
+/* ── 표면 위계 ──────────────────────────── */
+.surface-base { background: var(--color-background); }
+.surface-card { background: var(--color-card); }
+.surface-elevated {
+  background: var(--color-elevated);
+  box-shadow: 0 1px 3px rgba(60, 45, 30, 0.08), 0 6px 20px rgba(60, 45, 30, 0.06);
+}
+.surface-inset {
+  background: var(--color-muted);
+  box-shadow: inset 0 1px 2px rgba(60, 45, 30, 0.06);
 }
 
 /* ── 떠다니는 애니메이션 ─────────────────────────────── */

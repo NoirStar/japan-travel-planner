@@ -415,8 +415,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4" data-testid="schedule-items">
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16 text-center text-muted-foreground">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-              <MapPin className="h-7 w-7 text-muted-foreground/40" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+              <MapPin className="h-7 w-7 text-primary/40" />
             </div>
             <p className="text-sm font-medium">아직 추가된 장소가 없습니다</p>
             <p className="text-xs text-muted-foreground/60">아래 버튼으로 장소를 추가해보세요</p>
@@ -510,7 +510,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       {/* Day 요약 */}
       {items.length > 0 && (() => {
         return (
-          <div className="border-t border-border bg-muted px-4 py-2.5 text-xs text-muted-foreground flex flex-col gap-1" data-testid="day-summary">
+          <div className="border-t border-border bg-card px-4 py-2.5 text-xs text-muted-foreground flex flex-col gap-1" data-testid="day-summary">
             <div className="flex items-center justify-between">
               <div>
                 <span className="mr-1 inline-flex items-center"><BarChart3 className="mr-1 inline h-3.5 w-3.5" /></span>Day {currentDay?.dayNumber} 요약 — <span className="font-semibold text-foreground">장소 {items.length}개</span>

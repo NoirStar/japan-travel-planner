@@ -112,14 +112,14 @@ export function TripListPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100 }}
-                    className="group cursor-pointer overflow-hidden rounded-2xl border border-border bg-card transition-all card-shadow"
+                    className="group cursor-pointer overflow-hidden rounded-2xl border border-border bg-card transition-all card-shadow hover:border-primary/20"
                     onClick={() => handleOpenTrip(trip.id, trip.cityId)}
                     data-testid={`trip-card-${trip.id}`}
                   >
                     <div className="flex items-center gap-4 p-4">
                       {/* 도시 아이콘 */}
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-sakura/10">
-                        <MapPin className="h-6 w-6 text-sakura-dark" />
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5">
+                        <MapPin className="h-6 w-6 text-primary" />
                       </div>
 
                       {/* 여행 정보 */}

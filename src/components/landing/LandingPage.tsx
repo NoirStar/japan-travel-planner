@@ -11,7 +11,7 @@ const fadeUp = {
 const features = [
   { icon: MapPin, title: "지도 기반 플래너", desc: "지도에서 장소를 검색하고 드래그로 일정을 완성하세요" },
   { icon: Users, title: "여행 커뮤니티", desc: "다른 여행자들의 일정을 참고하고 함께 소통하세요" },
-  { icon: Sparkles, title: "AI 추천", desc: "AI가 맞춤 여행 코스와 맛집을 추천해드려요" },
+  { icon: Sparkles, title: "AI 추천", desc: "AI가 맞춤 여행 코스와 맛집을 추천해드려요", badge: "준비 중" },
 ]
 
 export function LandingPage() {
@@ -28,7 +28,7 @@ export function LandingPage() {
         {/* ── Hero ── */}
         <motion.div className="mb-20 text-center" variants={fadeUp}>
           <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3.5 py-1.5 text-xs font-medium text-muted-foreground">
-            <Sparkles className="h-3 w-3 text-sakura-dark" />
+            <MapPin className="h-3 w-3 text-sakura-dark" />
             일본 여행 플래너 &amp; 커뮤니티
           </div>
 
@@ -64,8 +64,13 @@ export function LandingPage() {
 
         {/* ── 핵심 기능 ── */}
         <motion.div className="mb-20 grid grid-cols-1 gap-4 sm:grid-cols-3" variants={fadeUp}>
-          {features.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="flex flex-col items-center rounded-2xl border border-border bg-card p-6 text-center card-shadow">
+          {features.map(({ icon: Icon, title, desc, badge }) => (
+            <div key={title} className={`relative flex flex-col items-center rounded-2xl border border-border bg-card p-6 text-center card-shadow ${badge ? "opacity-60" : ""}`}>
+              {badge && (
+                <span className="absolute top-3 right-3 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  {badge}
+                </span>
+              )}
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
                 <Icon className="h-5 w-5 text-primary" />
               </div>

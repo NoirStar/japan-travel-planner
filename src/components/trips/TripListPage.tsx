@@ -146,7 +146,7 @@ export function TripListPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-full opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
+                          className="h-8 w-8 rounded-full transition-opacity hover:bg-destructive/10 sm:opacity-0 sm:group-hover:opacity-100"
                           onClick={(e) => handleDelete(e, trip.id)}
                           aria-label="여행 삭제"
                           data-testid={`trip-delete-${trip.id}`}

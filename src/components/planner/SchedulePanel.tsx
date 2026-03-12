@@ -17,6 +17,7 @@ import {
 } from "@dnd-kit/sortable"
 import { MapPin, Bot, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
@@ -43,6 +44,20 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const { user } = useAuthStore()
 
   /** 날짜 변경 시 Day 수 자동 조정 */
+  const [pendingDateReduce, setPendingDateReduce] = useState<{ tripId: string; diffDays: number; placesCount: number } | null>(null)
+
+  const applyDateReduce = (tripId: string, diffDays: number) => {
+    const latestTrip = useScheduleStore.getState().trips.find((t) => t.id === tripId)
+    if (latestTrip) {
+      for (let i = latestTrip.days.length - 1; i >= diffDays; i--) {
+        removeDay(tripId, latestTrip.days[i].id)
+      }
+    }
+    if (activeDayIndex >= diffDays) {
+      onActiveDayIndexChange(diffDays - 1)
+    }
+  }
+
   const handleDateChange = (field: "startDate" | "endDate", value: string) => {
     if (!trip) return
     updateTrip(trip.id, { [field]: value })
@@ -64,16 +79,20 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         addDay(trip.id)
       }
     } else if (diffDays < currentDays) {
-      // 뒤쪽 Day부터 삭제 (일정이 있는 Day는 경고 없이 삭제)
+      // 삭제될 Day에 장소가 있는지 확인
       const latestTrip = useScheduleStore.getState().trips.find((t) => t.id === trip.id)
       if (latestTrip) {
-        for (let i = latestTrip.days.length - 1; i >= diffDays; i--) {
-          removeDay(trip.id, latestTrip.days[i].id)
+        const placesInRemovedDays = latestTrip.days
+          .slice(diffDays)
+          .reduce((sum, d) => sum + d.items.length, 0)
+
+        if (placesInRemovedDays > 0) {
+          // 장소가 있으면 확인 요청
+          setPendingDateReduce({ tripId: trip.id, diffDays, placesCount: placesInRemovedDays })
+          return
         }
       }
-      if (activeDayIndex >= diffDays) {
-        onActiveDayIndexChange(diffDays - 1)
-      }
+      applyDateReduce(trip.id, diffDays)
     }
   }
 
@@ -575,6 +594,21 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         cityId={cityId}
         tripId={trip.id}
         dayId={currentDay?.id ?? ""}
+      />
+
+      {/* 날짜 축소 확인 */}
+      <ConfirmDialog
+        open={!!pendingDateReduce}
+        onOpenChange={(open) => { if (!open) setPendingDateReduce(null) }}
+        title="일정이 있는 날이 삭제됩니다"
+        description={`삭제될 Day에 장소 ${pendingDateReduce?.placesCount ?? 0}개가 포함되어 있습니다. 계속하시겠습니까?`}
+        confirmLabel="삭제"
+        variant="destructive"
+        onConfirm={() => {
+          if (pendingDateReduce) {
+            applyDateReduce(pendingDateReduce.tripId, pendingDateReduce.diffDays)
+          }
+        }}
       />
     </div>
   )

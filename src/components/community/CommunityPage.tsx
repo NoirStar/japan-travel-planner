@@ -271,8 +271,8 @@ export function CommunityPage() {
           ))}
         </select>
 
-        {/* 추천수 필터 */}
-        <div className="flex rounded-xl border border-border bg-card p-0.5">
+        {/* 추천수 필터 — 모바일에서 숨김 */}
+        <div className="hidden rounded-xl border border-border bg-card p-0.5 sm:flex">
           {[{ value: 0, label: "전체" }, { value: 5, label: "5+" }, { value: 10, label: "10+" }].map((f) => (
             <button
               key={f.value}

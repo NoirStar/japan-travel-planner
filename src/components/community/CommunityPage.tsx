@@ -120,6 +120,13 @@ export function CommunityPage() {
     fetchPosts()
   }, [fetchPosts])
 
+  // 로딩 안전장치: 5초 후에도 로딩 중이면 강제 해제
+  useEffect(() => {
+    if (!isLoading) return
+    const timer = setTimeout(() => setIsLoading(false), 5000)
+    return () => clearTimeout(timer)
+  }, [isLoading])
+
   // 필터/정렬 변경 시 displayCount 초기화
   useEffect(() => {
     setDisplayCount(9)

@@ -131,14 +131,19 @@ export function FreeBoardPage() {
         setPosts([])
       }
     } finally {
-      if (id === fetchIdRef.current) setIsLoading(false)
-      // stale request가 마지막 요청보다 늦게 도착한 경우에도 로딩 해제 보장
-      else if (fetchIdRef.current === id + 1) setIsLoading(false)
+      if (id >= fetchIdRef.current) setIsLoading(false)
     }
   }, [sort, searchQuery, searchType, useMock])
 
   useEffect(() => { fetchPosts() }, [fetchPosts])
   useEffect(() => { setPage(1) }, [sort, searchQuery, minLikes])
+
+  // 로딩 안전장치: 5초 후에도 로딩 중이면 강제 해제
+  useEffect(() => {
+    if (!isLoading) return
+    const timer = setTimeout(() => setIsLoading(false), 5000)
+    return () => clearTimeout(timer)
+  }, [isLoading])
 
   const filteredPosts = useMemo(() => {
     if (minLikes <= 0) return posts

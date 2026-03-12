@@ -64,7 +64,10 @@ export function PostDetail() {
 
   // 게시글 로드
   const fetchPost = useCallback(async () => {
-    if (!postId) return
+    if (!postId) {
+      setIsLoading(false)
+      return
+    }
     if (useMock) {
       setPost(fetchMockPost(postId))
       setIsLoading(false)
@@ -125,9 +128,18 @@ export function PostDetail() {
   }, [postId, user, useMock])
 
   useEffect(() => {
-    fetchPost()
+    let cancelled = false
+    fetchPost().finally(() => { if (cancelled) setIsLoading(false) })
     fetchComments()
+    return () => { cancelled = true }
   }, [fetchPost, fetchComments])
+
+  // 로딩 안전장치: 5초 후에도 로딩 중이면 강제 해제
+  useEffect(() => {
+    if (!isLoading) return
+    const timer = setTimeout(() => setIsLoading(false), 5000)
+    return () => clearTimeout(timer)
+  }, [isLoading])
 
   useEffect(() => {
     fetchMyVote()

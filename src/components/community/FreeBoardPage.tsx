@@ -303,7 +303,7 @@ export function FreeBoardPage() {
           {/* 테이블 헤더 (데스크탑) */}
           <div className="hidden sm:flex items-center gap-3 border-b border-border bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground">
             <span className="flex-1">제목</span>
-            <span className="w-24 text-center">작성자</span>
+            <span className="w-28 text-center">작성자</span>
             <span className="w-10 text-center">추천</span>
             <span className="w-10 text-center">댓글</span>
             <span className="w-16 text-right">날짜</span>
@@ -352,15 +352,16 @@ export function FreeBoardPage() {
 
                 {/* 데스크탑 메타 */}
                 <div className="hidden sm:flex shrink-0 items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5 w-24 truncate">
+                  <span className="flex items-center gap-1.5 w-28 truncate">
                     {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="h-4 w-4 rounded-full object-cover" />
+                      <img src={profile.avatar_url} alt="" className="h-4 w-4 rounded-full object-cover shrink-0" />
                     ) : (
-                      <div className="flex h-4 w-4 items-center justify-center rounded-full bg-muted text-[8px] font-bold">
+                      <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-muted text-[8px] font-bold">
                         {profile?.nickname?.charAt(0) ?? "?"}
                       </div>
                     )}
-                    {profile?.nickname ?? "익명"}
+                    <span className="truncate">{profile?.nickname ?? "익명"}</span>
+                    {profile && <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />}
                   </span>
                   <span className="inline-flex items-center gap-0.5 w-10 justify-end">
                     <ThumbsUp className="h-3 w-3" /> {post.likes_count}

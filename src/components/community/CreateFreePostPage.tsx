@@ -47,14 +47,14 @@ export function CreateFreePostPage() {
           description: "",
           content: htmlContent,
           city_id: "",
-          trip_data: null,
+          trip_data: {},
         })
         .select("id")
         .single()
 
       if (insertError) {
         console.error("글 작성 실패:", insertError)
-        setError(`작성 실패: ${insertError.message}`)
+        setError("글 작성에 실패했어요. 잠시 후 다시 시도해주세요.")
         return
       }
       if (!data?.id) {

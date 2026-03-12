@@ -36,11 +36,13 @@ class CardErrorBoundary extends Component<
       return (
         <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-center text-xs text-muted-foreground">
           <p>이 게시글을 표시할 수 없습니다</p>
-          <details className="mt-2 max-h-32 w-full overflow-auto text-left text-[10px]">
-            <summary className="cursor-pointer">에러 상세</summary>
-            <pre className="mt-1 whitespace-pre-wrap opacity-60">{this.state.msg}</pre>
-            <pre className="mt-1 whitespace-pre-wrap opacity-40">{this.state.debugData}</pre>
-          </details>
+          {import.meta.env.DEV && (
+            <details className="mt-2 max-h-32 w-full overflow-auto text-left text-[10px]">
+              <summary className="cursor-pointer">에러 상세 (개발 모드)</summary>
+              <pre className="mt-1 whitespace-pre-wrap opacity-60">{this.state.msg}</pre>
+              <pre className="mt-1 whitespace-pre-wrap opacity-40">{this.state.debugData}</pre>
+            </details>
+          )}
         </div>
       )
     }

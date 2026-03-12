@@ -200,7 +200,7 @@ export function FreePostEditor({
   }, [editor, isSubmitting, onSubmit, title])
 
   const toolbar = useMemo(() => editor && (
-    <div className="sticky top-16 z-30 mb-1 flex items-center gap-0.5 overflow-x-auto rounded-xl border border-border bg-card p-1.5 shadow-sm scrollbar-hide">
+    <div className="sticky top-16 z-30 mb-1 flex flex-wrap items-center gap-0.5 rounded-xl border border-border bg-card p-1.5 shadow-sm">
       <ToolBtn active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} title="굵게"><Bold className="h-4 w-4" /></ToolBtn>
       <ToolBtn active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} title="기울임"><Italic className="h-4 w-4" /></ToolBtn>
       <ToolBtn active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} title="밑줄"><UnderlineIcon className="h-4 w-4" /></ToolBtn>

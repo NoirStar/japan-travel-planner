@@ -272,9 +272,8 @@ export function AIChatWizard() {
           navigate(`/planner?city=${response.cityId}`)
         }, 3000)
       } catch (error) {
-        const msg =
-          error instanceof Error ? error.message : "AI 추천에 실패했어요"
-        addAIMessage(`죄송해요, 오류가 발생했어요.\n${msg}\n\n다시 시도하거나 단계별로 선택해주세요!`)
+        console.error("AI 추천 실패:", error)
+        addAIMessage("죄송해요, 오류가 발생했어요.\n\n다시 시도하거나 단계별로 선택해주세요!")
       } finally {
         setIsAILoading(false)
       }

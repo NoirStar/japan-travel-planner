@@ -93,7 +93,7 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
 
     if (insertError) {
       console.error("게시글 작성 실패:", insertError)
-      setError(`게시글 작성 실패: ${insertError.message}`)
+      setError("게시글 작성에 실패했어요. 잠시 후 다시 시도해주세요.")
       return
     }
 

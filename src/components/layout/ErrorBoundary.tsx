@@ -61,9 +61,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <p className="mt-2 text-sm text-muted-foreground">
               예기치 않은 오류가 발생했습니다. 페이지를 새로고침하거나 홈으로 돌아가주세요.
             </p>
-            {this.state.error && (
-              <details className="mt-4 rounded-lg bg-muted/50 p-3 text-left text-xs text-muted-foreground" open>
-                <summary className="cursor-pointer font-medium">오류 상세</summary>
+            {import.meta.env.DEV && this.state.error && (
+              <details className="mt-4 rounded-lg bg-muted/50 p-3 text-left text-xs text-muted-foreground">
+                <summary className="cursor-pointer font-medium">오류 상세 (개발 모드)</summary>
                 <pre className="mt-2 overflow-auto whitespace-pre-wrap">
                   {this.state.error.message}
                 </pre>

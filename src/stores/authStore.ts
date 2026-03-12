@@ -123,7 +123,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (profile.level !== expectedLevel) {
         profile.level = expectedLevel
         // 서버에도 동기화 시도
-        void supabase.rpc("sync_my_level").catch(() => {})
+        void Promise.resolve(supabase.rpc("sync_my_level")).catch(() => {})
       }
       set({ profile })
     }

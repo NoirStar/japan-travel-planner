@@ -9,14 +9,14 @@ const fadeUp = {
 }
 
 const features = [
-  { icon: Map, title: "지도 기반 플래너", desc: "Google Maps에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다.", link: "/planner?new=true" as const, cta: "플래너 시작" },
+  { icon: Map, title: "지도 기반 플래너", desc: "구글맵에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다.", link: "/planner?new=true" as const, cta: "플래너 시작" },
   { icon: Users, title: "여행 커뮤니티", desc: "다른 여행자가 만든 일정을 구경하고, 나만의 여행도 공유해보세요. 추천과 댓글로 소통할 수 있어요.", link: "/community" as const, cta: "커뮤니티 가기" },
-  { icon: Globe, title: "일본 전역 커버", desc: "도쿄, 오사카는 물론 소도시까지. Google Maps 기반이라 일본 어디든 자유롭게 여행 계획을 세울 수 있어요.", link: "/planner?new=true" as const, cta: "도시 선택하기" },
+  { icon: Globe, title: "일본 전역 커버", desc: "도쿄, 오사카는 물론 소도시까지. 구글맵 기반이라 일본 어디든 자유롭게 여행 계획을 세울 수 있어요.", link: "/planner?new=true" as const, cta: "도시 선택하기" },
 ]
 
 const stats = [
   { value: "일본 전역", label: "커버리지" },
-  { value: "Google Maps", label: "지도 연동" },
+  { value: "구글맵", label: "지도 연동" },
   { value: "여행 공유", label: "커뮤니티" },
 ]
 
@@ -40,7 +40,7 @@ export function LandingPage() {
                 <span className="text-foreground">타비톡으로 완성하세요</span>
               </h1>
               <p className="mx-auto mb-8 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Google Maps 기반 일정 플래너부터
+                구글맵 기반 일정 플래너부터
                 <br className="hidden sm:block" />
                 여행자 커뮤니티까지 한곳에서.
               </p>
@@ -114,7 +114,7 @@ export function LandingPage() {
               </div>
               <div className="hidden items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 sm:flex">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#EA4335"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
-                <span className="text-[11px] font-medium text-muted-foreground">Google Maps</span>
+                <span className="text-[11px] font-medium text-muted-foreground">구글맵</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">

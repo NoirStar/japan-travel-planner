@@ -73,7 +73,6 @@ export function FreePostEditor({
   submittingLabel,
   onBack,
   onSubmit,
-  useMock,
 }: FreePostEditorProps) {
   const [title, setTitle] = useState(initialTitle)
   const [localError, setLocalError] = useState("")

@@ -62,8 +62,6 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
     setIsSubmitting(true)
     setError("")
 
-    const city = cities.find((c) => c.id === selectedTrip.cityId)
-
     // trip_data에 장소 데이터를 포함시켜 가져오기 시 복원 가능하게
     const tripWithNames: Trip = {
       ...selectedTrip,

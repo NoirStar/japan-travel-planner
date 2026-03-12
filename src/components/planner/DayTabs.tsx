@@ -1,4 +1,4 @@
-import { Plus, X } from "lucide-react"
+import { Plus, X, Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { DaySchedule } from "@/types/schedule"
 
@@ -18,6 +18,7 @@ interface DayTabsProps {
   onSelectDay: (index: number) => void
   onAddDay: () => void
   onRemoveDay: (dayId: string) => void
+  onDuplicateDay?: (dayId: string) => void
   tripStartDate?: string | null
 }
 
@@ -34,6 +35,7 @@ export function DayTabs({
   onSelectDay,
   onAddDay,
   onRemoveDay,
+  onDuplicateDay,
   tripStartDate,
 }: DayTabsProps) {
   return (
@@ -70,6 +72,19 @@ export function DayTabs({
                 data-testid={`day-remove-${day.dayNumber}`}
               >
                 <X className="h-3 w-3" />
+              </button>
+            )}
+            {isActive && onDuplicateDay && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDuplicateDay(day.id)
+                }}
+                className="absolute -left-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
+                aria-label={`Day ${day.dayNumber} 복제`}
+                data-testid={`day-duplicate-${day.dayNumber}`}
+              >
+                <Copy className="h-2.5 w-2.5" />
               </button>
             )}
           </div>

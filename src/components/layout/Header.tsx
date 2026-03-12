@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell, MessageSquareText } from "lucide-react"
+import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell, MessageSquareText, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -15,6 +15,7 @@ export function Header() {
   const navigate = useNavigate()
   const isPlanner = location.pathname === "/planner"
   const isCommunity = location.pathname.startsWith("/community")
+  const isTrips = location.pathname === "/trips"
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [communityOpen, setCommunityOpen] = useState(false)
   const [notiOpen, setNotiOpen] = useState(false)
@@ -137,6 +138,16 @@ export function Header() {
 
           {user && profile ? (
             <>
+            {/* ── 내 여행 (로그인 시 데스크탑만) ── */}
+            <Link to="/trips" className="hidden sm:block">
+              <Button variant="ghost" size="sm" className={`gap-1.5 rounded-lg hover:bg-muted ${
+                isTrips ? "text-foreground bg-muted font-semibold" : "text-muted-foreground hover:text-foreground"
+              }`}>
+                <Briefcase className="h-4 w-4" />
+                <span className="text-sm">내 여행</span>
+              </Button>
+            </Link>
+
             {/* ── 로그인 상태: 프로필 드롭다운 ──────── */}
             <div className="relative" ref={dropdownRef}>
               <Button

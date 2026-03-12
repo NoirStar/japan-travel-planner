@@ -58,6 +58,7 @@ interface ScheduleState {
   // Day CRUD
   addDay: (tripId: string) => DaySchedule
   removeDay: (tripId: string, dayId: string) => void
+  duplicateDay: (tripId: string, dayId: string) => DaySchedule
 
   // ScheduleItem CRUD
   addItem: (tripId: string, dayId: string, placeId: string) => ScheduleItem
@@ -167,6 +168,27 @@ export const useScheduleStore = create<ScheduleState>()(
             }
           }),
         })),
+
+      duplicateDay: (tripId, dayId) => {
+        const trip = get().trips.find((t) => t.id === tripId)
+        const sourceDay = trip?.days.find((d) => d.id === dayId)
+        const newDay: DaySchedule = {
+          id: generateId("day"),
+          dayNumber: (trip?.days.length ?? 0) + 1,
+          items: (sourceDay?.items ?? []).map((item) => ({
+            ...item,
+            id: generateId("item"),
+          })),
+        }
+        set((state) => ({
+          trips: state.trips.map((t) =>
+            t.id === tripId
+              ? { ...t, days: [...t.days, newDay], updatedAt: new Date().toISOString() }
+              : t,
+          ),
+        }))
+        return newDay
+      },
 
       // ── ScheduleItem ──────────────────────────────────
       addItem: (tripId, dayId, placeId) => {

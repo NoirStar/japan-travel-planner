@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef } from "react"
-import { X, Plus, Star, Search, Check, Globe, Loader2, Trash2 } from "lucide-react"
+import { X, Plus, Star, Search, Check, Globe, Loader2, Trash2, ArrowUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { PlaceCategory, CATEGORY_LABELS } from "@/types/place"
@@ -39,6 +39,7 @@ export function PlaceSheet({
   const [isSearching, setIsSearching] = useState(false)
   const [showAll, setShowAll] = useState(false)
   const [confirmClearCache, setConfirmClearCache] = useState(false)
+  const [sortOption, setSortOption] = useState<"recent" | "rating" | "name">("recent")
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { addItem } = useScheduleStore()
   const trip = useScheduleStore((s) => s.getActiveTrip())
@@ -46,7 +47,7 @@ export function PlaceSheet({
   const addOrder = useDynamicPlaceStore((s) => s.addOrder)
   const clearPlaces = useDynamicPlaceStore((s) => s.clearPlaces)
 
-  // 최근 추가순 정렬 + 카테고리/검색 필터
+  // 정렬 + 카테고리/검색 필터
   const loadedPlaces = useMemo(() => {
     // addOrder 역순 (최근 먼저) → 없는 항목은 뒤에
     const ordered = [...addOrder].reverse()
@@ -55,7 +56,15 @@ export function PlaceSheet({
     // addOrder에 없는 기존 장소도 포함
     const inOrder = new Set(addOrder)
     const rest = Object.values(dynamicPlaces).filter((p) => !inOrder.has(p.id))
-    const all = [...ordered, ...rest]
+    let all = [...ordered, ...rest]
+
+    // 정렬
+    if (sortOption === "rating") {
+      all.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+    } else if (sortOption === "name") {
+      all.sort((a, b) => a.name.localeCompare(b.name, "ko"))
+    }
+    // "recent"는 이미 addOrder 역순
 
     let filtered = all
     if (activeCategory !== "all") {
@@ -71,7 +80,7 @@ export function PlaceSheet({
       )
     }
     return filtered
-  }, [dynamicPlaces, addOrder, activeCategory, searchQuery])
+  }, [dynamicPlaces, addOrder, activeCategory, searchQuery, sortOption])
 
   const totalCount = loadedPlaces.length
   const displayPlacesFromCache = showAll ? loadedPlaces : loadedPlaces.slice(0, DISPLAY_LIMIT)
@@ -186,8 +195,25 @@ export function PlaceSheet({
           </div>
         </div>
 
-        {/* 카테고리 필터 */}
-        <div className="flex flex-wrap gap-1 border-b border-border px-3 py-1.5" data-testid="category-filter">
+        {/* 정렬 + 카테고리 필터 */}
+        <div className="flex flex-wrap items-center gap-1 border-b border-border px-3 py-1.5" data-testid="category-filter">
+          <div className="mr-1 flex items-center gap-0.5">
+            <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+            {(["recent", "rating", "name"] as const).map((opt) => (
+              <button
+                key={opt}
+                onClick={() => setSortOption(opt)}
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium transition-all ${
+                  sortOption === opt
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {{ recent: "최근", rating: "평점", name: "이름" }[opt]}
+              </button>
+            ))}
+          </div>
+          <div className="mx-0.5 h-4 w-px bg-border" />
           {CATEGORIES.map((cat) => (
             <button
               key={cat.value}

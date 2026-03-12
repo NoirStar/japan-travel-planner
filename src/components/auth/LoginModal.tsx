@@ -1,4 +1,4 @@
-import { X, MapPin, Sparkles, Users } from "lucide-react"
+import { X, MapPin, Users, Map } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { isSupabaseConfigured } from "@/lib/supabase"
@@ -38,8 +38,8 @@ export function LoginModal() {
 
         {/* 기능 하이라이트 */}
         <div className="mx-6 -mt-1 mb-4 flex justify-center gap-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1"><Map className="h-3 w-3 text-primary" />지도 플래너</span>
           <span className="flex items-center gap-1"><MapPin className="h-3 w-3 text-primary" />일정 관리</span>
-          <span className="flex items-center gap-1"><Sparkles className="h-3 w-3 text-primary" />AI 추천</span>
           <span className="flex items-center gap-1"><Users className="h-3 w-3 text-primary" />커뮤니티</span>
         </div>
 

@@ -164,6 +164,30 @@ export function LandingPage() {
             </div>
           </motion.section>
 
+          {/* ── Social Proof ── */}
+          <motion.section className="mb-20" variants={fadeUp}>
+            <h2 className="mb-2 text-center text-sm font-semibold uppercase tracking-widest text-primary">Travelers</h2>
+            <p className="mb-8 text-center text-lg font-bold text-foreground">여행자들의 한마디</p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {[
+                { name: "하늘", city: "도쿄", text: "구글맵에서 바로 검색하고 일정에 넣으니까 계획 시간이 확 줄었어요!" },
+                { name: "민수", city: "오사카", text: "이동 시간 자동 계산이 진짜 편해요. 동선 짤 때 고민이 줄었습니다." },
+                { name: "지연", city: "교토", text: "커뮤니티에서 다른 분 일정 참고하니까 처음 가는 곳도 두렵지 않았어요." },
+              ].map(({ name, city, text }) => (
+                <div key={name} className="flex flex-col rounded-2xl border border-border bg-card p-5 card-shadow">
+                  <p className="mb-4 flex-1 text-xs leading-relaxed text-muted-foreground">"{text}"</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{name[0]}</div>
+                    <div>
+                      <p className="text-xs font-semibold">{name}</p>
+                      <p className="text-[10px] text-muted-foreground">{city} 여행</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
           {/* ── CTA ── */}
           <motion.section className="mb-20 text-center" variants={fadeUp}>
             <div className="rounded-2xl border border-primary/20 bg-primary/5 px-6 py-10 sm:px-12">

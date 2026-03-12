@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plane, Plus, LogIn, Compass } from "lucide-react"
+import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plane, Plus, LogIn, Compass, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
@@ -14,6 +14,15 @@ export function TripListPage() {
   const { trips, deleteTrip, setActiveTrip } = useScheduleStore()
   const { user, setShowLoginModal } = useAuthStore()
   const [deletingTripId, setDeletingTripId] = useState<string | null>(null)
+  const [sortBy, setSortBy] = useState<"recent" | "name">("recent")
+
+  const sortedTrips = useMemo(() => {
+    const copy = [...trips]
+    if (sortBy === "name") copy.sort((a, b) => a.title.localeCompare(b.title, "ko"))
+    // "recent" = default store order (newest last), reverse for newest first
+    else copy.reverse()
+    return copy
+  }, [trips, sortBy])
 
   const handleOpenTrip = (tripId: string, cityId: string) => {
     setActiveTrip(tripId)
@@ -91,20 +100,39 @@ export function TripListPage() {
           </motion.div>
         ) : (
           <div className="space-y-3">
-            {/* 새 여행 만들기 버튼 */}
-            <Button
-              onClick={() => navigate("/")}
-              className="btn-gradient w-full gap-2 rounded-xl"
-              data-testid="create-new-trip"
-            >
-              <Plus className="h-4 w-4" />
-              새 여행 만들기
-            </Button>
+            {/* 투바 */}
+            <div className="flex items-center justify-between">
+              <Button
+                onClick={() => navigate("/")}
+                className="btn-gradient gap-2 rounded-xl"
+                data-testid="create-new-trip"
+              >
+                <Plus className="h-4 w-4" />
+                새 여행 만들기
+              </Button>
+              <div className="flex items-center gap-0.5 text-muted-foreground">
+                <ArrowUpDown className="h-3 w-3" />
+                {(["recent", "name"] as const).map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setSortBy(opt)}
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
+                      sortBy === opt
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {{ recent: "최신순", name: "이름순" }[opt]}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <AnimatePresence mode="popLayout">
-              {trips.map((trip) => {
+              {sortedTrips.map((trip) => {
                 const cityConfig = getCityConfig(trip.cityId)
                 const places = totalPlaces(trip)
+                const daysWithPlaces = trip.days.filter((d) => d.items.length > 0).length
                 return (
                   <motion.div
                     key={trip.id}
@@ -124,7 +152,14 @@ export function TripListPage() {
 
                       {/* 여행 정보 */}
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-sm font-bold">{trip.title}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="truncate text-sm font-bold">{trip.title}</h3>
+                          <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                            daysWithPlaces === trip.days.length
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                              : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                          }`}>{daysWithPlaces}/{trip.days.length}일</span>
+                        </div>
                         <p className="text-xs text-muted-foreground">{cityConfig.name}</p>
 
                         <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">

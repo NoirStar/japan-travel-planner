@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus, AlertTriangle } from "lucide-react"
+import { MapPin, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus, AlertTriangle, FileDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
@@ -583,27 +583,46 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           <Plus className="h-4 w-4" />
           장소 추가
         </button>
-        <Button
-          variant="outline"
-          className="w-full gap-2 rounded-xl border-border"
-          size="lg"
-          onClick={async () => {
-            if (!trip) return
-            const ok = await copyShareUrl(trip)
-            setShareMessage(ok ? "링크가 복사되었습니다!" : "복사에 실패했습니다")
-            setTimeout(() => setShareMessage(null), 2000)
-          }}
-          data-testid="share-button"
-        >
-          {shareMessage === "링크가 복사되었습니다!" ? (
-            <Check className="h-4 w-4 text-emerald-500" />
-          ) : shareMessage === "복사에 실패했습니다" ? (
-            <AlertTriangle className="h-4 w-4 text-destructive" />
-          ) : (
-            <Share2 className="h-4 w-4" />
-          )}
-          {shareMessage ?? "여행 일정 공유"}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1 gap-2 rounded-xl border-border"
+            size="lg"
+            onClick={async () => {
+              if (!trip) return
+              const ok = await copyShareUrl(trip)
+              setShareMessage(ok ? "링크가 복사되었습니다!" : "복사에 실패했습니다")
+              setTimeout(() => setShareMessage(null), 2000)
+            }}
+            data-testid="share-button"
+          >
+            {shareMessage === "링크가 복사되었습니다!" ? (
+              <Check className="h-4 w-4 text-emerald-500" />
+            ) : shareMessage === "복사에 실패했습니다" ? (
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+            ) : (
+              <Share2 className="h-4 w-4" />
+            )}
+            {shareMessage ?? "공유"}
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1 gap-2 rounded-xl border-border"
+            size="lg"
+            onClick={async () => {
+              if (!trip) return
+              setShareMessage("PDF 생성 중...")
+              const { downloadTripPdf } = await import("@/lib/exportPdf")
+              const ok = await downloadTripPdf(trip)
+              setShareMessage(ok ? "PDF가 다운로드되었습니다!" : "PDF 생성에 실패했습니다")
+              setTimeout(() => setShareMessage(null), 2000)
+            }}
+            data-testid="export-pdf-button"
+          >
+            <FileDown className="h-4 w-4" />
+            PDF
+          </Button>
+        </div>
       </div>
 
       {/* 장소 추가 시트 */}

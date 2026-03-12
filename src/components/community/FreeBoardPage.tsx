@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { TrendingUp, Clock, Trophy, Search, ThumbsUp, MessageCircle, PenSquare, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
+import { TrendingUp, Clock, Trophy, Search, ThumbsUp, MessageCircle, PenSquare, ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockFreePosts } from "@/lib/mockCommunity"
@@ -52,15 +52,23 @@ export function FreeBoardPage() {
   const [minLikes, setMinLikes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
+  // 작성자 필터
+  const [authorFilter, setAuthorFilter] = useState<{ userId: string; nickname: string } | null>(null)
 
   // 썸네일 호버
   const [hoverImg, setHoverImg] = useState<{ src: string; x: number; y: number } | null>(null)
 
   const fetchIdRef = useRef(0)
+  const abortRef = useRef<AbortController | null>(null)
 
   const fetchPosts = useCallback(async () => {
+    // 이전 요청 취소
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
     const id = ++fetchIdRef.current
     setIsLoading(true)
+
     if (useMock) {
       const mockSort = sort === "best" ? "popular" : sort
       let result = fetchMockFreePosts(mockSort, searchType === "author" ? undefined : searchQuery)
@@ -71,6 +79,9 @@ export function FreeBoardPage() {
           const prof = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles
           return prof?.nickname?.toLowerCase().includes(q)
         })
+      }
+      if (authorFilter) {
+        result = result.filter((p) => p.user_id === authorFilter.userId)
       }
       if (sort === "best") {
         result = result.filter((p) => p.likes_count >= BEST_THRESHOLD)
@@ -86,6 +97,10 @@ export function FreeBoardPage() {
       .from("posts")
       .select("*, profiles(*)")
       .eq("board_type", "free")
+
+    if (authorFilter) {
+      query = query.eq("user_id", authorFilter.userId)
+    }
 
     if (searchQuery) {
       if (searchType === "title") {
@@ -106,7 +121,7 @@ export function FreeBoardPage() {
 
     try {
       const { data, error } = await query
-      if (id !== fetchIdRef.current) return // stale request
+      if (controller.signal.aborted) return // 취소된 요청 무시
       if (error) {
         console.error("게시글 로드 실패:", error)
         setPosts([])
@@ -126,17 +141,20 @@ export function FreeBoardPage() {
       }
       setPosts(normalized)
     } catch (e) {
-      if (id === fetchIdRef.current) {
+      if (!controller.signal.aborted) {
         console.error("게시글 로드 실패:", e)
         setPosts([])
       }
     } finally {
-      if (id >= fetchIdRef.current) setIsLoading(false)
+      if (!controller.signal.aborted) setIsLoading(false)
     }
-  }, [sort, searchQuery, searchType, useMock])
+  }, [sort, searchQuery, searchType, authorFilter, useMock])
 
-  useEffect(() => { fetchPosts() }, [fetchPosts])
-  useEffect(() => { setPage(1) }, [sort, searchQuery, minLikes])
+  useEffect(() => {
+    fetchPosts()
+    return () => { abortRef.current?.abort() }
+  }, [fetchPosts])
+  useEffect(() => { setPage(1) }, [sort, searchQuery, minLikes, authorFilter])
 
   // 로딩 안전장치: 5초 후에도 로딩 중이면 강제 해제
   useEffect(() => {
@@ -166,14 +184,22 @@ export function FreeBoardPage() {
     if (e.key === "Enter") handleSearch()
   }
 
-  const handleMouseMove = (e: React.MouseEvent, post: CommunityPost) => {
+  const handleTitleMouseMove = (e: React.MouseEvent, post: CommunityPost) => {
     const img = extractFirstImage(post.content) || post.cover_image
     if (img) {
       setHoverImg({ src: img, x: e.clientX + 16, y: e.clientY + 16 })
     }
   }
 
-  const handleMouseLeave = () => setHoverImg(null)
+  const handleTitleMouseLeave = () => setHoverImg(null)
+
+  const handleAuthorClick = (e: React.MouseEvent, post: CommunityPost) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const profile = unwrapProfile(post.profiles)
+    if (!profile) return
+    setAuthorFilter({ userId: post.user_id, nickname: profile.nickname })
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 pt-20 pb-10">
@@ -268,6 +294,17 @@ export function FreeBoardPage() {
           ))}
         </div>
 
+        {/* 작성자 필터 표시 */}
+        {authorFilter && (
+          <button
+            onClick={() => setAuthorFilter(null)}
+            className="inline-flex items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+          >
+            {authorFilter.nickname}의 글
+            <X className="h-3 w-3" />
+          </button>
+        )}
+
         {/* 글 수 표시 */}
         <span className="ml-auto text-xs text-muted-foreground">
           총 {filteredPosts.length}건
@@ -321,8 +358,6 @@ export function FreeBoardPage() {
                 className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 transition-colors hover:bg-muted/50 ${
                   idx > 0 ? "border-t border-border/60" : ""
                 } ${isBest ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`}
-                onMouseMove={(e) => handleMouseMove(e, post)}
-                onMouseLeave={handleMouseLeave}
               >
                 {/* 베스트 뱃지 */}
                 {isBest && (
@@ -332,7 +367,11 @@ export function FreeBoardPage() {
                 )}
 
                 {/* 제목 + 모바일 메타 */}
-                <div className="min-w-0 flex-1">
+                <div
+                  className="min-w-0 flex-1"
+                  onMouseMove={(e) => handleTitleMouseMove(e, post)}
+                  onMouseLeave={handleTitleMouseLeave}
+                >
                   <p className="truncate text-sm font-medium">
                     {post.title}
                     {hasImage && <ImageIcon className="ml-1 inline h-3 w-3 text-muted-foreground" />}
@@ -341,7 +380,12 @@ export function FreeBoardPage() {
                     )}
                   </p>
                   <div className="flex items-center gap-2 mt-0.5 sm:hidden text-[11px] text-muted-foreground">
-                    <span>{profile?.nickname ?? "익명"}</span>
+                    <button
+                      onClick={(e) => handleAuthorClick(e, post)}
+                      className="hover:text-primary hover:underline"
+                    >
+                      {profile?.nickname ?? "익명"}
+                    </button>
                     {profile && <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />}
                     <span>·</span>
                     <span className="inline-flex items-center gap-0.5"><ThumbsUp className="h-2.5 w-2.5" /> {post.likes_count}</span>
@@ -352,7 +396,10 @@ export function FreeBoardPage() {
 
                 {/* 데스크탑 메타 */}
                 <div className="hidden sm:flex shrink-0 items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5 w-28 truncate">
+                  <button
+                    onClick={(e) => handleAuthorClick(e, post)}
+                    className="flex items-center justify-center gap-1.5 w-28 truncate hover:text-primary transition-colors"
+                  >
                     {profile?.avatar_url ? (
                       <img src={profile.avatar_url} alt="" className="h-4 w-4 rounded-full object-cover shrink-0" />
                     ) : (
@@ -362,7 +409,7 @@ export function FreeBoardPage() {
                     )}
                     <span className="truncate">{profile?.nickname ?? "익명"}</span>
                     {profile && <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />}
-                  </span>
+                  </button>
                   <span className="inline-flex items-center gap-0.5 w-10 justify-end">
                     <ThumbsUp className="h-3 w-3" /> {post.likes_count}
                   </span>

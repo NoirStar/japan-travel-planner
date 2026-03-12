@@ -137,3 +137,20 @@ export interface Notification {
   read: boolean
   created_at: string
 }
+
+// ─── 문의 ───────────────────────────────────────────────
+export type InquiryCategory = "bug" | "feature" | "question" | "other"
+export type InquiryStatus = "open" | "resolved" | "closed"
+
+export interface Inquiry {
+  id: string
+  user_id: string
+  category: InquiryCategory
+  title: string
+  content: string
+  status: InquiryStatus
+  admin_reply: string | null
+  created_at: string
+  // join
+  profiles?: UserProfile | UserProfile[]
+}

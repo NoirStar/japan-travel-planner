@@ -32,6 +32,7 @@ const CreateFreePostPage = lazy(() => lazyRetry(() => import("@/components/commu
 const EditFreePostPage = lazy(() => lazyRetry(() => import("@/components/community/EditFreePostPage")).then((m) => ({ default: m.EditFreePostPage })))
 const PostDetail = lazy(() => lazyRetry(() => import("@/components/community/PostDetail")).then((m) => ({ default: m.PostDetail })))
 const ProfilePage = lazy(() => lazyRetry(() => import("@/components/auth/ProfilePage")).then((m) => ({ default: m.ProfilePage })))
+const ContactPage = lazy(() => lazyRetry(() => import("@/components/contact/ContactPage")).then((m) => ({ default: m.ContactPage })))
 
 function PageLoader() {
   return (
@@ -67,6 +68,7 @@ function App() {
             <Route path="/community/free/edit/:postId" element={<RequireAuth redirectTo="/community/free"><EditFreePostPage /></RequireAuth>} />
             <Route path="/community/:postId" element={<PostDetail />} />
             <Route path="/profile" element={<RequireAuth redirectTo="/"><ProfilePage /></RequireAuth>} />
+            <Route path="/contact" element={<RequireAuth redirectTo="/"><ContactPage /></RequireAuth>} />
           </Routes>
         </Suspense>
       </ErrorBoundary>

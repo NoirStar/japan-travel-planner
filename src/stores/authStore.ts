@@ -33,6 +33,8 @@ interface AuthState {
   hasCheckedIn: () => boolean
 }
 
+let _initCalled = false
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   session: null,
   user: null,
@@ -42,6 +44,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isDemoMode: false,
 
   initialize: async () => {
+    // 중복 호출 방지 (React StrictMode에서 effect 이중 실행)
+    if (_initCalled) return
+    _initCalled = true
     if (!isSupabaseConfigured) {
       // Supabase 미설정 시에만 localStorage 기반 복원
       if (localStorage.getItem("admin_logged_in") === "true") {

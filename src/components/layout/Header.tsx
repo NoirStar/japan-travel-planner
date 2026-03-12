@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell } from "lucide-react"
+import { Moon, Sun, User, Users, LogOut, Settings, ChevronDown, MapPin, PenSquare, Compass, List, Bell, MessageSquareText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUIStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -224,6 +224,13 @@ export function Header() {
                   >
                     <List className="h-4 w-4 text-muted-foreground" />
                     내 여행
+                  </button>
+                  <button
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                    onClick={() => { setDropdownOpen(false); navigate("/contact"); }}
+                  >
+                    <MessageSquareText className="h-4 w-4 text-muted-foreground" />
+                    문의하기
                   </button>
                   <button
                     className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"

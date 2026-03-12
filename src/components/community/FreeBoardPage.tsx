@@ -132,6 +132,8 @@ export function FreeBoardPage() {
       }
     } finally {
       if (id === fetchIdRef.current) setIsLoading(false)
+      // stale request가 마지막 요청보다 늦게 도착한 경우에도 로딩 해제 보장
+      else if (fetchIdRef.current === id + 1) setIsLoading(false)
     }
   }, [sort, searchQuery, searchType, useMock])
 

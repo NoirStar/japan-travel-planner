@@ -106,6 +106,21 @@ create table if not exists chat_messages (
 
 create index if not exists chat_messages_created_at_idx on chat_messages (created_at desc);
 
+-- ── 문의 ──────────────────────────────────────────────
+create table if not exists inquiries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  category text not null check (category in ('bug', 'feature', 'question', 'other')),
+  title text not null,
+  content text not null,
+  status text not null default 'open' check (status in ('open', 'resolved', 'closed')),
+  admin_reply text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists inquiries_user_id_idx on inquiries (user_id, created_at desc);
+create index if not exists inquiries_status_idx on inquiries (status, created_at desc);
+
 -- ═══════════════════════════════════════════════════════
 -- RLS 정책
 -- ═══════════════════════════════════════════════════════
@@ -116,6 +131,7 @@ alter table comments enable row level security;
 alter table comment_votes enable row level security;
 alter table notifications enable row level security;
 alter table chat_messages enable row level security;
+alter table inquiries enable row level security;
 
 -- profiles: 누구나 조회, 본인만 수정
 create policy "프로필 공개 조회" on profiles for select using (true);
@@ -162,6 +178,19 @@ create policy "알림 읽음 처리" on notifications for update using (auth.uid
 -- chat_messages: 누구나 조회, 로그인한 사용자만 작성
 create policy "채팅 조회" on chat_messages for select using (true);
 create policy "채팅 작성" on chat_messages for insert with check (auth.uid() = user_id);
+
+-- inquiries: 본인 + 관리자만 조회, 로그인한 사용자만 작성, 관리자만 답변(update)
+create policy "문의 조회" on inquiries for select using (
+  auth.uid() = user_id
+  or exists (select 1 from profiles where id = auth.uid() and is_admin = true)
+);
+create policy "문의 작성" on inquiries for insert with check (auth.uid() = user_id);
+create policy "문의 답변" on inquiries for update using (
+  exists (select 1 from profiles where id = auth.uid() and is_admin = true)
+);
+create policy "문의 삭제" on inquiries for delete using (
+  exists (select 1 from profiles where id = auth.uid() and is_admin = true)
+);
 
 -- ═══════════════════════════════════════════════════════
 -- 함수 & 트리거
@@ -343,9 +372,9 @@ create or replace function toggle_post_vote(
   p_vote_type text
 )
 returns table (
-  vote_type text,
-  likes_count int,
-  dislikes_count int
+  out_vote_type text,
+  out_likes_count int,
+  out_dislikes_count int
 ) as $$
 declare
   current_vote text;
@@ -401,9 +430,9 @@ create or replace function toggle_comment_vote(
   p_vote_type text
 )
 returns table (
-  vote_type text,
-  likes_count int,
-  dislikes_count int
+  out_vote_type text,
+  out_likes_count int,
+  out_dislikes_count int
 ) as $$
 declare
   current_vote text;

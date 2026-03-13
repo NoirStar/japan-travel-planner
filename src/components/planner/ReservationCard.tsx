@@ -50,7 +50,7 @@ function formatShortDate(iso: string): string {
   return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
-export function ReservationCard({ reservation, onEdit, onRemove, position }: ReservationCardProps) {
+export function ReservationCard({ reservation, onEdit, onRemove, position: _position }: ReservationCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [copiedRef, setCopiedRef] = useState(false)
 

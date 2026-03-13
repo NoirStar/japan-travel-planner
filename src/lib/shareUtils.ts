@@ -1,5 +1,6 @@
 import type { Trip } from "@/types/schedule"
 import { getAnyPlaceById, useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
+import { PlaceCategory } from "@/types/place"
 import type { Place } from "@/types/place"
 
 /**
@@ -86,11 +87,13 @@ export function decodeTrip(encoded: string): Trip | null {
       const { addPlace } = useDynamicPlaceStore.getState()
       for (const [id, snap] of Object.entries(compact.pl)) {
         const s = snap as { n: string; ne: string; ca: string; ci: string; la: number; ln: number; r?: number; rc?: number; im?: string; ad?: string; gpi?: string; gmu?: string }
+        const validCategories = Object.values(PlaceCategory) as string[]
+        const category = validCategories.includes(s.ca) ? s.ca as PlaceCategory : PlaceCategory.OTHER
         const place: Place = {
           id,
           name: s.n,
           nameEn: s.ne,
-          category: s.ca,
+          category,
           cityId: s.ci,
           location: { lat: s.la, lng: s.ln },
           rating: s.r,

@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { BarChart3, Trash2 } from "lucide-react"
 import { formatTravelTime } from "@/lib/utils"
-import type { ScheduleItem, Day } from "@/types/schedule"
+import type { ScheduleItem, DaySchedule } from "@/types/schedule"
 
 interface DaySummaryProps {
-  currentDay: Day | undefined
+  currentDay: DaySchedule | undefined
   items: ScheduleItem[]
   allDaysFilled: boolean
   totalTravelMinutes: number

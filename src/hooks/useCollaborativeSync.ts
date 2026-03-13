@@ -204,10 +204,14 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
     if (!sharedId || !trip || !user || !available) return
     if (myRole === "viewer") return
 
-    const unsubscribe = useScheduleStore.subscribe(
-      (state) => state.trips.find((t) => t.id === trip.id)?.updatedAt,
-      (updatedAt: string | undefined) => {
-        if (isRemoteUpdate || !updatedAt) return
+    let prevUpdatedAt = useScheduleStore.getState().trips.find((t) => t.id === trip.id)?.updatedAt
+
+    const unsubscribe = useScheduleStore.subscribe((state) => {
+      const updatedAt = state.trips.find((t) => t.id === trip.id)?.updatedAt
+      if (updatedAt === prevUpdatedAt) return
+      prevUpdatedAt = updatedAt
+
+      if (isRemoteUpdate || !updatedAt) return
 
         // 디바운스
         if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
@@ -244,8 +248,7 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
             setIsSyncing(false)
           }
         }, DEBOUNCE_MS)
-      },
-    )
+    })
 
     return () => {
       unsubscribe()

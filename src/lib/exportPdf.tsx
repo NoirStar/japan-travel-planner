@@ -5,15 +5,19 @@ import { CATEGORY_LABELS, type PlaceCategory } from "@/types/place"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { getCityConfig } from "@/data/mapConfig"
 
-// ── 한글 폰트 등록 (Noto Sans KR from Google Fonts) ──
-const FONT_BASE = "https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/Subset/SpoqaHanSansNeo"
+// ── 폰트 등록 (Noto Sans KR: 한국어+CJK+라틴 커버) ──
+const NOTO_KR = "https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-kr@latest"
+
 Font.register({
-  family: "SpoqaHanSans",
+  family: "NotoSansKR",
   fonts: [
-    { src: `${FONT_BASE}/SpoqaHanSansNeo-Regular.ttf`, fontWeight: 400 },
-    { src: `${FONT_BASE}/SpoqaHanSansNeo-Bold.ttf`, fontWeight: 700 },
+    { src: `${NOTO_KR}/korean-400-normal.ttf`, fontWeight: 400 },
+    { src: `${NOTO_KR}/korean-700-normal.ttf`, fontWeight: 700 },
   ],
 })
+
+// 하이픈 비활성화 (단어 잘림/겹침 방지)
+Font.registerHyphenationCallback((word) => [word])
 
 // ── 스타일 ──
 const c = {
@@ -28,7 +32,7 @@ const c = {
 }
 
 const s = StyleSheet.create({
-  page: { fontFamily: "SpoqaHanSans", fontSize: 9, color: c.text, backgroundColor: c.bg, paddingTop: 36, paddingBottom: 48, paddingHorizontal: 36 },
+  page: { fontFamily: "NotoSansKR", fontSize: 9, color: c.text, backgroundColor: c.bg, paddingTop: 36, paddingBottom: 48, paddingHorizontal: 36 },
   // Header
   header: { marginBottom: 20, borderBottom: `2 solid ${c.primary}`, paddingBottom: 12 },
   title: { fontSize: 20, fontWeight: 700, color: c.primary, marginBottom: 4 },
@@ -98,9 +102,9 @@ function TripPdfDocument({ trip }: TripPdfProps) {
           <Text style={s.subtitle}>{cityConfig.name} ({cityConfig.nameEn}) 여행 일정표</Text>
           <View style={s.meta}>
             {trip.startDate && trip.endDate && (
-              <Text style={s.metaItem}>📅 {formatDate(trip.startDate)} ~ {formatDate(trip.endDate)}</Text>
+              <Text style={s.metaItem}>{formatDate(trip.startDate)} ~ {formatDate(trip.endDate)}</Text>
             )}
-            <Text style={s.metaItem}>📍 {totalPlaces}개 장소 · {trip.days.length}일</Text>
+            <Text style={s.metaItem}>{totalPlaces}개 장소 | {trip.days.length}일</Text>
           </View>
         </View>
 
@@ -154,7 +158,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                         {place.rating && <Text style={s.placeRating}>★ {place.rating}</Text>}
                       </View>
                       {place.address && <Text style={s.placeAddress}>{place.address}</Text>}
-                      {item.memo && <Text style={s.placeMemo}>📝 {item.memo}</Text>}
+                      {item.memo && <Text style={s.placeMemo}>{item.memo}</Text>}
                     </View>
                   </View>
                 ))

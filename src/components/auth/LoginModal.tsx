@@ -28,7 +28,7 @@ export function LoginModal() {
           </button>
 
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
-            <span className="text-2xl">🗾</span>
+            <Map className="h-7 w-7 text-primary" />
           </div>
           <h2 className="text-xl font-bold gradient-text font-maple">타비톡</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">

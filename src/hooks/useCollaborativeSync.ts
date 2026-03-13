@@ -167,7 +167,7 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
       const state = channel.presenceState()
       const online: OnlineMember[] = []
       for (const [, presences] of Object.entries(state)) {
-        for (const p of presences as Array<{ userId: string; nickname: string; avatarUrl: string | null }>) {
+        for (const p of presences as unknown as Array<{ userId: string; nickname: string; avatarUrl: string | null }>) {
           if (p.userId !== user.id) {
             online.push({ userId: p.userId, nickname: p.nickname, avatarUrl: p.avatarUrl })
           }
@@ -206,7 +206,7 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
 
     const unsubscribe = useScheduleStore.subscribe(
       (state) => state.trips.find((t) => t.id === trip.id)?.updatedAt,
-      (updatedAt) => {
+      (updatedAt: string | undefined) => {
         if (isRemoteUpdate || !updatedAt) return
 
         // 디바운스

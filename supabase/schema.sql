@@ -94,18 +94,6 @@ create table if not exists notifications (
 
 create index if not exists notifications_user_id_idx on notifications (user_id, created_at desc);
 
--- ── 실시간 채팅 ───────────────────────────────────────
-create table if not exists chat_messages (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references profiles(id) on delete cascade,
-  nickname text not null,
-  avatar_url text,
-  content text not null,
-  created_at timestamptz not null default now()
-);
-
-create index if not exists chat_messages_created_at_idx on chat_messages (created_at desc);
-
 -- ── 문의 ──────────────────────────────────────────────
 create table if not exists inquiries (
   id uuid primary key default gen_random_uuid(),
@@ -130,7 +118,6 @@ alter table post_votes enable row level security;
 alter table comments enable row level security;
 alter table comment_votes enable row level security;
 alter table notifications enable row level security;
-alter table chat_messages enable row level security;
 alter table inquiries enable row level security;
 
 -- profiles: 누구나 조회, 본인만 수정
@@ -174,10 +161,6 @@ create policy "댓글투표 삭제" on comment_votes for delete using (auth.uid(
 -- notifications: 본인만 조회/읽음 처리
 create policy "알림 조회" on notifications for select using (auth.uid() = user_id);
 create policy "알림 읽음 처리" on notifications for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
-
--- chat_messages: 누구나 조회, 로그인한 사용자만 작성
-create policy "채팅 조회" on chat_messages for select using (true);
-create policy "채팅 작성" on chat_messages for insert with check (auth.uid() = user_id);
 
 -- inquiries: 본인 + 관리자만 조회, 로그인한 사용자만 작성, 관리자만 답변(update)
 create policy "문의 조회" on inquiries for select using (
@@ -501,7 +484,6 @@ $$ language plpgsql security definer set search_path = public;
 -- ═══════════════════════════════════════════════════════
 -- Realtime — 채팅 메시지 실시간 구독용
 -- ═══════════════════════════════════════════════════════
-alter publication supabase_realtime add table chat_messages;
 alter publication supabase_realtime add table notifications;
 
 -- ═══════════════════════════════════════════════════════

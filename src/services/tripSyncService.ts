@@ -215,7 +215,7 @@ export async function getMembers(sharedId: string): Promise<TripMember[]> {
 
   if (error || !data) return []
 
-  return (data as Array<{
+  return (data as unknown as Array<{
     user_id: string
     role: MemberRole
     joined_at: string

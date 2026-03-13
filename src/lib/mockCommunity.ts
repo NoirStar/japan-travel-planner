@@ -12,7 +12,6 @@ const KEYS = {
   demoUser: "mock_demo_user",
   pointLog: "mock_point_log",
   lastAttendance: "mock_last_attendance",
-  chatMessages: "mock_chat_messages",
   notifications: "mock_notifications",
 } as const
 
@@ -404,39 +403,6 @@ export function toggleMockCommentVote(commentId: string, userId: string, type: V
   write(KEYS.commentVotes, votes)
   write(KEYS.comments, comments)
   return newVote
-}
-
-// ─── 채팅 ────────────────────────────────────────────────
-export interface ChatMessage {
-  id: string
-  user_id: string
-  nickname: string
-  avatar_url: string | null
-  content: string
-  created_at: string
-}
-
-export function getChatMessages(): ChatMessage[] {
-  return read<ChatMessage>(KEYS.chatMessages)
-    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-    .slice(-100) // 최근 100개만
-}
-
-export function addChatMessage(userId: string, nickname: string, avatarUrl: string | null, content: string): ChatMessage {
-  const msg: ChatMessage = {
-    id: uid(),
-    user_id: userId,
-    nickname,
-    avatar_url: avatarUrl,
-    content,
-    created_at: new Date().toISOString(),
-  }
-  const msgs = read<ChatMessage>(KEYS.chatMessages)
-  msgs.push(msg)
-  // 최대 500개 유지
-  if (msgs.length > 500) msgs.splice(0, msgs.length - 500)
-  write(KEYS.chatMessages, msgs)
-  return msg
 }
 
 // ─── 알림 ────────────────────────────────────────────────

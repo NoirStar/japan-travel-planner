@@ -11,6 +11,8 @@ import { decodeTrip } from "@/lib/shareUtils"
 import { showToast } from "@/components/ui/CelebrationOverlay"
 import { useMapSearch } from "@/hooks/useMapSearch"
 import { useCollaborativeSync } from "@/hooks/useCollaborativeSync"
+import { TripChatPanel } from "@/components/planner/TripChatPanel"
+import { isChatAvailable } from "@/services/tripChatService"
 import type { Place } from "@/types/place"
 
 export function PlannerPage() {
@@ -201,6 +203,11 @@ export function PlannerPage() {
           />
         </main>
       </div>
+
+      {/* 공동 편집 채팅 */}
+      {trip?.sharedId && isChatAvailable() && (
+        <TripChatPanel sharedId={trip.sharedId} />
+      )}
 
       {/* 비로그인 저장 불가 토스트 */}
       {loginToast && (

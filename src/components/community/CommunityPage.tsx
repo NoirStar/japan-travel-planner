@@ -9,7 +9,6 @@ import type { CommunityPost, PostSortOption } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
 import { PostCard } from "./PostCard"
 import { CreatePostModal } from "./CreatePostModal"
-import { ChatPanel } from "./ChatPanel"
 import { cities } from "@/data/cities"
 
 /** 개별 PostCard 에러 격리 — 하나의 카드가 깨져도 나머지는 정상 렌더 */
@@ -341,8 +340,6 @@ export function CommunityPage() {
         onCreated={() => { setSort("latest"); fetchPosts() }}
       />
 
-      {/* 실시간 채팅 */}
-      <ChatPanel />
     </div>
   )
 }

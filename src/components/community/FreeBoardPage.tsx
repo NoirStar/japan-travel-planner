@@ -9,7 +9,6 @@ import { useAuthStore } from "@/stores/authStore"
 import type { CommunityPost, PostSortOption } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
-import { ChatPanel } from "./ChatPanel"
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -480,8 +479,6 @@ export function FreeBoardPage() {
         </div>
       )}
 
-      {/* 실시간 채팅 */}
-      <ChatPanel />
     </div>
   )
 }

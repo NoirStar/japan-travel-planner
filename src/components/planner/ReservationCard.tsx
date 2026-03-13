@@ -24,8 +24,6 @@ interface ReservationCardProps {
   reservation: Reservation
   onEdit: () => void
   onRemove: () => void
-  /** 카드 위치: transport(상단), accommodation(하단) */
-  position: "transport" | "accommodation"
 }
 
 const TYPE_CONFIG: Record<ReservationType, { icon: LucideIcon; gradient: string; bg: string }> = {
@@ -50,7 +48,7 @@ function formatShortDate(iso: string): string {
   return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
-export function ReservationCard({ reservation, onEdit, onRemove, position: _position }: ReservationCardProps) {
+export function ReservationCard({ reservation, onEdit, onRemove }: ReservationCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [copiedRef, setCopiedRef] = useState(false)
 

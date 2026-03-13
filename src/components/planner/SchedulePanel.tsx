@@ -464,7 +464,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
               <ReservationCard
                 key={r.id}
                 reservation={r}
-                position="transport"
                 onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
                 onRemove={() => trip && removeReservation(trip.id, r.id)}
               />
@@ -598,7 +597,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
               <ReservationCard
                 key={r.id}
                 reservation={r}
-                position="accommodation"
                 onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
                 onRemove={() => trip && removeReservation(trip.id, r.id)}
               />

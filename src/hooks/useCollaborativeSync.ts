@@ -258,25 +258,22 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
 
   // ── 공유 전환 ─────────────────────────────────────────
   const shareTripAction = useCallback(async (): Promise<string | null> => {
-    if (!trip || !user || !available) return null
+    if (!trip || !user) return null
+    if (!available) throw new Error("로그인이 필요합니다. Google 계정으로 로그인해 주세요.")
 
-    try {
-      const { sharedId: newSharedId, inviteCode: code } = await shareTripApi(trip, user.id)
+    const { sharedId: newSharedId, inviteCode: code } = await shareTripApi(trip, user.id)
 
-      // Trip에 sharedId 기록
-      useScheduleStore.setState((state) => ({
-        trips: state.trips.map((t) =>
-          t.id === trip.id ? { ...t, sharedId: newSharedId } : t,
-        ),
-      }))
+    // Trip에 sharedId 기록
+    useScheduleStore.setState((state) => ({
+      trips: state.trips.map((t) =>
+        t.id === trip.id ? { ...t, sharedId: newSharedId } : t,
+      ),
+    }))
 
-      setInviteCode(code)
-      void refreshMembers()
+    setInviteCode(code)
+    void refreshMembers()
 
-      return code
-    } catch {
-      return null
-    }
+    return code
   }, [trip, user, available, refreshMembers])
 
   return {

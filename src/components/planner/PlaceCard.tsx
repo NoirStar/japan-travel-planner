@@ -122,7 +122,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
           </div>
 
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-bold leading-tight">{place.name}</h3>
+            <h3 className="text-sm font-bold leading-tight pr-6 truncate">{place.name}</h3>
             <p className="text-[11px] text-muted-foreground/70">{place.nameEn}</p>
 
             <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">

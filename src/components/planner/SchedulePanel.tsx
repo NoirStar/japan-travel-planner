@@ -15,8 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Plus, Train, Footprints, TrainFront, Share2, Check, AlertTriangle, FileDown, Ticket, Heart, ClipboardCheck } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { MapPin, Plus, Train, Footprints, TrainFront, Share2, Check, AlertTriangle, FileDown, Ticket, Bookmark, ClipboardCheck } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -26,6 +25,7 @@ import { DayTabs } from "./DayTabs"
 import { PlaceCard } from "./PlaceCard"
 import { SortablePlaceCard } from "./SortablePlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
+import { SortableReservationCard } from "./SortableReservationCard"
 import { ReservationCard } from "./ReservationCard"
 import { ReservationSheet } from "./ReservationSheet"
 import { TripHeader } from "./TripHeader"
@@ -51,7 +51,7 @@ interface SchedulePanelProps {
 
 export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace, collab }: SchedulePanelProps) {
   const trip = useScheduleStore((s) => s.getActiveTrip())
-  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation } = useScheduleStore()
+  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation, moveReservation } = useScheduleStore()
   const { user } = useAuthStore()
 
   /** 날짜 변경 시 Day 수 자동 조정 */
@@ -113,6 +113,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [isChecklistOpen, setIsChecklistOpen] = useState(false)
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null)
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
+  const [activeReservationId, setActiveReservationId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -197,6 +198,10 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   }, [trip, currentDay, travelDataMap])
   const risks = useScheduleRisks(trip, travelDataByDay)
 
+  // 예약 sortable IDs
+  const transportReservationIds = useMemo(() => transportReservations.map((r) => r.id), [transportReservations])
+  const accommodationReservationIds = useMemo(() => accommodationReservations.map((r) => r.id), [accommodationReservations])
+
   // 해석 불가 장소(orphan) 자동 정리
   useEffect(() => {
     if (!trip) return
@@ -270,6 +275,29 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
     setActiveItemId(null)
   }
 
+  // ── 예약 DnD 핸들러 ──────────────────────────────────
+  const handleReservationDragStart = (event: DragStartEvent) => {
+    setActiveReservationId(event.active.id as string)
+  }
+
+  const handleReservationDragEnd = (event: DragEndEvent) => {
+    setActiveReservationId(null)
+    const { active, over } = event
+    if (!over || !trip) return
+    if (active.id === over.id) return
+
+    const allReservations = trip.reservations ?? []
+    const oldIndex = allReservations.findIndex((r) => r.id === active.id)
+    const newIndex = allReservations.findIndex((r) => r.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    moveReservation(trip.id, active.id as string, newIndex)
+  }
+
+  const handleReservationDragCancel = () => {
+    setActiveReservationId(null)
+  }
+
   return (
     <div className="flex h-full flex-col" data-testid="schedule-panel">
       {/* 헤더 */}
@@ -296,16 +324,38 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4" data-testid="schedule-items">
         {/* 교통 예약 (항공/기차/버스) — 장소 목록 상단 */}
         {transportReservations.length > 0 && (
-          <div className="mb-3 flex flex-col gap-2">
-            {transportReservations.map((r) => (
-              <ReservationCard
-                key={r.id}
-                reservation={r}
-                onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
-                onRemove={() => trip && removeReservation(trip.id, r.id)}
-              />
-            ))}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleReservationDragStart}
+            onDragEnd={handleReservationDragEnd}
+            onDragCancel={handleReservationDragCancel}
+          >
+            <SortableContext items={transportReservationIds} strategy={verticalListSortingStrategy}>
+              <div className="mb-3 flex flex-col gap-2">
+                {transportReservations.map((r) => (
+                  <SortableReservationCard
+                    key={r.id}
+                    id={r.id}
+                    reservation={r}
+                    onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
+                    onRemove={() => trip && removeReservation(trip.id, r.id)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+            <DragOverlay dropAnimation={null}>
+              {activeReservationId && transportReservations.find((r) => r.id === activeReservationId) ? (
+                <div className="opacity-90">
+                  <ReservationCard
+                    reservation={transportReservations.find((r) => r.id === activeReservationId)!}
+                    onEdit={() => {}}
+                    onRemove={() => {}}
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         )}
 
         {items.length === 0 && transportReservations.length === 0 && accommodationReservations.length === 0 ? (
@@ -429,16 +479,38 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
         {/* 숙박 예약 — 장소 목록 하단 */}
         {accommodationReservations.length > 0 && (
-          <div className="mt-3 flex flex-col gap-2">
-            {accommodationReservations.map((r) => (
-              <ReservationCard
-                key={r.id}
-                reservation={r}
-                onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
-                onRemove={() => trip && removeReservation(trip.id, r.id)}
-              />
-            ))}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleReservationDragStart}
+            onDragEnd={handleReservationDragEnd}
+            onDragCancel={handleReservationDragCancel}
+          >
+            <SortableContext items={accommodationReservationIds} strategy={verticalListSortingStrategy}>
+              <div className="mt-3 flex flex-col gap-2">
+                {accommodationReservations.map((r) => (
+                  <SortableReservationCard
+                    key={r.id}
+                    id={r.id}
+                    reservation={r}
+                    onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
+                    onRemove={() => trip && removeReservation(trip.id, r.id)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+            <DragOverlay dropAnimation={null}>
+              {activeReservationId && accommodationReservations.find((r) => r.id === activeReservationId) ? (
+                <div className="opacity-90">
+                  <ReservationCard
+                    reservation={accommodationReservations.find((r) => r.id === activeReservationId)!}
+                    onEdit={() => {}}
+                    onRemove={() => {}}
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         )}
       </div>
 
@@ -469,8 +541,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             onClick={() => setIsWishlistOpen(true)}
             data-testid="wishlist-button"
           >
-            <Heart className="h-4 w-4 text-rose-500" />
-            후보함
+            <Bookmark className="h-4 w-4 text-rose-500" />
+            북마크
             {wishlistCount > 0 && (
               <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
                 {wishlistCount}
@@ -478,9 +550,10 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             )}
           </button>
         </div>
-        <div className="flex gap-2">
+        {/* 보조 도구 — 아이콘+라벨 컴팩트 버튼 */}
+        <div className="flex gap-1.5">
           <button
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => { setEditingReservation(null); setIsReservationSheetOpen(true) }}
             data-testid="add-reservation-button"
           >
@@ -488,19 +561,15 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             예약
           </button>
           <button
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsChecklistOpen(true)}
             data-testid="checklist-button"
           >
             <ClipboardCheck className="h-4 w-4 text-emerald-500" />
             준비물
           </button>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1 gap-2 rounded-xl border-border"
-            size="lg"
+          <button
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
             onClick={async () => {
               if (!trip) return
               const ok = await copyShareUrl(trip)
@@ -517,11 +586,9 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
               <Share2 className="h-4 w-4" />
             )}
             {shareMessage ?? "공유"}
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1 gap-2 rounded-xl border-border"
-            size="lg"
+          </button>
+          <button
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
             onClick={async () => {
               if (!trip) return
               setShareMessage("PDF 생성 중...")
@@ -534,7 +601,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           >
             <FileDown className="h-4 w-4" />
             PDF
-          </Button>
+          </button>
         </div>
       </div>
 

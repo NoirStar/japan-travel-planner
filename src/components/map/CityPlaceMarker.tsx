@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState, memo } from "react"
 import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
-import { Star, Plus, ExternalLink, Clock, X } from "lucide-react"
+import { Star, Plus, ExternalLink, Clock, X, Bookmark } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 import { Button } from "@/components/ui/button"
+import { useWishlistStore } from "@/stores/wishlistStore"
+import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 
 /** 카테고리별 색상 Hex */
 const CATEGORY_HEX: Record<string, string> = {
@@ -124,6 +126,9 @@ interface CityPlaceMarkerProps {
 export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
   const [markerRef, marker] = useMarkerRef()
   const [isHovered, setIsHovered] = useState(false)
+  const isBookmarked = useWishlistStore((s) => s.isInWishlist(place.id))
+  const addToWishlist = useWishlistStore((s) => s.addToWishlist)
+  const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist)
 
   const handleClick = useCallback(() => {
     setIsHovered(false)
@@ -282,10 +287,28 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
             </div>
 
             {/* 하단 고정 버튼 */}
-            <div className="shrink-0 border-t border-gray-100 dark:border-gray-700 p-1.5">
+            <div className="shrink-0 border-t border-gray-100 dark:border-gray-700 p-1.5 flex gap-1.5">
               <Button
                 size="sm"
-                className="w-full gap-1.5 rounded-lg bg-pink-500 text-white hover:bg-pink-600 text-xs h-7"
+                variant="outline"
+                className="gap-1 rounded-lg text-xs h-7"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (isBookmarked) {
+                    removeFromWishlist(place.id)
+                  } else {
+                    if (place.id.startsWith("google-")) {
+                      useDynamicPlaceStore.getState().addPlace(place)
+                    }
+                    addToWishlist(place.id)
+                  }
+                }}
+              >
+                <Bookmark className={`h-3.5 w-3.5 ${isBookmarked ? "fill-rose-500 text-rose-500" : ""}`} />
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 gap-1.5 rounded-lg bg-pink-500 text-white hover:bg-pink-600 text-xs h-7"
                 onClick={(e) => {
                   e.stopPropagation()
                   onAdd?.()

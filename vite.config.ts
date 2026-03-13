@@ -6,6 +6,9 @@ import { defineConfig } from "vite"
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  define: {
+    "global": "globalThis",
+  },
   build: {
     sourcemap: true,
     rollupOptions: {
@@ -23,6 +26,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      buffer: "buffer/",
     },
   },
   server: {

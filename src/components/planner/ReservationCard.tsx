@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { forwardRef, useState } from "react"
 import {
   Plane,
   TrainFront,
@@ -14,8 +14,10 @@ import {
   CircleDashed,
   ChevronDown,
   ChevronUp,
+  GripVertical,
   type LucideIcon,
 } from "lucide-react"
+import type { DraggableAttributes } from "@dnd-kit/core"
 import { Button } from "@/components/ui/button"
 import type { Reservation, ReservationType } from "@/types/schedule"
 import { RESERVATION_LABELS } from "@/types/schedule"
@@ -24,6 +26,10 @@ interface ReservationCardProps {
   reservation: Reservation
   onEdit: () => void
   onRemove: () => void
+  dragHandleListeners?: Record<string, unknown>
+  dragHandleAttributes?: DraggableAttributes
+  style?: React.CSSProperties
+  isDragging?: boolean
 }
 
 const TYPE_CONFIG: Record<ReservationType, { icon: LucideIcon; gradient: string; bg: string }> = {
@@ -48,7 +54,8 @@ function formatShortDate(iso: string): string {
   return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
-export function ReservationCard({ reservation, onEdit, onRemove }: ReservationCardProps) {
+export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
+  function ReservationCard({ reservation, onEdit, onRemove, dragHandleListeners, dragHandleAttributes, style, isDragging }, ref) {
   const [expanded, setExpanded] = useState(false)
   const [copiedRef, setCopiedRef] = useState(false)
 
@@ -66,11 +73,23 @@ export function ReservationCard({ reservation, onEdit, onRemove }: ReservationCa
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border bg-card transition-all duration-200 hover:shadow-md ${config.bg} border-border/60`}
+      ref={ref}
+      className={`group relative overflow-hidden rounded-2xl border bg-card transition-all duration-200 hover:shadow-md ${config.bg} border-border/60 ${isDragging ? "opacity-50 shadow-lg scale-[1.02]" : ""}`}
+      style={style}
       data-testid={`reservation-card-${reservation.type}`}
     >
       {/* 좌측 컬러 바 */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${config.gradient}`} />
+
+      {/* 드래그 핸들 */}
+      <button
+        className="absolute left-2 top-1/2 -translate-y-1/2 cursor-grab text-muted-foreground/30 hover:text-muted-foreground/60 active:cursor-grabbing"
+        aria-label="순서 변경"
+        {...dragHandleListeners}
+        {...dragHandleAttributes}
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
 
       {/* 액션 버튼 */}
       <div className="absolute right-1.5 top-1.5 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
@@ -94,7 +113,7 @@ export function ReservationCard({ reservation, onEdit, onRemove }: ReservationCa
         </Button>
       </div>
 
-      <div className="p-3 pl-5">
+      <div className="p-3 pl-7">
         {/* 메인 정보 */}
         <div className="flex items-start gap-2.5">
           <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${config.gradient}`}>
@@ -207,4 +226,4 @@ export function ReservationCard({ reservation, onEdit, onRemove }: ReservationCa
       </div>
     </div>
   )
-}
+})

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef } from "react"
-import { X, Plus, Star, Search, Check, Globe, Loader2, Trash2, ArrowUpDown, Heart } from "lucide-react"
+import { X, Plus, Star, Search, Check, Globe, Loader2, Trash2, ArrowUpDown, Bookmark } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { PlaceCategory, CATEGORY_LABELS } from "@/types/place"
@@ -292,10 +292,10 @@ export function PlaceSheet({
                           ? "bg-rose-500/10 text-rose-500"
                           : "text-muted-foreground/40 hover:text-rose-400"
                       }`}
-                      title={isWishlisted ? "후보함에서 제거" : "후보함에 저장"}
+                      title={isWishlisted ? "북마크 해제" : "북마크 저장"}
                       data-testid={`place-wishlist-${place.id}`}
                     >
-                      <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-500" : ""}`} />
+                      <Bookmark className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-500" : ""}`} />
                     </button>
                     <button
                       disabled={isAdded}

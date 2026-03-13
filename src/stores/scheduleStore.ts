@@ -82,6 +82,7 @@ interface ScheduleState {
   addReservation: (tripId: string, data: Omit<Reservation, "id">) => Reservation
   updateReservation: (tripId: string, reservationId: string, updates: Partial<Reservation>) => void
   removeReservation: (tripId: string, reservationId: string) => void
+  moveReservation: (tripId: string, reservationId: string, newIndex: number) => void
 
   // 헬퍼
   getActiveTrip: () => Trip | undefined
@@ -355,6 +356,19 @@ export const useScheduleStore = create<ScheduleState>()(
               reservations: (t.reservations ?? []).filter((r) => r.id !== reservationId),
               updatedAt: new Date().toISOString(),
             }
+          }),
+        })),
+
+      moveReservation: (tripId, reservationId, newIndex) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            const list = [...(t.reservations ?? [])]
+            const oldIndex = list.findIndex((r) => r.id === reservationId)
+            if (oldIndex === -1) return t
+            const [moved] = list.splice(oldIndex, 1)
+            list.splice(newIndex, 0, moved)
+            return { ...t, reservations: list, updatedAt: new Date().toISOString() }
           }),
         })),
 

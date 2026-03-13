@@ -41,6 +41,7 @@ export function InviteDialog({
 }: InviteDialogProps) {
   const [copied, setCopied] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
+  const [shareError, setShareError] = useState<string | null>(null)
 
   const inviteUrl = inviteCode
     ? `${window.location.origin}/collab/${inviteCode}`
@@ -59,8 +60,14 @@ export function InviteDialog({
 
   const handleShare = useCallback(async () => {
     setIsSharing(true)
-    await onShare()
-    setIsSharing(false)
+    setShareError(null)
+    try {
+      await onShare()
+    } catch (e) {
+      setShareError(e instanceof Error ? e.message : "초대 링크 생성에 실패했습니다. 다시 시도해 주세요.")
+    } finally {
+      setIsSharing(false)
+    }
   }, [onShare])
 
   const handleRemoveMember = useCallback(async (userId: string) => {
@@ -114,6 +121,9 @@ export function InviteDialog({
             >
               {isSharing ? "생성 중..." : "초대 링크 만들기"}
             </Button>
+            {shareError && (
+              <p className="mt-2 text-xs text-destructive text-center">{shareError}</p>
+            )}
           </div>
         ) : (
           <>

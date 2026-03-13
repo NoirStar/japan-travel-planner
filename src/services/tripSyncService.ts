@@ -271,5 +271,5 @@ export async function getInviteCode(sharedId: string): Promise<string | null> {
 
 /** 기능 사용 가능 여부 */
 export function isCollabAvailable(): boolean {
-  return isSupabaseConfigured && !localStorage.getItem("demo_logged_in")
+  return isSupabaseConfigured
 }

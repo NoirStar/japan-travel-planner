@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react"
-import { X, Heart, Plus, Trash2, Star, Check } from "lucide-react"
+import { X, Bookmark, Plus, Trash2, Star, Check } from "lucide-react"
 import { useWishlistStore } from "@/stores/wishlistStore"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
@@ -61,8 +61,8 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
           <div className="mb-1.5 h-1 w-10 rounded-full bg-border/80 lg:hidden" />
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4 fill-rose-500 text-rose-500" />
-              <h3 className="text-sm font-bold">후보함</h3>
+              <Bookmark className="h-4 w-4 fill-rose-500 text-rose-500" />
+              <h3 className="text-sm font-bold">북마크</h3>
               {visibleItems.length > 0 && (
                 <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-semibold text-rose-500">
                   {visibleItems.length}
@@ -84,12 +84,12 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
           {visibleItems.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-14 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10">
-                <Heart className="h-6 w-6 text-rose-500/40" />
+                <Bookmark className="h-6 w-6 text-rose-500/40" />
               </div>
               <div>
-                <p className="text-sm font-semibold">후보함이 비어있습니다</p>
+                <p className="text-sm font-semibold">북마크가 비어있습니다</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  장소 검색에서 <Heart className="inline h-3 w-3 text-rose-400" /> 버튼을 눌러<br />
+                  장소 검색에서 <Bookmark className="inline h-3 w-3 text-rose-400" /> 버튼을 눌러<br />
                   관심 있는 장소를 저장하세요
                 </p>
               </div>

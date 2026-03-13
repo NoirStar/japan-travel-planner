@@ -1,7 +1,8 @@
 import { Document, Page, Text, View, StyleSheet, Font, pdf } from "@react-pdf/renderer"
-import type { Trip } from "@/types/schedule"
+import type { Trip, Reservation } from "@/types/schedule"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS, type PlaceCategory } from "@/types/place"
+import { RESERVATION_LABELS } from "@/types/schedule"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { getCityConfig } from "@/data/mapConfig"
 
@@ -68,6 +69,14 @@ const s = StyleSheet.create({
   summaryItem: { alignItems: "center" },
   summaryValue: { fontSize: 14, fontWeight: 700, color: c.primary },
   summaryLabel: { fontSize: 7, color: c.muted, marginTop: 2 },
+  // Reservation
+  rsvRow: { flexDirection: "row" as const, alignItems: "flex-start" as const, paddingVertical: 4, paddingHorizontal: 6, backgroundColor: "#F0F9FF", borderRadius: 4, marginBottom: 3 },
+  rsvIcon: { width: 16, fontSize: 8, fontWeight: 700, color: "#0284C7", paddingTop: 1 },
+  rsvBody: { flex: 1 },
+  rsvTitle: { fontSize: 9, fontWeight: 700, marginBottom: 1 },
+  rsvDetail: { fontSize: 7, color: c.muted },
+  rsvBadge: { fontSize: 6, color: "#0284C7", backgroundColor: "#E0F2FE", borderRadius: 3, paddingHorizontal: 3, paddingVertical: 1 },
+  rsvConfirmed: { fontSize: 6, color: "#059669", backgroundColor: "#D1FAE5", borderRadius: 3, paddingHorizontal: 3, paddingVertical: 1 },
 })
 
 // ── 포맷 헬퍼 ──
@@ -86,6 +95,34 @@ function getDayOfWeek(iso?: string) {
 // ── PDF Document ──
 interface TripPdfProps {
   trip: Trip
+}
+
+const RSV_ICONS: Record<string, string> = {
+  flight: "✈",
+  train: "🚄",
+  bus: "🚌",
+  accommodation: "🏨",
+}
+
+function getDayDate(trip: Trip, dayNumber: number): string | undefined {
+  if (!trip.startDate) return undefined
+  const start = new Date(trip.startDate)
+  start.setDate(start.getDate() + dayNumber - 1)
+  return start.toISOString().slice(0, 10)
+}
+
+function getReservationsForDay(reservations: Reservation[], dayDate: string | undefined, type: "transport" | "accommodation"): Reservation[] {
+  if (!dayDate) return []
+  return reservations.filter((r) => {
+    if (type === "transport") {
+      return r.type !== "accommodation" && r.date === dayDate
+    }
+    // accommodation: 체크인 날 또는 숙박 기간 중
+    if (r.type !== "accommodation") return false
+    if (r.date === dayDate) return true
+    if (r.endDate && r.date < dayDate && r.endDate > dayDate) return true
+    return false
+  })
 }
 
 function TripPdfDocument({ trip }: TripPdfProps) {
@@ -130,6 +167,11 @@ function TripPdfDocument({ trip }: TripPdfProps) {
             .map((item) => ({ item, place: getAnyPlaceById(item.placeId) }))
             .filter((r): r is { item: typeof r.item; place: Place } => !!r.place)
 
+          const dayDate = day.date ?? getDayDate(trip, day.dayNumber)
+          const reservations = trip.reservations ?? []
+          const transportRsvs = getReservationsForDay(reservations, dayDate, "transport")
+          const accomRsvs = getReservationsForDay(reservations, dayDate, "accommodation")
+
           return (
             <View key={day.id} style={s.daySection} wrap={false}>
               <View style={s.dayHeader}>
@@ -142,7 +184,28 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                 <Text style={s.dayCount}>{places.length}개 장소</Text>
               </View>
 
-              {places.length === 0 ? (
+              {/* 교통 예약 */}
+              {transportRsvs.map((r) => (
+                <View key={r.id} style={s.rsvRow}>
+                  <Text style={s.rsvIcon}>{RSV_ICONS[r.type] ?? "📋"}</Text>
+                  <View style={s.rsvBody}>
+                    <Text style={s.rsvTitle}>{r.title}</Text>
+                    <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
+                      <Text style={s.rsvBadge}>{RESERVATION_LABELS[r.type]}</Text>
+                      {r.confirmed && <Text style={s.rsvConfirmed}>확정</Text>}
+                    </View>
+                    {(r.departureLocation || r.arrivalLocation) && (
+                      <Text style={s.rsvDetail}>{r.departureLocation ?? ""} → {r.arrivalLocation ?? ""}</Text>
+                    )}
+                    {(r.startTime || r.endTime) && (
+                      <Text style={s.rsvDetail}>{r.startTime ?? ""}{r.endTime ? ` → ${r.endTime}` : ""}</Text>
+                    )}
+                    {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {r.bookingReference}</Text>}
+                  </View>
+                </View>
+              ))}
+
+              {places.length === 0 && transportRsvs.length === 0 && accomRsvs.length === 0 ? (
                 <View style={s.emptyDay}>
                   <Text style={s.emptyText}>자유 일정</Text>
                 </View>
@@ -163,6 +226,31 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                   </View>
                 ))
               )}
+
+              {/* 숙박 예약 */}
+              {accomRsvs.map((r) => (
+                <View key={r.id} style={{ ...s.rsvRow, backgroundColor: "#F5F3FF" }}>
+                  <Text style={{ ...s.rsvIcon, color: "#7C3AED" }}>🏨</Text>
+                  <View style={s.rsvBody}>
+                    <Text style={s.rsvTitle}>{r.title}</Text>
+                    <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
+                      <Text style={{ ...s.rsvBadge, color: "#7C3AED", backgroundColor: "#EDE9FE" }}>숙박</Text>
+                      {r.confirmed && <Text style={s.rsvConfirmed}>확정</Text>}
+                    </View>
+                    {(r.startTime || r.endTime) && (
+                      <Text style={s.rsvDetail}>
+                        {r.startTime ? `체크인 ${r.startTime}` : ""}{r.endTime ? ` · 체크아웃 ${r.endTime}` : ""}
+                      </Text>
+                    )}
+                    {r.endDate && (
+                      <Text style={s.rsvDetail}>
+                        {formatDate(r.date)} ~ {formatDate(r.endDate)}
+                      </Text>
+                    )}
+                    {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {r.bookingReference}</Text>}
+                  </View>
+                </View>
+              ))}
             </View>
           )
         })}

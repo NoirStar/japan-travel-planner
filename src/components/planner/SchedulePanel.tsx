@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus, AlertTriangle, FileDown } from "lucide-react"
+import { MapPin, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus, AlertTriangle, FileDown, Ticket } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
@@ -28,7 +28,10 @@ import { DayTabs } from "./DayTabs"
 import { PlaceCard } from "./PlaceCard"
 import { SortablePlaceCard } from "./SortablePlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
+import { ReservationCard } from "./ReservationCard"
+import { ReservationSheet } from "./ReservationSheet"
 import { copyShareUrl } from "@/lib/shareUtils"
+import type { Reservation } from "@/types/schedule"
 
 interface SchedulePanelProps {
   cityId: string
@@ -40,7 +43,7 @@ interface SchedulePanelProps {
 
 export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace }: SchedulePanelProps) {
   const trip = useScheduleStore((s) => s.getActiveTrip())
-  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay } = useScheduleStore()
+  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation } = useScheduleStore()
   const { user } = useAuthStore()
 
   /** 날짜 변경 시 Day 수 자동 조정 */
@@ -97,6 +100,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   }
 
   const [isPlaceSheetOpen, setIsPlaceSheetOpen] = useState(false)
+  const [isReservationSheetOpen, setIsReservationSheetOpen] = useState(false)
+  const [editingReservation, setEditingReservation] = useState<Reservation | null>(null)
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
@@ -128,6 +133,38 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
   const currentDay = trip?.days[activeDayIndex]
   const items = useMemo(() => currentDay?.items ?? [], [currentDay?.items])
+
+  // 현재 Day의 날짜 계산
+  const currentDayDate = useMemo(() => {
+    if (currentDay?.date) return currentDay.date
+    if (trip?.startDate && currentDay) {
+      const start = new Date(trip.startDate)
+      start.setDate(start.getDate() + currentDay.dayNumber - 1)
+      return start.toISOString().slice(0, 10)
+    }
+    return undefined
+  }, [currentDay, trip?.startDate])
+
+  // 현재 Day에 표시할 예약 (교통: 상단, 숙박: 하단)
+  const { transportReservations, accommodationReservations } = useMemo(() => {
+    const reservations = trip?.reservations ?? []
+    if (!currentDayDate) return { transportReservations: [] as Reservation[], accommodationReservations: [] as Reservation[] }
+    const transport: Reservation[] = []
+    const accommodation: Reservation[] = []
+    for (const r of reservations) {
+      if (r.date === currentDayDate) {
+        if (r.type === "accommodation") {
+          accommodation.push(r)
+        } else {
+          transport.push(r)
+        }
+      } else if (r.type === "accommodation" && r.endDate && r.date < currentDayDate && r.endDate > currentDayDate) {
+        // 숙박: 체크인~체크아웃 사이 날짜에도 표시
+        accommodation.push(r)
+      }
+    }
+    return { transportReservations: transport, accommodationReservations: accommodation }
+  }, [trip?.reservations, currentDayDate])
 
   // 전체 일정 완성도 — 모든 Day에 장소가 있으면 완성
   const allDaysFilled = useMemo(() => {
@@ -420,7 +457,22 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
       {/* 일정 카드 리스트 */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4" data-testid="schedule-items">
-        {items.length === 0 ? (
+        {/* 교통 예약 (항공/기차/버스) — 장소 목록 상단 */}
+        {transportReservations.length > 0 && (
+          <div className="mb-3 flex flex-col gap-2">
+            {transportReservations.map((r) => (
+              <ReservationCard
+                key={r.id}
+                reservation={r}
+                position="transport"
+                onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
+                onRemove={() => trip && removeReservation(trip.id, r.id)}
+              />
+            ))}
+          </div>
+        )}
+
+        {items.length === 0 && transportReservations.length === 0 && accommodationReservations.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 py-14 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
               <MapPin className="h-7 w-7 text-primary/40" />
@@ -524,6 +576,35 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             </DragOverlay>
           </DndContext>
         )}
+
+        {/* 빈 장소 + 예약만 있는 경우 장소 추가 안내 */}
+        {items.length === 0 && (transportReservations.length > 0 || accommodationReservations.length > 0) && (
+          <div className="flex flex-col items-center gap-2 py-6 text-center">
+            <p className="text-xs text-muted-foreground">장소를 추가하면 더 완성된 일정이 됩니다</p>
+            <button
+              onClick={() => setIsPlaceSheetOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              장소 추가
+            </button>
+          </div>
+        )}
+
+        {/* 숙박 예약 — 장소 목록 하단 */}
+        {accommodationReservations.length > 0 && (
+          <div className="mt-3 flex flex-col gap-2">
+            {accommodationReservations.map((r) => (
+              <ReservationCard
+                key={r.id}
+                reservation={r}
+                position="accommodation"
+                onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
+                onRemove={() => trip && removeReservation(trip.id, r.id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Day 요약 */}
@@ -576,13 +657,23 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
       {/* 하단 액션 */}
       <div className="flex flex-col gap-2 border-t border-border p-4">
-        <button
-          className="btn-gradient flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold"
-          onClick={() => setIsPlaceSheetOpen(true)}
-        >
-          <Plus className="h-4 w-4" />
-          장소 추가
-        </button>
+        <div className="flex gap-2">
+          <button
+            className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold"
+            onClick={() => setIsPlaceSheetOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            장소 추가
+          </button>
+          <button
+            className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            onClick={() => { setEditingReservation(null); setIsReservationSheetOpen(true) }}
+            data-testid="add-reservation-button"
+          >
+            <Ticket className="h-4 w-4" />
+            예약
+          </button>
+        </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -632,6 +723,25 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         cityId={cityId}
         tripId={trip.id}
         dayId={currentDay?.id ?? ""}
+      />
+
+      {/* 예약 추가/편집 시트 */}
+      <ReservationSheet
+        open={isReservationSheetOpen}
+        onOpenChange={(open) => {
+          setIsReservationSheetOpen(open)
+          if (!open) setEditingReservation(null)
+        }}
+        editData={editingReservation}
+        defaultDate={currentDayDate}
+        onSubmit={(data) => {
+          if (!trip) return
+          if (editingReservation) {
+            updateReservation(trip.id, editingReservation.id, data)
+          } else {
+            addReservation(trip.id, data)
+          }
+        }}
       />
 
       {/* 날짜 축소 확인 */}

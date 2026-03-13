@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist, type StorageValue } from "zustand/middleware"
-import type { Trip, DaySchedule, ScheduleItem } from "@/types/schedule"
+import type { Trip, DaySchedule, ScheduleItem, Reservation } from "@/types/schedule"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 
 // ─── 로그인 상태 확인 (순환 의존 방지용) ─────────────────
@@ -77,6 +77,11 @@ interface ScheduleState {
     itemId: string,
     updates: Partial<Pick<ScheduleItem, "startTime" | "memo">>,
   ) => void
+
+  // Reservation CRUD
+  addReservation: (tripId: string, data: Omit<Reservation, "id">) => Reservation
+  updateReservation: (tripId: string, reservationId: string, updates: Partial<Reservation>) => void
+  removeReservation: (tripId: string, reservationId: string) => void
 
   // 헬퍼
   getActiveTrip: () => Trip | undefined
@@ -302,6 +307,52 @@ export const useScheduleStore = create<ScheduleState>()(
                     }
                   : d,
               ),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      // ── Reservation ────────────────────────────────────
+      addReservation: (tripId, data) => {
+        const reservation: Reservation = {
+          ...data,
+          id: generateId("rsv"),
+        }
+        set((state) => ({
+          trips: state.trips.map((t) =>
+            t.id === tripId
+              ? {
+                  ...t,
+                  reservations: [...(t.reservations ?? []), reservation],
+                  updatedAt: new Date().toISOString(),
+                }
+              : t,
+          ),
+        }))
+        return reservation
+      },
+
+      updateReservation: (tripId, reservationId, updates) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              reservations: (t.reservations ?? []).map((r) =>
+                r.id === reservationId ? { ...r, ...updates } : r,
+              ),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      removeReservation: (tripId, reservationId) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              reservations: (t.reservations ?? []).filter((r) => r.id !== reservationId),
               updatedAt: new Date().toISOString(),
             }
           }),

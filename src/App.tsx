@@ -33,6 +33,7 @@ const EditFreePostPage = lazy(() => lazyRetry(() => import("@/components/communi
 const PostDetail = lazy(() => lazyRetry(() => import("@/components/community/PostDetail")).then((m) => ({ default: m.PostDetail })))
 const ProfilePage = lazy(() => lazyRetry(() => import("@/components/auth/ProfilePage")).then((m) => ({ default: m.ProfilePage })))
 const ContactPage = lazy(() => lazyRetry(() => import("@/components/contact/ContactPage")).then((m) => ({ default: m.ContactPage })))
+const JoinTripPage = lazy(() => lazyRetry(() => import("@/components/planner/JoinTripPage")).then((m) => ({ default: m.JoinTripPage })))
 
 function PageLoader() {
   return (
@@ -62,6 +63,7 @@ function App() {
             <Route path="/wizard" element={<AIChatWizard />} />
             <Route path="/trips" element={<RequireAuth redirectTo="/"><TripListPage /></RequireAuth>} />
             <Route path="/share/:shareId" element={<PlannerPage />} />
+            <Route path="/collab/:inviteCode" element={<JoinTripPage />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/community/free" element={<FreeBoardPage />} />
             <Route path="/community/free/write" element={<RequireAuth redirectTo="/community/free"><CreateFreePostPage /></RequireAuth>} />

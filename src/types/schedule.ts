@@ -71,6 +71,8 @@ export interface Trip {
   endDate?: string
   days: DaySchedule[]
   reservations?: Reservation[]
+  /** Supabase shared_trips.id — 설정 시 공동 편집 모드 */
+  sharedId?: string
   createdAt: string
   updatedAt: string
 }

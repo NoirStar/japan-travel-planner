@@ -10,6 +10,7 @@ import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { decodeTrip } from "@/lib/shareUtils"
 import { showToast } from "@/components/ui/CelebrationOverlay"
 import { useMapSearch } from "@/hooks/useMapSearch"
+import { useCollaborativeSync } from "@/hooks/useCollaborativeSync"
 import type { Place } from "@/types/place"
 
 export function PlannerPage() {
@@ -108,6 +109,9 @@ export function PlannerPage() {
   // ── 검색 관련 state/handler ──
   const search = useMapSearch(cityId)
 
+  // ── 공동 편집 동기화 ──
+  const collab = useCollaborativeSync(trip)
+
   // 현재 Day의 장소 목록
   const currentDayPlaces: Place[] = useMemo(() => {
     if (!trip) return []
@@ -165,6 +169,7 @@ export function PlannerPage() {
             onActiveDayIndexChange={setActiveDayIndex}
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={setSelectedPlaceId}
+            collab={collab}
           />
         </aside>
 

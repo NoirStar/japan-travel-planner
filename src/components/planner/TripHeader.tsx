@@ -1,20 +1,26 @@
 import { useState } from "react"
-import { Calendar, Save, Pencil, ImagePlus, AlertTriangle } from "lucide-react"
+import { Calendar, Save, Pencil, ImagePlus, AlertTriangle, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { CollaboratorsBadge } from "./CollaboratorsBadge"
+import { InviteDialog } from "./InviteDialog"
 import type { Trip } from "@/types/schedule"
+import type { CollaborativeSyncResult } from "@/hooks/useCollaborativeSync"
+import { isCollabAvailable } from "@/services/tripSyncService"
 
 interface TripHeaderProps {
   trip: Trip
   isLoggedIn: boolean
   onUpdateTrip: (tripId: string, patch: Partial<Pick<Trip, "title" | "coverImage">>) => void
   onDateChange: (field: "startDate" | "endDate", value: string) => void
+  collab?: CollaborativeSyncResult
 }
 
-export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange }: TripHeaderProps) {
+export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, collab }: TripHeaderProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [editTitle, setEditTitle] = useState("")
   const [showCoverInput, setShowCoverInput] = useState(false)
   const [coverUrl, setCoverUrl] = useState("")
+  const [isInviteOpen, setIsInviteOpen] = useState(false)
 
   return (
     <div className="border-b border-border p-4">
@@ -125,7 +131,34 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange }: Tri
           data-testid="trip-end-date"
         />
       </div>
-      <div className="mt-1.5 flex items-center justify-end">
+      <div className="mt-1.5 flex items-center justify-between">
+        {/* 공동 편집 */}
+        <div className="flex items-center gap-2">
+          {collab?.isShared ? (
+            <>
+              <CollaboratorsBadge
+                onlineMembers={collab.onlineMembers}
+                isConnected={collab.isConnected}
+                isSyncing={collab.isSyncing}
+              />
+              <button
+                onClick={() => setIsInviteOpen(true)}
+                className="flex items-center gap-1 rounded-lg bg-sakura-dark/10 px-2 py-1 text-[10px] font-semibold text-sakura-dark hover:bg-sakura-dark/20 transition-colors"
+              >
+                <Users className="h-3 w-3" />
+                멤버
+              </button>
+            </>
+          ) : isLoggedIn && isCollabAvailable() ? (
+            <button
+              onClick={() => setIsInviteOpen(true)}
+              className="flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              <Users className="h-3 w-3" />
+              공동 편집
+            </button>
+          ) : null}
+        </div>
         {isLoggedIn ? (
           <span className="flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">
             <Save className="h-3 w-3" />
@@ -138,6 +171,21 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange }: Tri
           </span>
         )}
       </div>
+
+      {/* 초대 다이얼로그 */}
+      {collab && (
+        <InviteDialog
+          open={isInviteOpen}
+          onOpenChange={setIsInviteOpen}
+          inviteCode={collab.inviteCode}
+          members={collab.members}
+          myRole={collab.myRole}
+          isShared={collab.isShared}
+          sharedId={trip.sharedId}
+          onShare={collab.shareTrip}
+          onRefreshMembers={collab.refreshMembers}
+        />
+      )}
     </div>
   )
 }

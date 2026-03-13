@@ -38,6 +38,7 @@ import { useScheduleRisks } from "@/hooks/useScheduleRisks"
 import { useWishlistStore } from "@/stores/wishlistStore"
 import { copyShareUrl } from "@/lib/shareUtils"
 import type { Reservation } from "@/types/schedule"
+import type { CollaborativeSyncResult } from "@/hooks/useCollaborativeSync"
 
 interface SchedulePanelProps {
   cityId: string
@@ -45,9 +46,10 @@ interface SchedulePanelProps {
   onActiveDayIndexChange: (index: number) => void
   selectedPlaceId?: string | null
   onSelectPlace?: (placeId: string | null) => void
+  collab?: CollaborativeSyncResult
 }
 
-export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace }: SchedulePanelProps) {
+export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace, collab }: SchedulePanelProps) {
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation } = useScheduleStore()
   const { user } = useAuthStore()
@@ -276,6 +278,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         isLoggedIn={!!user}
         onUpdateTrip={updateTrip}
         onDateChange={handleDateChange}
+        collab={collab}
       />
 
       {/* Day 탭 */}

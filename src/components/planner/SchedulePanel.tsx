@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Plus, Train, Footprints, TrainFront, Share2, Check, AlertTriangle, FileDown, Ticket } from "lucide-react"
+import { MapPin, Plus, Train, Footprints, TrainFront, Share2, Check, AlertTriangle, FileDown, Ticket, Heart, ClipboardCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
@@ -30,7 +30,12 @@ import { ReservationCard } from "./ReservationCard"
 import { ReservationSheet } from "./ReservationSheet"
 import { TripHeader } from "./TripHeader"
 import { DaySummary } from "./DaySummary"
+import { RiskAlerts } from "./RiskAlerts"
+import { WishlistPanel } from "./WishlistPanel"
+import { ChecklistPanel } from "./ChecklistPanel"
 import { useTravelTimes } from "@/hooks/useTravelTimes"
+import { useScheduleRisks } from "@/hooks/useScheduleRisks"
+import { useWishlistStore } from "@/stores/wishlistStore"
 import { copyShareUrl } from "@/lib/shareUtils"
 import type { Reservation } from "@/types/schedule"
 
@@ -102,6 +107,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
   const [isPlaceSheetOpen, setIsPlaceSheetOpen] = useState(false)
   const [isReservationSheetOpen, setIsReservationSheetOpen] = useState(false)
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false)
+  const [isChecklistOpen, setIsChecklistOpen] = useState(false)
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null)
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
@@ -172,6 +179,21 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
   // 이동시간 계산 (hook)
   const { travelDataMap, totalTravelMinutes } = useTravelTimes(items)
+
+  // 위시리스트 개수 (배지 표시용)
+  const wishlistCount = useWishlistStore((s) => s.items.length)
+
+  // 일정 리스크 분석
+  const travelDataByDay = useMemo(() => {
+    if (!trip) return undefined
+    const m = new Map<number, Map<number, { minutes: number; mode: string; distanceKm: number }>>()
+    // 현재 Day만 실시간 travelDataMap 사용
+    if (currentDay) {
+      m.set(currentDay.dayNumber, travelDataMap as Map<number, { minutes: number; mode: string; distanceKm: number }>)
+    }
+    return m
+  }, [trip, currentDay, travelDataMap])
+  const risks = useScheduleRisks(trip, travelDataByDay)
 
   // 해석 불가 장소(orphan) 자동 정리
   useEffect(() => {
@@ -417,6 +439,9 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         )}
       </div>
 
+      {/* 일정 리스크 알림 */}
+      <RiskAlerts risks={risks} currentDayNumber={currentDay?.dayNumber} />
+
       {/* Day 요약 */}
       <DaySummary
         currentDay={currentDay}
@@ -437,12 +462,35 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             장소 추가
           </button>
           <button
-            className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            className="relative flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            onClick={() => setIsWishlistOpen(true)}
+            data-testid="wishlist-button"
+          >
+            <Heart className="h-4 w-4 text-rose-500" />
+            후보함
+            {wishlistCount > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <button
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
             onClick={() => { setEditingReservation(null); setIsReservationSheetOpen(true) }}
             data-testid="add-reservation-button"
           >
             <Ticket className="h-4 w-4" />
             예약
+          </button>
+          <button
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            onClick={() => setIsChecklistOpen(true)}
+            data-testid="checklist-button"
+          >
+            <ClipboardCheck className="h-4 w-4 text-emerald-500" />
+            준비물
           </button>
         </div>
         <div className="flex gap-2">
@@ -494,6 +542,20 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         cityId={cityId}
         tripId={trip.id}
         dayId={currentDay?.id ?? ""}
+      />
+
+      {/* 후보함 */}
+      <WishlistPanel
+        open={isWishlistOpen}
+        onOpenChange={setIsWishlistOpen}
+        tripId={trip.id}
+        dayId={currentDay?.id ?? ""}
+      />
+
+      {/* 준비물 체크리스트 */}
+      <ChecklistPanel
+        open={isChecklistOpen}
+        onOpenChange={setIsChecklistOpen}
       />
 
       {/* 예약 추가/편집 시트 */}

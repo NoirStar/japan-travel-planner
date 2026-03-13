@@ -1,0 +1,245 @@
+import { useState, useMemo, useEffect } from "react"
+import { X, CheckSquare, Square, Plus, Trash2, RotateCcw, ChevronDown, ChevronRight } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import {
+  useChecklistStore,
+  CHECKLIST_CATEGORY_LABELS,
+  type ChecklistCategory,
+} from "@/stores/checklistStore"
+
+interface ChecklistPanelProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+/** 카테고리별 아이콘/색상 */
+const CATEGORY_STYLE: Record<ChecklistCategory, { emoji: string; color: string }> = {
+  documents: { emoji: "📄", color: "text-blue-500" },
+  money: { emoji: "💴", color: "text-emerald-500" },
+  connectivity: { emoji: "📱", color: "text-violet-500" },
+  packing: { emoji: "🧳", color: "text-amber-500" },
+  bookings: { emoji: "🎫", color: "text-rose-500" },
+  custom: { emoji: "📝", color: "text-gray-500" },
+}
+
+export function ChecklistPanel({ open, onOpenChange }: ChecklistPanelProps) {
+  const { items, initialized, initFromTemplate, toggleItem, addItem, removeItem, resetToTemplate } = useChecklistStore()
+  const [newItemText, setNewItemText] = useState("")
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set())
+  const [showResetConfirm, setShowResetConfirm] = useState(false)
+
+  useEffect(() => {
+    if (open && !initialized) {
+      initFromTemplate()
+    }
+  }, [open, initialized, initFromTemplate])
+
+  // 카테고리별 그룹화
+  const grouped = useMemo(() => {
+    const map = new Map<ChecklistCategory, typeof items>()
+    for (const item of items) {
+      const cat = item.category
+      if (!map.has(cat)) map.set(cat, [])
+      map.get(cat)!.push(item)
+    }
+    return map
+  }, [items])
+
+  // 진행률
+  const checkedCount = items.filter((i) => i.checked).length
+  const totalCount = items.length
+  const progress = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0
+
+  const handleAddItem = () => {
+    const text = newItemText.trim()
+    if (!text) return
+    addItem(text)
+    setNewItemText("")
+  }
+
+  const toggleCategory = (cat: string) => {
+    setCollapsedCategories((prev) => {
+      const next = new Set(prev)
+      if (next.has(cat)) next.delete(cat)
+      else next.add(cat)
+      return next
+    })
+  }
+
+  if (!open) return null
+
+  // 카테고리 렌더링 순서
+  const categoryOrder: ChecklistCategory[] = ["documents", "money", "connectivity", "packing", "bookings", "custom"]
+
+  return (
+    <>
+      {/* 백드롭 */}
+      <div
+        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        onClick={() => onOpenChange(false)}
+        data-testid="checklist-backdrop"
+      />
+
+      {/* 시트 패널 */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-3xl bg-card shadow-2xl border-t border-border lg:left-0 lg:max-h-full lg:w-[400px] lg:rounded-none lg:rounded-tr-3xl"
+        data-testid="checklist-panel"
+      >
+        {/* 핸들 + 헤더 */}
+        <div className="flex flex-col items-center border-b border-border px-3 pb-2 pt-2">
+          <div className="mb-1.5 h-1 w-10 rounded-full bg-border/80 lg:hidden" />
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-base">✅</span>
+              <h3 className="text-sm font-bold">준비물 체크리스트</h3>
+            </div>
+            <div className="flex items-center gap-1">
+              {!showResetConfirm ? (
+                <button
+                  onClick={() => setShowResetConfirm(true)}
+                  className="flex items-center gap-0.5 rounded-full px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                  title="초기화"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                </button>
+              ) : (
+                <div className="flex items-center gap-1 text-[10px]">
+                  <button
+                    onClick={() => { resetToTemplate(); setShowResetConfirm(false) }}
+                    className="rounded-lg bg-destructive px-2 py-1 font-bold text-white"
+                  >
+                    초기화
+                  </button>
+                  <button
+                    onClick={() => setShowResetConfirm(false)}
+                    className="rounded-lg px-2 py-1 text-muted-foreground hover:bg-muted"
+                  >
+                    취소
+                  </button>
+                </div>
+              )}
+              <button
+                onClick={() => onOpenChange(false)}
+                aria-label="닫기"
+                className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 진행률 바 */}
+        <div className="border-b border-border px-4 py-2.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">준비 진행률</span>
+            <span className="font-bold text-foreground">{checkedCount}/{totalCount} ({progress}%)</span>
+          </div>
+          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-sakura-dark to-pink-400 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          {progress === 100 && (
+            <p className="mt-1 text-center text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              🎉 모든 준비가 완료되었습니다!
+            </p>
+          )}
+        </div>
+
+        {/* 체크리스트 */}
+        <div className="flex-1 overflow-y-auto px-3 py-2" data-testid="checklist-items">
+          {categoryOrder.map((category) => {
+            const categoryItems = grouped.get(category)
+            if (!categoryItems || categoryItems.length === 0) return null
+            const style = CATEGORY_STYLE[category]
+            const isCollapsed = collapsedCategories.has(category)
+            const catChecked = categoryItems.filter((i) => i.checked).length
+            const allChecked = catChecked === categoryItems.length
+
+            return (
+              <div key={category} className="mb-2">
+                {/* 카테고리 헤더 */}
+                <button
+                  onClick={() => toggleCategory(category)}
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold hover:bg-muted/50 transition-colors"
+                >
+                  {isCollapsed ? (
+                    <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                  )}
+                  <span>{style.emoji}</span>
+                  <span>{CHECKLIST_CATEGORY_LABELS[category]}</span>
+                  <span className={`ml-auto text-[10px] font-medium ${allChecked ? "text-emerald-500" : "text-muted-foreground"}`}>
+                    {catChecked}/{categoryItems.length}
+                  </span>
+                </button>
+
+                {/* 아이템 목록 */}
+                {!isCollapsed && (
+                  <div className="flex flex-col gap-0.5 pl-2">
+                    {categoryItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/30 transition-colors"
+                        data-testid={`checklist-item-${item.id}`}
+                      >
+                        <button
+                          onClick={() => toggleItem(item.id)}
+                          className="shrink-0"
+                          aria-label={item.checked ? "체크 해제" : "체크"}
+                        >
+                          {item.checked ? (
+                            <CheckSquare className="h-4 w-4 text-sakura-dark" />
+                          ) : (
+                            <Square className="h-4 w-4 text-muted-foreground/50" />
+                          )}
+                        </button>
+                        <span className={`flex-1 text-[12px] leading-snug ${
+                          item.checked ? "text-muted-foreground line-through" : "text-foreground"
+                        }`}>
+                          {item.text}
+                        </span>
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="shrink-0 rounded-full p-0.5 text-muted-foreground/30 opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                          aria-label="삭제"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* 커스텀 아이템 추가 */}
+        <div className="border-t border-border px-3 py-2.5">
+          <div className="flex gap-2">
+            <Input
+              value={newItemText}
+              onChange={(e) => setNewItemText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleAddItem() }}
+              placeholder="준비물 직접 추가..."
+              className="h-8 flex-1 rounded-xl border-border text-sm"
+              data-testid="checklist-add-input"
+            />
+            <button
+              onClick={handleAddItem}
+              disabled={!newItemText.trim()}
+              className="btn-gradient flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border-0 text-white shadow-sm disabled:opacity-40"
+              data-testid="checklist-add-button"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}

@@ -121,11 +121,6 @@ describe("PlannerPage", () => {
     expect(screen.getAllByText("장소 추가").length).toBeGreaterThanOrEqual(1)
   })
 
-  it("AI 추천 버튼이 존재한다", () => {
-    renderWithRoute()
-    expect(screen.getAllByText("AI 추천").length).toBeGreaterThanOrEqual(1)
-  })
-
   // ── Day 탭 ──────────────────────────────────────────
   it("Day 1 탭이 기본으로 표시된다", () => {
     renderWithRoute()
@@ -141,7 +136,7 @@ describe("PlannerPage", () => {
   // ── 빈 상태 ─────────────────────────────────────────
   it("장소 미추가 시 빈 상태 메시지가 표시된다", () => {
     renderWithRoute()
-    expect(screen.getByText("아직 추가된 장소가 없습니다")).toBeInTheDocument()
+    expect(screen.getByText(/장소를 추가하세요/)).toBeInTheDocument()
   })
 
   // ── 장소 추가 시트 ──────────────────────────────────
@@ -198,7 +193,7 @@ describe("PlannerPage", () => {
     // 삭제
     fireEvent.click(screen.getByTestId("place-remove-0"))
     expect(screen.queryByText("테스트 관광지")).not.toBeInTheDocument()
-    expect(screen.getByText("아직 추가된 장소가 없습니다")).toBeInTheDocument()
+    expect(screen.getByText(/장소를 추가하세요/)).toBeInTheDocument()
   })
 
   // ── 드래그 앤 드롭 ──────────────────────────────────

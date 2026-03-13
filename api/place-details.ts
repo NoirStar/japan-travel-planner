@@ -66,10 +66,11 @@ export default async function handler(
       googleMapsUri?: string
     }
 
-    // Place Photos API — photo name으로 이미지 URL 생성 (월 10,000건 무료)
+    // Place Photos API — photo proxy를 통해 API 키 노출 방지
     let image: string | undefined
     if (p.photos?.[0]) {
-      image = `https://places.googleapis.com/v1/${p.photos[0].name}/media?maxWidthPx=400&maxHeightPx=300&key=${apiKey}`
+      const photoName = p.photos[0].name
+      image = `/api/place-photo?name=${encodeURIComponent(photoName)}&maxW=400&maxH=300`
     }
 
     const place = {

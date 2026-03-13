@@ -24,19 +24,19 @@ function renderWithRouter() {
 describe("LandingPage", () => {
   it("히어로 타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText("타비톡")).toBeInTheDocument()
+    expect(screen.getByText("타비톡으로 완성하세요")).toBeInTheDocument()
   })
 
   it("서브타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("나만의 일정을 만들고") ?? false))).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("구글맵 기반 일정 플래너부터") ?? false))).toBeInTheDocument()
   })
 
 
 
   it("여행 만들기 버튼이 존재한다", () => {
     renderWithRouter()
-    expect(screen.getByText("여행 만들기")).toBeInTheDocument()
+    expect(screen.getByText("여행 일정 만들기")).toBeInTheDocument()
   })
 
   it("4개 도시 카드가 렌더링된다", () => {

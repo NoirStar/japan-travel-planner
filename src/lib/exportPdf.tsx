@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Document, Page, Text, View, StyleSheet, Font, pdf } from "@react-pdf/renderer"
 import type { Trip, Reservation } from "@/types/schedule"
 import type { Place } from "@/types/place"

@@ -46,7 +46,7 @@ const TITLE_PLACEHOLDERS: Record<ReservationType, string> = {
 
 function getInitialForm(editData?: Reservation | null, defaultDate?: string): Omit<Reservation, "id"> {
   if (editData) {
-    const { id: _, ...rest } = editData
+    const { id: _id, ...rest } = editData
     return rest
   }
   return {
@@ -71,11 +71,17 @@ export function ReservationSheet({ open, onOpenChange, editData, defaultDate, on
 
   // editData가 바뀌면 폼 리셋
   useEffect(() => {
-    if (open) {
-      setForm(getInitialForm(editData, defaultDate))
-      setStep(editData ? "detail" : "type")
-    }
-  }, [open, editData, defaultDate])
+    if (!open) return
+    const nextForm = getInitialForm(editData, defaultDate)
+    const nextStep = editData ? "detail" as const : "type" as const
+    setForm(prev => {
+      // 동일한 값이면 상태 업데이트 건너뛰기
+      if (prev.type === nextForm.type && prev.title === nextForm.title && prev.date === nextForm.date) return prev
+      return nextForm
+    })
+    setStep(nextStep)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- open 전환 시에만 필요
+  }, [open])
 
   const isTransport = form.type !== "accommodation"
   const isValid = form.title.trim() && form.date

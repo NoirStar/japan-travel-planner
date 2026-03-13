@@ -56,7 +56,7 @@ export function PlaceSheet({
     // addOrder에 없는 기존 장소도 포함
     const inOrder = new Set(addOrder)
     const rest = Object.values(dynamicPlaces).filter((p) => !inOrder.has(p.id))
-    let all = [...ordered, ...rest]
+    const all = [...ordered, ...rest]
 
     // 정렬
     if (sortOption === "rating") {

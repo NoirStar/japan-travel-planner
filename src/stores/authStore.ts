@@ -25,7 +25,6 @@ interface AuthState {
   updateProfile: (updates: Partial<Pick<UserProfile, "nickname" | "avatar_url">>) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signInAsDemo: () => void
-  signInAsAdmin: () => Promise<void>
   signOut: () => Promise<void>
   setShowLoginModal: (show: boolean) => void
   refreshDemoProfile: () => void
@@ -178,63 +177,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.setItem("demo_logged_in", "true")
     set({
       user: { id: DEMO_USER_ID } as User,
-      profile,
-      isDemoMode: true,
-      showLoginModal: false,
-    })
-  },
-
-  signInAsAdmin: async () => {
-    if (isSupabaseConfigured) {
-      const email = import.meta.env.VITE_ADMIN_EMAIL as string | undefined
-      const password = import.meta.env.VITE_ADMIN_PASSWORD as string | undefined
-      if (email && password) {
-        // 실제 Supabase 인증 — 데이터가 DB에 영속 저장됨
-        let { data, error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error?.message?.includes("Invalid login credentials")) {
-          // 최초 사용: 계정 자동 생성
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: { data: { name: "관리자" } },
-          })
-          if (signUpError) {
-            console.error("관리자 계정 생성 실패:", signUpError.message)
-          } else if (signUpData.user) {
-            // 프로필에 관리자 플래그 설정
-            await supabase
-              .from("profiles")
-              .update({ is_admin: true, nickname: "관리자" })
-              .eq("id", signUpData.user.id)
-            data = signUpData as typeof data
-            error = null
-          }
-        }
-        if (!error && data?.user) {
-          const profile = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", data.user.id)
-            .single()
-          set({
-            user: data.user,
-            session: data.session,
-            profile: profile.data as UserProfile | null,
-            isDemoMode: false,
-            showLoginModal: false,
-          })
-          localStorage.removeItem("demo_logged_in")
-          localStorage.removeItem("admin_logged_in")
-          return
-        }
-      }
-    }
-    // Supabase 미설정 또는 인증 실패 시 기존 mock 폴백
-    const profile = getAdminProfile()
-    localStorage.removeItem("demo_logged_in")
-    localStorage.setItem("admin_logged_in", "true")
-    set({
-      user: { id: ADMIN_USER_ID } as User,
       profile,
       isDemoMode: true,
       showLoginModal: false,

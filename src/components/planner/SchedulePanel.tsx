@@ -15,21 +15,22 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { MapPin, Plus, Train, BarChart3, Footprints, TrainFront, Calendar, Share2, Check, Save, Trash2, Pencil, ImagePlus, AlertTriangle, FileDown, Ticket } from "lucide-react"
+import { MapPin, Plus, Train, Footprints, TrainFront, Share2, Check, AlertTriangle, FileDown, Ticket } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
-import { estimateTravel, formatTravelTime, formatDistance } from "@/lib/utils"
-import { getTravelTime } from "@/lib/travelTimes"
-import type { TransportMode } from "@/lib/utils"
+import { formatTravelTime, formatDistance } from "@/lib/utils"
 import { DayTabs } from "./DayTabs"
 import { PlaceCard } from "./PlaceCard"
 import { SortablePlaceCard } from "./SortablePlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
 import { ReservationCard } from "./ReservationCard"
 import { ReservationSheet } from "./ReservationSheet"
+import { TripHeader } from "./TripHeader"
+import { DaySummary } from "./DaySummary"
+import { useTravelTimes } from "@/hooks/useTravelTimes"
 import { copyShareUrl } from "@/lib/shareUtils"
 import type { Reservation } from "@/types/schedule"
 
@@ -104,12 +105,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null)
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
-  const [showClearConfirm, setShowClearConfirm] = useState(false)
-  const [isEditingTitle, setIsEditingTitle] = useState(false)
-  const [editTitle, setEditTitle] = useState("")
-  const [showCoverInput, setShowCoverInput] = useState(false)
-  const [coverUrl, setCoverUrl] = useState("")
-  const [liveTravelDataMap, setLiveTravelDataMap] = useState<Map<number, { minutes: number; mode: TransportMode; distanceKm: number; source: "estimated" | "live" }>>(new Map())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // 마커 클릭 시 해당 카드로 자동 스크롤
@@ -175,6 +170,9 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   // sortable 아이디 배열 (메모이제이션)
   const itemIds = useMemo(() => items.map((item) => item.id), [items])
 
+  // 이동시간 계산 (hook)
+  const { travelDataMap, totalTravelMinutes } = useTravelTimes(items)
+
   // 해석 불가 장소(orphan) 자동 정리
   useEffect(() => {
     if (!trip) return
@@ -185,76 +183,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       }
     }
   }, [trip?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 이동시간 사전 계산 (메모이제이션)
-  const estimatedTravelDataMap = useMemo(() => {
-    const map = new Map<number, { minutes: number; mode: TransportMode; distanceKm: number }>()
-    for (let i = 1; i < items.length; i++) {
-      const prev = getAnyPlaceById(items[i - 1].placeId)
-      const curr = getAnyPlaceById(items[i].placeId)
-      if (prev && curr) {
-        map.set(i, estimateTravel(prev.location.lat, prev.location.lng, curr.location.lat, curr.location.lng))
-      }
-    }
-    return map
-  }, [items])
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function hydrateTravelTimes() {
-      if (items.length < 2) {
-        setLiveTravelDataMap(new Map())
-        return
-      }
-
-      const entries = await Promise.all(items.slice(1).map(async (item, offset) => {
-        const index = offset + 1
-        const prev = getAnyPlaceById(items[index - 1].placeId)
-        const curr = getAnyPlaceById(item.placeId)
-        if (!prev || !curr) return null
-
-        const travel = await getTravelTime(
-          prev.location.lat,
-          prev.location.lng,
-          curr.location.lat,
-          curr.location.lng,
-        )
-
-        return [index, travel] as const
-      }))
-
-      if (cancelled) return
-
-      setLiveTravelDataMap(new Map(entries.filter((entry): entry is readonly [number, { minutes: number; mode: TransportMode; distanceKm: number; source: "estimated" | "live" }] => entry !== null)))
-    }
-
-    void hydrateTravelTimes()
-
-    return () => {
-      cancelled = true
-    }
-  }, [items])
-
-  const travelDataMap = useMemo(() => {
-    if (liveTravelDataMap.size === 0) {
-      return new Map(Array.from(estimatedTravelDataMap.entries()).map(([index, travel]) => [index, { ...travel, source: "estimated" as const }]))
-    }
-
-    const merged = new Map<number, { minutes: number; mode: TransportMode; distanceKm: number; source: "estimated" | "live" }>()
-    for (const [index, travel] of estimatedTravelDataMap.entries()) {
-      merged.set(index, { ...travel, source: "estimated" })
-    }
-    for (const [index, travel] of liveTravelDataMap.entries()) {
-      merged.set(index, travel)
-    }
-    return merged
-  }, [estimatedTravelDataMap, liveTravelDataMap])
-
-  const totalTravelMinutes = useMemo(
-    () => Array.from(travelDataMap.values()).reduce((sum, d) => sum + d.minutes, 0),
-    [travelDataMap],
-  )
 
   if (!trip) {
     return (
@@ -321,128 +249,12 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   return (
     <div className="flex h-full flex-col" data-testid="schedule-panel">
       {/* 헤더 */}
-      <div className="border-b border-border p-4">
-        {/* 커버 이미지 */}
-        {trip.coverImage && (
-          <div className="relative -mx-4 -mt-4 mb-3 h-28 overflow-hidden">
-            <img src={trip.coverImage} alt="" className="h-full w-full object-cover" />
-            <button
-              onClick={() => { setShowCoverInput(true); setCoverUrl(trip.coverImage ?? "") }}
-              className="absolute bottom-2 right-2 rounded-lg bg-black/50 p-1.5 text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
-            >
-              <Pencil className="h-3 w-3" />
-            </button>
-          </div>
-        )}
-
-        {/* 여행 이름 (편집 가능) */}
-        <div className="flex items-center gap-2">
-          {isEditingTitle ? (
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              onBlur={() => {
-                const trimmed = editTitle.trim()
-                if (trimmed) updateTrip(trip.id, { title: trimmed })
-                setIsEditingTitle(false)
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const trimmed = editTitle.trim()
-                  if (trimmed) updateTrip(trip.id, { title: trimmed })
-                  setIsEditingTitle(false)
-                } else if (e.key === "Escape") {
-                  setIsEditingTitle(false)
-                }
-              }}
-              maxLength={30}
-              autoFocus
-              className="flex-1 rounded-lg border border-border bg-background px-2 py-1 text-base font-bold outline-none focus:ring-2 focus:ring-primary/40"
-            />
-          ) : (
-            <button
-              onClick={() => { setEditTitle(trip.title); setIsEditingTitle(true) }}
-              className="group flex items-center gap-1.5 text-left"
-            >
-              <h2 className="text-base font-bold">{trip.title}</h2>
-              <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
-          )}
-          {!trip.coverImage && !showCoverInput && (
-            <button
-              onClick={() => { setShowCoverInput(true); setCoverUrl("") }}
-              className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              title="커버 사진 추가"
-            >
-              <ImagePlus className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        {/* 커버 URL 입력 */}
-        {showCoverInput && (
-          <div className="mt-2 flex gap-2">
-            <input
-              type="url"
-              value={coverUrl}
-              onChange={(e) => setCoverUrl(e.target.value)}
-              placeholder="커버 이미지 URL (https://...)"
-              className="flex-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary/40"
-              autoFocus
-            />
-            <Button
-              size="sm"
-              className="h-7 rounded-lg text-xs"
-              onClick={() => {
-                updateTrip(trip.id, { coverImage: coverUrl || undefined })
-                setShowCoverInput(false)
-              }}
-            >
-              저장
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 rounded-lg text-xs"
-              onClick={() => setShowCoverInput(false)}
-            >
-              취소
-            </Button>
-          </div>
-        )}
-        <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 dark:bg-muted">
-          <Calendar className="h-4 w-4 shrink-0 text-sakura-dark" />
-          <input
-            type="date"
-            value={trip.startDate ?? ""}
-            onChange={(e) => handleDateChange("startDate", e.target.value)}
-            className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-sakura-dark focus:ring-2 focus:ring-sakura/30"
-            data-testid="trip-start-date"
-          />
-          <span className="shrink-0 text-xs font-bold text-muted-foreground">~</span>
-          <input
-            type="date"
-            value={trip.endDate ?? ""}
-            onChange={(e) => handleDateChange("endDate", e.target.value)}
-            className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-sakura-dark focus:ring-2 focus:ring-sakura/30"
-            data-testid="trip-end-date"
-          />
-        </div>
-        <div className="mt-1.5 flex items-center justify-end">
-          {user ? (
-            <span className="flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">
-              <Save className="h-3 w-3" />
-              자동 저장
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 text-[10px] text-amber-500" data-testid="auto-save-indicator">
-              <AlertTriangle className="h-3 w-3" />
-              로그인 후 저장 가능
-            </span>
-          )}
-        </div>
-      </div>
+      <TripHeader
+        trip={trip}
+        isLoggedIn={!!user}
+        onUpdateTrip={updateTrip}
+        onDateChange={handleDateChange}
+      />
 
       {/* Day 탭 */}
       <DayTabs
@@ -606,52 +418,13 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       </div>
 
       {/* Day 요약 */}
-      {items.length > 0 && (() => {
-        return (
-          <div className="border-t border-border bg-card px-4 py-2.5 text-xs text-muted-foreground flex flex-col gap-1" data-testid="day-summary">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="mr-1 inline-flex items-center"><BarChart3 className="mr-1 inline h-3.5 w-3.5" /></span>Day {currentDay?.dayNumber} 요약 — <span className="font-semibold text-foreground">장소 {items.length}개</span>
-                {totalTravelMinutes > 0 && (
-                  <> · <span className="font-semibold text-foreground">이동 {formatTravelTime(totalTravelMinutes)}</span></>
-                )}
-              </div>
-            {/* 일정 초기화 */}
-            {!showClearConfirm ? (
-              <button
-                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-destructive hover:bg-destructive/10 transition-colors"
-                onClick={() => setShowClearConfirm(true)}
-                data-testid="clear-day-button"
-              >
-                <Trash2 className="h-3 w-3" />
-                초기화
-              </button>
-            ) : (
-              <div className="flex items-center gap-1">
-                <button
-                  className="rounded-lg bg-destructive px-2.5 py-1 text-[10px] font-bold text-white hover:bg-destructive/90 transition-colors"
-                  onClick={() => {
-                    if (currentDay) clearDay(trip.id, currentDay.id)
-                    setShowClearConfirm(false)
-                  }}
-                >
-                  삭제 확인
-                </button>
-                <button
-                  className="rounded-lg px-2 py-1 text-[10px] font-medium text-muted-foreground hover:bg-muted transition-colors"
-                  onClick={() => setShowClearConfirm(false)}
-                >
-                  취소
-                </button>
-              </div>
-            )}
-            </div>
-            {allDaysFilled && trip.days.length > 1 && (
-              <p className="text-[10px] text-muted-foreground/70">여행이 모양새를 갖추고 있어요</p>
-            )}
-          </div>
-        )
-      })()}
+      <DaySummary
+        currentDay={currentDay}
+        items={items}
+        allDaysFilled={allDaysFilled}
+        totalTravelMinutes={totalTravelMinutes}
+        onClearDay={() => { if (currentDay) clearDay(trip.id, currentDay.id) }}
+      />
 
       {/* 하단 액션 */}
       <div className="flex flex-col gap-2 border-t border-border p-4">

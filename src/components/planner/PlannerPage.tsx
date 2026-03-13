@@ -15,6 +15,7 @@ import type { Place } from "@/types/place"
 export function PlannerPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { shareId } = useParams<{ shareId?: string }>()
+  const tripIdParam = searchParams.get("trip")
   const cityIdParam = searchParams.get("city") || "tokyo"
   const forceNew = searchParams.get("new") === "true"
 
@@ -84,14 +85,25 @@ export function PlannerPage() {
       return
     }
 
-    const existingTrip = trips.find((t) => t.cityId === cityId)
+    // tripId가 명시된 경우 → 해당 trip을 활성화
+    if (tripIdParam) {
+      const target = trips.find((t) => t.id === tripIdParam)
+      if (target) {
+        setActiveTrip(target.id)
+        return
+      }
+      // tripId가 유효하지 않으면 cityId 폴백
+    }
+
+    const existingTrip = trips.find((t) => t.cityId === cityIdParam)
     if (existingTrip) {
       setActiveTrip(existingTrip.id)
     } else {
-      createTrip(cityId, `${cityConfig.name} 여행`)
-      showToast(`${cityConfig.name} 여행을 시작합니다`)
+      const fallbackConfig = getCityConfig(cityIdParam)
+      createTrip(cityIdParam, `${fallbackConfig.name} 여행`)
+      showToast(`${fallbackConfig.name} 여행을 시작합니다`)
     }
-  }, [cityId, cityConfig.name, trips, createTrip, setActiveTrip, forceNew, setSearchParams])
+  }, [tripIdParam, cityIdParam, trips, createTrip, setActiveTrip, forceNew, setSearchParams])
 
   // ── 검색 관련 state/handler ──
   const search = useMapSearch(cityId)

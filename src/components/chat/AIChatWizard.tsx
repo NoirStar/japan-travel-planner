@@ -218,7 +218,7 @@ export function AIChatWizard() {
     setCompleted(true)
     showConfetti()
     showToast("일정이 완성됐어요, 좋은 여행 되세요!")
-    navigate(`/planner?city=${selections.cityId}`)
+    navigate(`/planner?trip=${trip.id}`)
   }, [selections, navigate, setCompleted])
 
   const handleReset = useCallback(() => {
@@ -269,7 +269,7 @@ export function AIChatWizard() {
 
         // 3초 후 자동 이동
         setTimeout(() => {
-          navigate(`/planner?city=${response.cityId}`)
+          navigate(`/planner?trip=${trip.id}`)
         }, 3000)
       } catch (error) {
         console.error("AI 추천 실패:", error)

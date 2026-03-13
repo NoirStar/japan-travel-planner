@@ -1,10 +1,42 @@
 import type { Trip } from "@/types/schedule"
+import { getAnyPlaceById, useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
+import type { Place } from "@/types/place"
 
 /**
  * Trip 데이터를 URL-safe base64 문자열로 인코딩
+ * 장소 스냅샷을 포함하여 다른 기기에서도 일정을 복원 가능하게 함
  */
 export function encodeTrip(trip: Trip): string {
-  // 핵심 데이터만 추출 (ID, createdAt 등 제외)
+  // 일정에 포함된 모든 장소 ID 수집 → 스냅샷 저장
+  const placeIds = new Set<string>()
+  for (const day of trip.days) {
+    for (const item of day.items) {
+      placeIds.add(item.placeId)
+    }
+  }
+
+  // 장소 스냅샷 (중복 제거, 최소 필드만)
+  const placeSnapshots: Record<string, { n: string; ne: string; ca: string; ci: string; la: number; ln: number; r?: number; rc?: number; im?: string; ad?: string; gpi?: string; gmu?: string }> = {}
+  for (const id of placeIds) {
+    const place = getAnyPlaceById(id)
+    if (place) {
+      placeSnapshots[id] = {
+        n: place.name,
+        ne: place.nameEn,
+        ca: place.category,
+        ci: place.cityId,
+        la: place.location.lat,
+        ln: place.location.lng,
+        r: place.rating,
+        rc: place.ratingCount,
+        im: place.image,
+        ad: place.address,
+        gpi: place.googlePlaceId,
+        gmu: place.googleMapsUri,
+      }
+    }
+  }
+
   const compact = {
     t: trip.title,
     c: trip.cityId,
@@ -19,6 +51,7 @@ export function encodeTrip(trip: Trip): string {
         m: item.memo,
       })),
     })),
+    pl: placeSnapshots,
   }
 
   const json = JSON.stringify(compact)
@@ -35,6 +68,7 @@ export function encodeTrip(trip: Trip): string {
 
 /**
  * URL-safe base64 문자열을 Trip 데이터로 디코딩
+ * 포함된 장소 스냅샷을 dynamicPlaceStore에 복원
  */
 export function decodeTrip(encoded: string): Trip | null {
   try {
@@ -46,6 +80,32 @@ export function decodeTrip(encoded: string): Trip | null {
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0))
     const json = new TextDecoder().decode(bytes)
     const compact = JSON.parse(json)
+
+    // 장소 스냅샷 복원 → dynamicPlaceStore에 주입
+    if (compact.pl && typeof compact.pl === "object") {
+      const { addPlace } = useDynamicPlaceStore.getState()
+      for (const [id, snap] of Object.entries(compact.pl)) {
+        const s = snap as { n: string; ne: string; ca: string; ci: string; la: number; ln: number; r?: number; rc?: number; im?: string; ad?: string; gpi?: string; gmu?: string }
+        const place: Place = {
+          id,
+          name: s.n,
+          nameEn: s.ne,
+          category: s.ca,
+          cityId: s.ci,
+          location: { lat: s.la, lng: s.ln },
+          rating: s.r,
+          ratingCount: s.rc,
+          image: s.im,
+          address: s.ad,
+          googlePlaceId: s.gpi,
+          googleMapsUri: s.gmu,
+        }
+        // 이미 존재하면 덮어쓰지 않음 (로컬 데이터가 더 최신일 수 있음)
+        if (!getAnyPlaceById(id)) {
+          addPlace(place)
+        }
+      }
+    }
 
     const now = new Date().toISOString()
     let itemCounter = 0

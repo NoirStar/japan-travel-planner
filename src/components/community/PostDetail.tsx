@@ -342,7 +342,7 @@ export function PostDetail() {
       })
     })
 
-    navigate("/planner")
+    navigate(`/planner?trip=${newTrip.id}`)
   }
 
   // 글 삭제 (본인 또는 관리자)

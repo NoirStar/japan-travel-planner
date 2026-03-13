@@ -24,9 +24,9 @@ export function TripListPage() {
     return copy
   }, [trips, sortBy])
 
-  const handleOpenTrip = (tripId: string, cityId: string) => {
+  const handleOpenTrip = (tripId: string, _cityId: string) => {
     setActiveTrip(tripId)
-    navigate(`/planner?city=${cityId}`)
+    navigate(`/planner?trip=${tripId}`)
   }
 
   const handleDelete = (e: React.MouseEvent, tripId: string) => {

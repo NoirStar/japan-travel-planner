@@ -99,7 +99,6 @@ function tripToData(trip: Trip): Record<string, unknown> {
 /** 여행을 공유 모드로 전환 → invite_code 반환 */
 export async function shareTrip(
   trip: Trip,
-  userId: string,
 ): Promise<{ sharedId: string; inviteCode: string }> {
   const placeData = collectPlaceSnapshots(trip)
 

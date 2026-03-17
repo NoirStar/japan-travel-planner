@@ -261,7 +261,7 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
     if (!trip || !user) return null
     if (!available) throw new Error("로그인이 필요합니다. Google 계정으로 로그인해 주세요.")
 
-    const { sharedId: newSharedId, inviteCode: code } = await shareTripApi(trip, user.id)
+    const { sharedId: newSharedId, inviteCode: code } = await shareTripApi(trip)
 
     // Trip에 sharedId 기록
     useScheduleStore.setState((state) => ({

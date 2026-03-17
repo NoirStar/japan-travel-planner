@@ -64,9 +64,9 @@ drop policy if exists "공유여행 생성" on shared_trips;
 drop policy if exists "공유여행 수정" on shared_trips;
 drop policy if exists "공유여행 삭제" on shared_trips;
 
--- 멤버만 조회 (SECURITY DEFINER 함수 사용)
+-- 소유자 또는 멤버만 조회 (owner_id로 직접 확인 → INSERT + RETURNING 시에도 통과)
 create policy "공유여행 멤버 조회" on shared_trips for select using (
-  is_trip_member(id, auth.uid())
+  owner_id = auth.uid() or is_trip_member(id, auth.uid())
 );
 
 create policy "공유여행 생성" on shared_trips for insert with check (auth.uid() = owner_id);
@@ -94,7 +94,41 @@ create policy "여행채팅 작성" on trip_chat_messages for insert with check 
 );
 
 -- ═══════════════════════════════════════════════════════
+-- RPC: 원자적 공유 여행 생성 (INSERT 시 RLS 충돌 방지)
+-- shared_trip + owner trip_member를 하나의 트랜잭션으로 생성
+-- ═══════════════════════════════════════════════════════
+create or replace function create_shared_trip(
+  p_trip_data jsonb,
+  p_place_data jsonb
+)
+returns jsonb as $$
+declare
+  v_trip_id uuid;
+  v_invite_code text;
+begin
+  if auth.uid() is null then
+    raise exception 'Authentication required';
+  end if;
+
+  -- 공유 여행 생성
+  insert into shared_trips (owner_id, trip_data, place_data)
+  values (auth.uid(), p_trip_data, p_place_data)
+  returning id, invite_code into v_trip_id, v_invite_code;
+
+  -- 소유자를 멤버로 즉시 추가
+  insert into trip_members (trip_id, user_id, role)
+  values (v_trip_id, auth.uid(), 'owner');
+
+  return jsonb_build_object(
+    'id', v_trip_id,
+    'invite_code', v_invite_code
+  );
+end;
+$$ language plpgsql security definer set search_path = public;
+
+-- ═══════════════════════════════════════════════════════
 -- 함수 실행 권한 부여
 -- ═══════════════════════════════════════════════════════
 grant execute on function is_trip_member(uuid, uuid) to authenticated;
 grant execute on function is_trip_editor(uuid, uuid) to authenticated;
+grant execute on function create_shared_trip(jsonb, jsonb) to authenticated;

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react"
+import { flushSync } from "react-dom"
 import {
   DndContext,
   DragOverlay,
@@ -259,16 +260,23 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
-    setActiveItemId(null)
     const { active, over } = event
-    if (!over || !currentDay) return
-    if (active.id === over.id) return
+    setActiveItemId(null)
+    if (!over || !currentDay || active.id === over.id) return
 
-    const oldIndex = items.findIndex((i) => i.id === active.id)
-    const newIndex = items.findIndex((i) => i.id === over.id)
-    if (oldIndex === -1 || newIndex === -1) return
+    // 최신 store 상태에서 인덱스 계산 (클로저 stale 방지)
+    const freshTrip = useScheduleStore.getState().trips.find((t) => t.id === trip!.id)
+    const freshDay = freshTrip?.days.find((d) => d.id === currentDay.id)
+    if (!freshDay) return
 
-    moveItem(trip.id, currentDay.id, currentDay.id, active.id as string, newIndex)
+    const oldIndex = freshDay.items.findIndex((i) => i.id === active.id)
+    const newIndex = freshDay.items.findIndex((i) => i.id === over.id)
+    if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return
+
+    // flushSync: DnD transform 제거 전에 DOM이 새 순서로 커밋되도록 강제
+    flushSync(() => {
+      moveItem(trip!.id, currentDay!.id, currentDay!.id, active.id as string, newIndex)
+    })
   }
 
   const handleDragCancel = () => {
@@ -281,17 +289,19 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   }
 
   const handleReservationDragEnd = (event: DragEndEvent) => {
-    setActiveReservationId(null)
     const { active, over } = event
-    if (!over || !trip) return
-    if (active.id === over.id) return
+    setActiveReservationId(null)
+    if (!over || !trip || active.id === over.id) return
 
-    const allReservations = trip.reservations ?? []
+    const freshTrip = useScheduleStore.getState().trips.find((t) => t.id === trip.id)
+    const allReservations = freshTrip?.reservations ?? []
     const oldIndex = allReservations.findIndex((r) => r.id === active.id)
     const newIndex = allReservations.findIndex((r) => r.id === over.id)
-    if (oldIndex === -1 || newIndex === -1) return
+    if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return
 
-    moveReservation(trip.id, active.id as string, newIndex)
+    flushSync(() => {
+      moveReservation(trip.id, active.id as string, newIndex)
+    })
   }
 
   const handleReservationDragCancel = () => {

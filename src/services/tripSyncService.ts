@@ -103,26 +103,17 @@ export async function shareTrip(
 ): Promise<{ sharedId: string; inviteCode: string }> {
   const placeData = collectPlaceSnapshots(trip)
 
-  const { data, error } = await supabase
-    .from("shared_trips")
-    .insert({
-      owner_id: userId,
-      trip_data: tripToData(trip),
-      place_data: placeData,
-    })
-    .select("id, invite_code")
-    .single()
+  // 원자적 RPC: shared_trip 생성 + owner를 trip_member로 추가
+  // (별도 INSERT 시 SELECT RLS ↔ trip_members 순환 문제 해결)
+  const { data, error } = await supabase.rpc("create_shared_trip", {
+    p_trip_data: tripToData(trip),
+    p_place_data: placeData,
+  })
 
   if (error || !data) throw new Error(error?.message ?? "Failed to share trip")
 
-  // owner 자신을 멤버로 추가
-  await supabase.from("trip_members").insert({
-    trip_id: data.id,
-    user_id: userId,
-    role: "owner",
-  })
-
-  return { sharedId: data.id, inviteCode: data.invite_code }
+  const result = data as { id: string; invite_code: string }
+  return { sharedId: result.id, inviteCode: result.invite_code }
 }
 
 /** 초대 코드로 여행 참여 */

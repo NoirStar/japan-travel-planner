@@ -99,10 +99,10 @@ interface TripPdfProps {
 }
 
 const RSV_ICONS: Record<string, string> = {
-  flight: "✈",
-  train: "🚄",
-  bus: "🚌",
-  accommodation: "🏨",
+  flight: "AIR",
+  train: "TRN",
+  bus: "BUS",
+  accommodation: "HTL",
 }
 
 function getDayDate(trip: Trip, dayNumber: number): string | undefined {
@@ -174,7 +174,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
           const accomRsvs = getReservationsForDay(reservations, dayDate, "accommodation")
 
           return (
-            <View key={day.id} style={s.daySection} wrap={false}>
+            <View key={day.id} style={s.daySection}>
               <View style={s.dayHeader}>
                 <View style={s.dayBadge}>
                   <Text style={s.dayBadgeText}>Day {day.dayNumber}</Text>
@@ -187,7 +187,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
 
               {/* 교통 예약 */}
               {transportRsvs.map((r) => (
-                <View key={r.id} style={s.rsvRow}>
+                <View key={r.id} style={s.rsvRow} wrap={false}>
                   <Text style={s.rsvIcon}>{RSV_ICONS[r.type] ?? "📋"}</Text>
                   <View style={s.rsvBody}>
                     <Text style={s.rsvTitle}>{r.title}</Text>
@@ -212,7 +212,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                 </View>
               ) : (
                 places.map(({ item, place }, idx) => (
-                  <View key={item.id} style={s.placeRow}>
+                  <View key={item.id} style={s.placeRow} wrap={false}>
                     <Text style={s.placeIndex}>{idx + 1}</Text>
                     <Text style={s.placeTime}>{item.startTime ?? ""}</Text>
                     <View style={s.placeBody}>
@@ -230,8 +230,8 @@ function TripPdfDocument({ trip }: TripPdfProps) {
 
               {/* 숙박 예약 */}
               {accomRsvs.map((r) => (
-                <View key={r.id} style={{ ...s.rsvRow, backgroundColor: "#F5F3FF" }}>
-                  <Text style={{ ...s.rsvIcon, color: "#7C3AED" }}>🏨</Text>
+                <View key={r.id} style={{ ...s.rsvRow, backgroundColor: "#F5F3FF" }} wrap={false}>
+                  <Text style={{ ...s.rsvIcon, color: "#7C3AED" }}>HTL</Text>
                   <View style={s.rsvBody}>
                     <Text style={s.rsvTitle}>{r.title}</Text>
                     <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
@@ -269,6 +269,19 @@ function TripPdfDocument({ trip }: TripPdfProps) {
 // ── 다운로드 함수 ──
 export async function downloadTripPdf(trip: Trip): Promise<boolean> {
   try {
+    // 폰트 사전 로드 (타임아웃 30초 — 대용량 CJK 폰트)
+    const fontUrls = [
+      `${NOTO_KR}/korean-400-normal.ttf`,
+      `${NOTO_KR}/korean-700-normal.ttf`,
+    ]
+    await Promise.all(
+      fontUrls.map((url) =>
+        fetch(url, { mode: "cors" }).then((r) => {
+          if (!r.ok) throw new Error(`Font fetch failed: ${r.status}`)
+        }),
+      ),
+    )
+
     const blob = await pdf(<TripPdfDocument trip={trip} />).toBlob()
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")

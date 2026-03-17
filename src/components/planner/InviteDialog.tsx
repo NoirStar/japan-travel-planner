@@ -51,11 +51,18 @@ export function InviteDialog({
     if (!inviteUrl) return
     try {
       await navigator.clipboard.writeText(inviteUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
     } catch {
-      // 복사 실패
+      // clipboard API 미지원/실패 시 fallback
+      const ta = document.createElement("textarea")
+      ta.value = inviteUrl
+      ta.style.cssText = "position:fixed;opacity:0"
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand("copy")
+      document.body.removeChild(ta)
     }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }, [inviteUrl])
 
   const handleShare = useCallback(async () => {
@@ -131,10 +138,14 @@ export function InviteDialog({
             <div className="mt-4">
               <p className="text-xs font-semibold text-muted-foreground mb-1.5">초대 링크</p>
               <div className="flex gap-2">
-                <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-left active:bg-muted transition-colors"
+                >
                   <Link className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   <span className="truncate text-[11px] text-foreground break-all">{inviteUrl}</span>
-                </div>
+                </button>
                 <Button
                   variant="outline"
                   size="sm"

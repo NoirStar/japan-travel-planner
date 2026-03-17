@@ -87,7 +87,7 @@ export function InviteDialog({
       />
 
       {/* 다이얼로그 */}
-      <div className="fixed inset-x-4 top-1/2 z-50 mx-auto max-w-sm -translate-y-1/2 rounded-2xl border border-border bg-card p-5 shadow-2xl" data-testid="invite-dialog">
+      <div className="fixed inset-x-4 top-1/2 z-50 mx-auto max-w-sm -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-2xl" data-testid="invite-dialog">
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export function InviteDialog({
               <div className="flex gap-2">
                 <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
                   <Link className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="truncate text-xs text-foreground">{inviteUrl}</span>
+                  <span className="truncate text-[11px] text-foreground break-all">{inviteUrl}</span>
                 </div>
                 <Button
                   variant="outline"

@@ -1,6 +1,5 @@
 import { forwardRef, useState, useRef, useEffect } from "react"
-import { X, Star, GripVertical, Clock, StickyNote, ChevronDown, ChevronUp } from "lucide-react"
-import type { DraggableAttributes } from "@dnd-kit/core"
+import { X, Star, Clock, StickyNote, ChevronDown, ChevronUp, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
@@ -9,7 +8,11 @@ import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 interface PlaceCardProps {
   place: Place
   index: number
+  /** 전체 아이템 수 (첫/마지막 판별) */
+  totalItems?: number
   onRemove: () => void
+  /** 이동 콜백 */
+  onMoveItem?: (direction: "up" | "down" | "top" | "bottom") => void
   /** 시간대 (HH:mm) */
   startTime?: string
   /** 메모 */
@@ -22,14 +25,6 @@ interface PlaceCardProps {
   isSelected?: boolean
   /** 카드 클릭 콜백 */
   onClick?: () => void
-  /** dnd-kit에서 전달하는 드래그 핸들 리스너 */
-  dragHandleListeners?: Record<string, unknown>
-  /** dnd-kit에서 전달하는 드래그 핸들 어트리뷰트 */
-  dragHandleAttributes?: DraggableAttributes
-  /** 드래그 중 스타일 (opacity 등) */
-  style?: React.CSSProperties
-  /** 드래그 중 여부 */
-  isDragging?: boolean
 }
 
 /** 카테고리별 그라데이션 색상 */
@@ -57,7 +52,7 @@ function getTimeSlotLabel(time: string): { label: string; color: string } | null
 
 export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
   function PlaceCard(
-    { place, index, onRemove, startTime, memo, onStartTimeChange, onMemoChange, isSelected, onClick, dragHandleListeners, dragHandleAttributes, style, isDragging },
+    { place, index, totalItems = 1, onRemove, onMoveItem, startTime, memo, onStartTimeChange, onMemoChange, isSelected, onClick },
     ref,
   ) {
     const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
@@ -66,6 +61,9 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
     const [isEditingTime, setIsEditingTime] = useState(false)
     const [showMemo, setShowMemo] = useState(!!memo)
     const timeInputRef = useRef<HTMLInputElement>(null)
+
+    const isFirst = index === 0
+    const isLast = index === totalItems - 1
 
     useEffect(() => {
       if (isEditingTime && timeInputRef.current) {
@@ -80,8 +78,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
           isSelected
             ? "border-sakura-dark shadow-md"
             : "border-border hover:border-sakura/40"
-        } ${isDragging ? "opacity-50 shadow-lg scale-[1.02]" : ""}`}
-        style={style}
+        }`}
         data-testid={`place-card-${index}`}
         data-place-id={place.id}
         onClick={onClick}
@@ -89,22 +86,60 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         {/* 좌측 컬러 스트라이프 */}
         <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${gradientClass}`} />
 
-        {/* 드래그 핸들 — 번호 배지 */}
-        <button
-          className={`absolute -left-1 top-3 flex h-6 w-6 cursor-grab items-center justify-center rounded-full bg-gradient-to-br ${gradientClass} text-[10px] font-bold text-white shadow-md active:cursor-grabbing`}
-          aria-label={`${place.name} 순서 변경`}
-          data-testid={`drag-handle-${index}`}
-          {...dragHandleListeners}
-          {...dragHandleAttributes}
+        {/* 번호 배지 */}
+        <div
+          className={`absolute -left-1 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${gradientClass} text-[10px] font-bold text-white shadow-md`}
         >
           {index + 1}
-        </button>
+        </div>
 
-        {/* 삭제 버튼 */}
+        {/* 순서 변경 버튼 — 우측 상단 */}
+        {onMoveItem && totalItems > 1 && (
+          <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100" data-testid={`reorder-buttons-${index}`}>
+            <button
+              className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={(e) => { e.stopPropagation(); onMoveItem("top") }}
+              disabled={isFirst}
+              aria-label="맨 위로"
+              data-testid={`move-top-${index}`}
+            >
+              <ChevronsUp className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            <button
+              className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={(e) => { e.stopPropagation(); onMoveItem("up") }}
+              disabled={isFirst}
+              aria-label="위로"
+              data-testid={`move-up-${index}`}
+            >
+              <ArrowUp className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            <button
+              className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={(e) => { e.stopPropagation(); onMoveItem("down") }}
+              disabled={isLast}
+              aria-label="아래로"
+              data-testid={`move-down-${index}`}
+            >
+              <ArrowDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            <button
+              className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
+              onClick={(e) => { e.stopPropagation(); onMoveItem("bottom") }}
+              disabled={isLast}
+              aria-label="맨 아래로"
+              data-testid={`move-bottom-${index}`}
+            >
+              <ChevronsDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+          </div>
+        )}
+
+        {/* 삭제 버튼 — 순서 버튼 아래 */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-1.5 top-1.5 h-6 w-6 rounded-full opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
+          className="absolute right-1.5 top-8 h-6 w-6 rounded-full opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
           onClick={(e) => { e.stopPropagation(); onRemove() }}
           aria-label={`${place.name} 삭제`}
           data-testid={`place-remove-${index}`}
@@ -113,9 +148,6 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         </Button>
 
         <div className="flex items-start gap-2.5 pl-5">
-          {/* 드래그 힌트 아이콘 */}
-          <GripVertical className="mt-1 h-3.5 w-3.5 shrink-0 text-muted-foreground/30" />
-
           {/* 카테고리 아이콘 */}
           <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted">
             <CategoryIcon className="h-5 w-5 text-muted-foreground" aria-label={categoryLabel} />

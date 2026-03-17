@@ -227,7 +227,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 active:scale-95 lg:bottom-6 lg:right-6"
         aria-label="여행 채팅 열기"
       >
         <MessageSquare className="h-6 w-6" />
@@ -244,7 +244,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
   return (
     <div
       ref={chatRef}
-      className="fixed bottom-6 right-6 z-50 flex h-[28rem] max-h-[calc(100dvh-3rem)] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-96 transition-[bottom,max-height] duration-150"
+      className="fixed bottom-20 right-2 z-50 flex h-[28rem] max-h-[calc(100dvh-6rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-96 lg:bottom-6 lg:right-6 lg:w-80 lg:max-h-[calc(100dvh-3rem)] transition-[bottom,max-height] duration-150"
     >
       {/* 헤더 */}
       <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">

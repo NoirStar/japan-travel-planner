@@ -158,7 +158,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: window.location.origin },
+        options: { redirectTo: window.location.href },
       })
       if (error) {
         console.error("Google 로그인 실패:", error.message)

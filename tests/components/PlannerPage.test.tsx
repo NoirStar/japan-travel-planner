@@ -196,24 +196,23 @@ describe("PlannerPage", () => {
     expect(screen.getByText(/장소를 추가하세요/)).toBeInTheDocument()
   })
 
-  // ── 드래그 앤 드롭 ──────────────────────────────────
-  it("장소 추가 시 드래그 핸들이 렌더링된다", () => {
+  // ── 순서 변경 버튼 ──────────────────────────────────
+  it("장소 추가 시 순서 변경 버튼이 렌더링된다", () => {
     renderWithRoute()
     fireEvent.click(screen.getAllByText("장소 추가")[0])
     fireEvent.click(screen.getByTestId("place-add-test-place-1"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
-    expect(screen.getByTestId("drag-handle-0")).toBeInTheDocument()
-    expect(screen.getByTestId("drag-handle-0")).toHaveAttribute("aria-label", "테스트 관광지 순서 변경")
+    expect(screen.getByTestId("place-card-0")).toBeInTheDocument()
   })
 
-  it("여러 장소 추가 시 각각 드래그 핸들이 존재한다", () => {
+  it("여러 장소 추가 시 각각 순서 변경 버튼이 존재한다", () => {
     renderWithRoute()
     fireEvent.click(screen.getAllByText("장소 추가")[0])
     fireEvent.click(screen.getByTestId("place-add-test-place-1"))
     fireEvent.click(screen.getByTestId("place-add-test-place-2"))
     fireEvent.click(screen.getByTestId("place-sheet-backdrop"))
-    expect(screen.getByTestId("drag-handle-0")).toBeInTheDocument()
-    expect(screen.getByTestId("drag-handle-1")).toBeInTheDocument()
+    expect(screen.getByTestId("reorder-buttons-0")).toBeInTheDocument()
+    expect(screen.getByTestId("reorder-buttons-1")).toBeInTheDocument()
   })
 
   it("moveItem 스토어 액션이 같은 Day 내 순서를 변경한다", () => {

@@ -1,21 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react"
-import { flushSync } from "react-dom"
-import {
-  DndContext,
-  DragOverlay,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragStartEvent,
-  type DragEndEvent,
-} from "@dnd-kit/core"
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
+import { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { MapPin, Plus, Train, Footprints, TrainFront, Share2, Check, AlertTriangle, FileDown, Ticket, Bookmark, ClipboardCheck } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
@@ -24,9 +7,7 @@ import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { formatTravelTime, formatDistance } from "@/lib/utils"
 import { DayTabs } from "./DayTabs"
 import { PlaceCard } from "./PlaceCard"
-import { SortablePlaceCard } from "./SortablePlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
-import { SortableReservationCard } from "./SortableReservationCard"
 import { ReservationCard } from "./ReservationCard"
 import { ReservationSheet } from "./ReservationSheet"
 import { TripHeader } from "./TripHeader"
@@ -113,8 +94,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isChecklistOpen, setIsChecklistOpen] = useState(false)
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null)
-  const [activeItemId, setActiveItemId] = useState<string | null>(null)
-  const [activeReservationId, setActiveReservationId] = useState<string | null>(null)
   const [shareMessage, setShareMessage] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -126,16 +105,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       card.scrollIntoView({ behavior: "smooth", block: "center" })
     }
   }, [selectedPlaceId])
-
-  // ── DnD 센서 ──────────────────────────────────────────
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
 
   const currentDay = trip?.days[activeDayIndex]
   const items = useMemo(() => currentDay?.items ?? [], [currentDay?.items])
@@ -178,9 +147,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
     return trip.days.every((d) => d.items.length > 0)
   }, [trip])
 
-  // sortable 아이디 배열 (메모이제이션)
-  const itemIds = useMemo(() => items.map((item) => item.id), [items])
-
   // 이동시간 계산 (hook)
   const { travelDataMap, totalTravelMinutes } = useTravelTimes(items)
 
@@ -199,10 +165,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   }, [trip, currentDay, travelDataMap])
   const risks = useScheduleRisks(trip, travelDataByDay)
 
-  // 예약 sortable IDs
-  const transportReservationIds = useMemo(() => transportReservations.map((r) => r.id), [transportReservations])
-  const accommodationReservationIds = useMemo(() => accommodationReservations.map((r) => r.id), [accommodationReservations])
-
   // 해석 불가 장소(orphan) 자동 정리
   useEffect(() => {
     if (!trip) return
@@ -214,6 +176,23 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
     }
   }, [trip?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── 순서 변경 핸들러 (버튼식) ──────────────────────────
+  const handleMoveItem = useCallback((itemId: string, direction: "up" | "down" | "top" | "bottom") => {
+    if (!trip || !currentDay) return
+    const idx = currentDay.items.findIndex((i) => i.id === itemId)
+    if (idx === -1) return
+    const lastIdx = currentDay.items.length - 1
+    let newIdx: number
+    switch (direction) {
+      case "up":    newIdx = Math.max(0, idx - 1); break
+      case "down":  newIdx = Math.min(lastIdx, idx + 1); break
+      case "top":   newIdx = 0; break
+      case "bottom": newIdx = lastIdx; break
+    }
+    if (newIdx === idx) return
+    moveItem(trip.id, currentDay.id, currentDay.id, itemId, newIdx)
+  }, [trip, currentDay, moveItem])
+
   if (!trip) {
     return (
       <div className="flex h-full items-center justify-center p-4 text-muted-foreground" data-testid="schedule-panel">
@@ -221,15 +200,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       </div>
     )
   }
-
-  // 드래그 오버레이에 표시할 장소 정보
-  const activeItem = activeItemId
-    ? items.find((i) => i.id === activeItemId)
-    : null
-  const activePlace = activeItem ? getAnyPlaceById(activeItem.placeId) : null
-  const activeIndex = activeItem
-    ? items.findIndex((i) => i.id === activeItemId)
-    : -1
 
   const handleAddDay = () => {
     addDay(trip.id)
@@ -252,60 +222,6 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const handleRemoveItem = (itemId: string) => {
     if (!currentDay) return
     removeItem(trip.id, currentDay.id, itemId)
-  }
-
-  // ── DnD 이벤트 핸들러 ─────────────────────────────────
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveItemId(event.active.id as string)
-  }
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    setActiveItemId(null)
-    if (!over || !currentDay || active.id === over.id) return
-
-    // 최신 store 상태에서 인덱스 계산 (클로저 stale 방지)
-    const freshTrip = useScheduleStore.getState().trips.find((t) => t.id === trip!.id)
-    const freshDay = freshTrip?.days.find((d) => d.id === currentDay.id)
-    if (!freshDay) return
-
-    const oldIndex = freshDay.items.findIndex((i) => i.id === active.id)
-    const newIndex = freshDay.items.findIndex((i) => i.id === over.id)
-    if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return
-
-    // flushSync: DnD transform 제거 전에 DOM이 새 순서로 커밋되도록 강제
-    flushSync(() => {
-      moveItem(trip!.id, currentDay!.id, currentDay!.id, active.id as string, newIndex)
-    })
-  }
-
-  const handleDragCancel = () => {
-    setActiveItemId(null)
-  }
-
-  // ── 예약 DnD 핸들러 ──────────────────────────────────
-  const handleReservationDragStart = (event: DragStartEvent) => {
-    setActiveReservationId(event.active.id as string)
-  }
-
-  const handleReservationDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    setActiveReservationId(null)
-    if (!over || !trip || active.id === over.id) return
-
-    const freshTrip = useScheduleStore.getState().trips.find((t) => t.id === trip.id)
-    const allReservations = freshTrip?.reservations ?? []
-    const oldIndex = allReservations.findIndex((r) => r.id === active.id)
-    const newIndex = allReservations.findIndex((r) => r.id === over.id)
-    if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return
-
-    flushSync(() => {
-      moveReservation(trip.id, active.id as string, newIndex)
-    })
-  }
-
-  const handleReservationDragCancel = () => {
-    setActiveReservationId(null)
   }
 
   return (
@@ -334,38 +250,16 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4" data-testid="schedule-items">
         {/* 교통 예약 (항공/기차/버스) — 장소 목록 상단 */}
         {transportReservations.length > 0 && (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleReservationDragStart}
-            onDragEnd={handleReservationDragEnd}
-            onDragCancel={handleReservationDragCancel}
-          >
-            <SortableContext items={transportReservationIds} strategy={verticalListSortingStrategy}>
-              <div className="mb-3 flex flex-col gap-2">
-                {transportReservations.map((r) => (
-                  <SortableReservationCard
-                    key={r.id}
-                    id={r.id}
-                    reservation={r}
-                    onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
-                    onRemove={() => trip && removeReservation(trip.id, r.id)}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-            <DragOverlay dropAnimation={null}>
-              {activeReservationId && transportReservations.find((r) => r.id === activeReservationId) ? (
-                <div className="opacity-90">
-                  <ReservationCard
-                    reservation={transportReservations.find((r) => r.id === activeReservationId)!}
-                    onEdit={() => {}}
-                    onRemove={() => {}}
-                  />
-                </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
+          <div className="mb-3 flex flex-col gap-2">
+            {transportReservations.map((r) => (
+              <ReservationCard
+                key={r.id}
+                reservation={r}
+                onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
+                onRemove={() => trip && removeReservation(trip.id, r.id)}
+              />
+            ))}
+          </div>
         )}
 
         {items.length === 0 && transportReservations.length === 0 && accommodationReservations.length === 0 ? (
@@ -389,88 +283,66 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             </button>
           </div>
         ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onDragCancel={handleDragCancel}
-          >
-            <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-              <div className="flex flex-col">
-                {items.map((item, index) => {
-                  const place = getAnyPlaceById(item.placeId)
-                  if (!place) return null
+          <div className="flex flex-col">
+            {items.map((item, index) => {
+              const place = getAnyPlaceById(item.placeId)
+              if (!place) return null
 
-                  // 사전 계산된 이동시간 사용
-                  const travelData = travelDataMap.get(index)
-                  const travelMinutes = travelData?.minutes ?? 0
-                  const travelMode = travelData?.mode ?? "metro"
-                  const distanceKm = travelData?.distanceKm ?? 0
+              // 사전 계산된 이동시간 사용
+              const travelData = travelDataMap.get(index)
+              const travelMinutes = travelData?.minutes ?? 0
+              const travelMode = travelData?.mode ?? "metro"
+              const distanceKm = travelData?.distanceKm ?? 0
 
-                  return (
-                    <div key={item.id}>
-                      {/* 이동시간 커넥터 */}
-                      {travelData && (
-                        <div className="flex items-center gap-2 py-1.5 pl-3" data-testid={`travel-connector-${index}`}>
-                          <div className="flex flex-col items-center">
-                            <div className="h-3 w-px bg-border" />
-                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted/80">
-                              {travelMode === "walk" ? (
-                                <Footprints className="h-3 w-3 text-muted-foreground" />
-                              ) : travelMode === "metro" ? (
-                                <Train className="h-3 w-3 text-muted-foreground" />
-                              ) : (
-                                <TrainFront className="h-3 w-3 text-muted-foreground" />
-                              )}
-                            </div>
-                            <div className="h-3 w-px bg-border" />
-                          </div>
-                          <span className="text-[10px] font-medium text-muted-foreground">
-                            {formatTravelTime(travelMinutes, travelMode)} · {formatDistance(distanceKm)}
-                          </span>
-                          {travelData?.source === "live" && (
-                            <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
-                              ETA
-                            </span>
+              return (
+                <div key={item.id}>
+                  {/* 이동시간 커넥터 */}
+                  {travelData && (
+                    <div className="flex items-center gap-2 py-1.5 pl-3" data-testid={`travel-connector-${index}`}>
+                      <div className="flex flex-col items-center">
+                        <div className="h-3 w-px bg-border" />
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted/80">
+                          {travelMode === "walk" ? (
+                            <Footprints className="h-3 w-3 text-muted-foreground" />
+                          ) : travelMode === "metro" ? (
+                            <Train className="h-3 w-3 text-muted-foreground" />
+                          ) : (
+                            <TrainFront className="h-3 w-3 text-muted-foreground" />
                           )}
                         </div>
+                        <div className="h-3 w-px bg-border" />
+                      </div>
+                      <span className="text-[10px] font-medium text-muted-foreground">
+                        {formatTravelTime(travelMinutes, travelMode)} · {formatDistance(distanceKm)}
+                      </span>
+                      {travelData?.source === "live" && (
+                        <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                          ETA
+                        </span>
                       )}
-                      <SortablePlaceCard
-                        id={item.id}
-                        place={place}
-                        index={index}
-                        onRemove={() => handleRemoveItem(item.id)}
-                        startTime={item.startTime}
-                        memo={item.memo}
-                        onStartTimeChange={(time) => {
-                          if (trip && currentDay) updateItem(trip.id, currentDay.id, item.id, { startTime: time })
-                        }}
-                        onMemoChange={(memoValue) => {
-                          if (trip && currentDay) updateItem(trip.id, currentDay.id, item.id, { memo: memoValue })
-                        }}
-                        isSelected={selectedPlaceId === item.placeId}
-                        onClick={() => onSelectPlace?.(item.placeId === selectedPlaceId ? null : item.placeId)}
-                      />
                     </div>
-                  )
-                })}
-              </div>
-            </SortableContext>
-
-            {/* 드래그 오버레이 */}
-            <DragOverlay dropAnimation={null}>
-              {activePlace && activeIndex >= 0 ? (
-                <div className="opacity-90" data-testid="drag-overlay">
+                  )}
                   <PlaceCard
-                    place={activePlace}
-                    index={activeIndex}
-                    onRemove={() => {}}
+                    place={place}
+                    index={index}
+                    totalItems={items.length}
+                    onRemove={() => handleRemoveItem(item.id)}
+                    onMoveItem={(direction) => handleMoveItem(item.id, direction)}
+                    startTime={item.startTime}
+                    memo={item.memo}
+                    onStartTimeChange={(time) => {
+                      if (trip && currentDay) updateItem(trip.id, currentDay.id, item.id, { startTime: time })
+                    }}
+                    onMemoChange={(memoValue) => {
+                      if (trip && currentDay) updateItem(trip.id, currentDay.id, item.id, { memo: memoValue })
+                    }}
+                    isSelected={selectedPlaceId === item.placeId}
+                    onClick={() => onSelectPlace?.(item.placeId === selectedPlaceId ? null : item.placeId)}
                   />
                 </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
+              )
+            })}
+          </div>
         )}
 
         {/* 빈 장소 + 예약만 있는 경우 장소 추가 안내 */}
@@ -489,38 +361,16 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
         {/* 숙박 예약 — 장소 목록 하단 */}
         {accommodationReservations.length > 0 && (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleReservationDragStart}
-            onDragEnd={handleReservationDragEnd}
-            onDragCancel={handleReservationDragCancel}
-          >
-            <SortableContext items={accommodationReservationIds} strategy={verticalListSortingStrategy}>
-              <div className="mt-3 flex flex-col gap-2">
-                {accommodationReservations.map((r) => (
-                  <SortableReservationCard
-                    key={r.id}
-                    id={r.id}
-                    reservation={r}
-                    onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
-                    onRemove={() => trip && removeReservation(trip.id, r.id)}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-            <DragOverlay dropAnimation={null}>
-              {activeReservationId && accommodationReservations.find((r) => r.id === activeReservationId) ? (
-                <div className="opacity-90">
-                  <ReservationCard
-                    reservation={accommodationReservations.find((r) => r.id === activeReservationId)!}
-                    onEdit={() => {}}
-                    onRemove={() => {}}
-                  />
-                </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
+          <div className="mt-3 flex flex-col gap-2">
+            {accommodationReservations.map((r) => (
+              <ReservationCard
+                key={r.id}
+                reservation={r}
+                onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
+                onRemove={() => trip && removeReservation(trip.id, r.id)}
+              />
+            ))}
+          </div>
         )}
       </div>
 

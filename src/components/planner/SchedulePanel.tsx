@@ -33,7 +33,7 @@ interface SchedulePanelProps {
 
 export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace, collab }: SchedulePanelProps) {
   const trip = useScheduleStore((s) => s.getActiveTrip())
-  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation, moveReservation } = useScheduleStore()
+  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation } = useScheduleStore()
   const { user } = useAuthStore()
 
   /** 날짜 변경 시 Day 수 자동 조정 */

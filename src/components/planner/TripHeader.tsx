@@ -1,21 +1,4 @@
 import { useState } from "react"
-import { Calendar, Save, Pencil, ImagePlus, AlertTriangle, Users } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { CollaboratorsBadge } from "./CollaboratorsBadge"
-import { InviteDialog } from "./InviteDialog"
-import type { Trip } from "@/types/schedule"
-import type { CollaborativeSyncResult } from "@/hooks/useCollaborativeSync"
-import { isCollabAvailable } from "@/services/tripSyncService"
-
-interface TripHeaderProps {
-  trip: Trip
-  isLoggedIn: boolean
-  onUpdateTrip: (tripId: string, patch: Partial<Pick<Trip, "title" | "coverImage">>) => void
-  onDateChange: (field: "startDate" | "endDate", value: string) => void
-  collab?: CollaborativeSyncResult
-}
-
-import { useState } from "react"
 import { Calendar, Save, Pencil, ImagePlus, AlertTriangle, Users, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CollaboratorsBadge } from "./CollaboratorsBadge"

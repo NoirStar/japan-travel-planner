@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react"
-import { MapPin, Plus, Train, Footprints, TrainFront, Share2, AlertTriangle, FileDown, Ticket, Bookmark, ClipboardCheck, MoreHorizontal, X } from "lucide-react"
+import { MapPin, Plus, Train, Footprints, TrainFront, Share2, FileDown, Ticket, Bookmark, ClipboardCheck, MoreHorizontal } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"

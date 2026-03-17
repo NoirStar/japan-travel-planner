@@ -270,9 +270,12 @@ export const useScheduleStore = create<ScheduleState>()(
               ...t,
               days: t.days.map((d) => {
                 if (d.id === sourceDayId && d.id === targetDayId) {
-                  // 같은 Day 내 이동
-                  const items = d.items.filter((i) => i.id !== itemId)
-                  items.splice(newIndex, 0, item)
+                  // 같은 Day 내 이동 — arrayMove 방식
+                  const oldIdx = d.items.findIndex((i) => i.id === itemId)
+                  if (oldIdx === -1) return d
+                  const items = [...d.items]
+                  const [moved] = items.splice(oldIdx, 1)
+                  items.splice(newIndex, 0, moved)
                   return { ...d, items }
                 }
                 if (d.id === sourceDayId) {

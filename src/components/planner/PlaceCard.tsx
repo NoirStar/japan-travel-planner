@@ -1,5 +1,5 @@
 import { forwardRef, useState, useRef, useEffect } from "react"
-import { X, Star, Clock, StickyNote, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react"
+import { X, Star, Clock, StickyNote, ChevronDown, ChevronUp, ArrowUp, ArrowDown, MoreVertical } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
@@ -59,6 +59,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
     const gradientClass = CATEGORY_GRADIENT[place.category] ?? "from-gray-400 to-slate-400"
     const [isEditingTime, setIsEditingTime] = useState(false)
     const [showMemo, setShowMemo] = useState(!!memo)
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const timeInputRef = useRef<HTMLInputElement>(null)
 
     const isFirst = index === 0
@@ -93,16 +94,17 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         </div>
 
         <div className="flex items-start gap-2.5 pl-5">
-          {/* 카테고리 아이콘 */}
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted">
+          {/* 카테고리 아이콘 — 데스크톱만 */}
+          <div className="mt-0.5 hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted lg:flex">
             <CategoryIcon className="h-5 w-5 text-muted-foreground" aria-label={categoryLabel} />
           </div>
 
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold leading-tight truncate">{place.name}</h3>
-            <p className="text-[11px] text-muted-foreground/70">{place.nameEn}</p>
+            {/* 영문명 — 데스크톱만 */}
+            <p className="hidden text-[11px] text-muted-foreground/70 lg:block">{place.nameEn}</p>
 
-            <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+            <div className="mt-1 flex items-center gap-1.5 flex-wrap lg:mt-1.5">
               {/* 시간대 표시/편집 */}
               {isEditingTime ? (
                 <input
@@ -125,12 +127,12 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 />
               ) : (
                 <button
-                  className="flex items-center gap-1 rounded-lg border border-sakura/30 bg-sakura/10 px-2.5 py-1 text-xs font-semibold text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors shadow-sm"
+                  className="flex items-center gap-1 rounded-lg border border-sakura/30 bg-sakura/10 px-2 py-0.5 text-[11px] font-semibold text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors shadow-sm lg:px-2.5 lg:py-1 lg:text-xs"
                   onClick={(e) => { e.stopPropagation(); setIsEditingTime(true) }}
                   data-testid={`time-badge-${index}`}
                 >
-                  <Clock className="h-3.5 w-3.5" />
-                  {startTime || "시간 설정"}
+                  <Clock className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
+                  {startTime || "시간"}
                 </button>
               )}
 
@@ -148,22 +150,23 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 {categoryLabel}
               </span>
               {place.rating && (
-                <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                <span className="hidden items-center gap-0.5 text-[10px] text-muted-foreground lg:flex">
                   <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                   {place.rating}
                 </span>
               )}
             </div>
 
+            {/* 설명 — 데스크톱만 */}
             {place.description && (
-              <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground/70">
+              <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground/70 hidden lg:block">
                 {place.description}
               </p>
             )}
 
-            {/* 메모 토글 */}
+            {/* 메모 토글 — 데스크톱만 */}
             <button
-              className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+              className="mt-1.5 hidden items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors lg:flex"
               onClick={(e) => { e.stopPropagation(); setShowMemo(!showMemo) }}
               data-testid={`memo-toggle-${index}`}
             >
@@ -172,10 +175,10 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
               {showMemo ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             </button>
 
-            {/* 메모 입력 */}
+            {/* 메모 입력 — 데스크톱만 */}
             {showMemo && (
               <textarea
-                className="mt-1 w-full resize-none rounded-lg border border-border bg-muted px-2 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40"
+                className="mt-1 hidden w-full resize-none rounded-lg border border-border bg-muted px-2 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40 lg:block"
                 placeholder="메모를 입력하세요..."
                 rows={2}
                 defaultValue={memo ?? ""}
@@ -186,8 +189,8 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
             )}
           </div>
 
-          {/* 순서 이동 · 삭제 */}
-          <div className="flex flex-col items-center gap-0.5 -my-0.5 shrink-0" data-testid={`reorder-buttons-${index}`}>
+          {/* 데스크톱: 순서 이동 · 삭제 버튼 */}
+          <div className="hidden flex-col items-center gap-0.5 -my-0.5 shrink-0 lg:flex" data-testid={`reorder-buttons-${index}`}>
             {onMoveItem && totalItems > 1 && (
               <>
                 <button
@@ -219,7 +222,71 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
               <X className="h-3 w-3" />
             </button>
           </div>
+
+          {/* 모바일: ... 액션 메뉴 버튼 */}
+          <div className="relative shrink-0 lg:hidden">
+            <button
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/50 hover:bg-muted hover:text-foreground transition-colors"
+              onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(!mobileMenuOpen) }}
+              aria-label="더보기"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+            {mobileMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(false) }} />
+                <div className="absolute right-0 top-8 z-40 min-w-[120px] rounded-xl border border-border bg-card py-1 shadow-xl">
+                  {onMoveItem && !isFirst && (
+                    <button
+                      className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors"
+                      onClick={(e) => { e.stopPropagation(); onMoveItem("up"); setMobileMenuOpen(false) }}
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" /> 위로
+                    </button>
+                  )}
+                  {onMoveItem && !isLast && (
+                    <button
+                      className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors"
+                      onClick={(e) => { e.stopPropagation(); onMoveItem("down"); setMobileMenuOpen(false) }}
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" /> 아래로
+                    </button>
+                  )}
+                  <button
+                    className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setMobileMenuOpen(false)
+                      setShowMemo(!showMemo)
+                    }}
+                  >
+                    <StickyNote className="h-3.5 w-3.5" /> {memo ? "메모 보기" : "메모 추가"}
+                  </button>
+                  <div className="my-1 h-px bg-border" />
+                  <button
+                    className="flex w-full items-center gap-2 px-3 py-2 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+                    onClick={(e) => { e.stopPropagation(); onRemove(); setMobileMenuOpen(false) }}
+                  >
+                    <X className="h-3.5 w-3.5" /> 삭제
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* 모바일 메모 영역 (메뉴에서 열었을 때) */}
+        {showMemo && (
+          <textarea
+            className="mt-2 w-full resize-none rounded-lg border border-border bg-muted px-2 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40 lg:hidden"
+            placeholder="메모를 입력하세요..."
+            rows={2}
+            defaultValue={memo ?? ""}
+            onBlur={(e) => onMemoChange?.(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            data-testid={`memo-input-mobile-${index}`}
+          />
+        )}
       </div>
     )
   },

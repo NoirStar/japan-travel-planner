@@ -13,12 +13,18 @@ import {
 
 interface TripChatPanelProps {
   sharedId: string
+  /** 모바일 전용: 채팅 탭 선택 시 true */
+  mobileOpen?: boolean
+  /** 모바일 전용: 채팅 탭에서 나갈 때 */
+  onMobileClose?: () => void
+  /** 부모에게 unread 수 전달 (모바일 탭 배지용) */
+  onUnreadChange?: (count: number) => void
 }
 
-export function TripChatPanel({ sharedId }: TripChatPanelProps) {
+export function TripChatPanel({ sharedId, mobileOpen, onMobileClose, onUnreadChange }: TripChatPanelProps) {
   const { user, profile, setShowLoginModal } = useAuthStore()
 
-  const [open, setOpen] = useState(false)
+  const [desktopOpen, setDesktopOpen] = useState(false)
   const [messages, setMessages] = useState<TripChatMessage[]>([])
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
@@ -35,9 +41,11 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
   const isLoadingOlderRef = useRef(false)
   const isNearBottomRef = useRef(true)
   const messagesRef = useRef<TripChatMessage[]>([])
-  const openRef = useRef(false)
+  const desktopOpenRef = useRef(false)
+  const mobileOpenRef = useRef(false)
   messagesRef.current = messages
-  openRef.current = open
+  desktopOpenRef.current = desktopOpen
+  mobileOpenRef.current = !!mobileOpen
 
   // ── 최근 메시지 로드 ──────────────────────────────
   const loadRecent = useCallback(async () => {
@@ -96,8 +104,8 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
         return [...prev, newMsg]
       })
 
-      // 패널이 닫혀있고 내 메시지가 아니면 unread 카운트 증가
-      if (!openRef.current && newMsg.user_id !== user?.id) {
+      // 채팅이 닫혀있고 내 메시지가 아니면 unread 카운트 증가
+      if (!desktopOpenRef.current && !mobileOpenRef.current && newMsg.user_id !== user?.id) {
         setUnread((c) => c + 1)
       }
     })
@@ -107,13 +115,27 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
 
   // ── 패널 열릴 때 unread 초기화 ────────────────────
   useEffect(() => {
-    if (open) setUnread(0)
-  }, [open])
+    if (desktopOpen || mobileOpen) setUnread(0)
+  }, [desktopOpen, mobileOpen])
+
+  // ── unread 변경을 부모에게 전달 ────────────────────
+  useEffect(() => {
+    onUnreadChange?.(unread)
+  }, [unread, onUnreadChange])
+
+  // ── 모바일 full-screen 열릴 때 body scroll lock ────
+  useEffect(() => {
+    if (!mobileOpen) return
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = "" }
+  }, [mobileOpen])
+
+  const isAnyOpen = desktopOpen || mobileOpen
 
   // ── 스크롤 최상단 → 이전 메시지 로드 ───────────────
   useEffect(() => {
     const container = scrollContainerRef.current
-    if (!container || !open) return
+    if (!container || !isAnyOpen) return
 
     const handleScroll = () => {
       const distanceFromBottom =
@@ -126,7 +148,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     }
     container.addEventListener("scroll", handleScroll, { passive: true })
     return () => container.removeEventListener("scroll", handleScroll)
-  }, [open, hasMore, loadingOlder, loadOlder])
+  }, [isAnyOpen, hasMore, loadingOlder, loadOlder])
 
   // ── 이전 메시지 로드 후 스크롤 위치 복원 ──────────
   const prevScrollHeightRef = useRef(0)
@@ -153,7 +175,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
 
   // ── 초기 로드 완료 시 맨 아래로 ───────────────
   useEffect(() => {
-    if (!initialLoading && messages.length > 0 && open) {
+    if (!initialLoading && messages.length > 0 && isAnyOpen) {
       bottomRef.current?.scrollIntoView({ behavior: "instant" })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialLoading false 전환 시 1회만
@@ -161,7 +183,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
 
   // ── 모바일 가상 키보드 대응 ────────────────
   useEffect(() => {
-    if (!open) return
+    if (!desktopOpen) return
     const vv = window.visualViewport
     if (!vv) return
 
@@ -222,44 +244,9 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     }
   }
 
-  // ── FAB (닫힌 상태) ───────────────────────────
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed bottom-36 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 active:scale-95 lg:bottom-6 lg:right-6"
-        aria-label="여행 채팅 열기"
-      >
-        <MessageSquare className="h-6 w-6" />
-        {unread > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-            {unread > 99 ? "99+" : unread}
-          </span>
-        )}
-      </button>
-    )
-  }
-
-  // ── 패널 (열린 상태) ────────────────────────
-  return (
-    <div
-      ref={chatRef}
-      className="fixed bottom-36 right-2 z-50 flex h-[28rem] max-h-[calc(100dvh-10rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-96 lg:bottom-6 lg:right-6 lg:w-80 lg:max-h-[calc(100dvh-3rem)] transition-[bottom,max-height] duration-150"
-    >
-      {/* 헤더 */}
-      <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
-        <span className="flex items-center gap-2 text-sm font-bold">
-          <MessageSquare className="h-4 w-4" />
-          여행 채팅
-        </span>
-        <button
-          onClick={() => setOpen(false)}
-          className="rounded-lg p-1 hover:bg-white/20"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-
+  // ── 채팅 메시지 영역 (공용) ───────────────────
+  const chatContent = (
+    <>
       {/* 메시지 영역 */}
       <div
         ref={scrollContainerRef}
@@ -302,7 +289,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
       </div>
 
       {/* 입력 */}
-      <div className="border-t border-border p-2">
+      <div className="border-t border-border p-2" style={{ paddingBottom: mobileOpen ? 'env(safe-area-inset-bottom, 8px)' : undefined }}>
         <div className="flex gap-2">
           <input
             ref={inputRef}
@@ -329,7 +316,68 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
           </Button>
         </div>
       </div>
-    </div>
+    </>
+  )
+
+  return (
+    <>
+      {/* ── 데스크톱 FAB (모바일에서 숨김) ─────────── */}
+      {!desktopOpen && (
+        <button
+          onClick={() => setDesktopOpen(true)}
+          className="fixed bottom-6 right-6 z-50 hidden h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 active:scale-95 lg:flex"
+          aria-label="여행 채팅 열기"
+        >
+          <MessageSquare className="h-6 w-6" />
+          {unread > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+              {unread > 99 ? "99+" : unread}
+            </span>
+          )}
+        </button>
+      )}
+
+      {/* ── 데스크톱 floating card (모바일에서 숨김) ── */}
+      {desktopOpen && (
+        <div
+          ref={chatRef}
+          className="fixed bottom-6 right-6 z-50 hidden h-[28rem] max-h-[calc(100dvh-3rem)] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl transition-[bottom,max-height] duration-150 lg:flex"
+        >
+          <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
+            <span className="flex items-center gap-2 text-sm font-bold">
+              <MessageSquare className="h-4 w-4" />
+              여행 채팅
+            </span>
+            <button
+              onClick={() => setDesktopOpen(false)}
+              className="rounded-lg p-1 hover:bg-white/20"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {chatContent}
+        </div>
+      )}
+
+      {/* ── 모바일 full-screen 패널 (데스크톱에서 숨김) ─ */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-card lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+          <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
+            <span className="flex items-center gap-2 text-sm font-bold">
+              <MessageSquare className="h-4 w-4" />
+              여행 채팅
+            </span>
+            <button
+              onClick={() => onMobileClose?.()}
+              className="rounded-lg p-1 hover:bg-white/20"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {chatContent}
+        </div>
+      )}
+    </>
   )
 }
 

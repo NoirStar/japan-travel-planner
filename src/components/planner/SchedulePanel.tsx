@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react"
-import { MapPin, Plus, Train, Footprints, TrainFront, Share2, Check, AlertTriangle, FileDown, Ticket, Bookmark, ClipboardCheck } from "lucide-react"
+import { MapPin, Plus, Train, Footprints, TrainFront, Share2, AlertTriangle, FileDown, Ticket, Bookmark, ClipboardCheck, MoreHorizontal, X } from "lucide-react"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -19,6 +19,7 @@ import { useTravelTimes } from "@/hooks/useTravelTimes"
 import { useScheduleRisks } from "@/hooks/useScheduleRisks"
 import { useWishlistStore } from "@/stores/wishlistStore"
 import { copyShareUrl } from "@/lib/shareUtils"
+import { showToast } from "@/components/ui/CelebrationOverlay"
 import type { Reservation } from "@/types/schedule"
 import type { CollaborativeSyncResult } from "@/hooks/useCollaborativeSync"
 
@@ -93,8 +94,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [isReservationSheetOpen, setIsReservationSheetOpen] = useState(false)
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isChecklistOpen, setIsChecklistOpen] = useState(false)
+  const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false)
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null)
-  const [shareMessage, setShareMessage] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // 마커 클릭 시 해당 카드로 자동 스크롤
@@ -386,9 +387,27 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         onClearDay={() => { if (currentDay) clearDay(trip.id, currentDay.id) }}
       />
 
-      {/* 하단 액션 */}
+      {/* 하단 액션 — 모바일: 장소 추가 + 더보기 / 데스크톱: 기존 유지 */}
       <div className="flex flex-col gap-2 border-t border-border p-4">
-        <div className="flex gap-2">
+        {/* 모바일 하단 (lg 미만) */}
+        <div className="flex gap-2 lg:hidden">
+          <button
+            className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold"
+            onClick={() => setIsPlaceSheetOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            장소 추가
+          </button>
+          <button
+            className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            onClick={() => setIsMobileMoreOpen(true)}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+            더보기
+          </button>
+        </div>
+        {/* 데스크톱 하단 (lg 이상) */}
+        <div className="hidden lg:flex gap-2">
           <button
             className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold"
             onClick={() => setIsPlaceSheetOpen(true)}
@@ -410,8 +429,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             )}
           </button>
         </div>
-        {/* 보조 도구 — 아이콘+라벨 컴팩트 버튼 */}
-        <div className="flex gap-1.5">
+        {/* 보조 도구 — 데스크톱에서만 표시 */}
+        <div className="hidden lg:flex gap-1.5">
           <button
             className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => { setEditingReservation(null); setIsReservationSheetOpen(true) }}
@@ -433,29 +452,21 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             onClick={async () => {
               if (!trip) return
               const ok = await copyShareUrl(trip)
-              setShareMessage(ok ? "링크가 복사되었습니다!" : "복사에 실패했습니다")
-              setTimeout(() => setShareMessage(null), 2000)
+              showToast(ok ? "링크가 복사되었습니다!" : "복사에 실패했습니다")
             }}
             data-testid="share-button"
           >
-            {shareMessage === "링크가 복사되었습니다!" ? (
-              <Check className="h-4 w-4 text-emerald-500" />
-            ) : shareMessage === "복사에 실패했습니다" ? (
-              <AlertTriangle className="h-4 w-4 text-destructive" />
-            ) : (
-              <Share2 className="h-4 w-4" />
-            )}
-            {shareMessage ?? "공유"}
+            <Share2 className="h-4 w-4" />
+            공유
           </button>
           <button
             className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
             onClick={async () => {
               if (!trip) return
-              setShareMessage("PDF 생성 중...")
+              showToast("PDF 생성 중...")
               const { downloadTripPdf } = await import("@/lib/exportPdf")
               const ok = await downloadTripPdf(trip)
-              setShareMessage(ok ? "PDF가 다운로드되었습니다!" : "PDF 생성에 실패했습니다")
-              setTimeout(() => setShareMessage(null), 2000)
+              showToast(ok ? "PDF가 다운로드되었습니다!" : "PDF 생성에 실패했습니다")
             }}
             data-testid="export-pdf-button"
           >
@@ -464,6 +475,80 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           </button>
         </div>
       </div>
+
+      {/* 모바일 더보기 bottom sheet */}
+      {isMobileMoreOpen && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setIsMobileMoreOpen(false)} />
+          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl bg-card shadow-2xl lg:hidden animate-in slide-in-from-bottom duration-200" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
+            </div>
+            <div className="flex flex-col gap-1 px-4 pb-4">
+              <button
+                className="relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={() => { setIsMobileMoreOpen(false); setIsWishlistOpen(true) }}
+              >
+                <Bookmark className="h-5 w-5 text-rose-500" />
+                북마크
+                {wishlistCount > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">
+                    {wishlistCount}
+                  </span>
+                )}
+              </button>
+              <button
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={() => { setIsMobileMoreOpen(false); setEditingReservation(null); setIsReservationSheetOpen(true) }}
+              >
+                <Ticket className="h-5 w-5" />
+                예약 관리
+              </button>
+              <button
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={() => { setIsMobileMoreOpen(false); setIsChecklistOpen(true) }}
+              >
+                <ClipboardCheck className="h-5 w-5 text-emerald-500" />
+                준비물 체크리스트
+              </button>
+              <div className="my-1 h-px bg-border" />
+              <button
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={async () => {
+                  setIsMobileMoreOpen(false)
+                  if (!trip) return
+                  const ok = await copyShareUrl(trip)
+                  showToast(ok ? "링크가 복사되었습니다!" : "복사에 실패했습니다")
+                }}
+              >
+                <Share2 className="h-5 w-5" />
+                공유 링크 복사
+              </button>
+              <button
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={async () => {
+                  setIsMobileMoreOpen(false)
+                  if (!trip) return
+                  showToast("PDF 생성 중...")
+                  const { downloadTripPdf } = await import("@/lib/exportPdf")
+                  const ok = await downloadTripPdf(trip)
+                  showToast(ok ? "PDF가 다운로드되었습니다!" : "PDF 생성에 실패했습니다")
+                }}
+              >
+                <FileDown className="h-5 w-5" />
+                PDF 다운로드
+              </button>
+              <div className="my-1 h-px bg-border" />
+              <button
+                className="flex items-center justify-center rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
+                onClick={() => setIsMobileMoreOpen(false)}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* 장소 추가 시트 */}
       <PlaceSheet

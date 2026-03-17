@@ -1,6 +1,6 @@
 import { useEffect, useRef, useMemo, useState, useCallback } from "react"
 import { useSearchParams, useParams } from "react-router-dom"
-import { List, MapIcon, LogIn } from "lucide-react"
+import { List, MapIcon, MessageSquare, LogIn } from "lucide-react"
 import { MapView } from "@/components/map/MapView"
 import { SchedulePanel } from "@/components/planner/SchedulePanel"
 import { getCityConfig } from "@/data/mapConfig"
@@ -27,9 +27,12 @@ export function PlannerPage() {
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const initialized = useRef(false)
   const [activeDayIndex, setActiveDayIndex] = useState(0)
-  const [mobileTab, setMobileTab] = useState<"schedule" | "map">("map")
+  const [mobileTab, setMobileTab] = useState<"schedule" | "map" | "chat">("map")
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null)
   const [loginToast, setLoginToast] = useState(false)
+  const [chatUnread, setChatUnread] = useState(0)
+
+  const showChatTab = !!trip?.sharedId && isChatAvailable()
 
   // 공유 링크에서 여행 데이터 복원
   useEffect(() => {
@@ -206,7 +209,12 @@ export function PlannerPage() {
 
       {/* 공동 편집 채팅 */}
       {trip?.sharedId && isChatAvailable() && (
-        <TripChatPanel sharedId={trip.sharedId} />
+        <TripChatPanel
+          sharedId={trip.sharedId}
+          mobileOpen={mobileTab === "chat"}
+          onMobileClose={() => setMobileTab("schedule")}
+          onUnreadChange={setChatUnread}
+        />
       )}
 
       {/* 비로그인 저장 불가 토스트 */}
@@ -246,6 +254,24 @@ export function PlannerPage() {
           <MapIcon className="h-5 w-5" />
           지도
         </button>
+        {showChatTab && (
+          <button
+            onClick={() => setMobileTab("chat")}
+            className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors ${
+              mobileTab === "chat"
+                ? "text-sakura-dark dark:text-sakura border-t-2 border-sakura-dark"
+                : "text-muted-foreground"
+            }`}
+          >
+            <MessageSquare className="h-5 w-5" />
+            채팅
+            {chatUnread > 0 && mobileTab !== "chat" && (
+              <span className="absolute right-1/4 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                {chatUnread > 99 ? "99+" : chatUnread}
+              </span>
+            )}
+          </button>
+        )}
       </div>
     </div>
   )

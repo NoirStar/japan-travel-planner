@@ -39,7 +39,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
   messagesRef.current = messages
   openRef.current = open
 
-  // ── 최근 메시지 로드 ──────────────────────────────────
+  // ── 최근 메시지 로드 ──────────────────────────────
   const loadRecent = useCallback(async () => {
     setInitialLoading(true)
     try {
@@ -53,7 +53,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     }
   }, [sharedId])
 
-  // ── 이전 메시지 페이지네이션 ──────────────────────────
+  // ── 이전 메시지 페이지네이션 ──────────────────────
   const loadOlder = useCallback(async () => {
     if (loadingOlder || !hasMore || messagesRef.current.length === 0) return
     const oldestMsg = messagesRef.current[0]
@@ -105,12 +105,12 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     return cleanup
   }, [sharedId, loadRecent, user?.id])
 
-  // ── 패널 열릴 때 unread 초기화 ────────────────────────
+  // ── 패널 열릴 때 unread 초기화 ────────────────────
   useEffect(() => {
     if (open) setUnread(0)
   }, [open])
 
-  // ── 스크롤 최상단 → 이전 메시지 로드 ─────────────────
+  // ── 스크롤 최상단 → 이전 메시지 로드 ───────────────
   useEffect(() => {
     const container = scrollContainerRef.current
     if (!container || !open) return
@@ -128,7 +128,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     return () => container.removeEventListener("scroll", handleScroll)
   }, [open, hasMore, loadingOlder, loadOlder])
 
-  // ── 이전 메시지 로드 후 스크롤 위치 복원 ──────────────
+  // ── 이전 메시지 로드 후 스크롤 위치 복원 ──────────
   const prevScrollHeightRef = useRef(0)
   useLayoutEffect(() => {
     const container = scrollContainerRef.current
@@ -144,14 +144,14 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     }
   }, [loadingOlder])
 
-  // ── 새 메시지 시 하단 근처면 자동 스크롤 ──────────────
+  // ── 새 메시지 시 하단 근처면 자동 스크롤 ──────────
   useEffect(() => {
     if (!initialLoading && !isLoadingOlderRef.current && isNearBottomRef.current) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages.length, initialLoading])
 
-  // ── 초기 로드 완료 시 맨 아래로 ───────────────────────
+  // ── 초기 로드 완료 시 맨 아래로 ───────────────
   useEffect(() => {
     if (!initialLoading && messages.length > 0 && open) {
       bottomRef.current?.scrollIntoView({ behavior: "instant" })
@@ -159,7 +159,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initialLoading false 전환 시 1회만
   }, [initialLoading])
 
-  // ── 모바일 가상 키보드 대응 ────────────────────────────
+  // ── 모바일 가상 키보드 대응 ────────────────
   useEffect(() => {
     if (!open) return
     const vv = window.visualViewport
@@ -187,7 +187,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     }
   }, [open])
 
-  // ── 메시지 전송 ───────────────────────────────────────
+  // ── 메시지 전송 ─────────────────────────────
   const handleSend = async () => {
     if (!user || !profile) {
       setShowLoginModal(true)
@@ -222,12 +222,12 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     }
   }
 
-  // ── FAB (닫힌 상태) ───────────────────────────────────
+  // ── FAB (닫힌 상태) ───────────────────────────
   if (!open) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 active:scale-95 lg:bottom-6 lg:right-6"
+        className="fixed bottom-36 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 active:scale-95 lg:bottom-6 lg:right-6"
         aria-label="여행 채팅 열기"
       >
         <MessageSquare className="h-6 w-6" />
@@ -240,11 +240,11 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
     )
   }
 
-  // ── 패널 (열린 상태) ──────────────────────────────────
+  // ── 패널 (열린 상태) ────────────────────────
   return (
     <div
       ref={chatRef}
-      className="fixed bottom-20 right-2 z-50 flex h-[28rem] max-h-[calc(100dvh-6rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-96 lg:bottom-6 lg:right-6 lg:w-80 lg:max-h-[calc(100dvh-3rem)] transition-[bottom,max-height] duration-150"
+      className="fixed bottom-36 right-2 z-50 flex h-[28rem] max-h-[calc(100dvh-10rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-96 lg:bottom-6 lg:right-6 lg:w-80 lg:max-h-[calc(100dvh-3rem)] transition-[bottom,max-height] duration-150"
     >
       {/* 헤더 */}
       <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
@@ -333,7 +333,7 @@ export function TripChatPanel({ sharedId }: TripChatPanelProps) {
   )
 }
 
-// ── 채팅 말풍선 ─────────────────────────────────────────
+// ── 채팅 말풍선 ─────────────────────────────────
 const ChatBubble = memo(function ChatBubble({
   msg,
   isMe,

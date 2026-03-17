@@ -1,6 +1,5 @@
 import { forwardRef, useState, useRef, useEffect } from "react"
-import { X, Star, Clock, StickyNote, ChevronDown, ChevronUp, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { X, Star, Clock, StickyNote, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
@@ -93,60 +92,6 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
           {index + 1}
         </div>
 
-        {/* 순서 변경 버튼 — 우측 상단 */}
-        {onMoveItem && totalItems > 1 && (
-          <div className="absolute right-1.5 top-1.5 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100" data-testid={`reorder-buttons-${index}`}>
-            <button
-              className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
-              onClick={(e) => { e.stopPropagation(); onMoveItem("top") }}
-              disabled={isFirst}
-              aria-label="맨 위로"
-              data-testid={`move-top-${index}`}
-            >
-              <ChevronsUp className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-            <button
-              className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
-              onClick={(e) => { e.stopPropagation(); onMoveItem("up") }}
-              disabled={isFirst}
-              aria-label="위로"
-              data-testid={`move-up-${index}`}
-            >
-              <ArrowUp className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-            <button
-              className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
-              onClick={(e) => { e.stopPropagation(); onMoveItem("down") }}
-              disabled={isLast}
-              aria-label="아래로"
-              data-testid={`move-down-${index}`}
-            >
-              <ArrowDown className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-            <button
-              className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
-              onClick={(e) => { e.stopPropagation(); onMoveItem("bottom") }}
-              disabled={isLast}
-              aria-label="맨 아래로"
-              data-testid={`move-bottom-${index}`}
-            >
-              <ChevronsDown className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-          </div>
-        )}
-
-        {/* 삭제 버튼 — 순서 버튼 아래 */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-1.5 top-8 h-6 w-6 rounded-full opacity-0 transition-opacity hover:bg-destructive/10 group-hover:opacity-100"
-          onClick={(e) => { e.stopPropagation(); onRemove() }}
-          aria-label={`${place.name} 삭제`}
-          data-testid={`place-remove-${index}`}
-        >
-          <X className="h-3.5 w-3.5" />
-        </Button>
-
         <div className="flex items-start gap-2.5 pl-5">
           {/* 카테고리 아이콘 */}
           <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted">
@@ -154,7 +99,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
           </div>
 
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-bold leading-tight pr-6 truncate">{place.name}</h3>
+            <h3 className="text-sm font-bold leading-tight truncate">{place.name}</h3>
             <p className="text-[11px] text-muted-foreground/70">{place.nameEn}</p>
 
             <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
@@ -239,6 +184,40 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 data-testid={`memo-input-${index}`}
               />
             )}
+          </div>
+
+          {/* 순서 이동 · 삭제 */}
+          <div className="flex flex-col items-center gap-0.5 -my-0.5 shrink-0" data-testid={`reorder-buttons-${index}`}>
+            {onMoveItem && totalItems > 1 && (
+              <>
+                <button
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/50 hover:bg-muted hover:text-foreground disabled:opacity-20 disabled:pointer-events-none transition-colors"
+                  onClick={(e) => { e.stopPropagation(); onMoveItem("up") }}
+                  disabled={isFirst}
+                  aria-label="위로"
+                  data-testid={`move-up-${index}`}
+                >
+                  <ArrowUp className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/50 hover:bg-muted hover:text-foreground disabled:opacity-20 disabled:pointer-events-none transition-colors"
+                  onClick={(e) => { e.stopPropagation(); onMoveItem("down") }}
+                  disabled={isLast}
+                  aria-label="아래로"
+                  data-testid={`move-down-${index}`}
+                >
+                  <ArrowDown className="h-3.5 w-3.5" />
+                </button>
+              </>
+            )}
+            <button
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/30 hover:bg-destructive/10 hover:text-destructive transition-colors"
+              onClick={(e) => { e.stopPropagation(); onRemove() }}
+              aria-label={`${place.name} 삭제`}
+              data-testid={`place-remove-${index}`}
+            >
+              <X className="h-3 w-3" />
+            </button>
           </div>
         </div>
       </div>

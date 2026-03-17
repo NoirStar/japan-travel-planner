@@ -188,7 +188,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
               {/* 교통 예약 */}
               {transportRsvs.map((r) => (
                 <View key={r.id} style={s.rsvRow} wrap={false}>
-                  <Text style={s.rsvIcon}>{RSV_ICONS[r.type] ?? "📋"}</Text>
+                  <Text style={s.rsvIcon}>{RSV_ICONS[r.type] ?? "ETC"}</Text>
                   <View style={s.rsvBody}>
                     <Text style={s.rsvTitle}>{r.title}</Text>
                     <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
@@ -196,10 +196,10 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                       {r.confirmed && <Text style={s.rsvConfirmed}>확정</Text>}
                     </View>
                     {(r.departureLocation || r.arrivalLocation) && (
-                      <Text style={s.rsvDetail}>{r.departureLocation ?? ""} → {r.arrivalLocation ?? ""}</Text>
+                      <Text style={s.rsvDetail}>{r.departureLocation ?? ""}{" -> "}{r.arrivalLocation ?? ""}</Text>
                     )}
                     {(r.startTime || r.endTime) && (
-                      <Text style={s.rsvDetail}>{r.startTime ?? ""}{r.endTime ? ` → ${r.endTime}` : ""}</Text>
+                      <Text style={s.rsvDetail}>{r.startTime ?? ""}{r.endTime ? ` -> ${r.endTime}` : ""}</Text>
                     )}
                     {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {r.bookingReference}</Text>}
                   </View>
@@ -219,7 +219,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                       <Text style={s.placeName}>{place.name}</Text>
                       <View style={s.placeDetail}>
                         <Text style={s.placeCategory}>{CATEGORY_LABELS[place.category as PlaceCategory] ?? place.category}</Text>
-                        {place.rating && <Text style={s.placeRating}>★ {place.rating}</Text>}
+                        {place.rating && <Text style={s.placeRating}>{place.rating}</Text>}
                       </View>
                       {place.address && <Text style={s.placeAddress}>{place.address}</Text>}
                       {item.memo && <Text style={s.placeMemo}>{item.memo}</Text>}
@@ -240,7 +240,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                     </View>
                     {(r.startTime || r.endTime) && (
                       <Text style={s.rsvDetail}>
-                        {r.startTime ? `체크인 ${r.startTime}` : ""}{r.endTime ? ` · 체크아웃 ${r.endTime}` : ""}
+                        {r.startTime ? `체크인 ${r.startTime}` : ""}{r.endTime ? ` / 체크아웃 ${r.endTime}` : ""}
                       </Text>
                     )}
                     {r.endDate && (
@@ -258,7 +258,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
 
         {/* Footer */}
         <View style={s.footer} fixed>
-          <Text style={s.footerText}>타비톡 · tabittok.vercel.app</Text>
+          <Text style={s.footerText}>tabittok - tabittok.vercel.app</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
       </Page>
@@ -286,7 +286,7 @@ export async function downloadTripPdf(trip: Trip): Promise<boolean> {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `${trip.title.replace(/[^\w가-힣\s-]/g, "").trim() || "여행일정"}.pdf`
+    a.download = `${trip.title.replace(/[^\w\uAC00-\uD7A3\s-]/g, "").trim() || "여행일정"}.pdf`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)

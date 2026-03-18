@@ -49,20 +49,22 @@ export function AttachmentVault({ open, onOpenChange, tripId }: Props) {
 
     if (err || !data) return
 
-    const items: Attachment[] = data
-      .filter((f) => f.name !== ".emptyFolderPlaceholder")
-      .map((f) => {
-        const { data: urlData } = supabase.storage
-          .from("trip-attachments")
-          .createSignedUrl(`${basePath}/${f.name}`, 3600)
-        return {
-          name: f.name,
-          fullPath: `${basePath}/${f.name}`,
-          size: f.metadata?.size ?? 0,
-          createdAt: f.created_at ?? "",
-          url: (urlData as { signedUrl?: string } | null)?.signedUrl ?? "",
-        }
-      })
+    const items: Attachment[] = await Promise.all(
+      data
+        .filter((f) => f.name !== ".emptyFolderPlaceholder")
+        .map(async (f) => {
+          const { data: urlData } = await supabase.storage
+            .from("trip-attachments")
+            .createSignedUrl(`${basePath}/${f.name}`, 3600)
+          return {
+            name: f.name,
+            fullPath: `${basePath}/${f.name}`,
+            size: f.metadata?.size ?? 0,
+            createdAt: f.created_at ?? "",
+            url: urlData?.signedUrl ?? "",
+          }
+        }),
+    )
     setFiles(items)
   }, [basePath])
 

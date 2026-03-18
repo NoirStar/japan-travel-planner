@@ -5,6 +5,11 @@ insert into storage.buckets (id, name, public, file_size_limit)
 values ('trip-attachments', 'trip-attachments', false, 10485760)
 on conflict (id) do nothing;
 
+-- 기존 정책 제거 후 재생성 (중복 실행 안전)
+drop policy if exists "첨부파일 업로드" on storage.objects;
+drop policy if exists "첨부파일 조회" on storage.objects;
+drop policy if exists "첨부파일 삭제" on storage.objects;
+
 -- 인증된 사용자: 자기 폴더에만 업로드
 create policy "첨부파일 업로드"
 on storage.objects for insert

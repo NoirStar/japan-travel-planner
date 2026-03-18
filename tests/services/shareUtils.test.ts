@@ -64,8 +64,8 @@ describe("shareUtils", () => {
   })
 
   describe("generateShareUrl", () => {
-    it("올바른 형식의 URL을 생성한다", () => {
-      const url = generateShareUrl(sampleTrip)
+    it("올바른 형식의 URL을 생성한다", async () => {
+      const url = await generateShareUrl(sampleTrip)
       expect(url).toContain("/share/")
       expect(url).toMatch(/^https?:\/\//)
     })

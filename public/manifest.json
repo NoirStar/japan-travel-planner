@@ -1,0 +1,21 @@
+{
+  "name": "타비톡 - 일본 여행 플래너",
+  "short_name": "타비톡",
+  "description": "일본 여행 일정을 쉽고 빠르게 계획하세요",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e8a0bf",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

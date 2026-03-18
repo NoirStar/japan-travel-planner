@@ -207,7 +207,7 @@ export function TripChatPanel({ sharedId, mobileOpen, onMobileClose, onUnreadCha
       vv.removeEventListener("resize", handleResize)
       vv.removeEventListener("scroll", handleResize)
     }
-  }, [open])
+  }, [desktopOpen])
 
   // ── 메시지 전송 ─────────────────────────────
   const handleSend = async () => {

@@ -165,7 +165,7 @@ export function PlannerPage() {
     <div className="flex h-dvh flex-col pt-14" data-testid="planner-page">
       <div className="flex flex-1 flex-col overflow-hidden lg:flex-row min-h-0">
         {/* 일정 패널 */}
-        <aside className={`w-full shrink-0 overflow-y-auto bg-card lg:h-full lg:w-[400px] lg:border-r lg:border-border lg:block ${
+        <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-full lg:w-[400px] lg:border-r lg:border-border lg:block ${
           mobileTab === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
         }`}>
           <SchedulePanel

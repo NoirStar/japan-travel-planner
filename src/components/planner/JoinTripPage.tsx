@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Loader2, Users, LogIn, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -7,35 +7,29 @@ import { useScheduleStore } from "@/stores/scheduleStore"
 import { joinTripByInvite, isCollabAvailable } from "@/services/tripSyncService"
 import type { Trip } from "@/types/schedule"
 
-type JoinState = "loading" | "need-login" | "joining" | "error" | "unavailable"
+type JoinState = "need-login" | "joining" | "error" | "unavailable"
+type AsyncState = "idle" | "working" | "done"
 
 export function JoinTripPage() {
   const { inviteCode } = useParams<{ inviteCode: string }>()
   const navigate = useNavigate()
   const { user, setShowLoginModal } = useAuthStore()
   const { trips, createTrip, setActiveTrip } = useScheduleStore()
-  const [state, setState] = useState<JoinState>("loading")
+
+  const [asyncState, setAsyncState] = useState<AsyncState>("idle")
   const [error, setError] = useState("")
 
+  // 상태를 순수하게 계산 (effect 내 setState 불필요)
+  const displayState = useMemo<JoinState>(() => {
+    if (!inviteCode) return "error"
+    if (!isCollabAvailable()) return "unavailable"
+    if (!user) return "need-login"
+    return "joining"
+  }, [inviteCode, user])
+
   useEffect(() => {
-    if (!inviteCode) {
-      setState("error")
-      setError("잘못된 초대 링크입니다")
-      return
-    }
+    if (displayState !== "joining" || !inviteCode || !user || asyncState === "done") return
 
-    if (!isCollabAvailable()) {
-      setState("unavailable")
-      return
-    }
-
-    if (!user) {
-      setState("need-login")
-      return
-    }
-
-    // 로그인 되어 있으면 바로 참여 시도
-    setState("joining")
     let cancelled = false
 
     void (async () => {
@@ -99,23 +93,27 @@ export function JoinTripPage() {
         navigate(`/planner?trip=${newTrip.id}`, { replace: true })
       } catch (e) {
         if (!cancelled) {
-          setState("error")
+          setAsyncState("done")
           setError(e instanceof Error ? e.message : "참여에 실패했습니다")
         }
       }
     })()
 
     return () => { cancelled = true }
-  }, [inviteCode, user]) // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- inviteCode/user 변경 시만 재실행
+  }, [displayState, inviteCode, user])
+
+  // 에러 상태는 asyncState로 관리
+  const effectiveState: string = asyncState === "done" && error ? "error" : displayState
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
-      {state === "loading" || state === "joining" ? (
+      {effectiveState === "joining" ? (
         <>
           <Loader2 className="h-8 w-8 animate-spin text-sakura-dark" />
           <p className="text-sm text-muted-foreground">여행에 참여하는 중...</p>
         </>
-      ) : state === "need-login" ? (
+      ) : effectiveState === "need-login" ? (
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sakura-dark/10">
             <Users className="h-7 w-7 text-sakura-dark" />
@@ -134,7 +132,7 @@ export function JoinTripPage() {
             로그인
           </Button>
         </div>
-      ) : state === "unavailable" ? (
+      ) : effectiveState === "unavailable" ? (
         <div className="flex flex-col items-center gap-3 text-center">
           <AlertTriangle className="h-8 w-8 text-amber-500" />
           <p className="text-sm text-muted-foreground">공동 편집 기능을 사용할 수 없습니다</p>
@@ -145,7 +143,7 @@ export function JoinTripPage() {
       ) : (
         <div className="flex flex-col items-center gap-3 text-center">
           <AlertTriangle className="h-8 w-8 text-destructive" />
-          <p className="text-sm font-semibold">{error}</p>
+          <p className="text-sm font-semibold">{error || "잘못된 초대 링크입니다"}</p>
           <Button variant="outline" onClick={() => navigate("/")} className="rounded-xl">
             홈으로 돌아가기
           </Button>

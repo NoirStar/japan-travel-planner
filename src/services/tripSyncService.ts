@@ -263,3 +263,41 @@ export async function getInviteCode(sharedId: string): Promise<string | null> {
 export function isCollabAvailable(): boolean {
   return isSupabaseConfigured
 }
+
+/* ── 변경 이력 ────────────────────────────────── */
+
+export interface TripChange {
+  id: number
+  user_id: string | null
+  display_name: string
+  avatar_url: string | null
+  version: number
+  summary: string
+  created_at: string
+}
+
+/** 변경 이력 기록 */
+export async function logTripChange(
+  sharedId: string,
+  summary: string,
+): Promise<void> {
+  if (!isSupabaseConfigured || !summary) return
+  await supabase.rpc("log_trip_change", {
+    p_trip_id: sharedId,
+    p_summary: summary,
+  })
+}
+
+/** 변경 이력 조회 */
+export async function getTripChanges(
+  sharedId: string,
+  limit = 50,
+): Promise<TripChange[]> {
+  if (!isSupabaseConfigured) return []
+  const { data, error } = await supabase.rpc("get_trip_changes", {
+    p_trip_id: sharedId,
+    p_limit: limit,
+  })
+  if (error || !data) return []
+  return data as TripChange[]
+}

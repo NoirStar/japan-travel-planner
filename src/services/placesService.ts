@@ -5,6 +5,36 @@ import type { PlaceCategory } from "@/types/place"
 const CACHE_KEY_PREFIX = "place-detail:"
 const CACHE_TTL = 24 * 60 * 60 * 1000 // 24시간
 
+// ─── 검색 결과 캐시 (오프라인 대응) ───────────────────────
+const SEARCH_CACHE_PREFIX = "search-cache:"
+const SEARCH_CACHE_TTL = 30 * 60 * 1000 // 30분
+
+interface CachedSearch {
+  results: Place[]
+  ts: number
+}
+
+function getSearchCache(key: string): Place[] | null {
+  try {
+    const raw = localStorage.getItem(SEARCH_CACHE_PREFIX + key)
+    if (!raw) return null
+    const cached: CachedSearch = JSON.parse(raw)
+    if (Date.now() - cached.ts > SEARCH_CACHE_TTL) {
+      localStorage.removeItem(SEARCH_CACHE_PREFIX + key)
+      return null
+    }
+    return cached.results
+  } catch {
+    return null
+  }
+}
+
+function setSearchCache(key: string, results: Place[]) {
+  try {
+    localStorage.setItem(SEARCH_CACHE_PREFIX + key, JSON.stringify({ results, ts: Date.now() }))
+  } catch { /* quota */ }
+}
+
 interface CachedDetail {
   place: Place
   ts: number
@@ -108,6 +138,10 @@ export async function searchGooglePlaces(
   query: string,
   cityId?: string,
 ): Promise<Place[]> {
+  const cacheKey = `text:${query}:${cityId ?? ""}`
+  const cached = getSearchCache(cacheKey)
+  if (cached) return cached
+
   try {
     const res = await fetch("/api/places-search", {
       method: "POST",
@@ -117,14 +151,17 @@ export async function searchGooglePlaces(
 
     if (!res.ok) {
       console.error("Places search failed:", res.status)
-      return []
+      return getSearchCache(cacheKey) ?? []
     }
 
     const data: PlacesSearchResponse = await res.json()
-    return data.places.map((p) => toMarkerPlace(p, cityId ?? "tokyo"))
+    const places = data.places.map((p) => toMarkerPlace(p, cityId ?? "tokyo"))
+    setSearchCache(cacheKey, places)
+    return places
   } catch (error) {
     console.error("Places search error:", error)
-    return []
+    // 오프라인 시 캐시에서 반환
+    return getSearchCache(cacheKey) ?? []
   }
 }
 
@@ -136,6 +173,10 @@ export async function fetchNearbyPlaces(
   category?: string,
   minRating?: number,
 ): Promise<Place[]> {
+  const cacheKey = `nearby:${cityId}:${category ?? ""}:${minRating ?? ""}`
+  const cached = getSearchCache(cacheKey)
+  if (cached) return cached
+
   try {
     const res = await fetch("/api/places-nearby", {
       method: "POST",
@@ -145,14 +186,16 @@ export async function fetchNearbyPlaces(
 
     if (!res.ok) {
       console.error("Nearby search failed:", res.status)
-      return []
+      return getSearchCache(cacheKey) ?? []
     }
 
     const data: PlacesSearchResponse = await res.json()
-    return data.places.map((p) => toMarkerPlace(p, cityId))
+    const places = data.places.map((p) => toMarkerPlace(p, cityId))
+    setSearchCache(cacheKey, places)
+    return places
   } catch (error) {
     console.error("Nearby search error:", error)
-    return []
+    return getSearchCache(cacheKey) ?? []
   }
 }
 

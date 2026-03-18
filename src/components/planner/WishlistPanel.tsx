@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react"
 import { X, Bookmark, Plus, Trash2, Star, Check } from "lucide-react"
-import { useWishlistStore } from "@/stores/wishlistStore"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { CATEGORY_LABELS } from "@/types/place"
@@ -13,10 +12,10 @@ interface WishlistPanelProps {
 }
 
 export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPanelProps) {
-  const items = useWishlistStore((s) => s.items)
-  const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist)
+  const trip = useScheduleStore((s) => s.trips.find((t) => t.id === tripId))
+  const items = trip?.wishlist ?? []
+  const removeFromWishlist = useScheduleStore((s) => s.removeFromWishlist)
   const { addItem } = useScheduleStore()
-  const trip = useScheduleStore((s) => s.getActiveTrip())
 
   // 이미 일정에 있는 장소 ID 세트
   const addedPlaceIds = useMemo(() => {
@@ -34,7 +33,7 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
 
   const handleAddToSchedule = (placeId: string) => {
     addItem(tripId, dayId, placeId)
-    removeFromWishlist(placeId)
+    removeFromWishlist(tripId, placeId)
     setRemovedIds((prev) => new Set(prev).add(placeId))
   }
 
@@ -145,7 +144,7 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
                         </button>
                       )}
                       <button
-                        onClick={() => removeFromWishlist(item.placeId)}
+                        onClick={() => removeFromWishlist(tripId, item.placeId)}
                         className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                         title="후보함에서 삭제"
                         data-testid={`wishlist-remove-${item.placeId}`}

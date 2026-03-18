@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   X,
   Plane,
@@ -68,20 +68,16 @@ function getInitialForm(editData?: Reservation | null, defaultDate?: string): Om
 export function ReservationSheet({ open, onOpenChange, editData, defaultDate, onSubmit }: ReservationSheetProps) {
   const [form, setForm] = useState(() => getInitialForm(editData, defaultDate))
   const [step, setStep] = useState<"type" | "detail">(editData ? "detail" : "type")
+  const [prevOpen, setPrevOpen] = useState(open)
 
-  // editData가 바뀌면 폼 리셋
-  useEffect(() => {
-    if (!open) return
-    const nextForm = getInitialForm(editData, defaultDate)
-    const nextStep = editData ? "detail" as const : "type" as const
-    setForm(prev => {
-      // 동일한 값이면 상태 업데이트 건너뛰기
-      if (prev.type === nextForm.type && prev.title === nextForm.title && prev.date === nextForm.date) return prev
-      return nextForm
-    })
-    setStep(nextStep)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- open 전환 시에만 필요
-  }, [open])
+  // open 전환 시 동기적으로 폼 리셋 (useEffect 대신 — 0.1초 깜빡임 방지)
+  if (open && !prevOpen) {
+    setPrevOpen(true)
+    setForm(getInitialForm(editData, defaultDate))
+    setStep(editData ? "detail" : "type")
+  } else if (!open && prevOpen) {
+    setPrevOpen(false)
+  }
 
   const isTransport = form.type !== "accommodation"
   const isValid = form.title.trim() && form.date

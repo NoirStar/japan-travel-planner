@@ -48,6 +48,21 @@ export interface ScheduleItem {
   /** HH:mm 형식, e.g. "09:00" */
   startTime?: string
   memo?: string
+  /** 예상 비용 (엔화) */
+  cost?: number
+  /** 비용 카테고리 */
+  costCategory?: CostCategory
+}
+
+export type CostCategory = "food" | "transport" | "ticket" | "shopping" | "accommodation" | "other"
+
+export const COST_CATEGORY_LABELS: Record<CostCategory, string> = {
+  food: "식비",
+  transport: "교통",
+  ticket: "입장료",
+  shopping: "쇼핑",
+  accommodation: "숙박",
+  other: "기타",
 }
 
 // ─── 하루 일정 ──────────────────────────────────────────
@@ -59,11 +74,49 @@ export interface DaySchedule {
   items: ScheduleItem[]
 }
 
+// ─── 후보함 아이템 (여행별) ─────────────────────────────
+export interface TripWishlistItem {
+  placeId: string
+  addedAt: string // ISO
+  memo?: string
+}
+
+// ─── 준비물 아이템 (여행별) ─────────────────────────────
+export type ChecklistCategory = "documents" | "money" | "connectivity" | "packing" | "bookings" | "custom"
+
+export interface TripChecklistItem {
+  id: string
+  text: string
+  checked: boolean
+  category: ChecklistCategory
+}
+
+// ─── 여행 공개 설정 ─────────────────────────────────────
+export type TripVisibility = "private" | "shared" | "public"
+
+export const TRIP_VISIBILITY_LABELS: Record<TripVisibility, string> = {
+  private: "비공개",
+  shared: "링크 공유",
+  public: "전체 공개",
+}
+
+// ─── 지도 검색 프리셋 ───────────────────────────────────
+export interface MapPreset {
+  id: string
+  label: string
+  lat: number
+  lng: number
+  zoom: number
+  category?: string
+}
+
 // ─── 여행 전체 ──────────────────────────────────────────
 export interface Trip {
   id: string
   title: string
   cityId: string
+  /** 다중 도시 여행 시 추가 도시 ID 목록 */
+  cities?: string[]
   coverImage?: string
   /** ISO date string */
   startDate?: string
@@ -71,6 +124,16 @@ export interface Trip {
   endDate?: string
   days: DaySchedule[]
   reservations?: Reservation[]
+  /** 여행별 후보함 */
+  wishlist?: TripWishlistItem[]
+  /** 여행별 준비물 체크리스트 */
+  checklist?: TripChecklistItem[]
+  /** 여행 총 예산 (엔화) */
+  budget?: number
+  /** 지도 검색 프리셋 */
+  mapPresets?: MapPreset[]
+  /** 여행 공개 범위 */
+  visibility?: TripVisibility
   /** Supabase shared_trips.id — 설정 시 공동 편집 모드 */
   sharedId?: string
   createdAt: string

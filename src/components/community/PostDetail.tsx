@@ -293,14 +293,11 @@ export function PostDetail() {
       return
     }
 
-    await supabase.from("comments").insert({
-      post_id: postId,
-      user_id: user.id,
-      content: trimmed,
+    await supabase.rpc("add_comment", {
+      p_post_id: postId,
+      p_user_id: user.id,
+      p_content: trimmed,
     })
-
-    // 댓글 수 증가
-    await supabase.rpc("increment_count", { row_id: postId, col_name: "comments_count" })
 
     if (post && post.user_id !== user.id && authProfile?.nickname) {
       void createNotification({
@@ -767,8 +764,7 @@ export function PostDetail() {
             setPost(fetchMockPost(postId))
             return
           }
-          await supabase.from("comments").delete().eq("id", cid)
-          await supabase.rpc("decrement_count", { row_id: postId, col_name: "comments_count" })
+          await supabase.rpc("delete_comment", { p_comment_id: cid, p_post_id: postId })
           fetchComments()
           fetchPost()
         }}

@@ -9,6 +9,7 @@ import {
   getMembers,
   getInviteCode,
   isCollabAvailable,
+  logTripChange,
   type TripMember,
   type MemberRole,
 } from "@/services/tripSyncService"
@@ -120,7 +121,8 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
 
     void catchUp()
     return () => { cancelled = true }
-  }, [sharedId]) // trip.id는 의도적으로 제외 (sharedId 변경 시만 실행)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sharedId 변경 시만 실행, trip/available는 ref로 참조
+  }, [sharedId])
 
   // ── Realtime 채널 구독 ────────────────────────────────
   useEffect(() => {
@@ -223,6 +225,9 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
           try {
             const newVersion = await saveTripToServer(sharedId, currentTrip)
             localVersionRef.current = newVersion
+
+            // 변경 이력 기록 (비동기, 실패해도 무시)
+            logTripChange(sharedId, "일정 변경").catch(() => {})
 
             // 다른 참여자에게 브로드캐스트
             channelRef.current?.send({

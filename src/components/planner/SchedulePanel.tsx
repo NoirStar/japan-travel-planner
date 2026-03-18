@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react"
-import { MapPin, Plus, Train, Footprints, TrainFront, Share2, FileDown, Ticket, Bookmark, ClipboardCheck, MoreHorizontal } from "lucide-react"
+import { MapPin, Plus, Train, Footprints, TrainFront, Share2, FileDown, CalendarDays, Ticket, Bookmark, ClipboardCheck, MoreHorizontal, Wallet, PenLine, History, Paperclip } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -15,9 +16,12 @@ import { DaySummary } from "./DaySummary"
 import { RiskAlerts } from "./RiskAlerts"
 import { WishlistPanel } from "./WishlistPanel"
 import { ChecklistPanel } from "./ChecklistPanel"
+import { BudgetPanel } from "./BudgetPanel"
+import { TransportPassPanel } from "./TransportPassPanel"
+import { ChangeHistoryPanel } from "./ChangeHistoryPanel"
+import { AttachmentVault } from "./AttachmentVault"
 import { useTravelTimes } from "@/hooks/useTravelTimes"
 import { useScheduleRisks } from "@/hooks/useScheduleRisks"
-import { useWishlistStore } from "@/stores/wishlistStore"
 import { copyShareUrl } from "@/lib/shareUtils"
 import { showToast } from "@/components/ui/CelebrationOverlay"
 import type { Reservation } from "@/types/schedule"
@@ -36,6 +40,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation } = useScheduleStore()
   const { user } = useAuthStore()
+  const navigate = useNavigate()
 
   /** 날짜 변경 시 Day 수 자동 조정 */
   const [pendingDateReduce, setPendingDateReduce] = useState<{ tripId: string; diffDays: number; placesCount: number } | null>(null)
@@ -54,17 +59,40 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
   const handleDateChange = (field: "startDate" | "endDate", value: string) => {
     if (!trip) return
-    updateTrip(trip.id, { [field]: value })
 
-    // 양쪽 날짜가 모두 설정된 경우 Day 수 조정
+    // 유효한 날짜인지 검증
+    if (value && Number.isNaN(new Date(value).getTime())) return
+
+    // startDate > endDate 방지
     const start = field === "startDate" ? value : trip.startDate
     const end = field === "endDate" ? value : trip.endDate
-    if (!start || !end) return
+    if (start && end) {
+      if (start > end) {
+        // 역전 시 반대쪽도 같이 보정
+        if (field === "startDate") {
+          updateTrip(trip.id, { startDate: value, endDate: value })
+        } else {
+          updateTrip(trip.id, { startDate: value, endDate: value })
+        }
+      } else {
+        updateTrip(trip.id, { [field]: value })
+      }
+    } else {
+      updateTrip(trip.id, { [field]: value })
+    }
 
-    const startDate = new Date(start)
-    const endDate = new Date(end)
+    // 양쪽 날짜가 모두 설정된 경우 Day 수 조정
+    const effectiveStart = field === "startDate" ? value : trip.startDate
+    const effectiveEnd = field === "endDate" ? value : trip.endDate
+    if (!effectiveStart || !effectiveEnd) return
+    if (effectiveStart > effectiveEnd) return
+
+    const startDate = new Date(effectiveStart)
+    const endDate = new Date(effectiveEnd)
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return
+
     const diffDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
-    if (diffDays < 1 || diffDays > 30) return // 비정상 범위 무시
+    if (diffDays < 1 || diffDays > 30) return
 
     const currentDays = trip.days.length
     if (diffDays > currentDays) {
@@ -94,6 +122,10 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [isReservationSheetOpen, setIsReservationSheetOpen] = useState(false)
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isChecklistOpen, setIsChecklistOpen] = useState(false)
+  const [isBudgetOpen, setIsBudgetOpen] = useState(false)
+  const [isTransportPassOpen, setIsTransportPassOpen] = useState(false)
+  const [isChangeHistoryOpen, setIsChangeHistoryOpen] = useState(false)
+  const [isAttachmentVaultOpen, setIsAttachmentVaultOpen] = useState(false)
   const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false)
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -121,26 +153,57 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
     return undefined
   }, [currentDay, trip?.startDate])
 
-  // 현재 Day에 표시할 예약 (교통: 상단, 숙박: 하단)
-  const { transportReservations, accommodationReservations } = useMemo(() => {
+  // 현재 Day에 표시할 예약
+  const dayReservations = useMemo(() => {
     const reservations = trip?.reservations ?? []
-    if (!currentDayDate) return { transportReservations: [] as Reservation[], accommodationReservations: [] as Reservation[] }
-    const transport: Reservation[] = []
-    const accommodation: Reservation[] = []
+    if (!currentDayDate) return [] as Reservation[]
+    const result: Reservation[] = []
     for (const r of reservations) {
       if (r.date === currentDayDate) {
-        if (r.type === "accommodation") {
-          accommodation.push(r)
-        } else {
-          transport.push(r)
-        }
+        result.push(r)
       } else if (r.type === "accommodation" && r.endDate && r.date < currentDayDate && r.endDate > currentDayDate) {
-        // 숙박: 체크인~체크아웃 사이 날짜에도 표시
-        accommodation.push(r)
+        result.push(r)
       }
     }
-    return { transportReservations: transport, accommodationReservations: accommodation }
+    return result
   }, [trip?.reservations, currentDayDate])
+
+  // 장소 + 예약을 시간순으로 통합 정렬
+  type TimelineEntry =
+    | { kind: "place"; item: typeof items[number]; place: import("@/types/place").Place; index: number }
+    | { kind: "reservation"; reservation: Reservation }
+
+  const timeline = useMemo(() => {
+    const entries: TimelineEntry[] = []
+
+    // 장소 항목
+    let placeIdx = 0
+    for (const item of items) {
+      const place = getAnyPlaceById(item.placeId)
+      if (!place) continue
+      entries.push({ kind: "place", item, place, index: placeIdx++ })
+    }
+
+    // 예약 항목
+    for (const r of dayReservations) {
+      entries.push({ kind: "reservation", reservation: r })
+    }
+
+    // 시간순 정렬 (시간 없는 항목은 뒤로)
+    const timeToMin = (t?: string) => {
+      if (!t) return Infinity
+      const [h, m] = t.split(":").map(Number)
+      return h * 60 + (m || 0)
+    }
+
+    entries.sort((a, b) => {
+      const tA = a.kind === "place" ? timeToMin(a.item.startTime) : timeToMin(a.reservation.startTime)
+      const tB = b.kind === "place" ? timeToMin(b.item.startTime) : timeToMin(b.reservation.startTime)
+      return tA - tB
+    })
+
+    return entries
+  }, [items, dayReservations])
 
   // 전체 일정 완성도 — 모든 Day에 장소가 있으면 완성
   const allDaysFilled = useMemo(() => {
@@ -152,7 +215,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const { travelDataMap, totalTravelMinutes } = useTravelTimes(items)
 
   // 위시리스트 개수 (배지 표시용)
-  const wishlistCount = useWishlistStore((s) => s.items.length)
+  const wishlistCount = trip?.wishlist?.length ?? 0
 
   // 일정 리스크 분석
   const travelDataByDay = useMemo(() => {
@@ -233,6 +296,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         isLoggedIn={!!user}
         onUpdateTrip={updateTrip}
         onDateChange={handleDateChange}
+        onCitiesChange={(newCities) => updateTrip(trip.id, { cities: newCities })}
+        onVisibilityChange={(v) => updateTrip(trip.id, { visibility: v })}
         collab={collab}
       />
 
@@ -248,22 +313,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       />
 
       {/* 일정 카드 리스트 */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4" data-testid="schedule-items">
-        {/* 교통 예약 (항공/기차/버스) — 장소 목록 상단 */}
-        {transportReservations.length > 0 && (
-          <div className="mb-3 flex flex-col gap-2">
-            {transportReservations.map((r) => (
-              <ReservationCard
-                key={r.id}
-                reservation={r}
-                onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
-                onRemove={() => trip && removeReservation(trip.id, r.id)}
-              />
-            ))}
-          </div>
-        )}
-
-        {items.length === 0 && transportReservations.length === 0 && accommodationReservations.length === 0 ? (
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 min-h-0" data-testid="schedule-items">
+        {timeline.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 py-14 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
               <MapPin className="h-7 w-7 text-primary/40" />
@@ -285,11 +336,21 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           </div>
         ) : (
           <div className="flex flex-col">
-            {items.map((item, index) => {
-              const place = getAnyPlaceById(item.placeId)
-              if (!place) return null
+            {timeline.map((entry, tIdx) => {
+              if (entry.kind === "reservation") {
+                return (
+                  <div key={entry.reservation.id} className={tIdx > 0 ? "mt-2" : ""}>
+                    <ReservationCard
+                      reservation={entry.reservation}
+                      onEdit={() => { setEditingReservation(entry.reservation); setIsReservationSheetOpen(true) }}
+                      onRemove={() => trip && removeReservation(trip.id, entry.reservation.id)}
+                    />
+                  </div>
+                )
+              }
 
-              // 사전 계산된 이동시간 사용
+              const { item, place, index } = entry
+              // 이동시간: place 항목 사이에만 표시
               const travelData = travelDataMap.get(index)
               const travelMinutes = travelData?.minutes ?? 0
               const travelMode = travelData?.mode ?? "metro"
@@ -337,46 +398,54 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                     onMemoChange={(memoValue) => {
                       if (trip && currentDay) updateItem(trip.id, currentDay.id, item.id, { memo: memoValue })
                     }}
+                    cost={item.cost}
+                    costCategory={item.costCategory}
+                    onCostChange={(costVal, cat) => {
+                      if (trip && currentDay) updateItem(trip.id, currentDay.id, item.id, { cost: costVal, costCategory: cat })
+                    }}
                     isSelected={selectedPlaceId === item.placeId}
                     onClick={() => onSelectPlace?.(item.placeId === selectedPlaceId ? null : item.placeId)}
                   />
                 </div>
               )
             })}
-          </div>
-        )}
 
-        {/* 빈 장소 + 예약만 있는 경우 장소 추가 안내 */}
-        {items.length === 0 && (transportReservations.length > 0 || accommodationReservations.length > 0) && (
-          <div className="flex flex-col items-center gap-2 py-6 text-center">
-            <p className="text-xs text-muted-foreground">장소를 추가하면 더 완성된 일정이 됩니다</p>
-            <button
-              onClick={() => setIsPlaceSheetOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-colors"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              장소 추가
-            </button>
-          </div>
-        )}
-
-        {/* 숙박 예약 — 장소 목록 하단 */}
-        {accommodationReservations.length > 0 && (
-          <div className="mt-3 flex flex-col gap-2">
-            {accommodationReservations.map((r) => (
-              <ReservationCard
-                key={r.id}
-                reservation={r}
-                onEdit={() => { setEditingReservation(r); setIsReservationSheetOpen(true) }}
-                onRemove={() => trip && removeReservation(trip.id, r.id)}
-              />
-            ))}
+            {/* 장소 없이 예약만 있으면 장소 추가 안내 */}
+            {items.length === 0 && dayReservations.length > 0 && (
+              <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <p className="text-xs text-muted-foreground">장소를 추가하면 더 완성된 일정이 됩니다</p>
+                <button
+                  onClick={() => setIsPlaceSheetOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/15 transition-colors"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  장소 추가
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* 일정 리스크 알림 */}
       <RiskAlerts risks={risks} currentDayNumber={currentDay?.dayNumber} />
+
+      {/* 여행 완료 후기 배너 */}
+      {trip.endDate && new Date(trip.endDate + "T23:59:59") < new Date() && user && (
+        <div className="mx-4 mt-3 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/30">
+          <PenLine className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">여행이 끝났어요!</p>
+            <p className="text-[11px] text-amber-700/80 dark:text-amber-400/70">커뮤니티에 후기를 남겨보세요</p>
+          </div>
+          <button
+            className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-600 transition-colors"
+            onClick={() => navigate("/community", { state: { openCreatePost: true, tripId: trip.id } })}
+          >
+            후기 작성
+          </button>
+        </div>
+      )}
 
       {/* Day 요약 */}
       <DaySummary
@@ -449,6 +518,32 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           </button>
           <button
             className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            onClick={() => setIsBudgetOpen(true)}
+            data-testid="budget-button"
+          >
+            <Wallet className="h-4 w-4 text-emerald-500" />
+            예산
+          </button>
+          <button
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            onClick={() => setIsTransportPassOpen(true)}
+            data-testid="transport-pass-button"
+          >
+            <TrainFront className="h-4 w-4 text-blue-500" />
+            패스
+          </button>
+          {collab?.isShared && (
+            <button
+              className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+              onClick={() => setIsChangeHistoryOpen(true)}
+              data-testid="change-history-button"
+            >
+              <History className="h-4 w-4 text-violet-500" />
+              이력
+            </button>
+          )}
+          <button
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
             onClick={async () => {
               if (!trip) return
               const ok = await copyShareUrl(trip)
@@ -472,6 +567,19 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           >
             <FileDown className="h-4 w-4" />
             PDF
+          </button>
+          <button
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            onClick={async () => {
+              if (!trip) return
+              const { downloadTripIcs } = await import("@/lib/exportIcs")
+              downloadTripIcs(trip)
+              showToast("캘린더 파일이 다운로드되었습니다!")
+            }}
+            data-testid="export-ics-button"
+          >
+            <CalendarDays className="h-4 w-4" />
+            캘린더
           </button>
         </div>
       </div>
@@ -511,6 +619,36 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                 <ClipboardCheck className="h-5 w-5 text-emerald-500" />
                 준비물 체크리스트
               </button>
+              <button
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={() => { setIsMobileMoreOpen(false); setIsBudgetOpen(true) }}
+              >
+                <Wallet className="h-5 w-5 text-emerald-500" />
+                여행 예산
+              </button>
+              <button
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={() => { setIsMobileMoreOpen(false); setIsTransportPassOpen(true) }}
+              >
+                <TrainFront className="h-5 w-5 text-blue-500" />
+                교통 패스 계산기
+              </button>
+              {collab?.isShared && (
+                <button
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                  onClick={() => { setIsMobileMoreOpen(false); setIsChangeHistoryOpen(true) }}
+                >
+                  <History className="h-5 w-5 text-violet-500" />
+                  변경 이력
+                </button>
+              )}
+              <button
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={() => { setIsMobileMoreOpen(false); setIsAttachmentVaultOpen(true) }}
+              >
+                <Paperclip className="h-5 w-5 text-teal-500" />
+                첨부 보관함
+              </button>
               <div className="my-1 h-px bg-border" />
               <button
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
@@ -537,6 +675,19 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
               >
                 <FileDown className="h-5 w-5" />
                 PDF 다운로드
+              </button>
+              <button
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                onClick={async () => {
+                  setIsMobileMoreOpen(false)
+                  if (!trip) return
+                  const { downloadTripIcs } = await import("@/lib/exportIcs")
+                  downloadTripIcs(trip)
+                  showToast("캘린더 파일이 다운로드되었습니다!")
+                }}
+              >
+                <CalendarDays className="h-5 w-5" />
+                캘린더 내보내기
               </button>
               <div className="my-1 h-px bg-border" />
               <button
@@ -571,6 +722,37 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       <ChecklistPanel
         open={isChecklistOpen}
         onOpenChange={setIsChecklistOpen}
+        tripId={trip.id}
+      />
+
+      {/* 여행 예산 */}
+      <BudgetPanel
+        open={isBudgetOpen}
+        onOpenChange={setIsBudgetOpen}
+        tripId={trip.id}
+      />
+
+      {/* 교통 패스 계산기 */}
+      <TransportPassPanel
+        open={isTransportPassOpen}
+        onOpenChange={setIsTransportPassOpen}
+        tripId={trip.id}
+      />
+
+      {/* 변경 이력 패널 (협업 시) */}
+      {collab?.isShared && trip.sharedId && (
+        <ChangeHistoryPanel
+          open={isChangeHistoryOpen}
+          onClose={() => setIsChangeHistoryOpen(false)}
+          sharedId={trip.sharedId}
+        />
+      )}
+
+      {/* 첨부 보관함 */}
+      <AttachmentVault
+        open={isAttachmentVaultOpen}
+        onOpenChange={setIsAttachmentVaultOpen}
+        tripId={trip.id}
       />
 
       {/* 예약 추가/편집 시트 */}

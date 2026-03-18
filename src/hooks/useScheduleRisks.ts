@@ -22,6 +22,55 @@ const TOTAL_TRAVEL_DAILY_THRESHOLD = 180
 /** 낮은 평점 임계값 */
 const LOW_RATING_THRESHOLD = 3.5
 
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const
+
+/** "11:00 AM" → 660 (분) */
+function parseAmPmToMinutes(s: string): number | null {
+  const m = s.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i)
+  if (!m) return null
+  let h = Number(m[1])
+  const min = Number(m[2])
+  const ampm = m[3].toUpperCase()
+  if (ampm === "PM" && h !== 12) h += 12
+  if (ampm === "AM" && h === 12) h = 0
+  return h * 60 + min
+}
+
+/** "09:30" → 570 */
+function parseHHmmToMinutes(s: string): number | null {
+  const m = s.match(/^(\d{2}):(\d{2})$/)
+  if (!m) return null
+  return Number(m[1]) * 60 + Number(m[2])
+}
+
+/** 영업시간 문자열에서 해당 요일의 open/close 분 값을 반환. Closed면 null */
+function getOpeningRange(
+  openingHours: string[],
+  dayOfWeek: number,
+): { open: number; close: number } | null {
+  const dayName = DAY_NAMES[dayOfWeek]
+  const line = openingHours.find((l) => l.startsWith(dayName))
+  if (!line) return null
+  const after = line.slice(line.indexOf(":") + 1).trim()
+  if (/closed/i.test(after)) return null
+
+  // "11:00 AM – 10:00 PM" (en-dash or hyphen)
+  const parts = after.split(/\s*[–-]\s*/)
+  if (parts.length !== 2) return null
+  const open = parseAmPmToMinutes(parts[0])
+  const close = parseAmPmToMinutes(parts[1])
+  if (open == null || close == null) return null
+  return { open, close }
+}
+
 interface TravelData {
   minutes: number
   mode: string
@@ -85,9 +134,38 @@ export function useScheduleRisks(
             placeId: item.placeId,
           })
         }
+
+        // 5. 영업시간 외 방문 경고
+        if (item.startTime && place?.openingHours?.length && day.date) {
+          const date = new Date(day.date + "T00:00:00")
+          if (!isNaN(date.getTime())) {
+            const dow = date.getDay()
+            const range = getOpeningRange(place.openingHours, dow)
+            const visitMin = parseHHmmToMinutes(item.startTime)
+            if (visitMin != null) {
+              if (!range) {
+                risks.push({
+                  id: `closed-day-${dayNum}-${item.placeId}`,
+                  level: "warning",
+                  message: `Day ${dayNum} "${place.name}"은(는) 해당 요일에 휴무입니다`,
+                  dayNumber: dayNum,
+                  placeId: item.placeId,
+                })
+              } else if (visitMin < range.open || visitMin >= range.close) {
+                risks.push({
+                  id: `outside-hours-${dayNum}-${item.placeId}`,
+                  level: "warning",
+                  message: `Day ${dayNum} "${place.name}" 방문 시간(${item.startTime})이 영업시간 외입니다`,
+                  dayNumber: dayNum,
+                  placeId: item.placeId,
+                })
+              }
+            }
+          }
+        }
       }
 
-      // 5. 이동시간 기반 분석 (현재 Day의 travelDataMap이 있으면)
+      // 6. 이동시간 기반 분석 (현재 Day의 travelDataMap이 있으면)
       const dayTravel = travelDataByDay?.get(dayNum)
       if (dayTravel) {
         let totalMinutes = 0

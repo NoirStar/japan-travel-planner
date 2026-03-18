@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo, Component, type ReactNode } from "react"
-import { Plus, TrendingUp, Clock, CalendarCheck, Trophy, MapPin, Search, ThumbsUp, RefreshCw } from "lucide-react"
+import { Plus, TrendingUp, Clock, Trophy, MapPin, Search, ThumbsUp, RefreshCw } from "lucide-react"
+import { useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
@@ -50,7 +51,8 @@ class CardErrorBoundary extends Component<
 }
 
 export function CommunityPage() {
-  const { user, profile, setShowLoginModal, doAttendance, hasCheckedIn } = useAuthStore()
+  const { user, setShowLoginModal } = useAuthStore()
+  const location = useLocation()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useState<PostSortOption>("latest")
   const [cityFilter, setCityFilter] = useState("")
@@ -60,10 +62,19 @@ export function CommunityPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [showCreate, setShowCreate] = useState(false)
-  const [attendanceMsg, setAttendanceMsg] = useState("")
   const [displayCount, setDisplayCount] = useState(9)
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+
+  /* 플래너에서 "후기 작성" 으로 넘어온 경우 자동 모달 열기 */
+  useEffect(() => {
+    const navState = location.state as { openCreatePost?: boolean } | null
+    if (navState?.openCreatePost && user) {
+      setShowCreate(true)
+      // state를 지워서 새로고침 시 다시 열리지 않게
+      window.history.replaceState({}, "")
+    }
+  }, [location.state, user])
 
   // Debounced search
   useEffect(() => {
@@ -168,13 +179,6 @@ export function CommunityPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 pt-20 pb-10">
-      {/* 출석체크 알림 */}
-      {attendanceMsg && (
-        <div className="mb-4 rounded-xl border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-700 dark:border-green-700 dark:bg-green-950/30 dark:text-green-300">
-          {attendanceMsg}
-        </div>
-      )}
-
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -182,28 +186,6 @@ export function CommunityPage() {
           <p className="text-sm text-muted-foreground">다른 여행자들의 일본 일정을 구경하세요 ✈️</p>
         </div>
         <div className="flex items-center gap-2">
-          {/* 출석체크 */}
-          {user && !profile?.is_admin && (
-            <Button
-              variant={hasCheckedIn() ? "ghost" : "outline"}
-              size="sm"
-              disabled={hasCheckedIn()}
-              className="gap-1.5 rounded-xl text-xs"
-              onClick={() => {
-                const result = doAttendance()
-                if (result.success) {
-                  setAttendanceMsg("출석 완료! +1P")
-                  setTimeout(() => setAttendanceMsg(""), 3000)
-                } else if (result.alreadyDone) {
-                  setAttendanceMsg("오늘은 이미 출석했어요")
-                  setTimeout(() => setAttendanceMsg(""), 2000)
-                }
-              }}
-            >
-              <CalendarCheck className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{hasCheckedIn() ? "출석완료" : "출석체크"}</span>
-            </Button>
-          )}
           <Button onClick={handleCreateClick} className="gap-1.5 rounded-xl btn-gradient text-xs">
             <Plus className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">여행 공유</span>

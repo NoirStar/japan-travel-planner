@@ -7,17 +7,59 @@ import { RESERVATION_LABELS } from "@/types/schedule"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { getCityConfig } from "@/data/mapConfig"
 
-// ── 폰트 등록 (Noto Sans KR: 로컬 번들) ──
+// ── 폰트 등록 (Noto Sans KR) ──
+// 절대 URL로 변환하여 경로 문제 방지
+const FONT_BASE = `${window.location.origin}/fonts`
+
 Font.register({
   family: "NotoSansKR",
   fonts: [
-    { src: "/fonts/NotoSansKR-Regular.ttf", fontWeight: 400 },
-    { src: "/fonts/NotoSansKR-Bold.ttf", fontWeight: 700 },
+    { src: `${FONT_BASE}/NotoSansKR-Regular.ttf`, fontWeight: 400 },
+    { src: `${FONT_BASE}/NotoSansKR-Bold.ttf`, fontWeight: 700 },
   ],
 })
 
 // 하이픈 비활성화 (단어 잘림/겹침 방지)
 Font.registerHyphenationCallback((word) => [word])
+
+// ── 폰트 프리로드 (한 번만 실행) ──
+let _fontReady = false
+let _fontPromise: Promise<void> | null = null
+
+async function ensureFontsLoaded(): Promise<void> {
+  if (_fontReady) return
+  if (_fontPromise) return _fontPromise
+
+  _fontPromise = (async () => {
+    try {
+      // 폰트 파일을 미리 fetch하여 브라우저 캐시에 적재
+      const urls = [
+        `${FONT_BASE}/NotoSansKR-Regular.ttf`,
+        `${FONT_BASE}/NotoSansKR-Bold.ttf`,
+      ]
+      const results = await Promise.all(
+        urls.map((url) =>
+          fetch(url, { cache: "force-cache" }).then((r) => {
+            if (!r.ok) throw new Error(`Font fetch failed: ${r.status} ${url}`)
+            return r.arrayBuffer()
+          }),
+        ),
+      )
+      // 각 폰트가 정상적으로 로드되었는지 확인 (최소 100KB)
+      for (let i = 0; i < results.length; i++) {
+        if (results[i].byteLength < 100_000) {
+          throw new Error(`Font file too small: ${urls[i]} (${results[i].byteLength} bytes)`)
+        }
+      }
+      _fontReady = true
+    } catch (e) {
+      _fontPromise = null
+      throw e
+    }
+  })()
+
+  return _fontPromise
+}
 
 // ── 텍스트 sanitize (Noto Sans KR 미지원 글리프 제거) ──
 // BMP 기본 라틴 + 한글 + CJK + 일본어 가나 + 일반 기호만 허용
@@ -280,6 +322,29 @@ export interface PdfResult {
 }
 
 export async function downloadTripPdf(trip: Trip): Promise<PdfResult> {
+  // 0) 폰트 프리로드
+  try {
+    await ensureFontsLoaded()
+  } catch (e) {
+    console.error("PDF 폰트 프리로드 실패:", e)
+    // 폰트 캐시 초기화 후 재시도
+    Font.clear()
+    Font.register({
+      family: "NotoSansKR",
+      fonts: [
+        { src: `${FONT_BASE}/NotoSansKR-Regular.ttf`, fontWeight: 400 },
+        { src: `${FONT_BASE}/NotoSansKR-Bold.ttf`, fontWeight: 700 },
+      ],
+    })
+    _fontReady = false
+    _fontPromise = null
+    try {
+      await ensureFontsLoaded()
+    } catch {
+      return { ok: false, error: "폰트 로드에 실패했습니다. 네트워크 연결을 확인하고 새로고침 후 다시 시도해 주세요." }
+    }
+  }
+
   // 1) PDF 렌더
   let blob: Blob
   try {
@@ -288,6 +353,9 @@ export async function downloadTripPdf(trip: Trip): Promise<PdfResult> {
     const msg = e instanceof Error ? e.message : String(e)
     console.error("PDF 렌더 실패:", e)
     if (/font/i.test(msg) || /fetch/i.test(msg)) {
+      // 폰트 관련 에러 시 캐시 무효화
+      _fontReady = false
+      _fontPromise = null
       return { ok: false, error: "폰트 로드에 실패했습니다. 새로고침 후 다시 시도해 주세요." }
     }
     return { ok: false, error: `PDF 렌더 실패: ${msg}` }

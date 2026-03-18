@@ -5,7 +5,6 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { PlaceCategory, CATEGORY_LABELS } from "@/types/place"
 import type { Place } from "@/types/place"
 import { useScheduleStore } from "@/stores/scheduleStore"
-import { useWishlistStore } from "@/stores/wishlistStore"
 import { searchGooglePlaces } from "@/services/placesService"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 
@@ -44,7 +43,7 @@ export function PlaceSheet({
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { addItem } = useScheduleStore()
   const trip = useScheduleStore((s) => s.getActiveTrip())
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore()
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useScheduleStore()
   const dynamicPlaces = useDynamicPlaceStore((s) => s.places)
   const addOrder = useDynamicPlaceStore((s) => s.addOrder)
   const clearPlaces = useDynamicPlaceStore((s) => s.clearPlaces)
@@ -249,7 +248,7 @@ export function PlaceSheet({
               )}
               {displayPlaces.map((place) => {
                 const isAdded = addedPlaceIds.has(place.id)
-                const isWishlisted = isInWishlist(place.id)
+                const isWishlisted = isInWishlist(tripId, place.id)
                 return (
                   <div
                     key={place.id}
@@ -279,12 +278,12 @@ export function PlaceSheet({
                     <button
                       onClick={() => {
                         if (isWishlisted) {
-                          removeFromWishlist(place.id)
+                          removeFromWishlist(tripId, place.id)
                         } else {
                           if (place.id.startsWith("google-")) {
                             useDynamicPlaceStore.getState().addPlace(place)
                           }
-                          addToWishlist(place.id)
+                          addToWishlist(tripId, place.id)
                         }
                       }}
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors ${

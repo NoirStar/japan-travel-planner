@@ -1,15 +1,18 @@
 import { useState, useMemo, useEffect } from "react"
 import { X, CheckSquare, Square, Plus, Trash2, RotateCcw, ChevronDown, ChevronRight } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { useScheduleStore } from "@/stores/scheduleStore"
 import {
-  useChecklistStore,
   CHECKLIST_CATEGORY_LABELS,
+  DEFAULT_CHECKLIST,
   type ChecklistCategory,
 } from "@/stores/checklistStore"
+import type { TripChecklistItem } from "@/types/schedule"
 
 interface ChecklistPanelProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  tripId: string
 }
 
 /** 카테고리별 아이콘/색상 */
@@ -22,17 +25,20 @@ const CATEGORY_STYLE: Record<ChecklistCategory, { emoji: string; color: string }
   custom: { emoji: "📝", color: "text-gray-500" },
 }
 
-export function ChecklistPanel({ open, onOpenChange }: ChecklistPanelProps) {
-  const { items, initialized, initFromTemplate, toggleItem, addItem, removeItem, resetToTemplate } = useChecklistStore()
+const EMPTY_CHECKLIST: TripChecklistItem[] = []
+
+export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelProps) {
+  const items = useScheduleStore((s) => s.trips.find((t) => t.id === tripId)?.checklist) ?? EMPTY_CHECKLIST
+  const { initChecklist, toggleChecklistItem, addChecklistItem, removeChecklistItem, resetChecklist } = useScheduleStore()
   const [newItemText, setNewItemText] = useState("")
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set())
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   useEffect(() => {
-    if (open && !initialized) {
-      initFromTemplate()
+    if (open && items.length === 0) {
+      initChecklist(tripId, DEFAULT_CHECKLIST)
     }
-  }, [open, initialized, initFromTemplate])
+  }, [open, items.length, tripId, initChecklist])
 
   // 카테고리별 그룹화
   const grouped = useMemo(() => {
@@ -53,7 +59,7 @@ export function ChecklistPanel({ open, onOpenChange }: ChecklistPanelProps) {
   const handleAddItem = () => {
     const text = newItemText.trim()
     if (!text) return
-    addItem(text)
+    addChecklistItem(tripId, text)
     setNewItemText("")
   }
 
@@ -105,7 +111,7 @@ export function ChecklistPanel({ open, onOpenChange }: ChecklistPanelProps) {
               ) : (
                 <div className="flex items-center gap-1 text-[10px]">
                   <button
-                    onClick={() => { resetToTemplate(); setShowResetConfirm(false) }}
+                    onClick={() => { resetChecklist(tripId, DEFAULT_CHECKLIST); setShowResetConfirm(false) }}
                     className="rounded-lg bg-destructive px-2 py-1 font-bold text-white"
                   >
                     초기화
@@ -187,7 +193,7 @@ export function ChecklistPanel({ open, onOpenChange }: ChecklistPanelProps) {
                         data-testid={`checklist-item-${item.id}`}
                       >
                         <button
-                          onClick={() => toggleItem(item.id)}
+                          onClick={() => toggleChecklistItem(tripId, item.id)}
                           className="shrink-0"
                           aria-label={item.checked ? "체크 해제" : "체크"}
                         >
@@ -203,7 +209,7 @@ export function ChecklistPanel({ open, onOpenChange }: ChecklistPanelProps) {
                           {item.text}
                         </span>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeChecklistItem(tripId, item.id)}
                           className="shrink-0 rounded-full p-0.5 text-muted-foreground/30 opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                           aria-label="삭제"
                         >

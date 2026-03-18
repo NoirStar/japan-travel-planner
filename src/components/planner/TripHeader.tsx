@@ -1,17 +1,21 @@
 import { useState } from "react"
-import { Calendar, Save, Pencil, ImagePlus, AlertTriangle, Users, MoreHorizontal } from "lucide-react"
+import { Calendar, Save, Pencil, ImagePlus, AlertTriangle, Users, MoreHorizontal, MapPin, Plus, X as XIcon, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CollaboratorsBadge } from "./CollaboratorsBadge"
 import { InviteDialog } from "./InviteDialog"
-import type { Trip } from "@/types/schedule"
+import type { Trip, TripVisibility } from "@/types/schedule"
+import { TRIP_VISIBILITY_LABELS } from "@/types/schedule"
 import type { CollaborativeSyncResult } from "@/hooks/useCollaborativeSync"
 import { isCollabAvailable } from "@/services/tripSyncService"
+import { cities as CITIES } from "@/data/cities"
 
 interface TripHeaderProps {
   trip: Trip
   isLoggedIn: boolean
   onUpdateTrip: (tripId: string, patch: Partial<Pick<Trip, "title" | "coverImage">>) => void
   onDateChange: (field: "startDate" | "endDate", value: string) => void
+  onCitiesChange?: (cities: string[]) => void
+  onVisibilityChange?: (v: TripVisibility) => void
   collab?: CollaborativeSyncResult
 }
 
@@ -33,13 +37,17 @@ function getTripDateSummary(trip: Trip): string {
   return `${start} ~ ${end} (${nights}박${nights + 1}일)`
 }
 
-export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, collab }: TripHeaderProps) {
+export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCitiesChange, onVisibilityChange, collab }: TripHeaderProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [editTitle, setEditTitle] = useState("")
   const [showCoverInput, setShowCoverInput] = useState(false)
   const [coverUrl, setCoverUrl] = useState("")
   const [isInviteOpen, setIsInviteOpen] = useState(false)
   const [mobileExpanded, setMobileExpanded] = useState(false)
+  const [showCityPicker, setShowCityPicker] = useState(false)
+
+  const allCityIds = [trip.cityId, ...(trip.cities ?? [])]
+  const availableCities = CITIES.filter((c) => !allCityIds.includes(c.id))
 
   return (
     <div className="border-b border-border p-4">
@@ -124,6 +132,55 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, colla
         <Calendar className="mr-1 inline h-3 w-3 text-sakura-dark" />
         {getTripDateSummary(trip)}
       </p>
+
+      {/* 도시 태그 */}
+      <div className="mt-1.5 flex flex-wrap items-center gap-1">
+        {allCityIds.map((cid) => {
+          const city = CITIES.find((c) => c.id === cid)
+          if (!city) return null
+          const isPrimary = cid === trip.cityId
+          return (
+            <span key={cid} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+              <MapPin className="h-2.5 w-2.5" />
+              {city.name}
+              {!isPrimary && onCitiesChange && (
+                <button
+                  onClick={() => onCitiesChange((trip.cities ?? []).filter((id) => id !== cid))}
+                  className="ml-0.5 rounded-full hover:bg-primary/20 p-0.5"
+                >
+                  <XIcon className="h-2.5 w-2.5" />
+                </button>
+              )}
+            </span>
+          )
+        })}
+        {availableCities.length > 0 && onCitiesChange && (
+          <div className="relative">
+            <button
+              onClick={() => setShowCityPicker(!showCityPicker)}
+              className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-muted-foreground/30 px-2 py-0.5 text-[10px] text-muted-foreground hover:bg-muted transition-colors"
+            >
+              <Plus className="h-2.5 w-2.5" /> 도시
+            </button>
+            {showCityPicker && (
+              <div className="absolute left-0 top-full z-50 mt-1 rounded-lg border border-border bg-card p-1 shadow-lg">
+                {availableCities.map((city) => (
+                  <button
+                    key={city.id}
+                    onClick={() => {
+                      onCitiesChange([...(trip.cities ?? []), city.id])
+                      setShowCityPicker(false)
+                    }}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                  >
+                    {city.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* 모바일 확장 영역 (날짜 편집, 커버, 공동편집 등) */}
       {mobileExpanded && (
@@ -266,6 +323,20 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, colla
               공동 편집
             </button>
           ) : null}
+          {onVisibilityChange && (
+            <span className="flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-[10px]">
+              <Eye className="h-3 w-3 text-muted-foreground" />
+              <select
+                value={trip.visibility ?? "private"}
+                onChange={(e) => onVisibilityChange(e.target.value as TripVisibility)}
+                className="bg-transparent text-[10px] font-semibold text-foreground outline-none cursor-pointer"
+              >
+                {(Object.entries(TRIP_VISIBILITY_LABELS) as [TripVisibility, string][]).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </span>
+          )}
         </div>
         {isLoggedIn ? (
           <span className="flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">

@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist, type StorageValue } from "zustand/middleware"
-import type { Trip, DaySchedule, ScheduleItem, Reservation } from "@/types/schedule"
+import type { Trip, DaySchedule, ScheduleItem, Reservation, TripChecklistItem, ChecklistCategory, MapPreset } from "@/types/schedule"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 
 // ─── 로그인 상태 확인 (순환 의존 방지용) ─────────────────
@@ -53,7 +53,7 @@ interface ScheduleState {
   createTrip: (cityId: string, title?: string) => Trip
   deleteTrip: (tripId: string) => void
   setActiveTrip: (tripId: string | null) => void
-  updateTrip: (tripId: string, updates: Partial<Pick<Trip, "title" | "coverImage" | "startDate" | "endDate">>) => void
+  updateTrip: (tripId: string, updates: Partial<Pick<Trip, "title" | "coverImage" | "startDate" | "endDate" | "budget" | "cities" | "visibility">>) => void
 
   // Day CRUD
   addDay: (tripId: string) => DaySchedule
@@ -75,7 +75,7 @@ interface ScheduleState {
     tripId: string,
     dayId: string,
     itemId: string,
-    updates: Partial<Pick<ScheduleItem, "startTime" | "memo">>,
+    updates: Partial<Pick<ScheduleItem, "startTime" | "memo" | "cost" | "costCategory">>,
   ) => void
 
   // Reservation CRUD
@@ -83,6 +83,24 @@ interface ScheduleState {
   updateReservation: (tripId: string, reservationId: string, updates: Partial<Reservation>) => void
   removeReservation: (tripId: string, reservationId: string) => void
   moveReservation: (tripId: string, reservationId: string, newIndex: number) => void
+
+  // Wishlist (per-trip)
+  addToWishlist: (tripId: string, placeId: string, memo?: string) => void
+  removeFromWishlist: (tripId: string, placeId: string) => void
+  isInWishlist: (tripId: string, placeId: string) => boolean
+  updateWishlistMemo: (tripId: string, placeId: string, memo: string) => void
+
+  // Checklist (per-trip)
+  initChecklist: (tripId: string, template: Omit<TripChecklistItem, "id">[]) => void
+  toggleChecklistItem: (tripId: string, itemId: string) => void
+  addChecklistItem: (tripId: string, text: string, category?: ChecklistCategory) => void
+  removeChecklistItem: (tripId: string, itemId: string) => void
+  updateChecklistText: (tripId: string, itemId: string, text: string) => void
+  resetChecklist: (tripId: string, template: Omit<TripChecklistItem, "id">[]) => void
+
+  // Map Presets (per-trip)
+  addMapPreset: (tripId: string, preset: Omit<MapPreset, "id">) => void
+  removeMapPreset: (tripId: string, presetId: string) => void
 
   // 헬퍼
   getActiveTrip: () => Trip | undefined
@@ -372,6 +390,156 @@ export const useScheduleStore = create<ScheduleState>()(
             const [moved] = list.splice(oldIndex, 1)
             list.splice(newIndex, 0, moved)
             return { ...t, reservations: list, updatedAt: new Date().toISOString() }
+          }),
+        })),
+
+      // ── Wishlist (per-trip) ────────────────────────────
+      addToWishlist: (tripId, placeId, memo) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            if ((t.wishlist ?? []).some((w) => w.placeId === placeId)) return t
+            return {
+              ...t,
+              wishlist: [{ placeId, addedAt: new Date().toISOString(), memo }, ...(t.wishlist ?? [])],
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      removeFromWishlist: (tripId, placeId) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              wishlist: (t.wishlist ?? []).filter((w) => w.placeId !== placeId),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      isInWishlist: (tripId, placeId) => {
+        const trip = get().trips.find((t) => t.id === tripId)
+        return (trip?.wishlist ?? []).some((w) => w.placeId === placeId)
+      },
+
+      updateWishlistMemo: (tripId, placeId, memo) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              wishlist: (t.wishlist ?? []).map((w) =>
+                w.placeId === placeId ? { ...w, memo } : w,
+              ),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      // ── Checklist (per-trip) ───────────────────────────
+      initChecklist: (tripId, template) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            if (t.checklist && t.checklist.length > 0) return t
+            return {
+              ...t,
+              checklist: template.map((item) => ({ ...item, id: generateId("chk") })),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      toggleChecklistItem: (tripId, itemId) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              checklist: (t.checklist ?? []).map((i) =>
+                i.id === itemId ? { ...i, checked: !i.checked } : i,
+              ),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      addChecklistItem: (tripId, text, category = "custom") =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              checklist: [...(t.checklist ?? []), { id: generateId("chk"), text, checked: false, category }],
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      removeChecklistItem: (tripId, itemId) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              checklist: (t.checklist ?? []).filter((i) => i.id !== itemId),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      updateChecklistText: (tripId, itemId, text) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              checklist: (t.checklist ?? []).map((i) =>
+                i.id === itemId ? { ...i, text } : i,
+              ),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      resetChecklist: (tripId, template) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              checklist: template.map((item) => ({ ...item, id: generateId("chk") })),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      // ── 지도 프리셋 ────────────────────────────────────
+      addMapPreset: (tripId, preset) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            const existing = t.mapPresets ?? []
+            if (existing.length >= 10) return t // 최대 10개
+            return {
+              ...t,
+              mapPresets: [...existing, { ...preset, id: generateId("mp") }],
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      removeMapPreset: (tripId, presetId) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              mapPresets: (t.mapPresets ?? []).filter((p) => p.id !== presetId),
+              updatedAt: new Date().toISOString(),
+            }
           }),
         })),
 

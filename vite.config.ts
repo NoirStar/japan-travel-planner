@@ -24,6 +24,8 @@ export default defineConfig({
           "ui-vendor": ["zustand", "@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
           "tiptap": ["@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-image", "@tiptap/extension-color", "@tiptap/extension-text-style", "@tiptap/extension-text-align", "@tiptap/extension-underline", "@tiptap/extension-placeholder"],
           "dompurify": ["dompurify"],
+          "pdf": ["@react-pdf/renderer"],
+          "framer": ["framer-motion"],
         },
       },
     },

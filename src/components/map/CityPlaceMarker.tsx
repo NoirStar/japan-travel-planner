@@ -5,7 +5,7 @@ import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 import { Button } from "@/components/ui/button"
-import { useWishlistStore } from "@/stores/wishlistStore"
+import { useScheduleStore } from "@/stores/scheduleStore"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 
 /** 카테고리별 색상 Hex */
@@ -126,9 +126,10 @@ interface CityPlaceMarkerProps {
 export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
   const [markerRef, marker] = useMarkerRef()
   const [isHovered, setIsHovered] = useState(false)
-  const isBookmarked = useWishlistStore((s) => s.isInWishlist(place.id))
-  const addToWishlist = useWishlistStore((s) => s.addToWishlist)
-  const removeFromWishlist = useWishlistStore((s) => s.removeFromWishlist)
+  const activeTripId = useScheduleStore((s) => s.activeTripId)
+  const isBookmarked = useScheduleStore((s) => activeTripId ? s.isInWishlist(activeTripId, place.id) : false)
+  const addToWishlist = useScheduleStore((s) => s.addToWishlist)
+  const removeFromWishlist = useScheduleStore((s) => s.removeFromWishlist)
 
   const handleClick = useCallback(() => {
     setIsHovered(false)
@@ -294,13 +295,14 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
                 className="gap-1 rounded-lg text-xs h-7"
                 onClick={(e) => {
                   e.stopPropagation()
+                  if (!activeTripId) return
                   if (isBookmarked) {
-                    removeFromWishlist(place.id)
+                    removeFromWishlist(activeTripId, place.id)
                   } else {
                     if (place.id.startsWith("google-")) {
                       useDynamicPlaceStore.getState().addPlace(place)
                     }
-                    addToWishlist(place.id)
+                    addToWishlist(activeTripId, place.id)
                   }
                 }}
               >

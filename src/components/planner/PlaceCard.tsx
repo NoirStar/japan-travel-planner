@@ -1,8 +1,9 @@
 import { forwardRef, useState, useRef, useEffect } from "react"
-import { X, Star, Clock, StickyNote, ChevronDown, ChevronUp, ArrowUp, ArrowDown, MoreVertical } from "lucide-react"
+import { X, Star, Clock, StickyNote, ChevronDown, ChevronUp, ArrowUp, ArrowDown, MoreVertical, Wallet } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
 import { CATEGORY_ICONS } from "@/lib/categoryIcons"
+import { COST_CATEGORY_LABELS, type CostCategory } from "@/types/schedule"
 
 interface PlaceCardProps {
   place: Place
@@ -20,6 +21,12 @@ interface PlaceCardProps {
   onStartTimeChange?: (time: string) => void
   /** 메모 변경 콜백 */
   onMemoChange?: (memo: string) => void
+  /** 비용 (엔화) */
+  cost?: number
+  /** 비용 카테고리 */
+  costCategory?: CostCategory
+  /** 비용 변경 콜백 */
+  onCostChange?: (cost: number | undefined, category?: CostCategory) => void
   /** 선택 상태 */
   isSelected?: boolean
   /** 카드 클릭 콜백 */
@@ -51,7 +58,7 @@ function getTimeSlotLabel(time: string): { label: string; color: string } | null
 
 export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
   function PlaceCard(
-    { place, index, totalItems = 1, onRemove, onMoveItem, startTime, memo, onStartTimeChange, onMemoChange, isSelected, onClick },
+    { place, index, totalItems = 1, onRemove, onMoveItem, startTime, memo, onStartTimeChange, onMemoChange, cost, costCategory, onCostChange, isSelected, onClick },
     ref,
   ) {
     const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
@@ -186,6 +193,36 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 onClick={(e) => e.stopPropagation()}
                 data-testid={`memo-input-${index}`}
               />
+            )}
+
+            {/* 비용 — 데스크톱만 */}
+            {onCostChange && (
+              <div className="mt-1 hidden items-center gap-1.5 text-[10px] lg:flex" onClick={(e) => e.stopPropagation()}>
+                <Wallet className="h-3 w-3 text-emerald-500" />
+                <input
+                  type="number"
+                  className="w-16 rounded border border-border bg-muted px-1 py-0.5 text-[10px] text-foreground outline-none focus:ring-1 focus:ring-sakura/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  placeholder="비용(¥)"
+                  defaultValue={cost ?? ""}
+                  onBlur={(e) => {
+                    const v = e.target.value ? Number(e.target.value) : undefined
+                    onCostChange(v, costCategory)
+                  }}
+                />
+                <select
+                  className="rounded border border-border bg-muted px-1 py-0.5 text-[10px] text-foreground outline-none"
+                  value={costCategory ?? ""}
+                  onChange={(e) => {
+                    const cat = e.target.value as CostCategory | ""
+                    onCostChange(cost, cat || undefined)
+                  }}
+                >
+                  <option value="">분류</option>
+                  {Object.entries(COST_CATEGORY_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>{v}</option>
+                  ))}
+                </select>
+              </div>
             )}
           </div>
 

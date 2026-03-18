@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Camera, LogOut, Save, CalendarDays, MessageCircle, Pencil, ThumbsUp } from "lucide-react"
+import { Camera, LogOut, Save, MessageCircle, Pencil, ThumbsUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { LevelBadge } from "@/components/community/LevelBadge"
@@ -146,10 +146,6 @@ export function ProfilePage() {
               <div className="rounded-xl border border-border bg-card p-4">
                 <h3 className="mb-3 text-sm font-semibold">포인트 내역</h3>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground inline-flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> 출석체크</span>
-                    <span className="font-medium">{breakdown.attendance}P</span>
-                  </div>
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" /> 댓글 작성</span>
                     <span className="font-medium">{breakdown.comment}P</span>

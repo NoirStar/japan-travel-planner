@@ -81,7 +81,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
     return (
       <div
         ref={ref}
-        className={`group relative overflow-hidden rounded-2xl border bg-card p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
+        className={`group relative rounded-2xl border bg-card p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
           isSelected
             ? "border-sakura-dark shadow-md"
             : "border-border hover:border-sakura/40"
@@ -91,7 +91,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         onClick={onClick}
       >
         {/* 좌측 컬러 스트라이프 */}
-        <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${gradientClass}`} />
+        <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-gradient-to-b ${gradientClass}`} />
 
         {/* 번호 배지 */}
         <div

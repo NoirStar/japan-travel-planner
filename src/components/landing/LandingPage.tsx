@@ -118,7 +118,7 @@ export function LandingPage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              {cities.map((city) => (
+              {cities.slice(0, 8).map((city) => (
                 <motion.button
                   key={city.id}
                   onClick={() => navigate(`/planner?city=${city.id}&new=true`)}

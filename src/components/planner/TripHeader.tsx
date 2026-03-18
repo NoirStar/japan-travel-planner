@@ -163,7 +163,7 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
               <Plus className="h-2.5 w-2.5" /> 도시
             </button>
             {showCityPicker && (
-              <div className="absolute left-0 top-full z-50 mt-1 rounded-lg border border-border bg-card p-1 shadow-lg">
+              <div className="absolute left-0 top-full z-50 mt-1 max-h-52 min-w-[140px] overflow-y-auto rounded-lg border border-border bg-card p-1 shadow-lg">
                 {availableCities.map((city) => (
                   <button
                     key={city.id}
@@ -171,7 +171,7 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
                       onCitiesChange([...(trip.cities ?? []), city.id])
                       setShowCityPicker(false)
                     }}
-                    className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-xs hover:bg-muted transition-colors"
+                    className="flex w-full items-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-xs hover:bg-muted transition-colors"
                   >
                     {city.name}
                   </button>

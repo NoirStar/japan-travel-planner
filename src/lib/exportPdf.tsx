@@ -11,11 +11,17 @@ import { getCityConfig } from "@/data/mapConfig"
 // 절대 URL로 변환하여 경로 문제 방지
 const FONT_BASE = `${window.location.origin}/fonts`
 
+const FONT_URLS = [
+  `${FONT_BASE}/NotoSansKR-Regular.ttf`,
+  `${FONT_BASE}/NotoSansKR-Bold.ttf`,
+]
+
+// 초기 등록 (URL 기반) — 후에 ensureFontsLoaded에서 Blob URL로 재등록
 Font.register({
   family: "NotoSansKR",
   fonts: [
-    { src: `${FONT_BASE}/NotoSansKR-Regular.ttf`, fontWeight: 400 },
-    { src: `${FONT_BASE}/NotoSansKR-Bold.ttf`, fontWeight: 700 },
+    { src: FONT_URLS[0], fontWeight: 400 },
+    { src: FONT_URLS[1], fontWeight: 700 },
   ],
 })
 
@@ -32,13 +38,10 @@ async function ensureFontsLoaded(): Promise<void> {
 
   _fontPromise = (async () => {
     try {
-      // 폰트 파일을 미리 fetch하여 브라우저 캐시에 적재
-      const urls = [
-        `${FONT_BASE}/NotoSansKR-Regular.ttf`,
-        `${FONT_BASE}/NotoSansKR-Bold.ttf`,
-      ]
-      const results = await Promise.all(
-        urls.map((url) =>
+      // 폰트를 fetch → ArrayBuffer → Blob URL 로 변환하여 등록
+      // @react-pdf/renderer가 직접 fetch하지 않으므로 CORS/캐시 문제 회피
+      const buffers = await Promise.all(
+        FONT_URLS.map((url) =>
           fetch(url, { cache: "force-cache" }).then((r) => {
             if (!r.ok) throw new Error(`Font fetch failed: ${r.status} ${url}`)
             return r.arrayBuffer()
@@ -46,11 +49,26 @@ async function ensureFontsLoaded(): Promise<void> {
         ),
       )
       // 각 폰트가 정상적으로 로드되었는지 확인 (최소 100KB)
-      for (let i = 0; i < results.length; i++) {
-        if (results[i].byteLength < 100_000) {
-          throw new Error(`Font file too small: ${urls[i]} (${results[i].byteLength} bytes)`)
+      for (let i = 0; i < buffers.length; i++) {
+        if (buffers[i].byteLength < 100_000) {
+          throw new Error(`Font file too small: ${FONT_URLS[i]} (${buffers[i].byteLength} bytes)`)
         }
       }
+
+      // Blob URL 생성 후 폰트 재등록
+      const blobUrls = buffers.map((buf) =>
+        URL.createObjectURL(new Blob([buf], { type: "font/ttf" })),
+      )
+      Font.clear()
+      Font.register({
+        family: "NotoSansKR",
+        fonts: [
+          { src: blobUrls[0], fontWeight: 400 },
+          { src: blobUrls[1], fontWeight: 700 },
+        ],
+      })
+      Font.registerHyphenationCallback((word) => [word])
+
       _fontReady = true
     } catch (e) {
       _fontPromise = null
@@ -328,16 +346,17 @@ export async function downloadTripPdf(trip: Trip): Promise<PdfResult> {
   } catch (e) {
     console.error("PDF 폰트 프리로드 실패:", e)
     // 폰트 캐시 초기화 후 재시도
+    _fontReady = false
+    _fontPromise = null
     Font.clear()
     Font.register({
       family: "NotoSansKR",
       fonts: [
-        { src: `${FONT_BASE}/NotoSansKR-Regular.ttf`, fontWeight: 400 },
-        { src: `${FONT_BASE}/NotoSansKR-Bold.ttf`, fontWeight: 700 },
+        { src: FONT_URLS[0], fontWeight: 400 },
+        { src: FONT_URLS[1], fontWeight: 700 },
       ],
     })
-    _fontReady = false
-    _fontPromise = null
+    Font.registerHyphenationCallback((word) => [word])
     try {
       await ensureFontsLoaded()
     } catch {

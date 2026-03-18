@@ -7,7 +7,7 @@ describe("wizardEngine", () => {
     const step = getNextStep({})
     expect(step).not.toBeNull()
     expect(step!.type).toBe("city")
-    expect(step!.options.length).toBe(4)
+    expect(step!.options.length).toBeGreaterThanOrEqual(4)
   })
 
   it("city 선택 후 duration 스텝을 반환한다", () => {

@@ -58,7 +58,7 @@ export function ShareRedirectPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 bg-background text-foreground">
         <AlertTriangle className="h-8 w-8 text-destructive" />
         <p className="text-sm font-semibold">{error}</p>
         <Button variant="outline" onClick={() => navigate("/")} className="rounded-xl">
@@ -69,7 +69,7 @@ export function ShareRedirectPage() {
   }
 
   return (
-    <div className="flex min-h-[60vh] items-center justify-center">
+    <div className="flex min-h-[60vh] items-center justify-center bg-background">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
   )

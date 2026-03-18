@@ -8,11 +8,12 @@ create table if not exists trip_changes (
   created_at timestamptz not null default now()
 );
 
-create index idx_trip_changes_trip on trip_changes(trip_id, created_at desc);
+create index if not exists idx_trip_changes_trip on trip_changes(trip_id, created_at desc);
 
 -- RLS
 alter table trip_changes enable row level security;
 
+drop policy if exists "trip_changes_select" on trip_changes;
 create policy "trip_changes_select" on trip_changes
   for select using (
     exists (

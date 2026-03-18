@@ -141,10 +141,14 @@ export function InviteDialog({
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-left active:bg-muted transition-colors"
+                  className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-left select-none active:bg-muted transition-colors"
                 >
-                  <Link className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="truncate text-[11px] text-foreground break-all">{inviteUrl}</span>
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                  ) : (
+                    <Link className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  )}
+                  <span className="truncate text-[11px] text-foreground">{inviteUrl}</span>
                 </button>
                 <Button
                   variant="outline"

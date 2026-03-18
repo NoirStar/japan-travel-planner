@@ -7,19 +7,26 @@ import { RESERVATION_LABELS } from "@/types/schedule"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { getCityConfig } from "@/data/mapConfig"
 
-// ── 폰트 등록 (Noto Sans KR: 한국어+CJK+라틴 커버) ──
-const NOTO_KR = "https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-kr@latest"
-
+// ── 폰트 등록 (Noto Sans KR: 로컬 번들) ──
 Font.register({
   family: "NotoSansKR",
   fonts: [
-    { src: `${NOTO_KR}/korean-400-normal.ttf`, fontWeight: 400 },
-    { src: `${NOTO_KR}/korean-700-normal.ttf`, fontWeight: 700 },
+    { src: "/fonts/NotoSansKR-Regular.ttf", fontWeight: 400 },
+    { src: "/fonts/NotoSansKR-Bold.ttf", fontWeight: 700 },
   ],
 })
 
 // 하이픈 비활성화 (단어 잘림/겹침 방지)
 Font.registerHyphenationCallback((word) => [word])
+
+// ── 텍스트 sanitize (Noto Sans KR 미지원 글리프 제거) ──
+// BMP 기본 라틴 + 한글 + CJK + 일본어 가나 + 일반 기호만 허용
+const SAFE_RE = /[^\u0020-\u007E\u00A0-\u00FF\u2000-\u206F\u2100-\u214F\u2190-\u21FF\u2500-\u257F\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF\n\r\t]/g
+
+function sanitize(text: string | undefined | null): string {
+  if (!text) return ""
+  return text.replace(SAFE_RE, "")
+}
 
 // ── 스타일 ──
 const c = {
@@ -132,11 +139,11 @@ function TripPdfDocument({ trip }: TripPdfProps) {
   const daysWithPlaces = trip.days.filter((d) => d.items.length > 0).length
 
   return (
-    <Document title={trip.title} author="타비톡" subject="여행 일정표">
+    <Document title={sanitize(trip.title)} author="타비톡" subject="여행 일정표">
       <Page size="A4" style={s.page}>
         {/* Header */}
         <View style={s.header}>
-          <Text style={s.title}>{trip.title}</Text>
+          <Text style={s.title}>{sanitize(trip.title)}</Text>
           <Text style={s.subtitle}>{cityConfig.name} ({cityConfig.nameEn}) 여행 일정표</Text>
           <View style={s.meta}>
             {trip.startDate && trip.endDate && (
@@ -190,18 +197,18 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                 <View key={r.id} style={s.rsvRow} wrap={false}>
                   <Text style={s.rsvIcon}>{RSV_ICONS[r.type] ?? "ETC"}</Text>
                   <View style={s.rsvBody}>
-                    <Text style={s.rsvTitle}>{r.title}</Text>
+                    <Text style={s.rsvTitle}>{sanitize(r.title)}</Text>
                     <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
                       <Text style={s.rsvBadge}>{RESERVATION_LABELS[r.type]}</Text>
                       {r.confirmed && <Text style={s.rsvConfirmed}>확정</Text>}
                     </View>
                     {(r.departureLocation || r.arrivalLocation) && (
-                      <Text style={s.rsvDetail}>{r.departureLocation ?? ""}{" -> "}{r.arrivalLocation ?? ""}</Text>
+                      <Text style={s.rsvDetail}>{sanitize(r.departureLocation)}{" -> "}{sanitize(r.arrivalLocation)}</Text>
                     )}
                     {(r.startTime || r.endTime) && (
                       <Text style={s.rsvDetail}>{r.startTime ?? ""}{r.endTime ? ` -> ${r.endTime}` : ""}</Text>
                     )}
-                    {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {r.bookingReference}</Text>}
+                    {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {sanitize(r.bookingReference)}</Text>}
                   </View>
                 </View>
               ))}
@@ -216,13 +223,13 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                     <Text style={s.placeIndex}>{idx + 1}</Text>
                     <Text style={s.placeTime}>{item.startTime ?? ""}</Text>
                     <View style={s.placeBody}>
-                      <Text style={s.placeName}>{place.name}</Text>
+                      <Text style={s.placeName}>{sanitize(place.name)}</Text>
                       <View style={s.placeDetail}>
-                        <Text style={s.placeCategory}>{CATEGORY_LABELS[place.category as PlaceCategory] ?? place.category}</Text>
+                        <Text style={s.placeCategory}>{CATEGORY_LABELS[place.category as PlaceCategory] ?? sanitize(place.category)}</Text>
                         {place.rating && <Text style={s.placeRating}>{place.rating}</Text>}
                       </View>
-                      {place.address && <Text style={s.placeAddress}>{place.address}</Text>}
-                      {item.memo && <Text style={s.placeMemo}>{item.memo}</Text>}
+                      {place.address && <Text style={s.placeAddress}>{sanitize(place.address)}</Text>}
+                      {item.memo && <Text style={s.placeMemo}>{sanitize(item.memo)}</Text>}
                     </View>
                   </View>
                 ))
@@ -233,7 +240,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                 <View key={r.id} style={{ ...s.rsvRow, backgroundColor: "#F5F3FF" }} wrap={false}>
                   <Text style={{ ...s.rsvIcon, color: "#7C3AED" }}>HTL</Text>
                   <View style={s.rsvBody}>
-                    <Text style={s.rsvTitle}>{r.title}</Text>
+                    <Text style={s.rsvTitle}>{sanitize(r.title)}</Text>
                     <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
                       <Text style={{ ...s.rsvBadge, color: "#7C3AED", backgroundColor: "#EDE9FE" }}>숙박</Text>
                       {r.confirmed && <Text style={s.rsvConfirmed}>확정</Text>}
@@ -248,7 +255,7 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                         {formatDate(r.date)} ~ {formatDate(r.endDate)}
                       </Text>
                     )}
-                    {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {r.bookingReference}</Text>}
+                    {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {sanitize(r.bookingReference)}</Text>}
                   </View>
                 </View>
               ))}
@@ -267,33 +274,38 @@ function TripPdfDocument({ trip }: TripPdfProps) {
 }
 
 // ── 다운로드 함수 ──
-export async function downloadTripPdf(trip: Trip): Promise<boolean> {
-  try {
-    // 폰트 사전 로드 (타임아웃 30초 — 대용량 CJK 폰트)
-    const fontUrls = [
-      `${NOTO_KR}/korean-400-normal.ttf`,
-      `${NOTO_KR}/korean-700-normal.ttf`,
-    ]
-    await Promise.all(
-      fontUrls.map((url) =>
-        fetch(url, { mode: "cors" }).then((r) => {
-          if (!r.ok) throw new Error(`Font fetch failed: ${r.status}`)
-        }),
-      ),
-    )
+export interface PdfResult {
+  ok: boolean
+  error?: string
+}
 
-    const blob = await pdf(<TripPdfDocument trip={trip} />).toBlob()
+export async function downloadTripPdf(trip: Trip): Promise<PdfResult> {
+  // 1) PDF 렌더
+  let blob: Blob
+  try {
+    blob = await pdf(<TripPdfDocument trip={trip} />).toBlob()
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error("PDF 렌더 실패:", e)
+    if (/font/i.test(msg) || /fetch/i.test(msg)) {
+      return { ok: false, error: "폰트 로드에 실패했습니다. 새로고침 후 다시 시도해 주세요." }
+    }
+    return { ok: false, error: `PDF 렌더 실패: ${msg}` }
+  }
+
+  // 2) Blob → 다운로드
+  try {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `${trip.title.replace(/[^\w\uAC00-\uD7A3\s-]/g, "").trim() || "여행일정"}.pdf`
+    a.download = `${sanitize(trip.title).trim() || "여행일정"}.pdf`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    return true
+    return { ok: true }
   } catch (e) {
-    console.error("PDF 생성 실패:", e)
-    return false
+    console.error("PDF 다운로드 실패:", e)
+    return { ok: false, error: "파일 다운로드에 실패했습니다." }
   }
 }

@@ -465,8 +465,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
               if (!trip) return
               showToast("PDF 생성 중...")
               const { downloadTripPdf } = await import("@/lib/exportPdf")
-              const ok = await downloadTripPdf(trip)
-              showToast(ok ? "PDF가 다운로드되었습니다!" : "PDF 생성에 실패했습니다")
+              const result = await downloadTripPdf(trip)
+              showToast(result.ok ? "PDF가 다운로드되었습니다!" : (result.error ?? "PDF 생성에 실패했습니다"))
             }}
             data-testid="export-pdf-button"
           >
@@ -531,8 +531,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   if (!trip) return
                   showToast("PDF 생성 중...")
                   const { downloadTripPdf } = await import("@/lib/exportPdf")
-                  const ok = await downloadTripPdf(trip)
-                  showToast(ok ? "PDF가 다운로드되었습니다!" : "PDF 생성에 실패했습니다")
+                  const result = await downloadTripPdf(trip)
+                  showToast(result.ok ? "PDF가 다운로드되었습니다!" : (result.error ?? "PDF 생성에 실패했습니다"))
                 }}
               >
                 <FileDown className="h-5 w-5" />

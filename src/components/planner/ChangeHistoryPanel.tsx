@@ -88,7 +88,7 @@ export function ChangeHistoryPanel({ open, onClose, sharedId }: Props) {
                 {/* 내용 */}
                 <div className="min-w-0 flex-1">
                   <p className="text-xs">
-                    <span className="font-semibold text-foreground">{c.display_name}</span>
+                    <span className="font-semibold text-foreground">{c.nickname}</span>
                     <span className="ml-1.5 text-muted-foreground">{c.summary}</span>
                   </p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground/60">

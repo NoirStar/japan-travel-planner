@@ -59,7 +59,7 @@ create or replace function get_trip_changes(
 ) returns table (
   id bigint,
   user_id uuid,
-  display_name text,
+  nickname text,
   avatar_url text,
   version int,
   summary text,
@@ -70,7 +70,7 @@ as $$
   select
     tc.id,
     tc.user_id,
-    coalesce(p.display_name, '알 수 없는 사용자') as display_name,
+    coalesce(p.nickname, '알 수 없는 사용자') as nickname,
     p.avatar_url,
     tc.version,
     tc.summary,

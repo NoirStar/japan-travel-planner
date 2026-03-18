@@ -269,7 +269,7 @@ export function isCollabAvailable(): boolean {
 export interface TripChange {
   id: number
   user_id: string | null
-  display_name: string
+  nickname: string
   avatar_url: string | null
   version: number
   summary: string

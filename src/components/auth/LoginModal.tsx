@@ -4,7 +4,7 @@ import { X, MapPin, Users, Map, UserCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { isSupabaseConfigured } from "@/lib/supabase"
-import { Logo } from "@/components/ui/Logo"
+
 
 export function LoginModal() {
   const navigate = useNavigate()
@@ -48,10 +48,7 @@ export function LoginModal() {
             <X className="h-4 w-4" />
           </button>
 
-          <div className="mx-auto mb-3 flex items-center justify-center">
-            <Logo className="h-14 w-14" />
-          </div>
-          <h2 className="text-title font-bold gradient-text font-maple">타비톡</h2>
+          <h2 className="text-2xl font-bold gradient-text font-maple">タビトーク</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             일본 여행을 계획하고 공유하세요
           </p>

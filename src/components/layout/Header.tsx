@@ -7,7 +7,6 @@ import { useAuthStore } from "@/stores/authStore"
 import { useNotifications } from "@/hooks/useNotifications"
 import { isSupabaseConfigured } from "@/lib/supabase"
 import { LevelBadge } from "@/components/community/LevelBadge"
-import { Logo } from "@/components/ui/Logo"
 
 export function Header() {
   const { isDarkMode, toggleDarkMode } = useUIStore()
@@ -72,9 +71,8 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/80 bg-card/90 backdrop-blur-md">
       <div className={`flex h-16 items-center justify-between px-5 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
         <div className="flex items-center gap-3">
-          <Link to="/" aria-label="타비톡 홈" className="group flex items-center gap-2.5 transition-all hover:opacity-80">
-            <Logo className="h-8 w-8 transition-transform duration-200 group-hover:scale-[1.03]" />
-            <span className="text-xl font-extrabold tracking-tight gradient-text font-maple">타비톡</span>
+          <Link to="/" aria-label="타비톡 홈" className="group flex items-center transition-all hover:opacity-80">
+            <span className="text-xl font-extrabold tracking-tight gradient-text font-maple">タビトーク</span>
           </Link>
         </div>
 

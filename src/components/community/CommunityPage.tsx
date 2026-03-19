@@ -6,6 +6,7 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
 import { normalizeCommunityPost } from "@/lib/communityTransforms"
 import { useAuthStore } from "@/stores/authStore"
+import { useSessionState } from "@/hooks/useSessionState"
 import type { CommunityPost, PostSortOption } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
 import { PostCard } from "./PostCard"
@@ -54,11 +55,11 @@ export function CommunityPage() {
   const { user, setShowLoginModal } = useAuthStore()
   const location = useLocation()
   const [posts, setPosts] = useState<CommunityPost[]>([])
-  const [sort, setSort] = useState<PostSortOption>("latest")
-  const [cityFilter, setCityFilter] = useState("")
+  const [sort, setSort] = useSessionState<PostSortOption>("community:sort", "latest")
+  const [cityFilter, setCityFilter] = useSessionState("community:city", "")
   const [searchInput, setSearchInput] = useState("")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [minLikes, setMinLikes] = useState(0)
+  const [searchQuery, setSearchQuery] = useSessionState("community:search", "")
+  const [minLikes, setMinLikes] = useSessionState("community:minLikes", 0)
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [showCreate, setShowCreate] = useState(false)

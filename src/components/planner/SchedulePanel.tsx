@@ -532,6 +532,14 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             <TrainFront className="h-4 w-4 text-blue-500" />
             패스
           </button>
+          <button
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            onClick={() => setIsAttachmentVaultOpen(true)}
+            data-testid="attachment-vault-button"
+          >
+            <Paperclip className="h-4 w-4 text-teal-500" />
+            첨부함
+          </button>
           {collab?.isShared && (
             <button
               className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"

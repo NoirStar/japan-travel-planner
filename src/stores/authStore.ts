@@ -19,6 +19,8 @@ interface AuthState {
   isLoading: boolean
   showLoginModal: boolean
   isDemoMode: boolean
+  /** 로그인 후 복귀할 경로 (RequireAuth에서 설정) */
+  pendingRedirect: string | null
 
   initialize: () => Promise<void>
   fetchProfile: (userId: string) => Promise<void>
@@ -27,6 +29,8 @@ interface AuthState {
   signInAsDemo: () => void
   signOut: () => Promise<void>
   setShowLoginModal: (show: boolean) => void
+  setPendingRedirect: (path: string | null) => void
+  consumePendingRedirect: () => string | null
   refreshDemoProfile: () => void
   doAttendance: () => { success: boolean; alreadyDone: boolean }
   hasCheckedIn: () => boolean
@@ -41,6 +45,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoading: true,
   showLoginModal: false,
   isDemoMode: false,
+  pendingRedirect: null,
 
   initialize: async () => {
     // 중복 호출 방지 (React StrictMode에서 effect 이중 실행)
@@ -208,6 +213,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setShowLoginModal: (show) => set({ showLoginModal: show }),
+
+  setPendingRedirect: (path) => set({ pendingRedirect: path }),
+
+  consumePendingRedirect: () => {
+    const path = get().pendingRedirect
+    set({ pendingRedirect: null })
+    return path
+  },
 
   refreshDemoProfile: () => {
     if (get().isDemoMode) {

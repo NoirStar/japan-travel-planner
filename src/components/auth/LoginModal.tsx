@@ -1,15 +1,35 @@
-import { X, MapPin, Users, Map } from "lucide-react"
+import { useEffect, useRef } from "react"
+import { useNavigate } from "react-router-dom"
+import { X, MapPin, Users, Map, UserCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
 export function LoginModal() {
-  const { showLoginModal, setShowLoginModal, signInWithGoogle } = useAuthStore()
+  const navigate = useNavigate()
+  const { showLoginModal, setShowLoginModal, signInWithGoogle, signInAsDemo, user, consumePendingRedirect } = useAuthStore()
+  const wasOpenRef = useRef(false)
+
+  // 로그인 성공 → 모달 닫고 pendingRedirect로 이동
+  useEffect(() => {
+    if (user && wasOpenRef.current) {
+      wasOpenRef.current = false
+      setShowLoginModal(false)
+      const redirect = consumePendingRedirect()
+      if (redirect) {
+        navigate(redirect, { replace: true })
+      }
+    }
+  }, [user, setShowLoginModal, consumePendingRedirect, navigate])
+
+  useEffect(() => {
+    if (showLoginModal) wasOpenRef.current = true
+  }, [showLoginModal])
 
   if (!showLoginModal) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       {/* backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -44,7 +64,7 @@ export function LoginModal() {
         </div>
 
         {/* 로그인 버튼 */}
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 space-y-2.5">
           {isSupabaseConfigured && (
             <Button
               onClick={signInWithGoogle}
@@ -73,10 +93,20 @@ export function LoginModal() {
             </Button>
           )}
 
-          <p className="mt-3 text-center text-[11px] text-muted-foreground/70">
+          {/* 데모 로그인 — 항상 노출 */}
+          <Button
+            onClick={signInAsDemo}
+            variant="outline"
+            className="w-full gap-3 rounded-xl py-5 font-medium hover:bg-muted/50"
+          >
+            <UserCircle className="h-5 w-5 text-primary" />
+            {isSupabaseConfigured ? "체험용 계정으로 둘러보기" : "데모 계정으로 시작하기"}
+          </Button>
+
+          <p className="mt-1 text-center text-[11px] text-muted-foreground/70">
             {isSupabaseConfigured
               ? "로그인하면 서비스 이용약관에 동의합니다"
-              : "Supabase 설정이 필요합니다"}
+              : "데모 계정으로 모든 기능을 체험할 수 있습니다"}
           </p>
         </div>
       </div>

@@ -91,7 +91,7 @@ export function TripListPage() {
             <p className="text-sm font-medium">아직 저장된 여행이 없습니다</p>
             <p className="text-xs opacity-60">첫 번째 여행을 만들어볼까요?</p>
             <Button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/planner?new=true")}
               className="btn-gradient mt-2 gap-2 rounded-xl"
             >
               <Plus className="h-4 w-4" />
@@ -103,7 +103,7 @@ export function TripListPage() {
             {/* 투바 */}
             <div className="flex items-center justify-between">
               <Button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/planner?new=true")}
                 className="btn-gradient gap-2 rounded-xl"
                 data-testid="create-new-trip"
               >

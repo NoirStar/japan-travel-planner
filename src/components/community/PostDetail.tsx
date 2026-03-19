@@ -484,7 +484,13 @@ export function PostDetail() {
     <div className="mx-auto max-w-2xl px-4 pt-20 pb-10">
       {/* 뒤로가기 */}
       <button
-        onClick={() => navigate(post.board_type === "free" ? "/community/free" : "/community")}
+        onClick={() => {
+          if (window.history.length > 1) {
+            navigate(-1)
+          } else {
+            navigate(post.board_type === "free" ? "/community/free" : "/community")
+          }
+        }}
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />

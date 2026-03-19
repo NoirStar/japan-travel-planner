@@ -6,6 +6,7 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockFreePosts } from "@/lib/mockCommunity"
 import { normalizeCommunityPost, unwrapProfile } from "@/lib/communityTransforms"
 import { useAuthStore } from "@/stores/authStore"
+import { useSessionState } from "@/hooks/useSessionState"
 import type { CommunityPost, PostSortOption } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
@@ -44,14 +45,14 @@ export function FreeBoardPage() {
   const useMock = !isSupabaseConfigured
 
   const [posts, setPosts] = useState<CommunityPost[]>([])
-  const [sort, setSort] = useState<PostSortOption>("latest")
+  const [sort, setSort] = useSessionState<PostSortOption>("freeboard:sort", "latest")
   const [searchInput, setSearchInput] = useState("")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchType, setSearchType] = useState<"all" | "title" | "author">("all")
-  const [minLikes, setMinLikes] = useState(0)
+  const [searchQuery, setSearchQuery] = useSessionState("freeboard:search", "")
+  const [searchType, setSearchType] = useSessionState<"all" | "title" | "author">("freeboard:searchType", "all")
+  const [minLikes, setMinLikes] = useSessionState("freeboard:minLikes", 0)
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useSessionState("freeboard:page", 1)
   // 작성자 필터
   const [authorFilter, setAuthorFilter] = useState<{ userId: string; nickname: string } | null>(null)
 

@@ -114,6 +114,17 @@ export function PlannerPage() {
   // ── 검색 관련 state/handler ──
   const search = useMapSearch(cityId)
 
+  // ── 초기 로드 시 도시 중심 자동 검색 (빈 지도 방지) ──
+  const autoSeeded = useRef(false)
+  useEffect(() => {
+    if (autoSeeded.current || !trip) return
+    autoSeeded.current = true
+    const { center, zoom } = cityConfig
+    // zoom 레벨로부터 반경 추정 (약 2km at zoom 13)
+    const radius = Math.round(40_000 / Math.pow(2, zoom - 1))
+    search.handleSearchArea(center.lat, center.lng, radius)
+  }, [trip, cityConfig, search])
+
   // ── 공동 편집 동기화 ──
   const collab = useCollaborativeSync(trip)
 

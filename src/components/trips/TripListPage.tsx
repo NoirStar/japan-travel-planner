@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plane, Plus, LogIn, Compass, ArrowUpDown } from "lucide-react"
+import { Trash2, MapPin, Calendar, Clock, ChevronRight, Plus, LogIn, Compass, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
@@ -38,37 +38,47 @@ export function TripListPage() {
     trip.days.reduce((sum, day) => sum + day.items.filter((item) => getAnyPlaceById(item.placeId)).length, 0)
 
   return (
-    <div className="min-h-screen bg-background pt-14" data-testid="trip-list-page">
-      <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className="min-h-screen bg-sakura-pattern pt-24 pb-14" data-testid="trip-list-page">
+      <div className="mx-auto max-w-4xl px-5 lg:px-8">
         {/* 헤더 */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-sakura/10">
-            <Plane className="h-8 w-8 text-sakura-dark" />
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="chip chip-primary mb-3">내 여행</div>
+            <h1 className="text-headline font-bold">내 여행 목록</h1>
+            <p className="mt-1 text-body-sm text-muted-foreground">저장된 여행 일정을 관리하고 바로 이어서 계획하세요</p>
           </div>
-          <h1 className="text-2xl font-bold">내 여행 목록</h1>
-          <p className="mt-1 text-sm text-muted-foreground">저장된 여행 일정을 관리하세요</p>
+          {user && trips.length > 0 && (
+            <Button
+              onClick={() => navigate("/planner?new=true")}
+              className="btn-gradient btn-base btn-md gap-2 rounded-xl"
+              data-testid="create-new-trip"
+            >
+              <Plus className="h-4 w-4" />
+              새 여행 만들기
+            </Button>
+          )}
         </div>
 
         {/* 로그인 필요 */}
         {!user ? (
           <motion.div
-            className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground"
+            className="empty-state card-elevated rounded-3xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
             <motion.div
-              className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted"
+              className="empty-state-icon"
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
-              <LogIn className="h-10 w-10 text-muted-foreground/30" />
+              <LogIn className="h-9 w-9 text-muted-foreground/40" />
             </motion.div>
-            <p className="text-sm font-medium">로그인이 필요합니다</p>
-            <p className="text-xs opacity-60">여행 일정을 저장하고 관리하려면 로그인하세요</p>
+            <p className="empty-state-title">로그인이 필요합니다</p>
+            <p className="empty-state-desc">여행 일정을 저장하고 관리하려면 로그인하세요.</p>
             <Button
               onClick={() => setShowLoginModal(true)}
-              className="btn-gradient mt-2 gap-2 rounded-xl"
+              className="btn-gradient btn-base btn-md mt-1 gap-2 rounded-xl"
             >
               <LogIn className="h-4 w-4" />
               로그인
@@ -76,49 +86,44 @@ export function TripListPage() {
           </motion.div>
         ) : trips.length === 0 ? (
           <motion.div
-            className="flex flex-col items-center gap-4 py-20 text-center text-muted-foreground"
+            className="empty-state card-elevated rounded-3xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
             <motion.div
-              className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10"
+              className="empty-state-icon"
               animate={{ y: [0, -8, 0], rotate: [0, 5, -5, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Compass className="h-10 w-10 text-primary/40" />
+              <Compass className="h-9 w-9 text-primary/45" />
             </motion.div>
-            <p className="text-sm font-medium">아직 저장된 여행이 없습니다</p>
-            <p className="text-xs opacity-60">첫 번째 여행을 만들어볼까요?</p>
+            <p className="empty-state-title">아직 저장된 여행이 없습니다</p>
+            <p className="empty-state-desc">첫 번째 여행을 만들어 일정과 장소를 하나씩 채워보세요.</p>
             <Button
               onClick={() => navigate("/planner?new=true")}
-              className="btn-gradient mt-2 gap-2 rounded-xl"
+              className="btn-gradient btn-base btn-md mt-1 gap-2 rounded-xl"
             >
               <Plus className="h-4 w-4" />
               새 여행 만들기
             </Button>
           </motion.div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {/* 투바 */}
-            <div className="flex items-center justify-between">
-              <Button
-                onClick={() => navigate("/planner?new=true")}
-                className="btn-gradient gap-2 rounded-xl"
-                data-testid="create-new-trip"
-              >
-                <Plus className="h-4 w-4" />
-                새 여행 만들기
-              </Button>
-              <div className="flex items-center gap-0.5 text-muted-foreground">
-                <ArrowUpDown className="h-3 w-3" />
+            <div className="flex justify-end">
+              <div className="flex items-center gap-1 rounded-full bg-muted/90 p-1 text-muted-foreground">
+                <span className="inline-flex items-center gap-1 px-2 text-caption font-medium">
+                  <ArrowUpDown className="h-3.5 w-3.5" />
+                  정렬
+                </span>
                 {(["recent", "name"] as const).map((opt) => (
                   <button
                     key={opt}
                     onClick={() => setSortBy(opt)}
-                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
+                    className={`rounded-full px-3 py-1.5 text-caption font-semibold transition-all ${
                       sortBy === opt
-                        ? "bg-foreground text-background"
+                        ? "bg-card text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
@@ -140,11 +145,11 @@ export function TripListPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100 }}
-                    className="group cursor-pointer overflow-hidden rounded-2xl border border-border bg-card transition-all card-shadow hover:border-primary/20"
+                    className="group card-elevated cursor-pointer overflow-hidden rounded-2xl transition-all hover:border-primary/20"
                     onClick={() => handleOpenTrip(trip.id, trip.cityId)}
                     data-testid={`trip-card-${trip.id}`}
                   >
-                    <div className="flex items-center gap-4 p-4">
+                    <div className="flex items-center gap-4 p-5">
                       {/* 도시 아이콘 */}
                       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5">
                         <MapPin className="h-6 w-6 text-primary" />
@@ -152,17 +157,17 @@ export function TripListPage() {
 
                       {/* 여행 정보 */}
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="truncate text-sm font-bold">{trip.title}</h3>
-                          <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="truncate text-body-sm font-bold text-foreground">{trip.title}</h3>
+                          <span className={`shrink-0 rounded-full px-2 py-1 text-caption font-semibold ${
                             daysWithPlaces === trip.days.length
                               ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                               : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                           }`}>{daysWithPlaces}/{trip.days.length}일</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">{cityConfig.name}</p>
+                        <p className="text-caption text-muted-foreground">{cityConfig.name}</p>
 
-                        <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+                        <div className="mt-2 flex flex-wrap items-center gap-3 text-caption text-muted-foreground">
                           {(trip.startDate || trip.endDate) && (
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />

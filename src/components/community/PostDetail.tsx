@@ -442,7 +442,7 @@ export function PostDetail() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-2xl px-4 pt-20">
+      <div className="mx-auto max-w-3xl px-5 pt-24 lg:px-8">
         <div className="h-48 animate-pulse rounded-2xl bg-muted" />
       </div>
     )
@@ -450,7 +450,7 @@ export function PostDetail() {
 
   if (fetchError) {
     return (
-      <div className="mx-auto max-w-2xl px-4 pt-20 text-center">
+      <div className="mx-auto max-w-3xl px-5 pt-24 text-center lg:px-8">
         <p className="text-lg font-semibold">{fetchError}</p>
         <p className="mt-1 text-sm text-muted-foreground">네트워크 상태를 확인하고 다시 시도해주세요</p>
         <Button onClick={fetchPost} variant="outline" className="mt-4 gap-2 rounded-xl">
@@ -467,7 +467,7 @@ export function PostDetail() {
 
   if (!post) {
     return (
-      <div className="mx-auto max-w-2xl px-4 pt-20 text-center">
+      <div className="mx-auto max-w-3xl px-5 pt-24 text-center lg:px-8">
         <p className="text-lg font-semibold">게시글을 찾을 수 없습니다</p>
         <Link to="/community" className="mt-2 text-sm text-primary underline">
           커뮤니티로 돌아가기
@@ -481,7 +481,7 @@ export function PostDetail() {
   const dayCount = post.trip_data?.days?.length ?? 0
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pt-20 pb-10">
+    <div className="mx-auto max-w-3xl px-5 pt-24 pb-14 lg:px-8">
       {/* 뒤로가기 */}
       <button
         onClick={() => {
@@ -510,7 +510,7 @@ export function PostDetail() {
 
       {/* 제목 + 메타 */}
       <div className="flex items-center gap-2 mb-2">
-        <h1 className="text-2xl font-bold">{post.title}</h1>
+        <h1 className="text-headline font-bold">{post.title}</h1>
         {post.likes_count >= BEST_THRESHOLD && (
           <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
             <Trophy className="h-3 w-3" /> 베스트

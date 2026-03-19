@@ -230,7 +230,7 @@ export function FreePostEditor({
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-20 pb-10">
+    <div className="mx-auto max-w-4xl px-5 pt-24 pb-14 lg:px-8">
       <div className="mb-4 flex items-center justify-between">
         <button
           onClick={onBack}
@@ -265,7 +265,7 @@ export function FreePostEditor({
         placeholder="제목을 입력하세요"
         maxLength={100}
         autoFocus
-        className="mb-4 w-full border-b-2 border-border bg-transparent px-1 pb-3 text-2xl font-bold outline-none placeholder:text-muted-foreground/50 focus:border-primary"
+        className="mb-4 w-full border-b-2 border-border bg-transparent px-1 pb-3 text-headline font-bold outline-none placeholder:text-muted-foreground/50 focus:border-primary"
       />
 
       {toolbar}

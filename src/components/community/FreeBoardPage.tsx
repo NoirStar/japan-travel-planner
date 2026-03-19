@@ -194,7 +194,7 @@ export function FreeBoardPage() {
           <h1 className="text-headline font-bold">자유게시판</h1>
           <p className="mt-1 text-body-sm text-muted-foreground">자유롭게 이야기를 나눠보세요</p>
         </div>
-        <Button onClick={handleCreateClick} className="gap-2 rounded-xl h-10 px-5">
+        <Button onClick={handleCreateClick} className="btn-gradient btn-base btn-md gap-2 rounded-xl px-5">
           <PenSquare className="h-4 w-4" />
           <span className="hidden sm:inline">글쓰기</span>
         </Button>

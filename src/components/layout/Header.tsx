@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/authStore"
 import { useNotifications } from "@/hooks/useNotifications"
 import { isSupabaseConfigured } from "@/lib/supabase"
 import { LevelBadge } from "@/components/community/LevelBadge"
+import { Logo } from "@/components/ui/Logo"
 
 export function Header() {
   const { isDarkMode, toggleDarkMode } = useUIStore()
@@ -67,26 +68,14 @@ export function Header() {
     }
   }, [dropdownOpen, communityOpen, notiOpen])
 
-  // 시간대별 인사 (플래너 진입 시)
-  const timeGreeting = (() => {
-    if (!user || !isPlanner) return null
-    const h = new Date().getHours()
-    if (h < 6) return "늦은 밤까지 여행 계획 중"
-    if (h < 12) return "좋은 아침"
-    if (h < 18) return "오후의 여행 계획"
-    return "저녁 시간 여행 준비"
-  })()
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/80 bg-card/90 backdrop-blur-md">
       <div className={`flex h-16 items-center justify-between px-5 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
         <div className="flex items-center gap-3">
-          <Link to="/" className="group flex items-center gap-2.5 transition-all hover:opacity-80">
-            <span className="text-xl font-extrabold tracking-tight gradient-text font-maple">タビトク</span>
+          <Link to="/" aria-label="타비톡 홈" className="group flex items-center gap-2.5 transition-all hover:opacity-80">
+            <Logo className="h-8 w-8 transition-transform duration-200 group-hover:scale-[1.03]" />
+            <span className="text-xl font-extrabold tracking-tight gradient-text font-maple">타비톡</span>
           </Link>
-          {timeGreeting && (
-            <span className="hidden md:inline text-xs text-muted-foreground/50 font-medium">{timeGreeting}</span>
-          )}
         </div>
 
         <div className="flex items-center gap-1 sm:gap-1.5">

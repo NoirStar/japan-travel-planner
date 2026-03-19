@@ -140,30 +140,30 @@ export function ContactPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pt-20 pb-10">
+    <div className="mx-auto max-w-3xl px-5 pt-24 pb-14 lg:px-8">
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="mb-5 inline-flex items-center gap-1.5 text-body-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         뒤로가기
       </button>
 
-      <h1 className="mb-1 flex items-center gap-2 text-2xl font-bold"><MessageSquareText className="h-6 w-6" />개발자에게 의견 보내기</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
+      <h1 className="mb-2 flex items-center gap-2 text-headline font-bold"><MessageSquareText className="h-6 w-6" />개발자에게 의견 보내기</h1>
+      <p className="mb-8 text-body-sm text-muted-foreground">
         버그 신고, 기능 제안, 질문 등 자유롭게 남겨주세요. 소중한 의견 감사합니다!
       </p>
 
       {/* ── 문의 폼 ────────────────────────────── */}
-      <div className="mb-8 rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-4 flex items-center gap-2 font-semibold">
+      <div className="card-elevated mb-8 rounded-2xl p-6">
+        <h2 className="mb-5 flex items-center gap-2 text-body-sm font-semibold">
           <MessageSquareText className="h-4 w-4" />
           새 문의 작성
         </h2>
 
         {/* 카테고리 */}
         <div className="mb-3">
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">카테고리</label>
+          <label className="mb-1.5 block text-caption font-medium text-muted-foreground">카테고리</label>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon
@@ -171,7 +171,7 @@ export function ContactPage() {
                 <button
                   key={cat.value}
                   onClick={() => setCategory(cat.value)}
-                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-body-sm font-medium transition-colors ${
                     category === cat.value
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border text-muted-foreground hover:bg-muted"
@@ -187,35 +187,35 @@ export function ContactPage() {
 
         {/* 제목 */}
         <div className="mb-3">
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">제목</label>
+          <label className="mb-1.5 block text-caption font-medium text-muted-foreground">제목</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="문의 제목을 입력하세요"
             maxLength={100}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-body-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>
 
         {/* 내용 */}
         <div className="mb-4">
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">내용</label>
+          <label className="mb-1.5 block text-caption font-medium text-muted-foreground">내용</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="상세한 내용을 작성해주세요"
             rows={5}
             maxLength={2000}
-            className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-body-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
-          <div className="mt-1 text-right text-[10px] text-muted-foreground">{content.length}/2000</div>
+          <div className="mt-1.5 text-right text-caption text-muted-foreground">{content.length}/2000</div>
         </div>
 
         <Button
           onClick={handleSubmit}
           disabled={isSending || !title.trim() || !content.trim()}
-          className="w-full gap-2 rounded-xl"
+          className="btn-gradient btn-base btn-md w-full gap-2 rounded-xl"
         >
           <Send className="h-4 w-4" />
           문의 보내기
@@ -223,15 +223,15 @@ export function ContactPage() {
       </div>
 
       {/* ── 커피 사주기 ───────────────────────── */}
-      <div className="mb-8 rounded-2xl border border-border bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 p-5 text-center">
+      <div className="mb-8 rounded-3xl border border-amber-200/60 bg-gradient-to-r from-amber-50 to-orange-50 p-6 text-center dark:border-amber-900/40 dark:from-amber-950/20 dark:to-orange-950/20">
         <Coffee className="mx-auto mb-2 h-8 w-8 text-amber-600 dark:text-amber-400" />
-        <h3 className="mb-1 font-semibold">개발자에게 커피 사주기</h3>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <h3 className="mb-1 text-body-sm font-semibold">개발자에게 커피 사주기</h3>
+        <p className="mb-4 text-caption text-muted-foreground">
           타비톡이 유용하셨다면 커피 한 잔으로 응원해주세요!
         </p>
         <Button
           variant="outline"
-          className="gap-2 rounded-xl border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/40"
+          className="btn-base btn-md gap-2 rounded-xl border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/40"
           onClick={() => showToast("준비 중입니다! 곧 오픈할게요.")}
         >
           <Coffee className="h-4 w-4" />
@@ -240,16 +240,16 @@ export function ContactPage() {
       </div>
 
       {/* ── 문의 목록 ─────────────────────────── */}
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-4 flex items-center gap-2 font-semibold">
+      <div className="card-elevated rounded-2xl p-6">
+        <h2 className="mb-5 flex items-center gap-2 text-body-sm font-semibold">
           <ClipboardList className="h-4 w-4" />
           {isAdmin ? "전체 문의 목록 (관리자)" : "내 문의 내역"}
         </h2>
 
         {isLoading ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">불러오는 중...</div>
+          <div className="py-8 text-center text-body-sm text-muted-foreground">불러오는 중...</div>
         ) : inquiries.length === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">
+          <div className="py-8 text-center text-body-sm text-muted-foreground">
             {isAdmin ? "접수된 문의가 없습니다" : "아직 문의 내역이 없습니다"}
           </div>
         ) : (
@@ -262,21 +262,21 @@ export function ContactPage() {
               const prof = unwrapProfile(inquiry.profiles) as UserProfile | null
 
               return (
-                <div key={inquiry.id} className="rounded-xl border border-border bg-background p-4">
+                <div key={inquiry.id} className="rounded-2xl border border-border/70 bg-background/80 p-4">
                   {/* 헤더 */}
                   <div className="mb-2 flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                        <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium ${statusInfo.className}`}>
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-caption font-medium ${statusInfo.className}`}>
                           <StatusIcon className="h-3 w-3" />
                           {statusInfo.label}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-[10px] text-muted-foreground">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-caption text-muted-foreground">
                           <CatIcon className="h-3 w-3" />
                           {catInfo.label}
                         </span>
                       </div>
-                      <h3 className="text-sm font-medium">{inquiry.title}</h3>
+                      <h3 className="text-body-sm font-medium">{inquiry.title}</h3>
                     </div>
                     {isAdmin && (
                       <button
@@ -298,56 +298,56 @@ export function ContactPage() {
                           {prof.nickname.charAt(0)}
                         </div>
                       )}
-                      <span className="text-[11px] text-muted-foreground">{prof.nickname}</span>
+                      <span className="text-caption text-muted-foreground">{prof.nickname}</span>
                       <LevelBadge level={prof.level} totalPoints={prof.total_points} isAdmin={prof.is_admin} compact />
                     </div>
                   )}
 
                   {/* 내용 */}
-                  <p className="mb-2 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+                  <p className="mb-2 whitespace-pre-wrap text-body-sm leading-relaxed text-muted-foreground">
                     {inquiry.content}
                   </p>
 
-                  <div className="text-[10px] text-muted-foreground">
+                  <div className="text-caption text-muted-foreground">
                     {new Date(inquiry.created_at).toLocaleString("ko-KR", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                   </div>
 
                   {/* 관리자 답변 */}
                   {inquiry.admin_reply && (
-                    <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                      <div className="mb-1 flex items-center gap-1 text-[11px] font-medium text-primary">
+                    <div className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
+                      <div className="mb-1 flex items-center gap-1 text-caption font-medium text-primary">
                         <Reply className="h-3 w-3" />
                         관리자 답변
                       </div>
-                      <p className="whitespace-pre-wrap text-xs leading-relaxed">{inquiry.admin_reply}</p>
+                      <p className="whitespace-pre-wrap text-body-sm leading-relaxed">{inquiry.admin_reply}</p>
                     </div>
                   )}
 
                   {/* 관리자 답변 입력 */}
                   {isAdmin && replyingId === inquiry.id && (
-                    <div className="mt-3 space-y-2 rounded-lg border border-border bg-muted/50 p-3">
+                    <div className="mt-3 space-y-2 rounded-xl border border-border bg-muted/50 p-3">
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         placeholder="답변을 입력하세요"
                         rows={3}
-                        className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-primary/40"
+                        className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-body-sm outline-none focus:ring-2 focus:ring-primary/40"
                       />
                       <div className="flex items-center gap-2">
                         <select
                           value={replyStatus}
                           onChange={(e) => setReplyStatus(e.target.value as InquiryStatus)}
-                          className="rounded-lg border border-border bg-background px-2 py-1 text-xs"
+                          className="rounded-xl border border-border bg-background px-3 py-2 text-body-sm"
                         >
                           <option value="resolved">답변 완료</option>
                           <option value="closed">종료</option>
                           <option value="open">접수됨</option>
                         </select>
-                        <Button size="sm" className="ml-auto gap-1 rounded-lg text-xs" onClick={() => handleAdminReply(inquiry.id)}>
+                        <Button size="sm" className="ml-auto gap-1 rounded-xl text-body-sm" onClick={() => handleAdminReply(inquiry.id)}>
                           <Send className="h-3 w-3" />
                           답변 등록
                         </Button>
-                        <Button size="sm" variant="ghost" className="rounded-lg text-xs" onClick={() => setReplyingId(null)}>
+                        <Button size="sm" variant="ghost" className="rounded-xl text-body-sm" onClick={() => setReplyingId(null)}>
                           취소
                         </Button>
                       </div>
@@ -358,7 +358,7 @@ export function ContactPage() {
                   {isAdmin && replyingId !== inquiry.id && (
                     <button
                       onClick={() => { setReplyingId(inquiry.id); setReplyText(inquiry.admin_reply ?? ""); setReplyStatus(inquiry.status === "open" ? "resolved" : inquiry.status) }}
-                      className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                      className="mt-2 inline-flex items-center gap-1 text-caption text-primary hover:underline"
                     >
                       <Reply className="h-3 w-3" />
                       {inquiry.admin_reply ? "답변 수정" : "답변하기"}

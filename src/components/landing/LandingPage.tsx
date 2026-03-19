@@ -82,7 +82,7 @@ export function LandingPage() {
           {/* ── 핵심 기능 ── */}
           <motion.section className="section-gap" variants={fadeUp}>
             <div className="mb-10 text-center">
-              <span className="chip chip-primary mb-3 text-caption font-semibold uppercase tracking-widest">Features</span>
+              <span className="chip chip-primary mb-3 text-caption font-semibold tracking-widest">핵심 기능</span>
               <h2 className="text-headline text-foreground mt-2">여행 준비의 모든 것</h2>
             </div>
 
@@ -169,7 +169,7 @@ export function LandingPage() {
           {/* ── Social Proof — editorial quote style ── */}
           <motion.section className="section-gap" variants={fadeUp}>
             <div className="mb-10 text-center">
-              <span className="chip chip-primary mb-3 text-caption font-semibold uppercase tracking-widest">Travelers</span>
+              <span className="chip chip-primary mb-3 text-caption font-semibold tracking-widest">여행자 후기</span>
               <h2 className="text-headline text-foreground mt-2">여행자들의 한마디</h2>
             </div>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">

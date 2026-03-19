@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { X, MapPin, Users, Map, UserCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
@@ -9,6 +9,7 @@ import { isSupabaseConfigured } from "@/lib/supabase"
 export function LoginModal() {
   const navigate = useNavigate()
   const { showLoginModal, setShowLoginModal, signInWithGoogle, signInAsDemo, user, consumePendingRedirect } = useAuthStore()
+  const location = useLocation()
   const wasOpenRef = useRef(false)
 
   // 로그인 성공 → 모달 닫고 pendingRedirect로 이동
@@ -34,7 +35,7 @@ export function LoginModal() {
       {/* backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={() => setShowLoginModal(false)}
+        onClick={() => { setShowLoginModal(false); navigate("/") }}
       />
 
       {/* modal */}
@@ -42,7 +43,7 @@ export function LoginModal() {
         {/* 브랜드 헤더 */}
         <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 pt-8 pb-6 text-center">
           <button
-            onClick={() => setShowLoginModal(false)}
+            onClick={() => { setShowLoginModal(false); navigate("/") }}
             className="absolute right-3 top-3 rounded-lg p-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
             <X className="h-4 w-4" />
@@ -50,7 +51,10 @@ export function LoginModal() {
 
           <h2 className="text-2xl font-bold gradient-text font-maple">타비톡</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            일본 여행을 계획하고 공유하세요
+            {location.pathname.startsWith("/planner") ? "일정을 저장하려면 로그인하세요"
+              : location.pathname.startsWith("/community") ? "커뮤니티에 참여하려면 로그인하세요"
+              : location.pathname.startsWith("/trips") ? "내 여행을 보려면 로그인하세요"
+              : "일본 여행을 계획하고 공유하세요"}
           </p>
         </div>
 

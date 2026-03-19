@@ -157,12 +157,19 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 {categoryLabel}
               </span>
               {place.rating && (
-                <span className="hidden items-center gap-0.5 text-caption text-muted-foreground lg:flex">
+                <span className="flex items-center gap-0.5 text-caption text-muted-foreground">
                   <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                   {place.rating}
                 </span>
               )}
             </div>
+
+            {/* 메모 요약 — 모바일에서도 메모가 있으면 한 줄 표시 */}
+            {memo && !showMemo && (
+              <p className="mt-1.5 line-clamp-1 text-caption text-muted-foreground/70 lg:hidden">
+                <StickyNote className="mr-1 inline h-3 w-3" />{memo}
+              </p>
+            )}
 
             {/* 설명 — 데스크톱만 */}
             {place.description && (
@@ -263,7 +270,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
           {/* 모바일: ... 액션 메뉴 버튼 */}
           <div className="relative shrink-0 lg:hidden">
             <button
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground/50 hover:bg-muted hover:text-foreground transition-colors"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground/50 hover:bg-muted hover:text-foreground transition-colors"
               onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(!mobileMenuOpen) }}
               aria-label="더보기"
             >

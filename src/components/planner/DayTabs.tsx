@@ -60,7 +60,7 @@ export function DayTabs({
               <button
                 ref={isActive ? activeTabRef : undefined}
                 onClick={() => onSelectDay(index)}
-                className={`relative whitespace-nowrap rounded-xl px-4 py-2 text-[13px] font-bold transition-all duration-200 lg:px-5 ${
+                className={`relative whitespace-nowrap rounded-xl px-4 py-3 text-[13px] font-bold transition-all duration-200 lg:px-5 ${
                   isActive
                     ? `bg-gradient-to-r ${colorClass} text-white shadow-md`
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -121,7 +121,7 @@ export function DayTabs({
       {/* 모바일: Day 관리 메뉴 */}
       <div className="relative shrink-0 lg:hidden">
         <button
-          className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors"
           onClick={() => setDayMenuOpen(!dayMenuOpen)}
           aria-label="Day 관리"
         >

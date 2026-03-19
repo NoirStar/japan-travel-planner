@@ -57,7 +57,7 @@ export function CommunityPage() {
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useSessionState<PostSortOption>("community:sort", "latest")
   const [cityFilter, setCityFilter] = useSessionState("community:city", "")
-  const [searchInput, setSearchInput] = useState("")
+  const [searchInput, setSearchInput] = useState(searchQuery)
   const [searchQuery, setSearchQuery] = useSessionState("community:search", "")
   const [minLikes, setMinLikes] = useSessionState("community:minLikes", 0)
   const [isLoading, setIsLoading] = useState(true)
@@ -187,9 +187,9 @@ export function CommunityPage() {
           <p className="mt-1 text-body-sm text-muted-foreground">다른 여행자들의 일본 일정을 구경하세요 ✈️</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleCreateClick} className="gap-2 rounded-xl btn-gradient text-body-sm h-10 px-5">
+          <Button onClick={handleCreateClick} className="gap-2 rounded-xl btn-gradient text-body-sm h-11 px-5">
             <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">여행 공유</span>
+            여행 공유
           </Button>
         </div>
       </div>
@@ -253,8 +253,8 @@ export function CommunityPage() {
           ))}
         </select>
 
-        {/* 추천수 필터 — 모바일에서 숨김 */}
-        <div className="hidden rounded-xl border border-border bg-card p-0.5 sm:flex">
+        {/* 추천수 필터 — 모바일에서도 표시 */}
+        <div className="flex rounded-xl border border-border bg-card p-0.5">
           {[{ value: 0, label: "전체" }, { value: 5, label: "5+" }, { value: 10, label: "10+" }].map((f) => (
             <button
               key={f.value}
@@ -270,6 +270,27 @@ export function CommunityPage() {
             </button>
           ))}
         </div>
+
+        {/* 활성 필터 칩 */}
+        {(searchQuery || cityFilter || minLikes > 0) && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {searchQuery && (
+              <button onClick={() => { setSearchInput(""); setSearchQuery("") }} className="chip chip-primary gap-1 text-caption">
+                검색: {searchQuery} <span className="text-xs">×</span>
+              </button>
+            )}
+            {cityFilter && (
+              <button onClick={() => setCityFilter("")} className="chip chip-primary gap-1 text-caption">
+                {cities.find((c) => c.id === cityFilter)?.name ?? cityFilter} <span className="text-xs">×</span>
+              </button>
+            )}
+            {minLikes > 0 && (
+              <button onClick={() => setMinLikes(0)} className="chip chip-primary gap-1 text-caption">
+                추천 {minLikes}+ <span className="text-xs">×</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 게시글 그리드 */}

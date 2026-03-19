@@ -46,7 +46,7 @@ export function FreeBoardPage() {
 
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useSessionState<PostSortOption>("freeboard:sort", "latest")
-  const [searchInput, setSearchInput] = useState("")
+  const [searchInput, setSearchInput] = useState(searchQuery)
   const [searchQuery, setSearchQuery] = useSessionState("freeboard:search", "")
   const [searchType, setSearchType] = useSessionState<"all" | "title" | "author">("freeboard:searchType", "all")
   const [minLikes, setMinLikes] = useSessionState("freeboard:minLikes", 0)

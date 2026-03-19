@@ -29,6 +29,7 @@ export function StyleStep({ options, onSelect }: StyleStepProps) {
       className="flex flex-col gap-3"
       data-testid="style-step"
     >
+      <p className="text-xs text-muted-foreground">복수 선택 가능 — 선택 후 아래 버튼을 눌러주세요</p>
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => {
           const isActive = selected.has(opt.id)

@@ -38,7 +38,7 @@ export function TripSummary({ selections, onConfirm, onReset }: TripSummaryProps
         <h3 className="text-lg font-bold flex items-center gap-2">
           <Map className="h-5 w-5" /> {cityNames[cityId] ?? cityId} {duration - 1}박{duration}일
         </h3>
-        <p className="mt-1 text-sm text-white/70">여행 일정이 완성되었어요!</p>
+        <p className="mt-1 text-sm text-white/70">AI 추천 초안입니다. 플래너에서 자유롭게 수정하세요!</p>
       </div>
 
       {/* Day별 일정 */}

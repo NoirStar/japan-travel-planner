@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight, MapPin, Users, Map, MessageCircle, CalendarDays, Globe } from "lucide-react"
 import { cities } from "@/data/cities"
@@ -22,6 +23,7 @@ const stats = [
 
 export function LandingPage() {
   const navigate = useNavigate()
+  const [aiPrompt, setAiPrompt] = useState("")
 
   return (
     <div className="relative min-h-screen bg-sakura-pattern">
@@ -39,7 +41,7 @@ export function LandingPage() {
                 <br />
                 <span className="text-foreground">타비톡으로 완성하세요</span>
               </h1>
-              <p className="mx-auto mb-10 max-w-xl text-body text-muted-foreground sm:text-lg leading-relaxed">
+              <p className="mx-auto mb-10 max-w-xl text-lg text-muted-foreground sm:text-xl leading-relaxed">
                 구글맵 기반 일정 플래너부터
                 <br className="hidden sm:block" />
                 여행자 커뮤니티까지 한곳에서.
@@ -65,6 +67,34 @@ export function LandingPage() {
                   <Users className="h-5 w-5" />
                   다른 여행자 구경하기
                 </motion.button>
+              </div>
+
+              {/* AI 프롬프트 입력 */}
+              <div className="mt-6 mx-auto max-w-lg">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const q = aiPrompt.trim()
+                    if (q) navigate(`/ai-wizard?prompt=${encodeURIComponent(q)}`)
+                  }}
+                  className="flex items-center gap-2 rounded-2xl border border-border bg-card/80 backdrop-blur-sm px-4 py-2.5 shadow-sm"
+                >
+                  <MessageCircle className="h-5 w-5 text-muted-foreground shrink-0" />
+                  <input
+                    type="text"
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="예: 도쿄 3박 4일 맛집투어 추천해줘"
+                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/50 min-w-0"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!aiPrompt.trim()}
+                    className="shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-40 transition-opacity"
+                  >
+                    AI 추천
+                  </button>
+                </form>
               </div>
             </div>
 
@@ -134,6 +164,7 @@ export function LandingPage() {
                       alt={city.name}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.classList.add('bg-gradient-to-br', 'from-primary/20', 'to-indigo/20') }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-4">

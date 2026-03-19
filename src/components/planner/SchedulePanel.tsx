@@ -127,6 +127,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
   const [isChangeHistoryOpen, setIsChangeHistoryOpen] = useState(false)
   const [isAttachmentVaultOpen, setIsAttachmentVaultOpen] = useState(false)
   const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false)
+  const [isDesktopToolsOpen, setIsDesktopToolsOpen] = useState(false)
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -497,9 +498,17 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
               </span>
             )}
           </button>
+          <button
+            className="btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors"
+            onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+            도구
+          </button>
         </div>
-        {/* 보조 도구 — 데스크톱에서만 표시 */}
-        <div className="hidden lg:flex gap-1">
+        {/* 보조 도구 — 데스크톱 접히는 서랍 */}
+        {isDesktopToolsOpen && (
+        <div className="hidden lg:flex gap-1 animate-in fade-in slide-in-from-top-2 duration-200">
           <button
             className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => { setEditingReservation(null); setIsReservationSheetOpen(true) }}
@@ -590,6 +599,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             캘린더
           </button>
         </div>
+        )
       </div>
 
       {/* 모바일 더보기 bottom sheet */}

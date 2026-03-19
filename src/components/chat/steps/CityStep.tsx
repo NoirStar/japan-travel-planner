@@ -29,6 +29,7 @@ export function CityStep({ options, onSelect }: CityStepProps) {
                 alt={opt.label}
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.classList.add('bg-gradient-to-br', 'from-primary/20', 'to-indigo/20') }}
               />
             </div>
           )}

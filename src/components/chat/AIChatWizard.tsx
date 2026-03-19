@@ -253,7 +253,7 @@ export function AIChatWizard() {
         addAIMessage(
           `${response.title} 일정을 만들었어요!\n\n${daysSummary}\n\n${response.summary}`,
         )
-        addAIMessage("플래너로 이동할까요? 아래 버튼을 눌러주세요!")
+        addAIMessage("추천 초안이 완성됐어요! 아래 버튼을 눌러 플래너에서 확인하세요.")
 
         // scheduleStore에 trip 추가
         const store = useScheduleStore.getState()
@@ -265,12 +265,7 @@ export function AIChatWizard() {
 
         setCompleted(true)
         showConfetti()
-        showToast("맞춤 일정이 완성됐어요!")
-
-        // 3초 후 자동 이동
-        setTimeout(() => {
-          navigate(`/planner?trip=${trip.id}`)
-        }, 3000)
+        showToast("추천 초안이 완성됐어요!")
       } catch (error) {
         console.error("AI 추천 실패:", error)
         addAIMessage("죄송해요, 오류가 발생했어요.\n\n다시 시도하거나 단계별로 선택해주세요!")
@@ -308,7 +303,7 @@ export function AIChatWizard() {
           onClick={() => navigate("/")}
           aria-label="돌아가기"
           data-testid="wizard-back"
-          className="h-8 w-8 rounded-full"
+          className="h-11 w-11 rounded-full"
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>

@@ -78,7 +78,7 @@ export function Header() {
 
         <div className="flex items-center gap-1 sm:gap-1.5">
           <Link to="/planner">
-            <Button variant="ghost" size="sm" className={`gap-1.5 rounded-xl px-3 py-2 h-9 hover:bg-muted ${
+            <Button variant="ghost" size="sm" className={`gap-1.5 rounded-xl px-3 py-2 h-11 hover:bg-muted ${
               isPlanner ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
             }`}>
               <Compass className="h-[18px] w-[18px]" />
@@ -91,7 +91,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="sm"
-              className={`gap-1.5 rounded-xl px-3 py-2 h-9 hover:bg-muted ${
+              className={`gap-1.5 rounded-xl px-3 py-2 h-11 hover:bg-muted ${
                 isCommunity ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => { setCommunityOpen((v) => !v); setDropdownOpen(false) }}
@@ -128,7 +128,7 @@ export function Header() {
             <>
             {/* ── 내 여행 (로그인 시) ── */}
             <Link to="/trips">
-              <Button variant="ghost" size="sm" className={`gap-1.5 rounded-xl px-3 py-2 h-9 hover:bg-muted ${
+              <Button variant="ghost" size="sm" className={`gap-1.5 rounded-xl px-3 py-2 h-11 hover:bg-muted ${
                 isTrips ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}>
                 <Briefcase className="h-[18px] w-[18px]" />
@@ -258,7 +258,7 @@ export function Header() {
               </Button>
               <Button
                 size="sm"
-                className="gap-1.5 rounded-xl btn-gradient text-[13px] font-semibold px-5 h-9"
+                className="gap-1.5 rounded-xl btn-gradient text-[13px] font-semibold px-5 h-11"
                 onClick={() => { setShowLoginModal(true); }}
               >
                 <User className="h-4 w-4" />

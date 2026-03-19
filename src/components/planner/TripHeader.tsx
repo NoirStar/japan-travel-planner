@@ -110,9 +110,10 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
           )}
           <button
             onClick={() => setMobileExpanded(!mobileExpanded)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted transition-colors"
+            className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors"
           >
             <MoreHorizontal className="h-4 w-4" />
+            <span>여행 설정</span>
           </button>
         </div>
 
@@ -128,11 +129,27 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
         )}
       </div>
 
-      {/* 모바일: 날짜 요약 한 줄 */}
-      <p className="mt-2 text-body-sm text-muted-foreground lg:hidden">
-        <Calendar className="mr-1.5 inline h-3.5 w-3.5 text-sakura-dark" />
-        {getTripDateSummary(trip)}
-      </p>
+      {/* 모바일: 날짜 요약 + 공개상태 한 줄 */}
+      <div className="mt-2 flex items-center gap-2 lg:hidden">
+        <p className="text-body-sm text-muted-foreground flex-1">
+          <Calendar className="mr-1.5 inline h-3.5 w-3.5 text-sakura-dark" />
+          {getTripDateSummary(trip)}
+        </p>
+        {onVisibilityChange && (
+          <span className="flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[10px]">
+            <Eye className="h-3 w-3 text-muted-foreground" />
+            <select
+              value={trip.visibility ?? "private"}
+              onChange={(e) => onVisibilityChange(e.target.value as TripVisibility)}
+              className="bg-card text-[10px] font-semibold text-foreground outline-none cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
+            >
+              {(Object.entries(TRIP_VISIBILITY_LABELS) as [TripVisibility, string][]).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </span>
+        )}
+      </div>
 
       {/* 도시 태그 */}
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -231,21 +248,6 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
               공동 편집 시작
             </button>
           ) : null}
-          {/* 공개 설정 (모바일) */}
-          {onVisibilityChange && (
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs">
-              <Eye className="h-4 w-4 text-muted-foreground" />
-              <select
-                value={trip.visibility ?? "private"}
-                onChange={(e) => onVisibilityChange(e.target.value as TripVisibility)}
-                className="flex-1 bg-card text-xs font-semibold text-foreground outline-none cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
-              >
-                {(Object.entries(TRIP_VISIBILITY_LABELS) as [TripVisibility, string][]).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
-            </div>
-          )}
           {/* 저장 상태 */}
           {isLoggedIn ? (
             <span className="flex items-center gap-1 text-[10px] text-emerald-500">

@@ -599,7 +599,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             캘린더
           </button>
         </div>
-        )
+        )}
       </div>
 
       {/* 모바일 더보기 bottom sheet */}

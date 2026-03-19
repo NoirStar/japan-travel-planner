@@ -3,38 +3,58 @@ import { persist, type StorageValue } from "zustand/middleware"
 import type { Trip, DaySchedule, ScheduleItem, Reservation, TripChecklistItem, ChecklistCategory, MapPreset } from "@/types/schedule"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 
-// ─── 로그인 상태 확인 (순환 의존 방지용) ─────────────────
+// ─── 로그인 유저 ID 추출 (순환 의존 방지용) ─────────────
 let _supabaseAuthKey: string | null = null
 
-function isLoggedIn(): boolean {
+// ─── 현재 로그인 유저 ID 추출 ───────────────────────────
+// localStorage를 유저별로 분리하기 위해 사용
+function getCurrentUserId(): string | null {
   try {
-    if (localStorage.getItem("demo_logged_in") || localStorage.getItem("admin_logged_in")) {
-      return true
-    }
-    // Supabase 세션 확인 (키 캐싱으로 매번 스캔 방지)
+    if (localStorage.getItem("admin_logged_in") === "true") return "admin"
+    if (localStorage.getItem("demo_logged_in") === "true") return "demo"
+
     if (!_supabaseAuthKey) {
       _supabaseAuthKey = Object.keys(localStorage).find(
         (k) => k.startsWith("sb-") && k.endsWith("-auth-token"),
       ) ?? ""
     }
-    return _supabaseAuthKey !== "" && !!localStorage.getItem(_supabaseAuthKey)
+    if (!_supabaseAuthKey) return null
+    const raw = localStorage.getItem(_supabaseAuthKey)
+    if (!raw) return null
+    const data = JSON.parse(raw)
+    return data?.user?.id ?? null
   } catch {
-    return false
+    return null
   }
 }
 
-// ─── 조건부 스토리지: 로그인 시만 localStorage 사용 ──────
+// ─── 조건부 스토리지: 로그인 시만 localStorage 사용, 유저별 격리 ──
 const authAwareStorage = {
   getItem: (name: string): StorageValue<Pick<ScheduleState, "trips" | "activeTripId">> | null => {
-    if (!isLoggedIn()) return null
-    const raw = localStorage.getItem(name)
+    const userId = getCurrentUserId()
+    if (!userId) return null
+
+    // 기존 공용 키 → 유저별 키로 마이그레이션 (1회)
+    const oldRaw = localStorage.getItem(name)
+    if (oldRaw) {
+      localStorage.setItem(`${name}-${userId}`, oldRaw)
+      localStorage.removeItem(name)
+    }
+
+    const key = `${name}-${userId}`
+    const raw = localStorage.getItem(key)
     return raw ? JSON.parse(raw) : null
   },
   setItem: (name: string, value: StorageValue<Pick<ScheduleState, "trips" | "activeTripId">>) => {
-    if (!isLoggedIn()) return
-    localStorage.setItem(name, JSON.stringify(value))
+    const userId = getCurrentUserId()
+    if (!userId) return
+    const key = `${name}-${userId}`
+    localStorage.setItem(key, JSON.stringify(value))
   },
-  removeItem: (name: string) => localStorage.removeItem(name),
+  removeItem: (name: string) => {
+    const userId = getCurrentUserId()
+    if (userId) localStorage.removeItem(`${name}-${userId}`)
+  },
 }
 
 // ─── 유틸: 고유 ID 생성 ─────────────────────────────────

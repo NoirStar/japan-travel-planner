@@ -230,6 +230,21 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
               공동 편집 시작
             </button>
           ) : null}
+          {/* 공개 설정 (모바일) */}
+          {onVisibilityChange && (
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs">
+              <Eye className="h-4 w-4 text-muted-foreground" />
+              <select
+                value={trip.visibility ?? "private"}
+                onChange={(e) => onVisibilityChange(e.target.value as TripVisibility)}
+                className="flex-1 bg-card text-xs font-semibold text-foreground outline-none cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
+              >
+                {(Object.entries(TRIP_VISIBILITY_LABELS) as [TripVisibility, string][]).map(([k, v]) => (
+                  <option key={k} value={k}>{v}</option>
+                ))}
+              </select>
+            </div>
+          )}
           {/* 저장 상태 */}
           {isLoggedIn ? (
             <span className="flex items-center gap-1 text-[10px] text-emerald-500">
@@ -324,12 +339,12 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
             </button>
           ) : null}
           {onVisibilityChange && (
-            <span className="flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-[10px]">
+            <span className="flex items-center gap-1 rounded-lg border border-border bg-card px-2 py-1 text-[10px]">
               <Eye className="h-3 w-3 text-muted-foreground" />
               <select
                 value={trip.visibility ?? "private"}
                 onChange={(e) => onVisibilityChange(e.target.value as TripVisibility)}
-                className="bg-transparent text-[10px] font-semibold text-foreground outline-none cursor-pointer"
+                className="bg-card text-[10px] font-semibold text-foreground outline-none cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
               >
                 {(Object.entries(TRIP_VISIBILITY_LABELS) as [TripVisibility, string][]).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>

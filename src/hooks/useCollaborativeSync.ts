@@ -96,21 +96,25 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
         const remoteTripData = result.tripData as unknown as Trip
 
         isRemoteUpdate = true
-        useScheduleStore.getState().updateTrip(trip!.id, {
-          title: remoteTripData.title,
-          startDate: remoteTripData.startDate,
-          endDate: remoteTripData.endDate,
-          coverImage: remoteTripData.coverImage,
-        })
-
-        // day + items 동기화 — 전체 교체 방식
+        // 전체 여행 데이터 동기화 (체크리스트, 위시리스트, 예산, 공개설정, 다중도시 포함)
         useScheduleStore.setState((state) => ({
           trips: state.trips.map((t) => {
             if (t.id !== trip!.id) return t
             return {
               ...t,
+              title: remoteTripData.title ?? t.title,
+              cityId: remoteTripData.cityId ?? t.cityId,
+              cities: remoteTripData.cities ?? t.cities,
+              coverImage: remoteTripData.coverImage,
+              startDate: remoteTripData.startDate,
+              endDate: remoteTripData.endDate,
               days: remoteTripData.days ?? t.days,
               reservations: remoteTripData.reservations ?? t.reservations,
+              checklist: remoteTripData.checklist ?? t.checklist,
+              wishlist: remoteTripData.wishlist ?? t.wishlist,
+              budget: remoteTripData.budget ?? t.budget,
+              visibility: remoteTripData.visibility ?? t.visibility,
+              mapPresets: remoteTripData.mapPresets ?? t.mapPresets,
               updatedAt: new Date().toISOString(),
             }
           }),
@@ -229,7 +233,7 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
             // 변경 이력 기록 (비동기, 실패해도 무시)
             logTripChange(sharedId, "일정 변경").catch(() => {})
 
-            // 다른 참여자에게 브로드캐스트
+            // 다른 참여자에게 브로드캐스트 (전체 여행 데이터)
             channelRef.current?.send({
               type: "broadcast",
               event: "trip_updated",
@@ -238,11 +242,17 @@ export function useCollaborativeSync(trip: Trip | undefined): CollaborativeSyncR
                 tripData: {
                   title: currentTrip.title,
                   cityId: currentTrip.cityId,
+                  cities: currentTrip.cities,
                   coverImage: currentTrip.coverImage,
                   startDate: currentTrip.startDate,
                   endDate: currentTrip.endDate,
                   days: currentTrip.days,
                   reservations: currentTrip.reservations,
+                  checklist: currentTrip.checklist,
+                  wishlist: currentTrip.wishlist,
+                  budget: currentTrip.budget,
+                  visibility: currentTrip.visibility,
+                  mapPresets: currentTrip.mapPresets,
                 },
                 version: newVersion,
               },

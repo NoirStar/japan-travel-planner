@@ -8,25 +8,15 @@ import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { getCityConfig } from "@/data/mapConfig"
 
 // ── 폰트 등록 (Noto Sans KR) ──
-// 절대 URL로 변환하여 경로 문제 방지
+// 폰트는 ensureFontsLoaded()에서 한 번만 Blob URL로 등록
+// module-scope에서 URL 기반 등록 → Font.clear() → 재등록 패턴이
+// @react-pdf/renderer v4에서 내부 캐시 불일치를 일으키므로 제거
 const FONT_BASE = `${window.location.origin}/fonts`
 
 const FONT_URLS = [
   `${FONT_BASE}/NotoSansKR-Regular.ttf`,
   `${FONT_BASE}/NotoSansKR-Bold.ttf`,
 ]
-
-// 초기 등록 (URL 기반) — 후에 ensureFontsLoaded에서 Blob URL로 재등록
-Font.register({
-  family: "NotoSansKR",
-  fonts: [
-    { src: FONT_URLS[0], fontWeight: 400 },
-    { src: FONT_URLS[1], fontWeight: 700 },
-  ],
-})
-
-// 하이픈 비활성화 (단어 잘림/겹침 방지)
-Font.registerHyphenationCallback((word) => [word])
 
 // ── 폰트 프리로드 (한 번만 실행) ──
 let _fontReady = false
@@ -55,11 +45,10 @@ async function ensureFontsLoaded(): Promise<void> {
         }
       }
 
-      // Blob URL 생성 후 폰트 재등록
+      // Blob URL 생성 후 폰트 등록 (최초 1회, Font.clear() 불필요)
       const blobUrls = buffers.map((buf) =>
         URL.createObjectURL(new Blob([buf], { type: "font/ttf" })),
       )
-      Font.clear()
       Font.register({
         family: "NotoSansKR",
         fonts: [
@@ -345,18 +334,9 @@ export async function downloadTripPdf(trip: Trip): Promise<PdfResult> {
     await ensureFontsLoaded()
   } catch (e) {
     console.error("PDF 폰트 프리로드 실패:", e)
-    // 폰트 캐시 초기화 후 재시도
+    // 캐시 초기화 후 재시도 (네트워크 일시 오류 대응)
     _fontReady = false
     _fontPromise = null
-    Font.clear()
-    Font.register({
-      family: "NotoSansKR",
-      fonts: [
-        { src: FONT_URLS[0], fontWeight: 400 },
-        { src: FONT_URLS[1], fontWeight: 700 },
-      ],
-    })
-    Font.registerHyphenationCallback((word) => [word])
     try {
       await ensureFontsLoaded()
     } catch {

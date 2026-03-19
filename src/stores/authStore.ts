@@ -92,8 +92,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ session, user: session?.user ?? null })
         if (session?.user) {
           await get().fetchProfile(session.user.id)
+          // 유저별 격리된 localStorage에서 다시 로드
+          const { useScheduleStore } = await import("@/stores/scheduleStore")
+          useScheduleStore.persist.rehydrate()
         } else {
           set({ profile: null })
+          // 로그아웃 시 메모리 클리어
+          const { useScheduleStore } = await import("@/stores/scheduleStore")
+          useScheduleStore.setState({ trips: [], activeTripId: null })
         }
       })
       // 구독 해제 함수를 window unload 시 호출
@@ -181,6 +187,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isDemoMode: true,
       showLoginModal: false,
     })
+    // 데모 유저의 localStorage에서 여행 데이터 복원
+    void import("@/stores/scheduleStore").then(({ useScheduleStore }) => {
+      useScheduleStore.persist.rehydrate()
+    })
   },
 
   signOut: async () => {
@@ -192,10 +202,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await supabase.auth.signOut()
       set({ session: null, user: null, profile: null })
     }
-    // 여행 데이터 클리어 & localStorage 삭제
+    // 여행 데이터 클리어 (메모리만 — 유저별 localStorage는 유지)
     const { useScheduleStore } = await import("@/stores/scheduleStore")
     useScheduleStore.setState({ trips: [], activeTripId: null })
-    localStorage.removeItem("schedule-store")
   },
 
   setShowLoginModal: (show) => set({ showLoginModal: show }),

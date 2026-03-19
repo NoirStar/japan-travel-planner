@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
-import { X, CheckSquare, Square, Plus, Trash2, RotateCcw, ChevronDown, ChevronRight } from "lucide-react"
+import { X, CheckSquare, Square, Plus, Trash2, RotateCcw, ChevronDown, ChevronRight, FileText, Banknote, Smartphone, Briefcase, TicketCheck, PenLine, type LucideIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import {
@@ -16,13 +16,13 @@ interface ChecklistPanelProps {
 }
 
 /** 카테고리별 아이콘/색상 */
-const CATEGORY_STYLE: Record<ChecklistCategory, { emoji: string; color: string }> = {
-  documents: { emoji: "📄", color: "text-blue-500" },
-  money: { emoji: "💴", color: "text-emerald-500" },
-  connectivity: { emoji: "📱", color: "text-violet-500" },
-  packing: { emoji: "🧳", color: "text-amber-500" },
-  bookings: { emoji: "🎫", color: "text-rose-500" },
-  custom: { emoji: "📝", color: "text-gray-500" },
+const CATEGORY_STYLE: Record<ChecklistCategory, { icon: LucideIcon; color: string; bg: string }> = {
+  documents: { icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
+  money: { icon: Banknote, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+  connectivity: { icon: Smartphone, color: "text-violet-500", bg: "bg-violet-500/10" },
+  packing: { icon: Briefcase, color: "text-amber-500", bg: "bg-amber-500/10" },
+  bookings: { icon: TicketCheck, color: "text-rose-500", bg: "bg-rose-500/10" },
+  custom: { icon: PenLine, color: "text-gray-500", bg: "bg-gray-500/10" },
 }
 
 const EMPTY_CHECKLIST: TripChecklistItem[] = []
@@ -31,6 +31,7 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
   const items = useScheduleStore((s) => s.trips.find((t) => t.id === tripId)?.checklist) ?? EMPTY_CHECKLIST
   const { initChecklist, toggleChecklistItem, addChecklistItem, removeChecklistItem, resetChecklist } = useScheduleStore()
   const [newItemText, setNewItemText] = useState("")
+  const [newItemCategory, setNewItemCategory] = useState<ChecklistCategory>("custom")
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set())
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
@@ -59,7 +60,7 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
   const handleAddItem = () => {
     const text = newItemText.trim()
     if (!text) return
-    addChecklistItem(tripId, text)
+    addChecklistItem(tripId, text, newItemCategory)
     setNewItemText("")
   }
 
@@ -176,7 +177,9 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
                   ) : (
                     <ChevronDown className="h-3 w-3 text-muted-foreground" />
                   )}
-                  <span>{style.emoji}</span>
+                  <span className={`flex h-5 w-5 items-center justify-center rounded-md ${style.bg}`}>
+                    <style.icon className={`h-3 w-3 ${style.color}`} />
+                  </span>
                   <span>{CHECKLIST_CATEGORY_LABELS[category]}</span>
                   <span className={`ml-auto text-[10px] font-medium ${allChecked ? "text-emerald-500" : "text-muted-foreground"}`}>
                     {catChecked}/{categoryItems.length}
@@ -224,9 +227,18 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
           })}
         </div>
 
-        {/* 커스텀 아이템 추가 */}
+        {/* 아이템 추가 (카테고리 선택 가능) */}
         <div className="border-t border-border px-3 py-2.5">
           <div className="flex gap-2">
+            <select
+              value={newItemCategory}
+              onChange={(e) => setNewItemCategory(e.target.value as ChecklistCategory)}
+              className="h-8 w-20 shrink-0 rounded-xl border border-border bg-background px-1.5 text-[11px] font-medium text-foreground outline-none focus:ring-2 focus:ring-primary/40"
+            >
+              {categoryOrder.map((cat) => (
+                <option key={cat} value={cat}>{CHECKLIST_CATEGORY_LABELS[cat]}</option>
+              ))}
+            </select>
             <Input
               value={newItemText}
               onChange={(e) => setNewItemText(e.target.value)}

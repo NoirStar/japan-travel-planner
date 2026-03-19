@@ -551,7 +551,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             }}
             data-testid="share-button"
           >
-            <Share2 className="h-4 w-4" />
+            <Share2 className="h-4 w-4 text-indigo-500" />
             공유
           </button>
           <button
@@ -565,7 +565,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             }}
             data-testid="export-pdf-button"
           >
-            <FileDown className="h-4 w-4" />
+            <FileDown className="h-4 w-4 text-rose-500" />
             PDF
           </button>
           <button
@@ -578,7 +578,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             }}
             data-testid="export-ics-button"
           >
-            <CalendarDays className="h-4 w-4" />
+            <CalendarDays className="h-4 w-4 text-teal-500" />
             캘린더
           </button>
         </div>
@@ -609,7 +609,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                 onClick={() => { setIsMobileMoreOpen(false); setEditingReservation(null); setIsReservationSheetOpen(true) }}
               >
-                <Ticket className="h-5 w-5" />
+                <Ticket className="h-5 w-5 text-amber-500" />
                 예약 관리
               </button>
               <button
@@ -659,7 +659,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   showToast(ok ? "링크가 복사되었습니다!" : "복사에 실패했습니다")
                 }}
               >
-                <Share2 className="h-5 w-5" />
+                <Share2 className="h-5 w-5 text-indigo-500" />
                 공유 링크 복사
               </button>
               <button
@@ -673,7 +673,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   showToast(result.ok ? "PDF가 다운로드되었습니다!" : (result.error ?? "PDF 생성에 실패했습니다"))
                 }}
               >
-                <FileDown className="h-5 w-5" />
+                <FileDown className="h-5 w-5 text-rose-500" />
                 PDF 다운로드
               </button>
               <button
@@ -686,7 +686,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   showToast("캘린더 파일이 다운로드되었습니다!")
                 }}
               >
-                <CalendarDays className="h-5 w-5" />
+                <CalendarDays className="h-5 w-5 text-teal-500" />
                 캘린더 내보내기
               </button>
               <div className="my-1 h-px bg-border" />

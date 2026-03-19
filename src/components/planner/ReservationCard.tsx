@@ -27,10 +27,10 @@ interface ReservationCardProps {
 }
 
 const TYPE_CONFIG: Record<ReservationType, { icon: LucideIcon; gradient: string; bg: string }> = {
-  flight: { icon: Plane, gradient: "from-sky-400 to-blue-500", bg: "bg-sky-50 dark:bg-sky-950/30" },
-  train: { icon: TrainFront, gradient: "from-emerald-400 to-teal-500", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
-  bus: { icon: Bus, gradient: "from-amber-400 to-orange-500", bg: "bg-amber-50 dark:bg-amber-950/30" },
-  accommodation: { icon: Hotel, gradient: "from-violet-400 to-purple-500", bg: "bg-violet-50 dark:bg-violet-950/30" },
+  flight: { icon: Plane, gradient: "from-blue-500 to-indigo-500", bg: "bg-blue-50 dark:bg-blue-950/30" },
+  train: { icon: TrainFront, gradient: "from-teal-500 to-cyan-600", bg: "bg-teal-50 dark:bg-teal-950/30" },
+  bus: { icon: Bus, gradient: "from-orange-500 to-rose-500", bg: "bg-orange-50 dark:bg-orange-950/30" },
+  accommodation: { icon: Hotel, gradient: "from-purple-500 to-fuchsia-500", bg: "bg-purple-50 dark:bg-purple-950/30" },
 }
 
 function formatCost(cost: number): string {

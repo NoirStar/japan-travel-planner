@@ -68,6 +68,13 @@ export function ChangeHistoryPanel({ open, onClose, sharedId }: Props) {
 
         {/* 리스트 */}
         <div className="flex-1 overflow-y-auto px-4 py-3">
+          {loading && changes.length === 0 && (
+            <div className="flex flex-col items-center justify-center gap-2 py-12">
+              <RefreshCw className="h-5 w-5 animate-spin text-primary" />
+              <span className="text-xs text-muted-foreground">이력을 불러오는 중...</span>
+            </div>
+          )}
+
           {changes.length === 0 && !loading && (
             <p className="py-8 text-center text-xs text-muted-foreground">변경 이력이 없습니다</p>
           )}

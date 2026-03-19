@@ -469,11 +469,17 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             장소 추가
           </button>
           <button
+            className="btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors"
+            onClick={() => addDay(trip.id)}
+          >
+            <Plus className="h-4 w-4" />
+            Day
+          </button>
+          <button
             className="btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors px-5"
             onClick={() => setIsMobileMoreOpen(true)}
           >
             <MoreHorizontal className="h-4.5 w-4.5" />
-            더보기
           </button>
         </div>
         {/* 데스크톱 하단 (lg 이상) */}

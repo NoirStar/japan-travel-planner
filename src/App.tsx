@@ -24,7 +24,8 @@ function lazyRetry<T extends Record<string, unknown>>(factory: () => Promise<T>)
 }
 
 const PlannerPage = lazy(() => lazyRetry(() => import("@/components/planner/PlannerPage")).then((m) => ({ default: m.PlannerPage })))
-const AIChatWizard = lazy(() => lazyRetry(() => import("@/components/chat/AIChatWizard")).then((m) => ({ default: m.AIChatWizard })))
+// AI 추천 개발 중 — 비활성화
+// const AIChatWizard = lazy(() => lazyRetry(() => import("@/components/chat/AIChatWizard")).then((m) => ({ default: m.AIChatWizard })))
 const TripListPage = lazy(() => lazyRetry(() => import("@/components/trips/TripListPage")).then((m) => ({ default: m.TripListPage })))
 const CommunityPage = lazy(() => lazyRetry(() => import("@/components/community/CommunityPage")).then((m) => ({ default: m.CommunityPage })))
 const FreeBoardPage = lazy(() => lazyRetry(() => import("@/components/community/FreeBoardPage")).then((m) => ({ default: m.FreeBoardPage })))
@@ -61,7 +62,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/planner" element={<PlannerPage />} />
-            <Route path="/wizard" element={<AIChatWizard />} />
+            {/* <Route path="/wizard" element={<AIChatWizard />} /> — AI 추천 개발 중, 비활성화 */}
             <Route path="/trips" element={<RequireAuth redirectTo="/"><TripListPage /></RequireAuth>} />
             <Route path="/share/:shareId" element={<PlannerPage />} />
             <Route path="/s/:shareCode" element={<ShareRedirectPage />} />

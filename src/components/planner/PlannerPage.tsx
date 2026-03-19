@@ -263,7 +263,7 @@ export function PlannerPage() {
           }`}
         >
           <MapIcon className="h-5 w-5" />
-          지도
+          <span>지도 <span className="text-[10px] font-bold opacity-70">Day {activeDayIndex + 1}</span></span>
         </button>
         {showChatTab && (
           <button

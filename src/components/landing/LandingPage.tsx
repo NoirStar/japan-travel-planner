@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom"
-import { useState } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, MapPin, Users, Map, MessageCircle, CalendarDays, Globe } from "lucide-react"
+import { ArrowRight, MapPin, Map, CalendarDays, Globe, Users } from "lucide-react"
 import { cities } from "@/data/cities"
 
 const fadeUp = {
@@ -11,19 +10,14 @@ const fadeUp = {
 
 const features = [
   { icon: Map, title: "지도 기반 플래너", desc: "구글맵에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다.", link: "/planner?new=true" as const, cta: "플래너 시작" },
-  { icon: Users, title: "여행 커뮤니티", desc: "다른 여행자가 만든 일정을 구경하고, 나만의 여행도 공유해보세요. 추천과 댓글로 소통할 수 있어요.", link: "/community" as const, cta: "커뮤니티 가기" },
   { icon: Globe, title: "일본 전역 커버", desc: "도쿄, 오사카는 물론 소도시까지. 구글맵 기반이라 일본 어디든 자유롭게 여행 계획을 세울 수 있어요.", link: "/planner?new=true" as const, cta: "도시 선택하기" },
+  { icon: CalendarDays, title: "여행자 커뮤니티", desc: "다른 여행자가 만든 일정을 구경하고, 나만의 여행도 공유해보세요. 추천과 댓글로 소통할 수 있어요.", link: "/community" as const, cta: "커뮤니티 가기" },
 ]
 
-const stats = [
-  { value: "일본 전역", label: "커버리지" },
-  { value: "구글맵", label: "지도 연동" },
-  { value: "여행 공유", label: "커뮤니티" },
-]
+// stats 섹션 제거 — 추상적 통계는 의사결정을 돕지 않음
 
 export function LandingPage() {
   const navigate = useNavigate()
-  const [aiPrompt, setAiPrompt] = useState("")
 
   return (
     <div className="relative min-h-screen bg-sakura-pattern">
@@ -58,54 +52,14 @@ export function LandingPage() {
                   여행 일정 만들기
                   <ArrowRight className="h-5 w-5" />
                 </motion.button>
-                <motion.button
-                  onClick={() => navigate("/community")}
-                  className="btn-base btn-lg w-full border border-border bg-card text-foreground shadow-sm hover:bg-muted sm:w-auto"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Users className="h-5 w-5" />
-                  다른 여행자 구경하기
-                </motion.button>
               </div>
 
-              {/* AI 프롬프트 입력 */}
-              <div className="mt-6 mx-auto max-w-lg">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    const q = aiPrompt.trim()
-                    if (q) navigate(`/ai-wizard?prompt=${encodeURIComponent(q)}`)
-                  }}
-                  className="flex items-center gap-2 rounded-2xl border border-border bg-card/80 backdrop-blur-sm px-4 py-2.5 shadow-sm"
-                >
-                  <MessageCircle className="h-5 w-5 text-muted-foreground shrink-0" />
-                  <input
-                    type="text"
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    placeholder="예: 도쿄 3박 4일 맛집투어 추천해줘"
-                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/50 min-w-0"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!aiPrompt.trim()}
-                    className="shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-40 transition-opacity"
-                  >
-                    AI 추천
-                  </button>
-                </form>
-              </div>
-            </div>
-
-            {/* stat 스트립 */}
-            <div className="mt-16 flex items-center justify-center gap-8 sm:gap-14">
-              {stats.map((s) => (
-                <div key={s.label} className="text-center">
-                  <p className="text-xl font-extrabold text-foreground sm:text-2xl">{s.value}</p>
-                  <p className="text-caption text-muted-foreground mt-1">{s.label}</p>
-                </div>
-              ))}
+              <p className="mt-5 text-body-sm text-muted-foreground">
+                또는{" "}
+                <button onClick={() => navigate("/community")} className="text-primary font-medium hover:underline">
+                  다른 여행자의 일정 구경하기 →
+                </button>
+              </p>
             </div>
           </motion.section>
 
@@ -184,7 +138,7 @@ export function LandingPage() {
               {[
                 { step: "01", icon: CalendarDays, title: "도시 & 일정 선택", desc: "여행할 도시와 날짜를 선택하세요" },
                 { step: "02", icon: MapPin, title: "장소 추가", desc: "지도에서 장소를 검색하고 일정에 드래그" },
-                { step: "03", icon: MessageCircle, title: "공유 & 소통", desc: "완성된 여행을 공유하고 후기를 남기세요" },
+                { step: "03", icon: Users, title: "공유 & 소통", desc: "완성된 여행을 공유하고 후기를 남기세요" },
               ].map(({ step, title, desc }) => (
                 <div key={step} className="flex items-start gap-5 rounded-2xl surface-section p-6">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-base font-extrabold text-primary">{step}</span>
@@ -229,22 +183,13 @@ export function LandingPage() {
             <div className="rounded-3xl bg-gradient-to-br from-primary/8 via-primary/4 to-indigo/6 px-8 py-14 sm:px-16 sm:py-16 border border-primary/10">
               <h2 className="text-headline text-foreground mb-3">지금 바로 여행 계획을 시작하세요</h2>
               <p className="text-body text-muted-foreground mb-8">회원가입 없이도 플래닝이 가능합니다</p>
-              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <button
-                  onClick={() => navigate("/planner?new=true")}
-                  className="btn-gradient btn-base btn-lg shadow-lg"
-                >
-                  <Map className="h-5 w-5" />
-                  일정 만들기
-                </button>
-                <button
-                  onClick={() => navigate("/community")}
-                  className="btn-base btn-lg border border-border bg-card text-foreground shadow-sm hover:bg-muted"
-                >
-                  <Users className="h-5 w-5" />
-                  다른 여행자 구경하기
-                </button>
-              </div>
+              <button
+                onClick={() => navigate("/planner?new=true")}
+                className="btn-gradient btn-base btn-lg shadow-lg"
+              >
+                <Map className="h-5 w-5" />
+                일정 만들기
+              </button>
             </div>
           </motion.section>
 

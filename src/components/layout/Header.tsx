@@ -82,7 +82,7 @@ export function Header() {
               isPlanner ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
             }`}>
               <Compass className="h-[18px] w-[18px]" />
-              <span className="hidden sm:inline text-[13px]">플래너</span>
+              <span className="text-[13px]">플래너</span>
             </Button>
           </Link>
 
@@ -97,8 +97,8 @@ export function Header() {
               onClick={() => { setCommunityOpen((v) => !v); setDropdownOpen(false) }}
             >
               <Users className="h-[18px] w-[18px]" />
-              <span className="hidden sm:inline text-[13px]">커뮤니티</span>
-              <ChevronDown className={`h-3 w-3 transition-transform ${communityOpen ? "rotate-180" : ""}`} />
+              <span className="text-[13px]">커뮤니티</span>
+              <ChevronDown className={`hidden sm:block h-3 w-3 transition-transform ${communityOpen ? "rotate-180" : ""}`} />
             </Button>
 
             {communityOpen && (
@@ -109,7 +109,7 @@ export function Header() {
                   onClick={() => setCommunityOpen(false)}
                 >
                   <MapPin className="h-4 w-4 text-primary/60" />
-                  여행 공유
+                  여행 일정
                 </Link>
                 <div className="mx-3 h-px bg-border" />
                 <Link
@@ -132,7 +132,7 @@ export function Header() {
                 isTrips ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}>
                 <Briefcase className="h-[18px] w-[18px]" />
-                <span className="hidden sm:inline text-[13px]">내 여행</span>
+                <span className="text-[13px]">내 여행</span>
               </Button>
             </Link>
 
@@ -262,7 +262,7 @@ export function Header() {
                 onClick={() => { setShowLoginModal(true); }}
               >
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">로그인</span>
+                <span className="text-[13px]">로그인</span>
               </Button>
             </>
           )}

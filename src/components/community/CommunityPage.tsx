@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo, Component, type ReactNode } from "react"
 import { Plus, TrendingUp, Clock, Trophy, MapPin, Search, ThumbsUp, RefreshCw } from "lucide-react"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
@@ -54,6 +54,7 @@ class CardErrorBoundary extends Component<
 export function CommunityPage() {
   const { user, setShowLoginModal } = useAuthStore()
   const location = useLocation()
+  const navigate = useNavigate()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useSessionState<PostSortOption>("community:sort", "latest")
   const [cityFilter, setCityFilter] = useSessionState("community:city", "")
@@ -183,13 +184,13 @@ export function CommunityPage() {
       {/* 헤더 */}
       <div className="mb-8 flex items-end justify-between">
         <div>
-          <h1 className="text-headline font-bold">여행 공유</h1>
+          <h1 className="text-headline font-bold">여행 일정 커뮤니티</h1>
           <p className="mt-1 text-body-sm text-muted-foreground">다른 여행자들의 일본 일정을 구경하세요 ✈️</p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={handleCreateClick} className="gap-2 rounded-xl btn-gradient text-body-sm h-11 px-5">
             <Plus className="h-4 w-4" />
-            여행 공유
+            내 일정 올리기
           </Button>
         </div>
       </div>
@@ -307,11 +308,19 @@ export function CommunityPage() {
           </div>
           <div>
             <p className="empty-state-title">{fetchError}</p>
-            <p className="empty-state-desc mt-2">네트워크 상태를 확인하고 다시 시도해주세요</p>
+            <p className="empty-state-desc mt-2">일시적인 문제일 수 있어요. 잠시 후 다시 시도해주세요.</p>
           </div>
-          <Button onClick={fetchPosts} variant="outline" className="mt-2 gap-2 rounded-xl">
-            <RefreshCw className="h-4 w-4" /> 다시 시도
-          </Button>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+            <Button onClick={fetchPosts} variant="outline" className="gap-2 rounded-xl">
+              <RefreshCw className="h-4 w-4" /> 다시 시도
+            </Button>
+            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/")}>
+              홈으로
+            </Button>
+            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/planner?new=true")}>
+              플래너로
+            </Button>
+          </div>
         </div>
       ) : posts.length === 0 ? (
         <div className="empty-state py-24">
@@ -322,10 +331,14 @@ export function CommunityPage() {
             <p className="empty-state-title">아직 공유된 여행이 없어요</p>
             <p className="empty-state-desc mt-2">첫 번째로 여행을 공유해보세요!</p>
           </div>
-          <Button onClick={handleCreateClick} className="mt-2 gap-2 rounded-xl">
-            <Plus className="h-4 w-4" />
-            여행 공유하기
-          </Button>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+            <Button onClick={handleCreateClick} className="gap-2 rounded-xl">
+              <Plus className="h-4 w-4" /> 내 일정 올리기
+            </Button>
+            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/planner?new=true")}>
+              플래너에서 여행 만들기
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

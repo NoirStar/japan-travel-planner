@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useMap } from "@vis.gl/react-google-maps"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, Search, Loader2, X } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, Search, Loader2, X, Layers } from "lucide-react"
 import { getVisibleRadius } from "@/lib/mapUtils"
 
 // ── 카테고리 필터 ────────────────────────────
@@ -45,6 +45,7 @@ export function UnifiedSearchBar({
   const map = useMap()
   const [hasClicked, setHasClicked] = useState(false)
   const [ratingOpen, setRatingOpen] = useState(false)
+  const [filtersExpanded, setFiltersExpanded] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [showTooltip, setShowTooltip] = useState(() => {
     try { return !localStorage.getItem(TUTORIAL_KEY) } catch { return true }
@@ -80,9 +81,9 @@ export function UnifiedSearchBar({
 
   return (
     <div className="absolute bottom-3 left-2 right-2 sm:bottom-6 sm:left-3 sm:right-3 z-10 flex flex-col items-center pointer-events-none">
-      {/* 튜토리얼 툴팁 */}
+      {/* 튜토리얼 툴팁 — 데스크톱만 */}
       {showTooltip && !hasClicked && !isSearching && (
-        <div className="relative mb-2.5 rounded-2xl bg-sakura-dark px-4 py-2.5 sm:px-5 sm:py-3 text-caption sm:text-body-sm font-bold text-white shadow-xl animate-bounce pointer-events-auto">
+        <div className="relative mb-2.5 hidden sm:block rounded-2xl bg-sakura-dark px-5 py-3 text-body-sm font-bold text-white shadow-xl animate-bounce pointer-events-auto">
           <span className="flex items-center gap-2">
             <Search className="h-4 w-4" />
             지도를 이동 후 검색 버튼을 눌러주세요!
@@ -93,8 +94,8 @@ export function UnifiedSearchBar({
 
       {/* 통합 검색바 */}
       <div className="pointer-events-auto flex flex-col items-center gap-1.5 sm:gap-2 max-w-full">
-        {/* 상단: 카테고리 필터 */}
-        <div className="flex items-center gap-1 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 sm:px-2 py-1.5 sm:py-2 shadow-lg border border-border overflow-x-auto scrollbar-hide">
+        {/* 데스크톱: 카테고리 바 (항상 표시) */}
+        <div className="hidden sm:flex items-center gap-1 rounded-2xl bg-card/95 backdrop-blur-sm px-2 py-2 shadow-lg border border-border overflow-x-auto scrollbar-hide">
         {CATEGORY_FILTERS.map((cat) => {
           const Icon = cat.icon
           const isActive = activeCategory === cat.id
@@ -107,7 +108,7 @@ export function UnifiedSearchBar({
                 if (!area) return
                 onCategoryChange(cat.id as string | undefined, area.lat, area.lng, area.radius)
               }}
-              className={`flex shrink-0 items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl text-caption sm:text-body-sm font-semibold whitespace-nowrap transition-all ${
+              className={`flex shrink-0 items-center gap-1.5 px-3 py-2.5 rounded-xl text-body-sm font-semibold whitespace-nowrap transition-all ${
                 isActive
                   ? "bg-sakura-dark text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -115,14 +116,57 @@ export function UnifiedSearchBar({
               title={cat.label}
             >
               <Icon className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">{cat.label}</span>
+              {cat.label}
             </button>
           )
         })}
         </div>
 
-        {/* 하단: 별점 필터 + 정렬 + 검색 */}
+        {/* 모바일: 카테고리 바 (펼침 시만) */}
+        {filtersExpanded && (
+          <div className="sm:hidden flex items-center gap-1 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 py-1.5 shadow-lg border border-border overflow-x-auto scrollbar-hide animate-in slide-in-from-bottom-2 duration-150">
+            {CATEGORY_FILTERS.map((cat) => {
+              const Icon = cat.icon
+              const isActive = activeCategory === cat.id
+              return (
+                <button
+                  key={cat.id ?? "all"}
+                  onClick={() => {
+                    if (!map) return
+                    const area = getVisibleRadius(map)
+                    if (!area) return
+                    onCategoryChange(cat.id as string | undefined, area.lat, area.lng, area.radius)
+                  }}
+                  className={`flex shrink-0 items-center gap-1 px-2.5 py-2 rounded-xl text-caption font-semibold whitespace-nowrap transition-all ${
+                    isActive
+                      ? "bg-sakura-dark text-white shadow-sm"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  {cat.label}
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {/* 하단: 필터 토글(모바일) + 별점 + 검색 */}
         <div className="flex w-fit items-center gap-1 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 sm:px-2 py-1.5 sm:py-2 shadow-lg border border-border">
+
+        {/* 모바일 필터 토글 */}
+        <button
+          className={`sm:hidden flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            filtersExpanded || activeCategory
+              ? "bg-sakura-dark/15 text-sakura-dark"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          }`}
+          onClick={() => setFiltersExpanded(!filtersExpanded)}
+        >
+          <Layers className="w-3.5 h-3.5 shrink-0" />
+          필터{activeCategory ? " •" : ""}
+        </button>
+        <div className="w-px h-6 bg-border/60 mx-0.5 shrink-0 sm:hidden" />
 
         {/* Google 별점 드롭다운 */}
         <div className="relative shrink-0" ref={dropdownRef}>

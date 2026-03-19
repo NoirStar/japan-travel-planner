@@ -200,8 +200,8 @@ export function FreeBoardPage() {
         </Button>
       </div>
 
-      {/* 검색 (버튼 방식) */}
-      <div className="mb-5 flex gap-2">
+      {/* 검색 (모바일: 2줄 / 데스크톱: 1줄) */}
+      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:gap-2">
         <select
           value={searchType}
           onChange={(e) => setSearchType(e.target.value as "all" | "title" | "author")}
@@ -211,21 +211,23 @@ export function FreeBoardPage() {
           <option value="title">제목</option>
           <option value="author">작성자</option>
         </select>
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            placeholder={searchType === "author" ? "작성자 닉네임 검색..." : "제목 또는 내용으로 검색..."}
-            className="w-full rounded-xl border border-border bg-card py-3 pl-11 pr-4 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
-          />
+        <div className="flex gap-2 flex-1">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              placeholder={searchType === "author" ? "작성자 닉네임 검색..." : "제목 또는 내용으로 검색..."}
+              className="w-full rounded-xl border border-border bg-card py-3 pl-11 pr-4 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+            />
+          </div>
+          <Button onClick={handleSearch} variant="outline" className="shrink-0 gap-2 rounded-xl h-auto">
+            <Search className="h-4 w-4" />
+            검색
+          </Button>
         </div>
-        <Button onClick={handleSearch} variant="outline" className="shrink-0 gap-2 rounded-xl h-auto">
-          <Search className="h-4 w-4" />
-          검색
-        </Button>
       </div>
 
       {/* 필터 바 */}
@@ -310,11 +312,19 @@ export function FreeBoardPage() {
           </div>
           <div>
             <p className="empty-state-title">{fetchError}</p>
-            <p className="empty-state-desc mt-2">네트워크 상태를 확인하고 다시 시도해주세요</p>
+            <p className="empty-state-desc mt-2">일시적인 문제일 수 있어요. 잠시 후 다시 시도해주세요.</p>
           </div>
-          <Button onClick={fetchPosts} variant="outline" className="mt-2 gap-2 rounded-xl">
-            <RefreshCw className="h-4 w-4" /> 다시 시도
-          </Button>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+            <Button onClick={fetchPosts} variant="outline" className="gap-2 rounded-xl">
+              <RefreshCw className="h-4 w-4" /> 다시 시도
+            </Button>
+            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/")}>
+              홈으로
+            </Button>
+            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/community")}>
+              여행 커뮤니티
+            </Button>
+          </div>
         </div>
       ) : filteredPosts.length === 0 ? (
         <div className="empty-state py-24">
@@ -355,7 +365,7 @@ export function FreeBoardPage() {
               <Link
                 key={post.id}
                 to={`/community/${post.id}`}
-                className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3.5 transition-colors hover:bg-muted/50 ${
+                className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-4 transition-colors hover:bg-muted/50 ${
                   idx > 0 ? "border-t border-border/60" : ""
                 } ${isBest ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`}
               >
@@ -379,7 +389,7 @@ export function FreeBoardPage() {
                       <span className="ml-1.5 text-xs text-primary font-semibold">[{post.comments_count}]</span>
                     )}
                   </p>
-                  <div className="flex items-center gap-2 mt-0.5 sm:hidden text-[11px] text-muted-foreground">
+                  <div className="flex items-center gap-2 mt-1 sm:hidden text-xs text-muted-foreground">
                     <button
                       onClick={(e) => handleAuthorClick(e, post)}
                       className="hover:text-primary hover:underline"
@@ -388,7 +398,7 @@ export function FreeBoardPage() {
                     </button>
                     {profile && <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />}
                     <span>·</span>
-                    <span className="inline-flex items-center gap-0.5"><ThumbsUp className="h-2.5 w-2.5" /> {post.likes_count}</span>
+                    <span className="inline-flex items-center gap-0.5"><ThumbsUp className="h-3 w-3" /> {post.likes_count}</span>
                     <span>·</span>
                     <span>{timeAgo(post.created_at)}</span>
                   </div>

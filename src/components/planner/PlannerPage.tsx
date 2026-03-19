@@ -48,6 +48,10 @@ export function PlannerPage() {
     } else {
       const newTrip = createTrip(sharedTrip.cityId, sharedTrip.title)
       const store = useScheduleStore.getState()
+      store.updateTrip(newTrip.id, {
+        startDate: sharedTrip.startDate,
+        endDate: sharedTrip.endDate,
+      })
       for (const day of sharedTrip.days) {
         if (day.dayNumber > 1) store.addDay(newTrip.id)
       }

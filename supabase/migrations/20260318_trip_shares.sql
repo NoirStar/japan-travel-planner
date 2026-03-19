@@ -6,7 +6,7 @@
 -- ── 공유 스냅샷 테이블 ────────────────────────────────
 create table if not exists trip_shares (
   id uuid primary key default gen_random_uuid(),
-  share_code text not null unique default substr(replace(gen_random_uuid()::text, '-', ''), 1, 10),
+  share_code text not null unique default encode(gen_random_bytes(12), 'hex'),
   user_id uuid references profiles(id) on delete set null,
   trip_data jsonb not null,
   place_data jsonb not null default '{}',
@@ -21,10 +21,9 @@ create index if not exists trip_shares_user_id_idx on trip_shares (user_id);
 -- RLS
 alter table trip_shares enable row level security;
 
--- 누구나 share_code로 조회 가능
-create policy "공유 링크 조회" on trip_shares for select using (true);
--- 로그인한 사용자만 생성
-create policy "공유 링크 생성" on trip_shares for insert with check (auth.uid() = user_id);
+-- 본인 공유 링크만 조회 (공개 조회는 security definer RPC 경유)
+create policy "본인 공유 링크 조회" on trip_shares for select using (auth.uid() = user_id);
+-- INSERT는 security definer RPC만 허용 (직접 삽입 차단)
 -- 본인만 삭제
 create policy "공유 링크 삭제" on trip_shares for delete using (auth.uid() = user_id);
 
@@ -36,16 +35,40 @@ create or replace function create_trip_share(
 returns text as $$
 declare
   v_code text;
+  v_retries int := 0;
 begin
   if auth.uid() is null then
     raise exception 'Authentication required';
   end if;
 
-  insert into trip_shares (user_id, trip_data, place_data)
-  values (auth.uid(), p_trip_data, p_place_data)
-  returning share_code into v_code;
+  -- 페이로드 기본 검증
+  if jsonb_typeof(p_trip_data) != 'object' then
+    raise exception 'trip_data must be a JSON object';
+  end if;
+  if p_trip_data->>'t' is null or p_trip_data->>'c' is null then
+    raise exception 'trip_data must contain t (title) and c (cityId)';
+  end if;
+  if octet_length(p_trip_data::text) > 512000 then
+    raise exception 'trip_data exceeds 500KB limit';
+  end if;
+  if jsonb_typeof(p_place_data) != 'object' then
+    raise exception 'place_data must be a JSON object';
+  end if;
 
-  return v_code;
+  -- 충돌 방지 재시도 루프
+  loop
+    begin
+      insert into trip_shares (user_id, trip_data, place_data)
+      values (auth.uid(), p_trip_data, p_place_data)
+      returning share_code into v_code;
+      return v_code;
+    exception when unique_violation then
+      v_retries := v_retries + 1;
+      if v_retries > 3 then
+        raise exception 'Failed to generate unique share code';
+      end if;
+    end;
+  end loop;
 end;
 $$ language plpgsql security definer set search_path = public;
 

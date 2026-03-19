@@ -48,7 +48,7 @@ export function LoginModal() {
             <X className="h-4 w-4" />
           </button>
 
-          <h2 className="text-2xl font-bold gradient-text font-maple">タビトーク</h2>
+          <h2 className="text-2xl font-bold gradient-text font-maple">타비톡</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             일본 여행을 계획하고 공유하세요
           </p>

@@ -72,7 +72,7 @@ export function Header() {
       <div className={`flex h-16 items-center justify-between px-5 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
         <div className="flex items-center gap-3">
           <Link to="/" aria-label="타비톡 홈" className="group flex items-center transition-all hover:opacity-80">
-            <span className="text-xl font-extrabold tracking-tight gradient-text font-maple">タビトーク</span>
+            <span className="text-xl font-extrabold tracking-tight gradient-text font-maple">타비톡</span>
           </Link>
         </div>
 

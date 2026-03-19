@@ -111,14 +111,14 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
             {/* 영문명 — 데스크톱만 */}
             <p className="hidden text-[11px] text-muted-foreground/70 lg:block">{place.nameEn}</p>
 
-            <div className="mt-1 flex items-center gap-1.5 flex-wrap lg:mt-1.5">
+            <div className="mt-2 flex items-center gap-2 flex-wrap lg:mt-2">
               {/* 시간대 표시/편집 */}
               {isEditingTime ? (
                 <input
                   ref={timeInputRef}
                   type="time"
                   defaultValue={startTime ?? ""}
-                  className="h-8 w-[100px] shrink-0 appearance-none rounded-lg bg-card px-2 text-xs font-medium text-foreground outline-none border border-sakura-dark shadow-sm focus:ring-2 focus:ring-sakura/30 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:leading-[30px]"
+                  className="h-9 w-[100px] shrink-0 appearance-none rounded-lg bg-card px-2.5 text-[13px] font-medium text-foreground outline-none border border-sakura-dark shadow-sm focus:ring-2 focus:ring-sakura/30 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:leading-[32px]"
                   onBlur={(e) => {
                     setIsEditingTime(false)
                     onStartTimeChange?.(e.target.value)
@@ -134,11 +134,11 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 />
               ) : (
                 <button
-                  className="flex items-center gap-1 rounded-lg border border-sakura/30 bg-sakura/10 px-2 py-0.5 text-[11px] font-semibold text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors shadow-sm lg:px-2.5 lg:py-1 lg:text-xs"
+                  className="flex items-center gap-1.5 rounded-lg border border-sakura/30 bg-sakura/10 px-2.5 py-1 text-caption font-semibold text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-[13px]"
                   onClick={(e) => { e.stopPropagation(); setIsEditingTime(true) }}
                   data-testid={`time-badge-${index}`}
                 >
-                  <Clock className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
+                  <Clock className="h-3.5 w-3.5" />
                   {startTime || "시간"}
                 </button>
               )}
@@ -147,18 +147,18 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
               {startTime && (() => {
                 const slot = getTimeSlotLabel(startTime)
                 return slot ? (
-                  <span className={`text-[10px] font-semibold ${slot.color}`} data-testid={`time-slot-${index}`}>
+                  <span className={`text-caption font-semibold ${slot.color}`} data-testid={`time-slot-${index}`}>
                     {slot.label}
                   </span>
                 ) : null
               })()}
 
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <span className="chip chip-muted">
                 {categoryLabel}
               </span>
               {place.rating && (
-                <span className="hidden items-center gap-0.5 text-[10px] text-muted-foreground lg:flex">
-                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                <span className="hidden items-center gap-0.5 text-caption text-muted-foreground lg:flex">
+                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                   {place.rating}
                 </span>
               )}
@@ -166,26 +166,26 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
 
             {/* 설명 — 데스크톱만 */}
             {place.description && (
-              <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground/70 hidden lg:block">
+              <p className="mt-2 line-clamp-2 text-body-sm leading-relaxed text-muted-foreground/70 hidden lg:block">
                 {place.description}
               </p>
             )}
 
             {/* 메모 토글 — 데스크톱만 */}
             <button
-              className="mt-1.5 hidden items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors lg:flex"
+              className="mt-2 hidden items-center gap-1.5 text-caption text-muted-foreground/60 hover:text-muted-foreground transition-colors lg:flex"
               onClick={(e) => { e.stopPropagation(); setShowMemo(!showMemo) }}
               data-testid={`memo-toggle-${index}`}
             >
-              <StickyNote className="h-3 w-3" />
+              <StickyNote className="h-3.5 w-3.5" />
               {memo ? "메모 보기" : "메모 추가"}
-              {showMemo ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              {showMemo ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
             </button>
 
             {/* 메모 입력 — 데스크톱만 */}
             {showMemo && (
               <textarea
-                className="mt-1 hidden w-full resize-none rounded-lg border border-border bg-muted px-2 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40 lg:block"
+                className="mt-2 hidden w-full resize-none rounded-xl border border-border bg-muted px-3 py-2 text-body-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40 lg:block"
                 placeholder="메모를 입력하세요..."
                 rows={2}
                 defaultValue={memo ?? ""}
@@ -197,11 +197,11 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
 
             {/* 비용 — 데스크톱만 */}
             {onCostChange && (
-              <div className="mt-1 hidden items-center gap-1.5 text-[10px] lg:flex" onClick={(e) => e.stopPropagation()}>
-                <Wallet className="h-3 w-3 text-emerald-500" />
+              <div className="mt-2 hidden items-center gap-2 text-caption lg:flex" onClick={(e) => e.stopPropagation()}>
+                <Wallet className="h-3.5 w-3.5 text-emerald-500" />
                 <input
                   type="number"
-                  className="w-16 rounded border border-border bg-muted px-1 py-0.5 text-[10px] text-foreground outline-none focus:ring-1 focus:ring-sakura/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  className="w-20 rounded-lg border border-border bg-muted px-2 py-1 text-caption text-foreground outline-none focus:ring-1 focus:ring-sakura/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   placeholder="비용(¥)"
                   defaultValue={cost ?? ""}
                   onBlur={(e) => {
@@ -210,7 +210,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                   }}
                 />
                 <select
-                  className="rounded border border-border bg-muted px-1 py-0.5 text-[10px] text-foreground outline-none"
+                  className="rounded-lg border border-border bg-muted px-2 py-1 text-caption text-foreground outline-none"
                   value={costCategory ?? ""}
                   onChange={(e) => {
                     const cat = e.target.value as CostCategory | ""
@@ -315,7 +315,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         {/* 모바일 메모 영역 (메뉴에서 열었을 때) */}
         {showMemo && (
           <textarea
-            className="mt-2 w-full resize-none rounded-lg border border-border bg-muted px-2 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40 lg:hidden"
+            className="mt-3 w-full resize-none rounded-xl border border-border bg-muted px-3 py-2 text-body-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40 lg:hidden"
             placeholder="메모를 입력하세요..."
             rows={2}
             defaultValue={memo ?? ""}

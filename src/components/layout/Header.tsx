@@ -78,24 +78,24 @@ export function Header() {
   })()
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm">
-      <div className={`flex h-14 items-center justify-between px-4 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
-        <div className="flex items-center gap-2">
-          <Link to="/" className="group flex items-center gap-2 transition-all hover:opacity-80">
-            <span className="text-lg font-bold tracking-tight gradient-text font-maple">타비톡</span>
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/80 bg-card/90 backdrop-blur-md">
+      <div className={`flex h-16 items-center justify-between px-5 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
+        <div className="flex items-center gap-3">
+          <Link to="/" className="group flex items-center gap-2.5 transition-all hover:opacity-80">
+            <span className="text-xl font-extrabold tracking-tight gradient-text font-maple">タビトク</span>
           </Link>
           {timeGreeting && (
-            <span className="hidden sm:inline text-[11px] text-muted-foreground/60">{timeGreeting}</span>
+            <span className="hidden md:inline text-xs text-muted-foreground/50 font-medium">{timeGreeting}</span>
           )}
         </div>
 
-        <div className="flex items-center gap-0.5 sm:gap-1">
+        <div className="flex items-center gap-1 sm:gap-1.5">
           <Link to="/planner">
-            <Button variant="ghost" size="sm" className={`gap-1.5 rounded-lg hover:bg-muted ${
-              isPlanner ? "text-foreground bg-muted font-semibold" : "text-muted-foreground hover:text-foreground"
+            <Button variant="ghost" size="sm" className={`gap-1.5 rounded-xl px-3 py-2 h-9 hover:bg-muted ${
+              isPlanner ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
             }`}>
-              <Compass className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">플래너</span>
+              <Compass className="h-[18px] w-[18px]" />
+              <span className="hidden sm:inline text-[13px]">플래너</span>
             </Button>
           </Link>
 
@@ -104,32 +104,33 @@ export function Header() {
             <Button
               variant="ghost"
               size="sm"
-              className={`gap-1.5 rounded-lg hover:bg-muted ${
-                isCommunity ? "text-foreground bg-muted font-semibold" : "text-muted-foreground hover:text-foreground"
+              className={`gap-1.5 rounded-xl px-3 py-2 h-9 hover:bg-muted ${
+                isCommunity ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => { setCommunityOpen((v) => !v); setDropdownOpen(false) }}
             >
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">커뮤니티</span>
+              <Users className="h-[18px] w-[18px]" />
+              <span className="hidden sm:inline text-[13px]">커뮤니티</span>
               <ChevronDown className={`h-3 w-3 transition-transform ${communityOpen ? "rotate-180" : ""}`} />
             </Button>
 
             {communityOpen && (
-              <div className="absolute left-0 top-full mt-1 w-36 overflow-hidden rounded-xl border border-border bg-card shadow-lg z-50">
+              <div className="absolute left-0 top-full mt-2 w-44 overflow-hidden rounded-2xl border border-border bg-card shadow-xl z-50">
                 <Link
                   to="/community"
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
                   onClick={() => setCommunityOpen(false)}
                 >
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <MapPin className="h-4 w-4 text-primary/60" />
                   여행 공유
                 </Link>
+                <div className="mx-3 h-px bg-border" />
                 <Link
                   to="/community/free"
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
                   onClick={() => setCommunityOpen(false)}
                 >
-                  <PenSquare className="h-4 w-4 text-muted-foreground" />
+                  <PenSquare className="h-4 w-4 text-indigo/60" />
                   자유게시판
                 </Link>
               </div>
@@ -140,11 +141,11 @@ export function Header() {
             <>
             {/* ── 내 여행 (로그인 시) ── */}
             <Link to="/trips">
-              <Button variant="ghost" size="sm" className={`gap-1.5 rounded-lg hover:bg-muted ${
-                isTrips ? "text-foreground bg-muted font-semibold" : "text-muted-foreground hover:text-foreground"
+              <Button variant="ghost" size="sm" className={`gap-1.5 rounded-xl px-3 py-2 h-9 hover:bg-muted ${
+                isTrips ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}>
-                <Briefcase className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">내 여행</span>
+                <Briefcase className="h-[18px] w-[18px]" />
+                <span className="hidden sm:inline text-[13px]">내 여행</span>
               </Button>
             </Link>
 
@@ -157,19 +158,19 @@ export function Header() {
                 onClick={() => setDropdownOpen((v) => !v)}
               >
                 {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
+                  <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover ring-2 ring-primary/10" />
                 ) : (
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
                     {profile.nickname.charAt(0)}
                   </div>
                 )}
-                <span className="hidden sm:inline text-sm">{profile.nickname}</span>
+                <span className="hidden sm:inline text-[13px] font-medium">{profile.nickname}</span>
                 <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />
                 <ChevronDown className={`h-3 w-3 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </Button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 w-48 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+                <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
                   <button
                     className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
                     onClick={() => { setDropdownOpen(false); navigate("/profile"); }}
@@ -270,10 +271,10 @@ export function Header() {
               </Button>
               <Button
                 size="sm"
-                className="gap-1.5 rounded-lg btn-gradient text-xs font-semibold px-4"
+                className="gap-1.5 rounded-xl btn-gradient text-[13px] font-semibold px-5 h-9"
                 onClick={() => { setShowLoginModal(true); }}
               >
-                <User className="h-3.5 w-3.5" />
+                <User className="h-4 w-4" />
                 <span className="hidden sm:inline">로그인</span>
               </Button>
             </>

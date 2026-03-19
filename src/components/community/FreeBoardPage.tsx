@@ -187,76 +187,76 @@ export function FreeBoardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-20 pb-10">
+    <div className="mx-auto max-w-4xl px-5 lg:px-8 pt-24 pb-14">
       {/* 헤더 */}
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-6 flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold">자유게시판</h1>
-          <p className="text-sm text-muted-foreground">자유롭게 이야기를 나눠보세요</p>
+          <h1 className="text-headline font-bold">자유게시판</h1>
+          <p className="mt-1 text-body-sm text-muted-foreground">자유롭게 이야기를 나눠보세요</p>
         </div>
-        <Button onClick={handleCreateClick} className="gap-2 rounded-xl">
+        <Button onClick={handleCreateClick} className="gap-2 rounded-xl h-10 px-5">
           <PenSquare className="h-4 w-4" />
           <span className="hidden sm:inline">글쓰기</span>
         </Button>
       </div>
 
       {/* 검색 (버튼 방식) */}
-      <div className="mb-4 flex gap-2">
+      <div className="mb-5 flex gap-2">
         <select
           value={searchType}
           onChange={(e) => setSearchType(e.target.value as "all" | "title" | "author")}
-          className="shrink-0 rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          className="shrink-0 rounded-xl border border-border bg-card px-3.5 py-3 text-body-sm outline-none focus:ring-2 focus:ring-primary/40"
         >
           <option value="all">제목+내용</option>
           <option value="title">제목</option>
           <option value="author">작성자</option>
         </select>
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={handleSearchKeyDown}
             placeholder={searchType === "author" ? "작성자 닉네임 검색..." : "제목 또는 내용으로 검색..."}
-            className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full rounded-xl border border-border bg-card py-3 pl-11 pr-4 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
           />
         </div>
-        <Button onClick={handleSearch} variant="outline" className="shrink-0 gap-1.5 rounded-xl">
+        <Button onClick={handleSearch} variant="outline" className="shrink-0 gap-2 rounded-xl h-auto">
           <Search className="h-4 w-4" />
           검색
         </Button>
       </div>
 
       {/* 필터 바 */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="mb-5 flex flex-wrap items-center gap-2.5">
         {/* 정렬 */}
         <div className="flex rounded-xl border border-border bg-card p-0.5">
           <button
             onClick={() => setSort("latest")}
-            className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
               sort === "latest" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Clock className="h-3 w-3" />
+            <Clock className="h-3.5 w-3.5" />
             최신
           </button>
           <button
             onClick={() => setSort("popular")}
-            className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
               sort === "popular" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <TrendingUp className="h-3 w-3" />
+            <TrendingUp className="h-3.5 w-3.5" />
             인기
           </button>
           <button
             onClick={() => setSort("best")}
-            className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
               sort === "best" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Trophy className="h-3 w-3" />
+            <Trophy className="h-3.5 w-3.5" />
             베스트
           </button>
         </div>
@@ -267,13 +267,13 @@ export function FreeBoardPage() {
             <button
               key={f.value}
               onClick={() => setMinLikes(f.value)}
-              className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-caption font-semibold transition-colors ${
                 minLikes === f.value
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {f.value > 0 && <ThumbsUp className="h-2.5 w-2.5" />}
+              {f.value > 0 && <ThumbsUp className="h-3 w-3" />}
               {f.label}
             </button>
           ))}
@@ -283,7 +283,7 @@ export function FreeBoardPage() {
         {authorFilter && (
           <button
             onClick={() => setAuthorFilter(null)}
-            className="inline-flex items-center gap-1 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+            className="chip chip-primary gap-1"
           >
             {authorFilter.nickname}의 글
             <X className="h-3 w-3" />
@@ -291,7 +291,7 @@ export function FreeBoardPage() {
         )}
 
         {/* 글 수 표시 */}
-        <span className="ml-auto text-xs text-muted-foreground">
+        <span className="ml-auto text-caption text-muted-foreground">
           총 {filteredPosts.length}건
         </span>
       </div>
@@ -304,34 +304,41 @@ export function FreeBoardPage() {
           ))}
         </div>
       ) : fetchError ? (
-        <div className="py-20 text-center">
-          <p className="text-lg font-semibold">{fetchError}</p>
-          <p className="mt-1 text-sm text-muted-foreground">네트워크 상태를 확인하고 다시 시도해주세요</p>
-          <Button onClick={fetchPosts} variant="outline" className="mt-4 gap-2 rounded-xl">
+        <div className="empty-state py-24">
+          <div className="empty-state-icon">
+            <RefreshCw className="h-8 w-8 text-destructive/40" />
+          </div>
+          <div>
+            <p className="empty-state-title">{fetchError}</p>
+            <p className="empty-state-desc mt-2">네트워크 상태를 확인하고 다시 시도해주세요</p>
+          </div>
+          <Button onClick={fetchPosts} variant="outline" className="mt-2 gap-2 rounded-xl">
             <RefreshCw className="h-4 w-4" /> 다시 시도
           </Button>
         </div>
       ) : filteredPosts.length === 0 ? (
-        <div className="py-20 text-center">
-          <div className="mx-auto flex h-16 w-16 animate-float items-center justify-center rounded-2xl bg-primary/10">
-            <PenSquare className="h-8 w-8 text-primary/50" />
+        <div className="empty-state py-24">
+          <div className="empty-state-icon">
+            <PenSquare className="h-8 w-8 text-primary/40" />
           </div>
-          <p className="mt-3 text-lg font-semibold">
-            {searchQuery ? "검색 결과가 없습니다" : "아직 글이 없어요"}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {searchQuery ? "다른 검색어로 시도해보세요" : "첫 번째 글을 작성해보세요!"}
-          </p>
+          <div>
+            <p className="empty-state-title">
+              {searchQuery ? "검색 결과가 없습니다" : "아직 글이 없어요"}
+            </p>
+            <p className="empty-state-desc mt-2">
+              {searchQuery ? "다른 검색어로 시도해보세요" : "첫 번째 글을 작성해보세요!"}
+            </p>
+          </div>
           {!searchQuery && (
-            <Button onClick={handleCreateClick} className="mt-4 gap-2 rounded-xl">
+            <Button onClick={handleCreateClick} className="mt-2 gap-2 rounded-xl">
               <PenSquare className="h-4 w-4" /> 글쓰기
             </Button>
           )}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
-          {/* 테이블 헤더 (데스크탑) */}
-          <div className="hidden sm:flex items-center gap-3 border-b border-border bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          {/* 테이블 헤더 (데스크톱) */}
+          <div className="hidden sm:flex items-center gap-3 border-b border-border bg-muted/50 px-5 py-2.5 text-caption font-medium text-muted-foreground">
             <span className="flex-1">제목</span>
             <span className="w-28 text-center">작성자</span>
             <span className="w-10 text-center">추천</span>
@@ -348,7 +355,7 @@ export function FreeBoardPage() {
               <Link
                 key={post.id}
                 to={`/community/${post.id}`}
-                className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 transition-colors hover:bg-muted/50 ${
+                className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3.5 transition-colors hover:bg-muted/50 ${
                   idx > 0 ? "border-t border-border/60" : ""
                 } ${isBest ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`}
               >
@@ -419,7 +426,7 @@ export function FreeBoardPage() {
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-1">
+        <div className="mt-8 flex items-center justify-center gap-1.5">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
@@ -443,10 +450,10 @@ export function FreeBoardPage() {
               p === "..." ? (
                 <span key={`ellipsis-${i}`} className="px-2 text-xs text-muted-foreground">...</span>
               ) : (
-                <button
+                  <button
                   key={p}
                   onClick={() => setPage(p)}
-                  className={`min-w-[2rem] rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                  className={`min-w-[2.25rem] rounded-lg px-3 py-2 text-caption font-semibold transition-colors ${
                     page === p
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"

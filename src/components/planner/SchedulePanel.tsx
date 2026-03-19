@@ -313,24 +313,24 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       />
 
       {/* 일정 카드 리스트 */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 min-h-0" data-testid="schedule-items">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-5 min-h-0" data-testid="schedule-items">
         {timeline.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-4 py-14 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-              <MapPin className="h-7 w-7 text-primary/40" />
+          <div className="empty-state py-16">
+            <div className="empty-state-icon">
+              <MapPin className="h-8 w-8 text-primary/40" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">Day {currentDay?.dayNumber}에 장소를 추가하세요</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="empty-state-title">Day {currentDay?.dayNumber}에 장소를 추가하세요</p>
+              <p className="empty-state-desc mt-2">
                 아래 <span className="font-medium text-primary">"장소 추가"</span> 버튼을 누르거나,
                 <br />지도에서 장소를 직접 클릭해도 추가됩니다
               </p>
             </div>
             <button
               onClick={() => setIsPlaceSheetOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-4 py-2 text-xs font-semibold text-primary hover:bg-primary/15 transition-colors"
+              className="btn-base btn-md bg-primary/10 text-primary font-semibold hover:bg-primary/15 transition-colors"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-4 w-4" />
               장소 검색하기
             </button>
           </div>
@@ -457,51 +457,51 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       />
 
       {/* 하단 액션 — 모바일: 장소 추가 + 더보기 / 데스크톱: 기존 유지 */}
-      <div className="flex flex-col gap-2 border-t border-border p-4">
+      <div className="flex flex-col gap-2.5 border-t border-border p-5">
         {/* 모바일 하단 (lg 미만) */}
-        <div className="flex gap-2 lg:hidden">
+        <div className="flex gap-2.5 lg:hidden">
           <button
-            className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold"
+            className="btn-gradient btn-base btn-md flex-1"
             onClick={() => setIsPlaceSheetOpen(true)}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4.5 w-4.5" />
             장소 추가
           </button>
           <button
-            className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            className="btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors px-5"
             onClick={() => setIsMobileMoreOpen(true)}
           >
-            <MoreHorizontal className="h-4 w-4" />
+            <MoreHorizontal className="h-4.5 w-4.5" />
             더보기
           </button>
         </div>
         {/* 데스크톱 하단 (lg 이상) */}
-        <div className="hidden lg:flex gap-2">
+        <div className="hidden lg:flex gap-2.5">
           <button
-            className="btn-gradient flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold"
+            className="btn-gradient btn-base btn-md flex-1"
             onClick={() => setIsPlaceSheetOpen(true)}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4.5 w-4.5" />
             장소 추가
           </button>
           <button
-            className="relative flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
+            className="relative btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsWishlistOpen(true)}
             data-testid="wishlist-button"
           >
             <Bookmark className="h-4 w-4 text-rose-500" />
             북마크
             {wishlistCount > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -right-1.5 -top-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
                 {wishlistCount}
               </span>
             )}
           </button>
         </div>
         {/* 보조 도구 — 데스크톱에서만 표시 */}
-        <div className="hidden lg:flex gap-1.5">
+        <div className="hidden lg:flex gap-1">
           <button
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => { setEditingReservation(null); setIsReservationSheetOpen(true) }}
             data-testid="add-reservation-button"
           >
@@ -509,7 +509,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             예약
           </button>
           <button
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsChecklistOpen(true)}
             data-testid="checklist-button"
           >
@@ -517,7 +517,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             준비물
           </button>
           <button
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsBudgetOpen(true)}
             data-testid="budget-button"
           >
@@ -525,15 +525,15 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             예산
           </button>
           <button
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsTransportPassOpen(true)}
             data-testid="transport-pass-button"
           >
-            <TrainFront className="h-4 w-4 text-blue-500" />
+            <TrainFront className="h-4 w-4 text-indigo" />
             패스
           </button>
           <button
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={() => setIsAttachmentVaultOpen(true)}
             data-testid="attachment-vault-button"
           >
@@ -542,7 +542,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           </button>
           {collab?.isShared && (
             <button
-              className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+              className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
               onClick={() => setIsChangeHistoryOpen(true)}
               data-testid="change-history-button"
             >
@@ -551,7 +551,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             </button>
           )}
           <button
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={async () => {
               if (!trip) return
               const ok = await copyShareUrl(trip)
@@ -559,11 +559,11 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             }}
             data-testid="share-button"
           >
-            <Share2 className="h-4 w-4 text-indigo-500" />
+            <Share2 className="h-4 w-4 text-indigo" />
             공유
           </button>
           <button
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={async () => {
               if (!trip) return
               showToast("PDF 생성 중...")
@@ -577,7 +577,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             PDF
           </button>
           <button
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-lg border border-border bg-card py-1.5 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
             onClick={async () => {
               if (!trip) return
               const { downloadTripIcs } = await import("@/lib/exportIcs")

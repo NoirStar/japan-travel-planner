@@ -208,48 +208,48 @@ function MapControlPanel({
   const [layerOpen, setLayerOpen] = useState(false)
 
   return (
-    <div className="absolute top-28 right-2.5 z-10 flex flex-col items-end gap-1.5">
+    <div className="absolute top-28 right-3 z-10 flex flex-col items-end gap-2">
       {/* 지도 다크모드 토글 */}
       <button
         onClick={onToggleMapDark}
-        className={`p-2 rounded-lg shadow-md border transition-all ${
+        className={`p-2.5 rounded-xl shadow-md border transition-all ${
           isMapDark
             ? "bg-slate-800 text-amber-300 border-slate-700"
             : "bg-background/90 backdrop-blur-sm text-foreground border-border/50 hover:bg-muted"
         }`}
         title={isMapDark ? "지도 밝게" : "지도 어둡게"}
       >
-        {isMapDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        {isMapDark ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
       </button>
 
       {/* 마커 초기화 버튼 */}
       {onClearMarkers && hasCityPlaces && (
         <button
           onClick={onClearMarkers}
-          className="bg-background/90 backdrop-blur-sm text-foreground p-2 rounded-lg shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
+          className="bg-background/90 backdrop-blur-sm text-foreground p-2.5 rounded-xl shadow-md border border-border/50 hover:bg-destructive/10 hover:text-destructive transition-colors"
           title="마커 초기화"
         >
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="w-4.5 h-4.5" />
         </button>
       )}
 
       {/* 레이어 토글 버튼 */}
       <button
         onClick={() => setLayerOpen(!layerOpen)}
-        className={`p-2 rounded-lg shadow-md border transition-all ${
+        className={`p-2.5 rounded-xl shadow-md border transition-all ${
           layerOpen
             ? "bg-sakura-dark text-white border-sakura-dark"
             : "bg-background/90 backdrop-blur-sm text-foreground border-border/50 hover:bg-muted"
         }`}
         title="지도 레이어"
       >
-        <Layers className="w-4 h-4" />
+        <Layers className="w-4.5 h-4.5" />
       </button>
 
       {/* 레이어 설정 드롭다운 */}
       {layerOpen && (
-        <div className="w-36 rounded-xl bg-card/95 backdrop-blur-sm shadow-lg border border-border py-1.5">
-          <div className="px-3 py-1 text-[10px] text-muted-foreground font-medium border-b border-border/50">
+        <div className="w-40 rounded-2xl bg-card/95 backdrop-blur-sm shadow-xl border border-border py-2">
+          <div className="px-3 py-1.5 text-caption text-muted-foreground font-medium border-b border-border/50">
             지도 표시 설정
           </div>
           {POI_TOGGLES.map((poi) => {

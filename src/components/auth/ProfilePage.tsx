@@ -38,10 +38,10 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 pt-20 pb-10">
+    <div className="mx-auto max-w-lg px-5 pt-24 pb-14">
       {/* 프로필 헤더 */}
-      <div className="mb-6 rounded-2xl border border-border bg-gradient-to-br from-primary/5 via-card to-card p-6">
-        <div className="flex flex-col items-center gap-3">
+      <div className="mb-8 rounded-2xl border border-border bg-gradient-to-br from-primary/5 via-card to-card p-8">
+        <div className="flex flex-col items-center gap-4">
           <div className="relative h-24 w-24">
             {avatarUrl ? (
               <img
@@ -72,8 +72,8 @@ export function ProfilePage() {
           </div>
 
           <div className="text-center">
-            <h1 className="text-lg font-bold">{profile.nickname}</h1>
-            <div className="mt-1">
+            <h1 className="text-title font-bold">{profile.nickname}</h1>
+            <div className="mt-1.5">
               <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} />
             </div>
           </div>
@@ -81,8 +81,8 @@ export function ProfilePage() {
       </div>
 
       {/* 닉네임 */}
-      <div className="mb-4">
-        <label className="mb-1 block text-sm font-medium text-muted-foreground">
+      <div className="mb-5">
+        <label className="mb-1.5 block text-body-sm font-medium text-muted-foreground">
           닉네임
         </label>
         <input
@@ -90,12 +90,12 @@ export function ProfilePage() {
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
           maxLength={20}
-          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
         />
-        <p className="mt-1 text-xs text-muted-foreground">{nickname.length}/20</p>
+        <p className="mt-1.5 text-caption text-muted-foreground">{nickname.length}/20</p>
       </div>
 
-      <div className="mb-6" />
+      <div className="mb-8" />
 
       {/* 통계 */}
       {(() => {
@@ -108,33 +108,33 @@ export function ProfilePage() {
           : 100
 
         return (
-          <div className="mb-6 space-y-4">
+          <div className="mb-8 space-y-5">
             {/* 포인트 + 레벨 요약 */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-xl border border-border bg-card p-4 text-center">
-                <p className="text-2xl font-bold text-primary">{currentPts}</p>
-                <p className="text-xs text-muted-foreground">총 포인트</p>
+              <div className="card-elevated rounded-2xl p-5 text-center">
+                <p className="text-headline font-bold text-primary">{currentPts}</p>
+                <p className="text-caption text-muted-foreground mt-1">총 포인트</p>
               </div>
-              <div className="rounded-xl border border-border bg-card p-4 text-center">
-                <p className="text-2xl font-bold text-primary">Lv.{profile.level}</p>
-                <p className="text-xs text-muted-foreground">{currentLevel.label}</p>
+              <div className="card-elevated rounded-2xl p-5 text-center">
+                <p className="text-headline font-bold text-primary">Lv.{profile.level}</p>
+                <p className="text-caption text-muted-foreground mt-1">{currentLevel.label}</p>
               </div>
-              <div className="rounded-xl border border-border bg-card p-4 text-center">
-                <p className="text-2xl font-bold text-primary">{profile.total_likes}</p>
-                <p className="text-xs text-muted-foreground">받은 추천</p>
+              <div className="card-elevated rounded-2xl p-5 text-center">
+                <p className="text-headline font-bold text-primary">{profile.total_likes}</p>
+                <p className="text-caption text-muted-foreground mt-1">받은 추천</p>
               </div>
             </div>
 
             {/* 다음 레벨 프로그레스 */}
             {nextLevel && (
-              <div className="rounded-xl border border-border bg-card p-4">
-                <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="mb-2 flex items-center justify-between text-caption text-muted-foreground">
                   <span>다음 레벨: Lv.{nextLevel.level} {nextLevel.label} {nextLevel.emoji}</span>
-                  <span>{currentPts} / {nextLevel.minPoints}P</span>
+                  <span className="font-medium">{currentPts} / {nextLevel.minPoints}P</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
+                <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-indigo-500 transition-all"
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-indigo transition-all"
                     style={{ width: `${progressPct}%` }}
                   />
                 </div>
@@ -143,22 +143,22 @@ export function ProfilePage() {
 
             {/* 포인트 내역 */}
             {breakdown && (
-              <div className="rounded-xl border border-border bg-card p-4">
-                <h3 className="mb-3 text-sm font-semibold">포인트 내역</h3>
-                <div className="space-y-2 text-sm">
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <h3 className="mb-4 text-body-sm font-semibold">포인트 내역</h3>
+                <div className="space-y-3 text-body-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" /> 댓글 작성</span>
+                    <span className="text-muted-foreground inline-flex items-center gap-1.5"><MessageCircle className="h-4 w-4" /> 댓글 작성</span>
                     <span className="font-medium">{breakdown.comment}P</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground inline-flex items-center gap-1"><Pencil className="h-3.5 w-3.5" /> 글 작성</span>
+                    <span className="text-muted-foreground inline-flex items-center gap-1.5"><Pencil className="h-4 w-4" /> 글 작성</span>
                     <span className="font-medium">{breakdown.post}P</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground inline-flex items-center gap-1"><ThumbsUp className="h-3.5 w-3.5" /> 추천 받기</span>
+                    <span className="text-muted-foreground inline-flex items-center gap-1.5"><ThumbsUp className="h-4 w-4" /> 추천 받기</span>
                     <span className="font-medium">{breakdown.like_received}P</span>
                   </div>
-                  <div className="border-t border-border pt-2 flex items-center justify-between font-semibold">
+                  <div className="border-t border-border pt-3 flex items-center justify-between font-semibold">
                     <span>합계</span>
                     <span className="text-primary">{currentPts}P</span>
                   </div>
@@ -174,7 +174,7 @@ export function ProfilePage() {
         <Button
           onClick={handleSave}
           disabled={isSaving || !nickname.trim()}
-          className="w-full gap-2 rounded-xl"
+          className="btn-base btn-lg w-full rounded-xl"
         >
           <Save className="h-4 w-4" />
           {isSaving ? "저장 중..." : "프로필 저장"}
@@ -182,7 +182,7 @@ export function ProfilePage() {
         <Button
           onClick={handleSignOut}
           variant="outline"
-          className="w-full gap-2 rounded-xl text-destructive hover:bg-destructive/10"
+          className="btn-base btn-lg w-full rounded-xl text-destructive hover:bg-destructive/10"
         >
           <LogOut className="h-4 w-4" />
           로그아웃

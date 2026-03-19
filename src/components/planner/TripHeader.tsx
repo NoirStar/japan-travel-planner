@@ -50,16 +50,17 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
   const availableCities = CITIES.filter((c) => !allCityIds.includes(c.id))
 
   return (
-    <div className="border-b border-border p-4">
+    <div className="border-b border-border p-5">
       {/* 커버 이미지 — 데스크톱만 기본 표시, 모바일은 expanded 시에만 */}
       {trip.coverImage && (
-        <div className={`relative -mx-4 -mt-4 mb-3 h-28 overflow-hidden ${mobileExpanded ? "" : "hidden lg:block"}`}>
+        <div className={`relative -mx-5 -mt-5 mb-4 h-32 overflow-hidden ${mobileExpanded ? "" : "hidden lg:block"}`}>
           <img src={trip.coverImage} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
           <button
             onClick={() => { setShowCoverInput(true); setCoverUrl(trip.coverImage ?? "") }}
-            className="absolute bottom-2 right-2 rounded-lg bg-black/50 p-1.5 text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+            className="absolute bottom-3 right-3 rounded-lg bg-black/50 p-1.5 text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
           >
-            <Pencil className="h-3 w-3" />
+            <Pencil className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
@@ -87,15 +88,15 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
             }}
             maxLength={30}
             autoFocus
-            className="flex-1 rounded-lg border border-border bg-background px-2 py-1 text-base font-bold outline-none focus:ring-2 focus:ring-primary/40"
+            className="flex-1 rounded-xl border border-border bg-background px-3 py-1.5 text-lg font-bold outline-none focus:ring-2 focus:ring-primary/40"
           />
         ) : (
           <button
             onClick={() => { setEditTitle(trip.title); setIsEditingTitle(true) }}
-            className="group flex items-center gap-1.5 text-left min-w-0"
+            className="group flex items-center gap-2 text-left min-w-0"
           >
-            <h2 className="text-base font-bold truncate">{trip.title}</h2>
-            <Pencil className="h-3 w-3 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            <h2 className="text-lg font-bold truncate">{trip.title}</h2>
+            <Pencil className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
         )}
 
@@ -128,27 +129,27 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
       </div>
 
       {/* 모바일: 날짜 요약 한 줄 */}
-      <p className="mt-1 text-[11px] text-muted-foreground lg:hidden">
-        <Calendar className="mr-1 inline h-3 w-3 text-sakura-dark" />
+      <p className="mt-2 text-body-sm text-muted-foreground lg:hidden">
+        <Calendar className="mr-1.5 inline h-3.5 w-3.5 text-sakura-dark" />
         {getTripDateSummary(trip)}
       </p>
 
       {/* 도시 태그 */}
-      <div className="mt-1.5 flex flex-wrap items-center gap-1">
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
         {allCityIds.map((cid) => {
           const city = CITIES.find((c) => c.id === cid)
           if (!city) return null
           const isPrimary = cid === trip.cityId
           return (
-            <span key={cid} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-              <MapPin className="h-2.5 w-2.5" />
+            <span key={cid} className="chip chip-primary">
+              <MapPin className="h-3 w-3" />
               {city.name}
               {!isPrimary && onCitiesChange && (
                 <button
                   onClick={() => onCitiesChange((trip.cities ?? []).filter((id) => id !== cid))}
                   className="ml-0.5 rounded-full hover:bg-primary/20 p-0.5"
                 >
-                  <XIcon className="h-2.5 w-2.5" />
+                  <XIcon className="h-3 w-3" />
                 </button>
               )}
             </span>
@@ -158,9 +159,9 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
           <div className="relative">
             <button
               onClick={() => setShowCityPicker(!showCityPicker)}
-              className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-muted-foreground/30 px-2 py-0.5 text-[10px] text-muted-foreground hover:bg-muted transition-colors"
+              className="chip border border-dashed border-muted-foreground/30 text-muted-foreground hover:bg-muted transition-colors"
             >
-              <Plus className="h-2.5 w-2.5" /> 도시
+              <Plus className="h-3 w-3" /> 도시
             </button>
             {showCityPicker && (
               <div className="absolute left-0 top-full z-50 mt-1 max-h-52 min-w-[140px] overflow-y-auto rounded-lg border border-border bg-card p-1 shadow-lg">

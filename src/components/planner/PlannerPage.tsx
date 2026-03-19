@@ -173,7 +173,7 @@ export function PlannerPage() {
   }, [search])
 
   return (
-    <div className="flex h-dvh flex-col pt-14" data-testid="planner-page">
+    <div className="flex h-dvh flex-col pt-16" data-testid="planner-page">
       <div className="flex flex-1 flex-col overflow-hidden lg:flex-row min-h-0">
         {/* 일정 패널 */}
         <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-full lg:w-[400px] lg:border-r lg:border-border lg:block ${
@@ -242,12 +242,12 @@ export function PlannerPage() {
       )}
 
       {/* 모바일 하단 탭 바 */}
-      <div className="flex shrink-0 border-t border-border bg-card lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} data-testid="mobile-tab-bar">
+      <div className="flex shrink-0 border-t border-border/60 bg-card lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} data-testid="mobile-tab-bar">
         <button
           onClick={() => setMobileTab("schedule")}
-          className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors ${
+          className={`flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
             mobileTab === "schedule"
-              ? "text-sakura-dark dark:text-sakura border-t-2 border-sakura-dark"
+              ? "text-primary border-t-2 border-primary"
               : "text-muted-foreground"
           }`}
         >
@@ -256,9 +256,9 @@ export function PlannerPage() {
         </button>
         <button
           onClick={() => setMobileTab("map")}
-          className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors ${
+          className={`flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
             mobileTab === "map"
-              ? "text-sakura-dark dark:text-sakura border-t-2 border-sakura-dark"
+              ? "text-primary border-t-2 border-primary"
               : "text-muted-foreground"
           }`}
         >
@@ -268,16 +268,16 @@ export function PlannerPage() {
         {showChatTab && (
           <button
             onClick={() => setMobileTab("chat")}
-            className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-semibold transition-colors ${
+            className={`relative flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
               mobileTab === "chat"
-                ? "text-sakura-dark dark:text-sakura border-t-2 border-sakura-dark"
+                ? "text-primary border-t-2 border-primary"
                 : "text-muted-foreground"
             }`}
           >
             <MessageSquare className="h-5 w-5" />
             채팅
             {chatUnread > 0 && mobileTab !== "chat" && (
-              <span className="absolute right-1/4 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+              <span className="absolute right-1/4 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
                 {chatUnread > 99 ? "99+" : chatUnread}
               </span>
             )}

@@ -82,9 +82,9 @@ export function UnifiedSearchBar({
     <div className="absolute bottom-3 left-2 right-2 sm:bottom-6 sm:left-3 sm:right-3 z-10 flex flex-col items-center pointer-events-none">
       {/* 튜토리얼 툴팁 */}
       {showTooltip && !hasClicked && !isSearching && (
-        <div className="relative mb-2 rounded-2xl bg-sakura-dark px-3 py-2 sm:px-4 sm:py-2.5 text-[11px] sm:text-xs font-bold text-white shadow-xl animate-bounce pointer-events-auto">
-          <span className="flex items-center gap-1.5">
-            <Search className="h-3.5 w-3.5" />
+        <div className="relative mb-2.5 rounded-2xl bg-sakura-dark px-4 py-2.5 sm:px-5 sm:py-3 text-caption sm:text-body-sm font-bold text-white shadow-xl animate-bounce pointer-events-auto">
+          <span className="flex items-center gap-2">
+            <Search className="h-4 w-4" />
             지도를 이동 후 검색 버튼을 눌러주세요!
           </span>
           <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 bg-sakura-dark" />
@@ -92,9 +92,9 @@ export function UnifiedSearchBar({
       )}
 
       {/* 통합 검색바 */}
-      <div className="pointer-events-auto flex flex-col items-center gap-1 sm:gap-1.5 max-w-full">
+      <div className="pointer-events-auto flex flex-col items-center gap-1.5 sm:gap-2 max-w-full">
         {/* 상단: 카테고리 필터 */}
-        <div className="flex items-center gap-0.5 rounded-2xl bg-card/95 backdrop-blur-sm px-1 sm:px-1.5 py-1 sm:py-1.5 shadow-lg border border-border overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-1 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 sm:px-2 py-1.5 sm:py-2 shadow-lg border border-border overflow-x-auto scrollbar-hide">
         {CATEGORY_FILTERS.map((cat) => {
           const Icon = cat.icon
           const isActive = activeCategory === cat.id
@@ -107,7 +107,7 @@ export function UnifiedSearchBar({
                 if (!area) return
                 onCategoryChange(cat.id as string | undefined, area.lat, area.lng, area.radius)
               }}
-              className={`flex shrink-0 items-center gap-0.5 sm:gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`flex shrink-0 items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl text-caption sm:text-body-sm font-semibold whitespace-nowrap transition-all ${
                 isActive
                   ? "bg-sakura-dark text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -122,7 +122,7 @@ export function UnifiedSearchBar({
         </div>
 
         {/* 하단: 별점 필터 + 정렬 + 검색 */}
-        <div className="flex w-fit items-center gap-0.5 rounded-2xl bg-card/95 backdrop-blur-sm px-1 sm:px-1.5 py-1 sm:py-1.5 shadow-lg border border-border">
+        <div className="flex w-fit items-center gap-1 rounded-2xl bg-card/95 backdrop-blur-sm px-1.5 sm:px-2 py-1.5 sm:py-2 shadow-lg border border-border">
 
         {/* Google 별점 드롭다운 */}
         <div className="relative shrink-0" ref={dropdownRef}>
@@ -193,7 +193,7 @@ export function UnifiedSearchBar({
               onSearch(area.lat, area.lng, area.radius)
             }
           }}
-          className={`flex shrink-0 items-center gap-1 sm:gap-1.5 rounded-xl px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold transition-all duration-200 ${
+          className={`flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-caption sm:text-body-sm font-bold transition-all duration-200 ${
             isSearching
               ? "bg-sakura-dark text-white cursor-wait"
               : "bg-sakura-dark text-white hover:bg-sakura-dark/90 hover:shadow-md active:scale-95"
@@ -233,14 +233,14 @@ export function TextSearchBar({
 
   return (
     <div className="absolute top-3 left-2 right-14 sm:top-4 sm:left-3 sm:right-16 z-10">
-      <form onSubmit={handleSubmit} className="flex items-center gap-1.5 rounded-2xl bg-card/95 backdrop-blur-sm px-2 py-1.5 shadow-lg border border-border">
-        <Search className="w-4 h-4 text-muted-foreground shrink-0 ml-1" />
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 rounded-2xl bg-card/95 backdrop-blur-sm px-3 py-2 shadow-lg border border-border">
+        <Search className="w-4.5 h-4.5 text-muted-foreground shrink-0" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="장소 검색 (예: 이치란 라멘, 도톤보리)"
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60 min-w-0"
+          className="flex-1 bg-transparent text-body-sm outline-none placeholder:text-muted-foreground/60 min-w-0"
         />
         {query && (
           <button
@@ -248,15 +248,15 @@ export function TextSearchBar({
             onClick={() => setQuery("")}
             className="p-1 rounded-full hover:bg-muted text-muted-foreground"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         )}
         <button
           type="submit"
           disabled={!query.trim() || isSearching}
-          className="shrink-0 rounded-xl bg-sakura-dark px-3 py-1.5 text-xs font-bold text-white disabled:opacity-50 hover:bg-sakura-dark/90 transition-colors"
+          className="shrink-0 rounded-xl bg-sakura-dark px-3.5 py-2 text-body-sm font-bold text-white disabled:opacity-50 hover:bg-sakura-dark/90 transition-colors"
         >
-          {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "검색"}
+          {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : "검색"}
         </button>
       </form>
     </div>

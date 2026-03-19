@@ -49,9 +49,9 @@ export function DayTabs({
   }, [activeDayIndex])
 
   return (
-    <div className="flex items-center gap-1.5 border-b border-border px-4 py-3" data-testid="day-tabs">
+    <div className="flex items-center gap-2 border-b border-border px-5 py-3.5" data-testid="day-tabs">
       {/* 스크롤 가능한 탭 영역 */}
-      <div ref={scrollRef} className="flex flex-1 items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
+      <div ref={scrollRef} className="flex flex-1 items-center gap-2 overflow-x-auto py-0.5 scrollbar-none">
         {days.map((day, index) => {
           const colorClass = DAY_COLORS[index % DAY_COLORS.length]
           const isActive = index === activeDayIndex
@@ -60,7 +60,7 @@ export function DayTabs({
               <button
                 ref={isActive ? activeTabRef : undefined}
                 onClick={() => onSelectDay(index)}
-                className={`relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 lg:px-4 ${
+                className={`relative whitespace-nowrap rounded-xl px-4 py-2 text-[13px] font-bold transition-all duration-200 lg:px-5 ${
                   isActive
                     ? `bg-gradient-to-r ${colorClass} text-white shadow-md`
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -69,7 +69,7 @@ export function DayTabs({
               >
                 Day {day.dayNumber}
                 {tripStartDate && (
-                  <span className={`ml-1 text-[10px] font-normal ${isActive ? "text-white/80" : "text-muted-foreground/60"}`}>
+                  <span className={`ml-1.5 text-xs font-normal ${isActive ? "text-white/80" : "text-muted-foreground/60"}`}>
                     {getDayDateLabel(tripStartDate, index)}
                   </span>
                 )}

@@ -14,22 +14,22 @@
   --color-foreground: #1a1814;
   --color-card: #fefdf9;
   --color-card-foreground: #1a1814;
-  --color-primary: #E8685A;
+  --color-primary: #D96B60;
   --color-primary-foreground: #ffffff;
   --color-secondary: #edeae3;
   --color-secondary-foreground: #1a1814;
   --color-muted: #f0ede6;
   --color-muted-foreground: #6b6560;
-  --color-accent: #E8685A;
-  --color-accent-foreground: #ffffff;
+  --color-accent: #edeae3;
+  --color-accent-foreground: #1a1814;
   --color-border: #ddd8ce;
   --color-input: #ddd8ce;
-  --color-ring: #E8685A;
+  --color-ring: #D96B60;
   --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
   --radius: 0.75rem;
   --color-sakura: #f0a4b8;
-  --color-sakura-dark: #E8685A;
+  --color-sakura-dark: var(--color-primary);
   --color-indigo: #2B6B8A;
   --color-indigo-light: #3D8EA6;
   --color-surface: #faf8f4;
@@ -42,21 +42,21 @@
   --color-foreground: #f5f3ef;
   --color-card: #1c1a16;
   --color-card-foreground: #f5f3ef;
-  --color-primary: #F08272;
+  --color-primary: #E07A6F;
   --color-primary-foreground: #ffffff;
   --color-secondary: #2a2723;
   --color-secondary-foreground: #f5f3ef;
   --color-muted: #252320;
   --color-muted-foreground: #9e9890;
-  --color-accent: #F08272;
-  --color-accent-foreground: #ffffff;
+  --color-accent: #2a2723;
+  --color-accent-foreground: #f5f3ef;
   --color-border: #3d3930;
   --color-input: #3d3930;
-  --color-ring: #F08272;
+  --color-ring: #E07A6F;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-sakura: #F08272;
-  --color-sakura-dark: #E8685A;
+  --color-sakura: #E07A6F;
+  --color-sakura-dark: var(--color-primary);
   --color-indigo: #3D8EA6;
   --color-indigo-light: #5CAABB;
   --color-surface: #18160f;
@@ -93,9 +93,9 @@ body {
 .bg-sakura-pattern {
   background-color: var(--color-background);
   background-image:
-    radial-gradient(ellipse at 15% 30%, rgba(232, 104, 90, 0.035) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 30%, rgba(217, 107, 96, 0.03) 0%, transparent 50%),
     radial-gradient(ellipse at 85% 15%, rgba(43, 107, 138, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(180, 160, 120, 0.025) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(180, 160, 120, 0.02) 0%, transparent 50%),
     url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
 }
 
@@ -119,11 +119,11 @@ body {
 
 /* ── 그라데이션 텍스트 ───────────────────────────────── */
 .gradient-text {
-  color: #E8685A;
+  color: var(--color-primary);
 }
 
 .dark .gradient-text {
-  color: #F08272;
+  color: var(--color-primary);
 }
 /* ── 브랜드 폰트 (heavy weight) ────────────────────── */
 .font-maple {
@@ -132,21 +132,12 @@ body {
 }
 /* ── 모던 버튼 (클린 솔리드) ─────────────────────── */
 .btn-gradient {
-  background: #E8685A;
+  background: var(--color-primary);
   color: white;
   transition: all 0.2s ease;
 }
 .btn-gradient:hover {
-  background: #D55A4D;
-  box-shadow: 0 4px 14px rgba(232, 104, 90, 0.25);
-}
-
-.dark .btn-gradient {
-  background: #F08272;
-}
-.dark .btn-gradient:hover {
-  background: #E8685A;
-  box-shadow: 0 4px 14px rgba(240, 130, 114, 0.2);
+  background: color-mix(in srgb, var(--color-primary) 88%, black);
 }
 
 /* ── 카드 그림자 (warm undertone) ────────────────── */
@@ -273,8 +264,8 @@ body {
   line-height: 1.4;
 }
 .chip-primary {
-  background: rgba(232, 104, 90, 0.1);
-  color: #E8685A;
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
 }
 .chip-muted {
   background: var(--color-muted);

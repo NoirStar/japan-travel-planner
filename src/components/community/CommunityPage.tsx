@@ -214,7 +214,7 @@ export function CommunityPage() {
           <button
             onClick={() => setSort("latest")}
             className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
-              sort === "latest" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              sort === "latest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Clock className="h-3.5 w-3.5" />
@@ -223,7 +223,7 @@ export function CommunityPage() {
           <button
             onClick={() => setSort("popular")}
             className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
-              sort === "popular" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              sort === "popular" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <TrendingUp className="h-3.5 w-3.5" />
@@ -232,7 +232,7 @@ export function CommunityPage() {
           <button
             onClick={() => setSort("best")}
             className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
-              sort === "best" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-foreground"
+              sort === "best" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Trophy className="h-3.5 w-3.5" />

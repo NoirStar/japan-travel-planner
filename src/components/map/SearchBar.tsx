@@ -83,12 +83,12 @@ export function UnifiedSearchBar({
     <div className="absolute bottom-3 left-2 right-2 sm:bottom-6 sm:left-3 sm:right-3 z-10 flex flex-col items-center pointer-events-none">
       {/* 튜토리얼 툴팁 — 데스크톱만 */}
       {showTooltip && !hasClicked && !isSearching && (
-        <div className="relative mb-2.5 hidden sm:block rounded-2xl bg-sakura-dark px-5 py-3 text-body-sm font-bold text-white shadow-xl animate-bounce pointer-events-auto">
+        <div className="relative mb-2.5 hidden sm:block rounded-2xl bg-foreground px-5 py-3 text-body-sm font-bold text-background shadow-xl animate-bounce pointer-events-auto">
           <span className="flex items-center gap-2">
             <Search className="h-4 w-4" />
             지도를 이동 후 검색 버튼을 눌러주세요!
           </span>
-          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 bg-sakura-dark" />
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-3 w-3 rotate-45 bg-foreground" />
         </div>
       )}
 
@@ -110,7 +110,7 @@ export function UnifiedSearchBar({
               }}
               className={`flex shrink-0 items-center gap-1.5 px-3 py-2.5 rounded-xl text-body-sm font-semibold whitespace-nowrap transition-all ${
                 isActive
-                  ? "bg-sakura-dark text-white shadow-sm"
+                  ? "bg-primary/12 text-primary font-bold"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
               title={cat.label}
@@ -139,7 +139,7 @@ export function UnifiedSearchBar({
                   }}
                   className={`flex shrink-0 items-center gap-1 px-2.5 py-2 rounded-xl text-caption font-semibold whitespace-nowrap transition-all ${
                     isActive
-                      ? "bg-sakura-dark text-white shadow-sm"
+                      ? "bg-primary/12 text-primary font-bold"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
@@ -239,8 +239,8 @@ export function UnifiedSearchBar({
           }}
           className={`flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-caption sm:text-body-sm font-bold transition-all duration-200 ${
             isSearching
-              ? "bg-sakura-dark text-white cursor-wait"
-              : "bg-sakura-dark text-white hover:bg-sakura-dark/90 hover:shadow-md active:scale-95"
+              ? "bg-indigo text-white cursor-wait"
+              : "bg-indigo text-white hover:bg-indigo/90 hover:shadow-md active:scale-95"
           } ${
             !hasClicked && !isSearching ? "animate-search-pulse" : ""
           }`}

@@ -19,9 +19,11 @@ interface TripChatPanelProps {
   onMobileClose?: () => void
   /** 부모에게 unread 수 전달 (모바일 탭 배지용) */
   onUnreadChange?: (count: number) => void
+  /** 데스크톱 FAB/카드만 렌더링 (모바일 패널 생략) */
+  desktopOnly?: boolean
 }
 
-export function TripChatPanel({ sharedId, mobileOpen, onMobileClose, onUnreadChange, desktopOnly }: TripChatPanelProps) {
+export function TripChatPanel({ sharedId, mobileOpen, onMobileClose: _onMobileClose, onUnreadChange, desktopOnly }: TripChatPanelProps) {
   const { user, profile, setShowLoginModal } = useAuthStore()
 
   const [desktopOpen, setDesktopOpen] = useState(false)

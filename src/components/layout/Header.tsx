@@ -125,9 +125,10 @@ export function Header() {
           </div>
 
           {isAuthLoading ? (
-            /* ── 인증 로딩 중: 레이아웃 시프트 방지 스켈레톤 ── */
+            /* ── 인증 로딩 중: 로그인 레이아웃과 동일 폭 스켈레톤 ── */
             <>
-              <div className="h-11 w-[4.5rem] animate-pulse rounded-xl bg-muted" />
+              <div className="h-11 w-16 animate-pulse rounded-xl bg-muted" />
+              <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />
               <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
             </>
           ) : user && profile ? (

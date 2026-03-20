@@ -66,11 +66,11 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* 콘텐츠 */}
       <div className="p-3.5">
-        <h3 className="mb-1 line-clamp-1 text-[13px] font-bold leading-snug group-hover:text-primary transition-colors">
+        <h3 className="mb-1 line-clamp-1 text-sm font-bold leading-snug group-hover:text-primary transition-colors">
           {post.title}
         </h3>
         {post.description && (
-          <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+          <p className="mb-3 line-clamp-2 text-body-sm leading-relaxed text-muted-foreground">
             {post.description}
           </p>
         )}

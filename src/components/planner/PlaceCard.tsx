@@ -109,7 +109,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-bold leading-tight truncate">{place.name}</h3>
             {/* 영문명 — 데스크톱만 */}
-            <p className="hidden text-[11px] text-muted-foreground/70 lg:block">{place.nameEn}</p>
+            <p className="hidden text-xs text-muted-foreground/70 lg:block">{place.nameEn}</p>
 
             <div className="mt-2 flex items-center gap-2 flex-wrap lg:mt-2">
               {/* 시간대 표시/편집 */}
@@ -118,7 +118,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                   ref={timeInputRef}
                   type="time"
                   defaultValue={startTime ?? ""}
-                  className="h-9 w-[100px] shrink-0 appearance-none rounded-lg bg-card px-2.5 text-[13px] font-medium text-foreground outline-none border border-sakura-dark shadow-sm focus:ring-2 focus:ring-sakura/30 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:leading-[32px]"
+                  className="h-9 w-[100px] shrink-0 appearance-none rounded-lg bg-card px-2.5 text-sm font-medium text-foreground outline-none border border-sakura-dark shadow-sm focus:ring-2 focus:ring-sakura/30 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:leading-[32px]"
                   onBlur={(e) => {
                     setIsEditingTime(false)
                     onStartTimeChange?.(e.target.value)
@@ -134,7 +134,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 />
               ) : (
                 <button
-                  className="flex items-center gap-1.5 rounded-lg border border-sakura/30 bg-sakura/10 px-2.5 py-1 text-caption font-semibold text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-[13px]"
+                  className="flex items-center gap-1.5 rounded-lg border border-sakura/30 bg-sakura/10 px-2.5 py-1 text-caption font-semibold text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-sm"
                   onClick={(e) => { e.stopPropagation(); setIsEditingTime(true) }}
                   data-testid={`time-badge-${index}`}
                 >

@@ -236,7 +236,7 @@ export function FreeBoardPage() {
         <div className="flex rounded-xl border border-border bg-card p-0.5">
           <button
             onClick={() => setSort("latest")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
               sort === "latest" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -245,7 +245,7 @@ export function FreeBoardPage() {
           </button>
           <button
             onClick={() => setSort("popular")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
               sort === "popular" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -254,7 +254,7 @@ export function FreeBoardPage() {
           </button>
           <button
             onClick={() => setSort("best")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
               sort === "best" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -269,7 +269,7 @@ export function FreeBoardPage() {
             <button
               key={f.value}
               onClick={() => setMinLikes(f.value)}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-caption font-semibold transition-colors ${
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-body-sm font-semibold transition-colors ${
                 minLikes === f.value
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground"
@@ -306,49 +306,49 @@ export function FreeBoardPage() {
           ))}
         </div>
       ) : fetchError ? (
-        <div className="empty-state py-24">
-          <div className="empty-state-icon">
+        <div className="overflow-hidden rounded-2xl border border-destructive/20 bg-destructive/5">
+          <div className="flex flex-col items-center gap-3 py-16 px-6 text-center">
             <RefreshCw className="h-8 w-8 text-destructive/40" />
-          </div>
-          <div>
-            <p className="empty-state-title">{fetchError}</p>
-            <p className="empty-state-desc mt-2">일시적인 문제일 수 있어요. 잠시 후 다시 시도해주세요.</p>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-            <Button onClick={fetchPosts} variant="outline" className="gap-2 rounded-xl">
-              <RefreshCw className="h-4 w-4" /> 다시 시도
-            </Button>
-            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/")}>
-              홈으로
-            </Button>
-            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/community")}>
-              여행 커뮤니티
-            </Button>
+            <div>
+              <p className="text-body-sm font-semibold text-foreground">{fetchError}</p>
+              <p className="mt-1 text-body-sm text-muted-foreground">일시적인 문제일 수 있어요. 잠시 후 다시 시도해주세요.</p>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+              <Button onClick={fetchPosts} variant="outline" className="gap-2 rounded-xl">
+                <RefreshCw className="h-4 w-4" /> 다시 시도
+              </Button>
+              <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/")}>
+                홈으로
+              </Button>
+              <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/community")}>
+                여행 커뮤니티
+              </Button>
+            </div>
           </div>
         </div>
       ) : filteredPosts.length === 0 ? (
-        <div className="empty-state py-24">
-          <div className="empty-state-icon">
+        <div className="overflow-hidden rounded-2xl border border-border bg-muted/30">
+          <div className="flex flex-col items-center gap-3 py-16 px-6 text-center">
             <PenSquare className="h-8 w-8 text-primary/40" />
+            <div>
+              <p className="text-body-sm font-semibold text-foreground">
+                {searchQuery ? "검색 결과가 없습니다" : "아직 글이 없어요"}
+              </p>
+              <p className="mt-1 text-body-sm text-muted-foreground">
+                {searchQuery ? "다른 검색어로 시도해보세요" : "첫 번째 글을 작성해보세요!"}
+              </p>
+            </div>
+            {!searchQuery && (
+              <Button onClick={handleCreateClick} className="mt-2 gap-2 rounded-xl">
+                <PenSquare className="h-4 w-4" /> 글쓰기
+              </Button>
+            )}
           </div>
-          <div>
-            <p className="empty-state-title">
-              {searchQuery ? "검색 결과가 없습니다" : "아직 글이 없어요"}
-            </p>
-            <p className="empty-state-desc mt-2">
-              {searchQuery ? "다른 검색어로 시도해보세요" : "첫 번째 글을 작성해보세요!"}
-            </p>
-          </div>
-          {!searchQuery && (
-            <Button onClick={handleCreateClick} className="mt-2 gap-2 rounded-xl">
-              <PenSquare className="h-4 w-4" /> 글쓰기
-            </Button>
-          )}
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
           {/* 테이블 헤더 (데스크톱) */}
-          <div className="hidden sm:flex items-center gap-3 border-b border-border bg-muted/50 px-5 py-2.5 text-caption font-medium text-muted-foreground">
+          <div className="hidden sm:flex items-center gap-3 border-b border-border bg-muted/50 px-5 py-2.5 text-body-sm font-medium text-muted-foreground">
             <span className="flex-1">제목</span>
             <span className="w-28 text-center">작성자</span>
             <span className="w-10 text-center">추천</span>
@@ -463,7 +463,7 @@ export function FreeBoardPage() {
                   <button
                   key={p}
                   onClick={() => setPage(p)}
-                  className={`min-w-[2.25rem] rounded-lg px-3 py-2 text-caption font-semibold transition-colors ${
+                  className={`min-w-[2.25rem] rounded-lg px-3 py-2 text-body-sm font-semibold transition-colors ${
                     page === p
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"

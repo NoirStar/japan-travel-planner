@@ -375,7 +375,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                         </div>
                         <div className="h-3 w-px bg-border" />
                       </div>
-                      <span className="text-[10px] font-medium text-muted-foreground">
+                      <span className="text-xs font-medium text-muted-foreground">
                         {formatTravelTime(travelMinutes, travelMode)} · {formatDistance(distanceKm)}
                       </span>
                       {travelData?.source === "live" && (
@@ -437,7 +437,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           <PenLine className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">여행이 끝났어요!</p>
-            <p className="text-[11px] text-amber-700/80 dark:text-amber-400/70">커뮤니티에 후기를 남겨보세요</p>
+            <p className="text-xs text-amber-700/80 dark:text-amber-400/70">커뮤니티에 후기를 남겨보세요</p>
           </div>
           <button
             className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-600 transition-colors"

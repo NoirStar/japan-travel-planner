@@ -109,7 +109,7 @@ export function Header() {
                   onClick={() => setCommunityOpen(false)}
                 >
                   <MapPin className="h-4 w-4 text-primary/60" />
-                  여행 일정
+                  공유 일정
                 </Link>
                 <div className="mx-3 h-px bg-border" />
                 <Link

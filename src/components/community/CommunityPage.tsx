@@ -213,7 +213,7 @@ export function CommunityPage() {
         <div className="flex rounded-xl border border-border bg-card p-0.5">
           <button
             onClick={() => setSort("latest")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
               sort === "latest" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -222,7 +222,7 @@ export function CommunityPage() {
           </button>
           <button
             onClick={() => setSort("popular")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
               sort === "popular" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -231,7 +231,7 @@ export function CommunityPage() {
           </button>
           <button
             onClick={() => setSort("best")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-caption font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
               sort === "best" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -244,7 +244,7 @@ export function CommunityPage() {
         <select
           value={cityFilter}
           onChange={(e) => setCityFilter(e.target.value)}
-          className="rounded-xl border border-border bg-card px-3.5 py-2 text-caption font-medium outline-none"
+          className="rounded-xl border border-border bg-card px-3.5 py-2 text-body-sm font-medium outline-none"
         >
           <option value="">전체 도시</option>
           {cities.map((city) => (
@@ -260,7 +260,7 @@ export function CommunityPage() {
             <button
               key={f.value}
               onClick={() => setMinLikes(f.value)}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-caption font-semibold transition-colors ${
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-body-sm font-semibold transition-colors ${
                 minLikes === f.value
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground"
@@ -276,17 +276,17 @@ export function CommunityPage() {
         {(searchQuery || cityFilter || minLikes > 0) && (
           <div className="flex flex-wrap items-center gap-1.5">
             {searchQuery && (
-              <button onClick={() => { setSearchInput(""); setSearchQuery("") }} className="chip chip-primary gap-1 text-caption">
+              <button onClick={() => { setSearchInput(""); setSearchQuery("") }} className="chip chip-primary gap-1 text-body-sm">
                 검색: {searchQuery} <span className="text-xs">×</span>
               </button>
             )}
             {cityFilter && (
-              <button onClick={() => setCityFilter("")} className="chip chip-primary gap-1 text-caption">
+              <button onClick={() => setCityFilter("")} className="chip chip-primary gap-1 text-body-sm">
                 {cities.find((c) => c.id === cityFilter)?.name ?? cityFilter} <span className="text-xs">×</span>
               </button>
             )}
             {minLikes > 0 && (
-              <button onClick={() => setMinLikes(0)} className="chip chip-primary gap-1 text-caption">
+              <button onClick={() => setMinLikes(0)} className="chip chip-primary gap-1 text-body-sm">
                 추천 {minLikes}+ <span className="text-xs">×</span>
               </button>
             )}
@@ -302,42 +302,43 @@ export function CommunityPage() {
           ))}
         </div>
       ) : fetchError ? (
-        <div className="empty-state py-24">
-          <div className="empty-state-icon">
-            <RefreshCw className="h-8 w-8 text-destructive/40" />
-          </div>
-          <div>
-            <p className="empty-state-title">{fetchError}</p>
-            <p className="empty-state-desc mt-2">일시적인 문제일 수 있어요. 잠시 후 다시 시도해주세요.</p>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-            <Button onClick={fetchPosts} variant="outline" className="gap-2 rounded-xl">
-              <RefreshCw className="h-4 w-4" /> 다시 시도
-            </Button>
-            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/")}>
-              홈으로
-            </Button>
-            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/planner?new=true")}>
-              플래너로
-            </Button>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="col-span-full">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 py-16 px-6 text-center">
+              <RefreshCw className="h-8 w-8 text-destructive/40" />
+              <div>
+                <p className="text-body-sm font-semibold text-foreground">{fetchError}</p>
+                <p className="mt-1 text-body-sm text-muted-foreground">일시적인 문제일 수 있어요. 잠시 후 다시 시도해주세요.</p>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                <Button onClick={fetchPosts} variant="outline" className="gap-2 rounded-xl">
+                  <RefreshCw className="h-4 w-4" /> 다시 시도
+                </Button>
+                <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/")}>
+                  홈으로
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       ) : posts.length === 0 ? (
-        <div className="empty-state py-24">
-          <div className="empty-state-icon">
-            <MapPin className="h-8 w-8 text-primary/40" />
-          </div>
-          <div>
-            <p className="empty-state-title">아직 공유된 여행이 없어요</p>
-            <p className="empty-state-desc mt-2">첫 번째로 여행을 공유해보세요!</p>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-            <Button onClick={handleCreateClick} className="gap-2 rounded-xl">
-              <Plus className="h-4 w-4" /> 내 일정 올리기
-            </Button>
-            <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/planner?new=true")}>
-              플래너에서 여행 만들기
-            </Button>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="col-span-full">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-muted/30 py-16 px-6 text-center">
+              <MapPin className="h-8 w-8 text-primary/40" />
+              <div>
+                <p className="text-body-sm font-semibold text-foreground">아직 공유된 여행이 없어요</p>
+                <p className="mt-1 text-body-sm text-muted-foreground">첫 번째로 여행을 공유해보세요!</p>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                <Button onClick={handleCreateClick} className="gap-2 rounded-xl">
+                  <Plus className="h-4 w-4" /> 내 일정 올리기
+                </Button>
+                <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/planner?new=true")}>
+                  플래너에서 여행 만들기
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       ) : (

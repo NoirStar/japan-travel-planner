@@ -127,7 +127,7 @@ const s = StyleSheet.create({
   placeMemo: { fontSize: 7, color: c.text, backgroundColor: c.badge, borderRadius: 3, paddingHorizontal: 4, paddingVertical: 2, marginTop: 3 },
   // Empty day
   emptyDay: { paddingVertical: 8, paddingHorizontal: 6 },
-  emptyText: { fontSize: 8, color: c.muted, fontStyle: "italic" },
+  emptyText: { fontSize: 8, color: c.muted },
   // Footer
   footer: { position: "absolute", bottom: 20, left: 36, right: 36, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   footerText: { fontSize: 7, color: c.muted },

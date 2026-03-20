@@ -28,8 +28,6 @@ async function ensureFontsLoaded(): Promise<void> {
 
   _fontPromise = (async () => {
     try {
-      // 폰트를 fetch → ArrayBuffer → Blob URL 로 변환하여 등록
-      // @react-pdf/renderer가 직접 fetch하지 않으므로 CORS/캐시 문제 회피
       const buffers = await Promise.all(
         FONT_URLS.map((url) =>
           fetch(url, { cache: "force-cache" }).then((r) => {
@@ -38,25 +36,37 @@ async function ensureFontsLoaded(): Promise<void> {
           }),
         ),
       )
-      // 각 폰트가 정상적으로 로드되었는지 확인 (최소 100KB)
       for (let i = 0; i < buffers.length; i++) {
         if (buffers[i].byteLength < 100_000) {
           throw new Error(`Font file too small: ${FONT_URLS[i]} (${buffers[i].byteLength} bytes)`)
         }
       }
 
-      // Blob URL 생성 후 폰트 등록 (최초 1회, Font.clear() 불필요)
-      const blobUrls = buffers.map((buf) =>
-        URL.createObjectURL(new Blob([buf], { type: "font/ttf" })),
-      )
+      // ArrayBuffer → data URI 변환
+      // @react-pdf/font 내부에서 blob URL을 다시 fetch하는 과정에서
+      // loadResultPromise가 캐싱되어 한 번 실패하면 영구 실패하는 문제 회피
+      // data URI는 fetch 없이 inline decode되므로 안정적
+      const dataUris = buffers.map((buf) => {
+        const bytes = new Uint8Array(buf)
+        let binary = ""
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+        return `data:font/ttf;base64,${btoa(binary)}`
+      })
+
       Font.register({
         family: "NotoSansKR",
         fonts: [
-          { src: blobUrls[0], fontWeight: 400 },
-          { src: blobUrls[1], fontWeight: 700 },
+          { src: dataUris[0], fontWeight: 400 },
+          { src: dataUris[1], fontWeight: 700 },
         ],
       })
-      Font.registerHyphenationCallback((word) => [word])
+
+      // CJK 문자는 글자 단위로 분리해야 줄바꿈 가능
+      // (word) => [word] 는 줄바꿈 불가 → 긴 장소명이 겹침
+      const CJK_RE = /[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF]/
+      Font.registerHyphenationCallback((word) =>
+        CJK_RE.test(word) ? Array.from(word) : [word],
+      )
 
       _fontReady = true
     } catch (e) {
@@ -235,9 +245,9 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                 <View style={s.dayBadge}>
                   <Text style={s.dayBadgeText}>Day {day.dayNumber}</Text>
                 </View>
-                {day.date && (
+                {day.date ? (
                   <Text style={s.dayDate}>{formatDate(day.date)} ({getDayOfWeek(day.date)})</Text>
-                )}
+                ) : null}
                 <Text style={s.dayCount}>{places.length}개 장소</Text>
               </View>
 
@@ -249,15 +259,15 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                     <Text style={s.rsvTitle}>{sanitize(r.title)}</Text>
                     <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
                       <Text style={s.rsvBadge}>{RESERVATION_LABELS[r.type]}</Text>
-                      {r.confirmed && <Text style={s.rsvConfirmed}>확정</Text>}
+                      {r.confirmed ? <Text style={s.rsvConfirmed}>확정</Text> : null}
                     </View>
-                    {(r.departureLocation || r.arrivalLocation) && (
+                    {r.departureLocation || r.arrivalLocation ? (
                       <Text style={s.rsvDetail}>{sanitize(r.departureLocation)}{" -> "}{sanitize(r.arrivalLocation)}</Text>
-                    )}
-                    {(r.startTime || r.endTime) && (
-                      <Text style={s.rsvDetail}>{r.startTime ?? ""}{r.endTime ? ` -> ${r.endTime}` : ""}</Text>
-                    )}
-                    {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {sanitize(r.bookingReference)}</Text>}
+                    ) : null}
+                    {r.startTime || r.endTime ? (
+                      <Text style={s.rsvDetail}>{sanitize(r.startTime)}{r.endTime ? ` -> ${sanitize(r.endTime)}` : ""}</Text>
+                    ) : null}
+                    {r.bookingReference ? <Text style={s.rsvDetail}>예약번호: {sanitize(r.bookingReference)}</Text> : null}
                   </View>
                 </View>
               ))}
@@ -275,10 +285,10 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                       <Text style={s.placeName}>{sanitize(place.name)}</Text>
                       <View style={s.placeDetail}>
                         <Text style={s.placeCategory}>{CATEGORY_LABELS[place.category as PlaceCategory] ?? sanitize(place.category)}</Text>
-                        {place.rating && <Text style={s.placeRating}>{place.rating}</Text>}
+                        {place.rating ? <Text style={s.placeRating}>{place.rating}</Text> : null}
                       </View>
-                      {place.address && <Text style={s.placeAddress}>{sanitize(place.address)}</Text>}
-                      {item.memo && <Text style={s.placeMemo}>{sanitize(item.memo)}</Text>}
+                      {place.address ? <Text style={s.placeAddress}>{sanitize(place.address)}</Text> : null}
+                      {item.memo ? <Text style={s.placeMemo}>{sanitize(item.memo)}</Text> : null}
                     </View>
                   </View>
                 ))
@@ -292,19 +302,19 @@ function TripPdfDocument({ trip }: TripPdfProps) {
                     <Text style={s.rsvTitle}>{sanitize(r.title)}</Text>
                     <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
                       <Text style={{ ...s.rsvBadge, color: "#7C3AED", backgroundColor: "#EDE9FE" }}>숙박</Text>
-                      {r.confirmed && <Text style={s.rsvConfirmed}>확정</Text>}
+                      {r.confirmed ? <Text style={s.rsvConfirmed}>확정</Text> : null}
                     </View>
-                    {(r.startTime || r.endTime) && (
+                    {r.startTime || r.endTime ? (
                       <Text style={s.rsvDetail}>
-                        {r.startTime ? `체크인 ${r.startTime}` : ""}{r.endTime ? ` / 체크아웃 ${r.endTime}` : ""}
+                        {r.startTime ? `체크인 ${sanitize(r.startTime)}` : ""}{r.endTime ? ` / 체크아웃 ${sanitize(r.endTime)}` : ""}
                       </Text>
-                    )}
-                    {r.endDate && (
+                    ) : null}
+                    {r.endDate ? (
                       <Text style={s.rsvDetail}>
                         {formatDate(r.date)} ~ {formatDate(r.endDate)}
                       </Text>
-                    )}
-                    {r.bookingReference && <Text style={s.rsvDetail}>예약번호: {sanitize(r.bookingReference)}</Text>}
+                    ) : null}
+                    {r.bookingReference ? <Text style={s.rsvDetail}>예약번호: {sanitize(r.bookingReference)}</Text> : null}
                   </View>
                 </View>
               ))}
@@ -351,13 +361,10 @@ export async function downloadTripPdf(trip: Trip): Promise<PdfResult> {
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     console.error("PDF 렌더 실패:", e)
-    if (/font/i.test(msg) || /fetch/i.test(msg)) {
-      // 폰트 관련 에러 시 캐시 무효화
-      _fontReady = false
-      _fontPromise = null
-      return { ok: false, error: "폰트 로드에 실패했습니다. 새로고침 후 다시 시도해 주세요." }
-    }
-    return { ok: false, error: `PDF 렌더 실패: ${msg}` }
+    // 폰트 캐시 무효화 (다음 시도 시 처음부터 다시 로드)
+    _fontReady = false
+    _fontPromise = null
+    return { ok: false, error: `PDF 생성 실패: ${msg}` }
   }
 
   // 2) Blob → 다운로드

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Plus, X, Copy, Settings2 } from "lucide-react"
+import { Plus, X, Copy, Settings2, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { DaySchedule } from "@/types/schedule"
 
@@ -49,7 +49,17 @@ export function DayTabs({
   }, [activeDayIndex])
 
   return (
-    <div className="flex items-center gap-2 border-b border-border px-5 py-3.5" data-testid="day-tabs">
+    <div className="flex items-center gap-1.5 border-b border-border px-3 py-3.5 sm:px-5 sm:gap-2" data-testid="day-tabs">
+      {/* ◀ 이전 Day */}
+      <button
+        onClick={() => onSelectDay(activeDayIndex - 1)}
+        disabled={activeDayIndex <= 0}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30 disabled:pointer-events-none"
+        aria-label="이전 Day"
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+
       {/* 스크롤 가능한 탭 영역 */}
       <div ref={scrollRef} className="flex flex-1 items-center gap-2 overflow-x-auto py-0.5 scrollbar-none">
         {days.map((day, index) => {
@@ -105,6 +115,16 @@ export function DayTabs({
           )
         })}
       </div>
+
+      {/* ▶ 다음 Day */}
+      <button
+        onClick={() => onSelectDay(activeDayIndex + 1)}
+        disabled={activeDayIndex >= days.length - 1}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30 disabled:pointer-events-none"
+        aria-label="다음 Day"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
 
       {/* 데스크톱: Day 추가 버튼 */}
       <Button

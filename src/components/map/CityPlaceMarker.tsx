@@ -61,51 +61,47 @@ function getCategoryIconSvg(category: string, cx: number, cy: number, scale: num
   }
 }
 
-/** 별점 등급 + 카테고리 아이콘이 포함된 마커 SVG */
+/** 모던 티어드롭 핀 마커 SVG — 별점 등급별 크기 + 카테고리 아이콘 */
 function createRatedPinSvg(color: string, category: string, rating: number | undefined, selected: boolean): string {
   const tier = getRatingTier(rating)
 
-  const configs: Record<RatingTier, { w: number; bodyH: number; r: number; sw: number; tailH: number; iconScale: number }> = {
-    premium: { w: 38, bodyH: 30, r: 10, sw: 2.5, tailH: 10, iconScale: 1.35 },
-    good:    { w: 32, bodyH: 26, r: 8,  sw: 2,   tailH: 8,  iconScale: 1.15 },
-    normal:  { w: 28, bodyH: 24, r: 7,  sw: 1.8, tailH: 7,  iconScale: 1.0 },
-    basic:   { w: 24, bodyH: 20, r: 6,  sw: 1.5, tailH: 6,  iconScale: 0.85 },
+  const configs: Record<RatingTier, { w: number; h: number; r: number; iconScale: number }> = {
+    premium: { w: 40, h: 50, r: 14, iconScale: 1.3 },
+    good:    { w: 36, h: 46, r: 13, iconScale: 1.15 },
+    normal:  { w: 32, h: 42, r: 11, iconScale: 1.0 },
+    basic:   { w: 28, h: 38, r: 10, iconScale: 0.85 },
   }
 
   const c = configs[tier]
-  const totalH = c.bodyH + c.tailH + 2
   const cx = c.w / 2
-  const bodyCy = c.bodyH / 2 + 1
+  const cy = c.r + 3
+  const py = c.h - 3
 
-  const border = selected ? "#f472b6" : "white"
-  const bw = selected ? c.sw + 0.5 : c.sw
+  // 부드러운 티어드롭 베지어 경로
+  const pin = `M ${cx} ${py} C ${cx - c.r * 0.3} ${py - (py - cy) * 0.3}, ${cx - c.r} ${cy + c.r * 0.65}, ${cx - c.r} ${cy} A ${c.r} ${c.r} 0 1 1 ${cx + c.r} ${cy} C ${cx + c.r} ${cy + c.r * 0.65}, ${cx + c.r * 0.3} ${py - (py - cy) * 0.3}, ${cx} ${py} Z`
 
-  const iconSvg = getCategoryIconSvg(category, cx, bodyCy, c.iconScale)
+  const borderColor = selected ? "#D96B60" : "#ffffff"
+  const bw = selected ? 2.5 : 2
 
-  // 프리미엄: 골드 테두리 글로우
-  const premiumRing = tier === "premium"
-    ? `<rect x="0.5" y="0.5" width="${c.w - 1}" height="${c.bodyH + 1}" rx="${c.r + 1}" fill="none" stroke="#fbbf24" stroke-width="3" opacity="0.5"/>`
+  const iconSvg = getCategoryIconSvg(category, cx, cy, c.iconScale)
+
+  // 프리미엄: 은은한 골드 글로우
+  const glow = tier === "premium"
+    ? `<path d="${pin}" fill="none" stroke="#fbbf24" stroke-width="4" opacity="0.3"/>`
     : ""
 
-  // 프리미엄: "추천" 텍스트 뱃지 / good: 골드 별 뱃지
-  const starBadge = tier === "premium"
-    ? `<rect x="${c.w - 18}" y="0" width="20" height="11" rx="5.5" fill="#ef4444" stroke="white" stroke-width="1.2"/><text x="${c.w - 8}" y="8.5" text-anchor="middle" fill="white" font-size="6.5" font-weight="bold" font-family="Arial,sans-serif">추천</text>`
-    : tier === "good"
-      ? `<circle cx="${c.w - 5}" cy="5" r="5.5" fill="#fbbf24" stroke="white" stroke-width="1.5"/><text x="${c.w - 5}" y="7.5" text-anchor="middle" fill="white" font-size="7" font-weight="bold">★</text>`
-      : ""
+  // 선택 시: primary 컬러 링
+  const ring = selected
+    ? `<path d="${pin}" fill="none" stroke="#D96B60" stroke-width="5" opacity="0.25"/>`
+    : ""
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${c.w}" height="${totalH}" viewBox="0 0 ${c.w} ${totalH}">
-<defs><filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs>
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${c.w}" height="${c.h}" viewBox="0 0 ${c.w} ${c.h}">
+<defs><filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.15"/></filter></defs>
 <g filter="url(#s)">
-  ${premiumRing}
-  <rect x="2" y="2" width="${c.w - 4}" height="${c.bodyH - 2}" rx="${c.r}" fill="${color}" stroke="${border}" stroke-width="${bw}"/>
-  <polygon points="${cx - 4},${c.bodyH - 1} ${cx},${c.bodyH + c.tailH - 2} ${cx + 4},${c.bodyH - 1}" fill="${color}"/>
-  <line x1="${cx - 4}" y1="${c.bodyH - 1}" x2="${cx}" y2="${c.bodyH + c.tailH - 2}" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
-  <line x1="${cx + 4}" y1="${c.bodyH - 1}" x2="${cx}" y2="${c.bodyH + c.tailH - 2}" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
-  <rect x="${cx - 5}" y="${c.bodyH - 2.5}" width="10" height="3.5" fill="${color}"/>
+  ${ring}${glow}
+  <path d="${pin}" fill="${color}" stroke="${borderColor}" stroke-width="${bw}"/>
 </g>
 ${iconSvg}
-${starBadge}
 </svg>`
 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
@@ -310,7 +306,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
               </Button>
               <Button
                 size="sm"
-                className="flex-1 gap-1.5 rounded-lg bg-pink-500 text-white hover:bg-pink-600 text-xs h-7"
+                className="flex-1 gap-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 text-xs h-7"
                 onClick={(e) => {
                   e.stopPropagation()
                   onAdd?.()

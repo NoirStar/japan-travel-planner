@@ -25,32 +25,36 @@ const CATEGORY_COLORS: Record<string, [string, string]> = {
   other: ["#6b7280", "#475569"],
 }
 
-/** SVG 원형 마커 (원 + 드롭핀 꼬리 + 번호) — 검색 마커(사각형)와 확실히 구분 */
+/** 모던 티어드롭 핀 마커 — 번호 표시 (일정에 추가된 장소) */
 function createBalloonSvg(num: number, colors: [string, string], selected: boolean): string {
   const [c1, c2] = colors
-  const border = selected ? "#f472b6" : "#ffffff"
-  const bw = selected ? 3 : 2.5
-  const glow = selected
-    ? `<circle cx="20" cy="18" r="18" fill="none" stroke="#f472b680" stroke-width="5"/>`
+  const w = 36, h = 46, r = 13
+  const cx = w / 2
+  const cy = r + 3
+  const py = h - 3
+
+  const pin = `M ${cx} ${py} C ${cx - r * 0.3} ${py - (py - cy) * 0.3}, ${cx - r} ${cy + r * 0.65}, ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy} C ${cx + r} ${cy + r * 0.65}, ${cx + r * 0.3} ${py - (py - cy) * 0.3}, ${cx} ${py} Z`
+
+  const borderColor = selected ? "#D96B60" : "#ffffff"
+  const bw = selected ? 2.5 : 2
+
+  const ring = selected
+    ? `<path d="${pin}" fill="none" stroke="#D96B60" stroke-width="5" opacity="0.25"/>`
     : ""
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
 <defs>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0%" stop-color="${c1}"/>
     <stop offset="100%" stop-color="${c2}"/>
   </linearGradient>
-  <filter id="s"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter>
+  <filter id="s"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.15"/></filter>
 </defs>
 <g filter="url(#s)">
-  ${glow}
-  <circle cx="20" cy="18" r="15" fill="url(#bg)" stroke="${border}" stroke-width="${bw}"/>
-  <polygon points="14,30 20,44 26,30" fill="url(#bg)"/>
-  <line x1="14" y1="30" x2="20" y2="44" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
-  <line x1="26" y1="30" x2="20" y2="44" stroke="${border}" stroke-width="${bw}" stroke-linecap="round"/>
-  <rect x="13" y="28" width="14" height="4" fill="url(#bg)"/>
+  ${ring}
+  <path d="${pin}" fill="url(#bg)" stroke="${borderColor}" stroke-width="${bw}"/>
 </g>
-<text x="20" y="23" text-anchor="middle" fill="white" font-size="15" font-weight="bold" font-family="Arial,sans-serif">${num}</text>
+<text x="${cx}" y="${cy + 5}" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="system-ui,-apple-system,sans-serif">${num}</text>
 </svg>`
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
 }

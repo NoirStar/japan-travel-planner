@@ -71,8 +71,8 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/80 bg-card/90 backdrop-blur-md">
       <div className={`flex h-16 items-center justify-between px-5 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
         <div className="flex items-center gap-3">
-          <Link to="/" aria-label="타비톡 홈" className="group flex items-center transition-all hover:opacity-80">
-            <span className="text-xl font-extrabold tracking-tight gradient-text font-maple">타비톡</span>
+          <Link to="/" aria-label="타비톡 홈" className="group flex shrink-0 items-center transition-all hover:opacity-80">
+            <span className="text-xl font-extrabold tracking-tight whitespace-nowrap gradient-text font-maple">타비톡</span>
           </Link>
         </div>
 
@@ -82,7 +82,7 @@ export function Header() {
               isPlanner ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
             }`}>
               <Compass className="h-[18px] w-[18px]" />
-              <span className="text-[13px]">플래너</span>
+              <span className="hidden sm:inline text-[13px]">플래너</span>
             </Button>
           </Link>
 
@@ -97,7 +97,7 @@ export function Header() {
               onClick={() => { setCommunityOpen((v) => !v); setDropdownOpen(false) }}
             >
               <Users className="h-[18px] w-[18px]" />
-              <span className="text-[13px]">커뮤니티</span>
+              <span className="hidden sm:inline text-[13px]">커뮤니티</span>
               <ChevronDown className={`hidden sm:block h-3 w-3 transition-transform ${communityOpen ? "rotate-180" : ""}`} />
             </Button>
 
@@ -132,7 +132,7 @@ export function Header() {
                 isTrips ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}>
                 <Briefcase className="h-[18px] w-[18px]" />
-                <span className="text-[13px]">내 여행</span>
+                <span className="hidden sm:inline text-[13px]">내 여행</span>
               </Button>
             </Link>
 

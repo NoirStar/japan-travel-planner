@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState } from "react"
 import { Plus, X, Copy, Settings2, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { DaySchedule } from "@/types/schedule"
@@ -40,108 +40,91 @@ export function DayTabs({
   tripStartDate,
 }: DayTabsProps) {
   const [dayMenuOpen, setDayMenuOpen] = useState(false)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const activeTabRef = useRef<HTMLButtonElement>(null)
-
-  // 활성 탭이 바뀔 때 스크롤로 보이게
-  useEffect(() => {
-    activeTabRef.current?.scrollIntoView?.({ behavior: "smooth", block: "nearest", inline: "center" })
-  }, [activeDayIndex])
+  const day = days[activeDayIndex]
+  const colorClass = DAY_COLORS[activeDayIndex % DAY_COLORS.length]
 
   return (
-    <div className="flex items-center gap-1.5 border-b border-border px-3 py-3.5 sm:px-5 sm:gap-2" data-testid="day-tabs">
+    <div className="flex items-center gap-1 border-b border-border px-3 py-2 sm:px-4 sm:gap-1.5" data-testid="day-tabs">
       {/* ◀ 이전 Day */}
       <button
         onClick={() => onSelectDay(activeDayIndex - 1)}
         disabled={activeDayIndex <= 0}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30 disabled:pointer-events-none"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted disabled:opacity-20 disabled:pointer-events-none"
         aria-label="이전 Day"
       >
         <ChevronLeft className="h-4 w-4" />
       </button>
 
-      {/* 스크롤 가능한 탭 영역 */}
-      <div ref={scrollRef} className="flex flex-1 items-center gap-2 overflow-x-auto py-0.5 scrollbar-none">
-        {days.map((day, index) => {
-          const colorClass = DAY_COLORS[index % DAY_COLORS.length]
-          const isActive = index === activeDayIndex
-          return (
-            <div key={day.id} className="group relative shrink-0">
-              <button
-                ref={isActive ? activeTabRef : undefined}
-                onClick={() => onSelectDay(index)}
-                className={`relative whitespace-nowrap rounded-xl px-4 py-3 text-[13px] font-bold transition-all duration-200 lg:px-5 ${
-                  isActive
-                    ? `bg-gradient-to-r ${colorClass} text-white shadow-md`
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-                data-testid={`day-tab-${day.dayNumber}`}
-              >
-                Day {day.dayNumber}
-                {tripStartDate && (
-                  <span className={`ml-1.5 text-xs font-normal ${isActive ? "text-white/80" : "text-muted-foreground/60"}`}>
-                    {getDayDateLabel(tripStartDate, index)}
-                  </span>
-                )}
-              </button>
-              {/* 데스크톱: hover 시 삭제/복제 */}
-              {days.length > 1 && isActive && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onRemoveDay(day.id)
-                  }}
-                  className="absolute -right-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] text-white shadow-sm transition-opacity group-hover:opacity-100 lg:flex lg:opacity-0"
-                  aria-label={`Day ${day.dayNumber} 삭제`}
-                  data-testid={`day-remove-${day.dayNumber}`}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              )}
-              {isActive && onDuplicateDay && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDuplicateDay(day.id)
-                  }}
-                  className="absolute -left-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white shadow-sm transition-opacity group-hover:opacity-100 lg:flex lg:opacity-0"
-                  aria-label={`Day ${day.dayNumber} 복제`}
-                  data-testid={`day-duplicate-${day.dayNumber}`}
-                >
-                  <Copy className="h-2.5 w-2.5" />
-                </button>
-              )}
-            </div>
-          )
-        })}
+      {/* 현재 Day 표시 */}
+      <div
+        className={`rounded-lg bg-gradient-to-r ${colorClass} px-3 py-1.5 text-[12px] font-bold text-white shadow-sm`}
+        data-testid={`day-tab-${day?.dayNumber}`}
+      >
+        Day {day?.dayNumber ?? 1}
+        {tripStartDate && (
+          <span className="ml-1 text-[11px] font-normal text-white/75">
+            {getDayDateLabel(tripStartDate, activeDayIndex)}
+          </span>
+        )}
       </div>
 
       {/* ▶ 다음 Day */}
       <button
         onClick={() => onSelectDay(activeDayIndex + 1)}
         disabled={activeDayIndex >= days.length - 1}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30 disabled:pointer-events-none"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted disabled:opacity-20 disabled:pointer-events-none"
         aria-label="다음 Day"
       >
         <ChevronRight className="h-4 w-4" />
       </button>
 
-      {/* 데스크톱: Day 추가 버튼 */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="ml-1 hidden h-7 w-7 shrink-0 rounded-full hover:bg-sakura/20 lg:flex"
-        onClick={onAddDay}
-        aria-label="Day 추가"
-        data-testid="day-add-btn"
-      >
-        <Plus className="h-3.5 w-3.5" />
-      </Button>
+      {/* Day N / Total 표시 */}
+      <span className="text-[11px] text-muted-foreground tabular-nums">
+        {activeDayIndex + 1}/{days.length}
+      </span>
+
+      {/* 데스크톱: 인라인 복제/삭제 버튼 */}
+      <div className="ml-auto hidden items-center gap-0.5 lg:flex">
+        {onDuplicateDay && day && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+            onClick={() => onDuplicateDay(day.id)}
+            aria-label={`Day ${day.dayNumber} 복제`}
+            data-testid={`day-duplicate-${day.dayNumber}`}
+          >
+            <Copy className="h-3 w-3" />
+          </Button>
+        )}
+        {days.length > 1 && day && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            onClick={() => onRemoveDay(day.id)}
+            aria-label={`Day ${day.dayNumber} 삭제`}
+            data-testid={`day-remove-${day.dayNumber}`}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sakura/20"
+          onClick={onAddDay}
+          aria-label="Day 추가"
+          data-testid="day-add-btn"
+        >
+          <Plus className="h-3 w-3" />
+        </Button>
+      </div>
 
       {/* 모바일: Day 관리 메뉴 */}
-      <div className="relative shrink-0 lg:hidden">
+      <div className="relative ml-auto shrink-0 lg:hidden">
         <button
-          className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted transition-colors"
           onClick={() => setDayMenuOpen(!dayMenuOpen)}
           aria-label="Day 관리"
         >

@@ -21,7 +21,7 @@ interface TripChatPanelProps {
   onUnreadChange?: (count: number) => void
 }
 
-export function TripChatPanel({ sharedId, mobileOpen, onMobileClose, onUnreadChange }: TripChatPanelProps) {
+export function TripChatPanel({ sharedId, mobileOpen, onMobileClose, onUnreadChange, desktopOnly }: TripChatPanelProps) {
   const { user, profile, setShowLoginModal } = useAuthStore()
 
   const [desktopOpen, setDesktopOpen] = useState(false)
@@ -359,21 +359,9 @@ export function TripChatPanel({ sharedId, mobileOpen, onMobileClose, onUnreadCha
         </div>
       )}
 
-      {/* ── 모바일 full-screen 패널 (데스크톱에서 숨김) ─ */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-card lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-          <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
-            <span className="flex items-center gap-2 text-sm font-bold">
-              <MessageSquare className="h-4 w-4" />
-              여행 채팅
-            </span>
-            <button
-              onClick={() => onMobileClose?.()}
-              className="rounded-lg p-1 hover:bg-white/20"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+      {/* ── 모바일 인라인 패널 (탭 콘텐츠로 표시) ─ */}
+      {!desktopOnly && mobileOpen && (
+        <div className="flex flex-1 flex-col min-h-0 bg-card lg:hidden">
           {chatContent}
         </div>
       )}

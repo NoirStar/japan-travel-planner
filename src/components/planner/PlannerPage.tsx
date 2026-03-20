@@ -220,15 +220,27 @@ export function PlannerPage() {
             isTextSearching={search.isTextSearching}
           />
         </main>
+
+        {/* 채팅 — 인라인 탭 콘텐츠 (모바일) */}
+        {trip?.sharedId && isChatAvailable() && (
+          <div className={`w-full lg:hidden ${mobileTab === "chat" ? "flex flex-1 min-h-0" : "hidden"}`}>
+            <TripChatPanel
+              sharedId={trip.sharedId}
+              mobileOpen={mobileTab === "chat"}
+              onMobileClose={() => setMobileTab("schedule")}
+              onUnreadChange={setChatUnread}
+            />
+          </div>
+        )}
       </div>
 
-      {/* 공동 편집 채팅 */}
+      {/* 데스크톱 floating 채팅 */}
       {trip?.sharedId && isChatAvailable() && (
         <TripChatPanel
           sharedId={trip.sharedId}
-          mobileOpen={mobileTab === "chat"}
-          onMobileClose={() => setMobileTab("schedule")}
+          mobileOpen={false}
           onUnreadChange={setChatUnread}
+          desktopOnly
         />
       )}
 

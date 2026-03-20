@@ -10,7 +10,7 @@ import { LevelBadge } from "@/components/community/LevelBadge"
 
 export function Header() {
   const { isDarkMode, toggleDarkMode } = useUIStore()
-  const { user, profile, setShowLoginModal, signOut, isDemoMode } = useAuthStore()
+  const { user, profile, setShowLoginModal, signOut, isDemoMode, isLoading: isAuthLoading } = useAuthStore()
   const location = useLocation()
   const navigate = useNavigate()
   const isPlanner = location.pathname === "/planner"
@@ -124,7 +124,13 @@ export function Header() {
             )}
           </div>
 
-          {user && profile ? (
+          {isAuthLoading ? (
+            /* ── 인증 로딩 중: 레이아웃 시프트 방지 스켈레톤 ── */
+            <>
+              <div className="h-11 w-[4.5rem] animate-pulse rounded-xl bg-muted" />
+              <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+            </>
+          ) : user && profile ? (
             <>
             {/* ── 내 여행 (로그인 시) ── */}
             <Link to="/trips">

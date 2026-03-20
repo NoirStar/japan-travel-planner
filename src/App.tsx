@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/layout/ErrorBoundary"
 import { CelebrationProvider } from "@/components/ui/CelebrationOverlay"
 import { RequireAuth } from "@/components/routing/RequireAuth"
 import { useAuthStore } from "@/stores/authStore"
+import { useUserTripSync } from "@/hooks/useUserTripSync"
 import { Loader2 } from "lucide-react"
 
 /* ── Route-level code splitting ─────────────────────────── */
@@ -51,6 +52,8 @@ function App() {
   useEffect(() => {
     initialize()
   }, [initialize])
+
+  useUserTripSync()
 
   return (
     <BrowserRouter>

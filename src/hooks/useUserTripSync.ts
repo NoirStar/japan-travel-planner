@@ -16,7 +16,7 @@ export function useUserTripSync() {
   const isLoading = useAuthStore((s) => s.isLoading)
 
   const isSavingRef = useRef(false)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   // 서버 데이터를 스토어에 적용 중일 때 true → 재저장 방지
   const isApplyingServerDataRef = useRef(false)
 

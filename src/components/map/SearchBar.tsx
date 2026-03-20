@@ -158,7 +158,7 @@ export function UnifiedSearchBar({
         <button
           className={`sm:hidden flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
             filtersExpanded || activeCategory
-              ? "bg-sakura-dark/15 text-sakura-dark"
+              ? "bg-primary/12 text-primary"
               : "text-muted-foreground hover:bg-muted hover:text-foreground"
           }`}
           onClick={() => setFiltersExpanded(!filtersExpanded)}
@@ -239,8 +239,8 @@ export function UnifiedSearchBar({
           }}
           className={`flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-caption sm:text-body-sm font-bold transition-all duration-200 ${
             isSearching
-              ? "bg-indigo text-white cursor-wait"
-              : "bg-indigo text-white hover:bg-indigo/90 hover:shadow-md active:scale-95"
+              ? "bg-primary/10 text-primary cursor-wait"
+              : "bg-card text-primary border border-primary/25 hover:bg-primary/10 hover:shadow-md active:scale-95"
           } ${
             !hasClicked && !isSearching ? "animate-search-pulse" : ""
           }`}
@@ -298,7 +298,7 @@ export function TextSearchBar({
         <button
           type="submit"
           disabled={!query.trim() || isSearching}
-          className="shrink-0 rounded-xl bg-sakura-dark px-3.5 py-2 text-body-sm font-bold text-white disabled:opacity-50 hover:bg-sakura-dark/90 transition-colors"
+          className="shrink-0 rounded-xl bg-primary px-3.5 py-2 text-body-sm font-bold text-primary-foreground disabled:opacity-50 hover:bg-primary/90 transition-colors"
         >
           {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : "검색"}
         </button>

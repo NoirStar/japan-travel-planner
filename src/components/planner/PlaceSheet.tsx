@@ -221,7 +221,7 @@ export function PlaceSheet({
               onClick={() => setActiveCategory(cat.value)}
               className={`rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
                 activeCategory === cat.value
-                  ? "bg-sakura-dark text-white shadow-sm"
+                  ? "bg-primary/12 text-primary font-semibold"
                   : "bg-muted text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
               data-testid={`filter-${cat.value}`}

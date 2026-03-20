@@ -3,15 +3,8 @@ import { Plus, X, Copy, Settings2, ChevronLeft, ChevronRight } from "lucide-reac
 import { Button } from "@/components/ui/button"
 import type { DaySchedule } from "@/types/schedule"
 
-const DAY_COLORS = [
-  "from-sakura-dark to-pink-400",
-  "from-indigo to-blue-400",
-  "from-emerald-500 to-teal-400",
-  "from-amber-500 to-orange-400",
-  "from-violet-500 to-purple-400",
-  "from-cyan-500 to-sky-400",
-  "from-rose-500 to-red-400",
-]
+/** Day 탭은 브랜드 primary 단일색으로 통일 */
+const DAY_COLOR = "bg-primary"
 
 interface DayTabsProps {
   days: DaySchedule[]
@@ -41,7 +34,7 @@ export function DayTabs({
 }: DayTabsProps) {
   const [dayMenuOpen, setDayMenuOpen] = useState(false)
   const day = days[activeDayIndex]
-  const colorClass = DAY_COLORS[activeDayIndex % DAY_COLORS.length]
+  const colorClass = DAY_COLOR
 
   return (
     <div className="flex items-center gap-1 border-b border-border px-3 py-2 sm:px-4 sm:gap-1.5" data-testid="day-tabs">
@@ -57,12 +50,12 @@ export function DayTabs({
 
       {/* 현재 Day 표시 */}
       <div
-        className={`rounded-lg bg-gradient-to-r ${colorClass} px-3 py-1.5 text-[12px] font-bold text-white shadow-sm`}
+        className={`rounded-lg ${colorClass} px-3 py-1.5 text-[12px] font-bold text-primary-foreground shadow-sm`}
         data-testid={`day-tab-${day?.dayNumber}`}
       >
         Day {day?.dayNumber ?? 1}
         {tripStartDate && (
-          <span className="ml-1 text-[11px] font-normal text-white/75">
+          <span className="ml-1 text-[11px] font-normal text-primary-foreground/75">
             {getDayDateLabel(tripStartDate, activeDayIndex)}
           </span>
         )}

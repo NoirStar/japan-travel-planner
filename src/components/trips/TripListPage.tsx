@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
 import { getCityConfig } from "@/data/mapConfig"
+import { cities } from "@/data/cities"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 
 export function TripListPage() {
@@ -149,25 +150,34 @@ export function TripListPage() {
                     onClick={() => handleOpenTrip(trip.id, trip.cityId)}
                     data-testid={`trip-card-${trip.id}`}
                   >
-                    <div className="flex items-center gap-4 p-5">
-                      {/* 도시 아이콘 */}
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5">
-                        <MapPin className="h-6 w-6 text-primary" />
-                      </div>
+                    <div className="flex items-center gap-4 p-4">
+                      {/* 도시 썸네일 */}
+                      {(() => {
+                        const cityData = cities.find((c) => c.id === trip.cityId)
+                        return cityData?.image ? (
+                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted">
+                            <img src={cityData.image} alt={cityConfig.name} className="h-full w-full object-cover" loading="lazy" />
+                          </div>
+                        ) : (
+                          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5">
+                            <MapPin className="h-6 w-6 text-primary" />
+                          </div>
+                        )
+                      })()}
 
                       {/* 여행 정보 */}
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="truncate text-body-sm font-bold text-foreground">{trip.title}</h3>
-                          <span className={`shrink-0 rounded-full px-2 py-1 text-caption font-semibold ${
+                          <h3 className="truncate text-sm font-bold text-foreground">{trip.title}</h3>
+                          <span className={`shrink-0 rounded-full px-2 py-0.5 text-caption font-semibold ${
                             daysWithPlaces === trip.days.length
                               ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                              : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                              : "bg-muted text-muted-foreground"
                           }`}>{daysWithPlaces}/{trip.days.length}일</span>
                         </div>
-                        <p className="text-caption text-muted-foreground">{cityConfig.name}</p>
+                        <p className="text-body-sm text-muted-foreground">{cityConfig.name}</p>
 
-                        <div className="mt-2 flex flex-wrap items-center gap-3 text-caption text-muted-foreground">
+                        <div className="mt-1.5 flex flex-wrap items-center gap-3 text-caption text-muted-foreground">
                           {(trip.startDate || trip.endDate) && (
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />

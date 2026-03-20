@@ -28,18 +28,23 @@ export function LandingPage() {
           transition={{ staggerChildren: 0.12 }}
         >
           {/* ── Hero ── */}
-          <motion.section className="hero-section" variants={fadeUp}>
+          <motion.section className="pt-12 pb-10 sm:pt-16 sm:pb-14" variants={fadeUp}>
             <div className="mx-auto max-w-3xl text-center">
-              <h1 className="text-display mb-6">
+              <h1 className="text-display mb-5">
                 <span className="gradient-text font-maple">일본 여행,</span>
                 <br />
                 <span className="text-foreground">타비톡으로 완성하세요</span>
               </h1>
-              <p className="mx-auto mb-10 max-w-xl text-lg text-muted-foreground sm:text-xl leading-relaxed">
+              <p className="mx-auto mb-6 max-w-xl text-lg text-muted-foreground sm:text-xl leading-relaxed">
                 구글맵 기반 일정 플래너부터
                 <br className="hidden sm:block" />
                 여행자 커뮤니티까지 한곳에서.
               </p>
+              <div className="mb-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5"><Map className="h-4 w-4 text-primary" />지도 기반 플래닝</span>
+                <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-primary" />자동 이동시간 계산</span>
+                <span className="flex items-center gap-1.5"><Users className="h-4 w-4 text-primary" />여행자 커뮤니티</span>
+              </div>
 
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <motion.button
@@ -83,7 +88,7 @@ export function LandingPage() {
                   </div>
                   <h3 className="mb-2 text-base font-bold text-foreground">{title}</h3>
                   <p className="text-body-sm leading-relaxed text-muted-foreground">{desc}</p>
-                  <span className="mt-4 text-body-sm font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                  <span className="mt-4 text-body-sm font-semibold text-primary">
                     {cta} →
                   </span>
                 </motion.button>

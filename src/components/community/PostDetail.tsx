@@ -794,8 +794,7 @@ export function PostDetail() {
         <RemixImportModal
           open={showRemixModal}
           onClose={() => setShowRemixModal(false)}
-          postTitle={post.title}
-          tripData={post.trip_data}
+          post={post}
         />
       )}
 

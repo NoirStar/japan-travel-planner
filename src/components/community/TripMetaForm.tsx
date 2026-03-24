@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { TripMeta, CompanionType, BudgetBand, IntensityLevel } from "@/types/community"
+import type { TripMeta } from "@/types/community"
 import { COMPANION_LABELS, BUDGET_LABELS, INTENSITY_LABELS } from "@/types/community"
 
 interface TripMetaFormProps {

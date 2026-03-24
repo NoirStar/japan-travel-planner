@@ -139,6 +139,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
     <>
       <CustomOverlay position={place.location} zIndex={zIndex}>
         <div
+          className="city-pin-wrapper"
           style={{ opacity }}
           onClick={handleClick}
           onMouseEnter={handleMouseEnter}
@@ -151,36 +152,23 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
             isSelected={!!isSelected}
             category={place.category}
           />
+          {/* 호버 툴팁 — DOM 기반 (InfoWindow 대신) */}
+          {isHovered && !isSelected && (
+            <div className="city-pin-tooltip">
+              <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">{place.name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[10px] rounded px-1 py-px bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">{categoryLabel}</span>
+                {place.rating && (
+                  <span className="flex items-center gap-0.5 text-[10px] text-gray-600 dark:text-gray-300">
+                    <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+                    {place.rating}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </CustomOverlay>
-
-      {/* 호버 툴팁 — 컴팩트 텍스트 */}
-      {isHovered && !isSelected && (
-        <InfoWindow
-          position={place.location}
-          headerDisabled
-          onCloseClick={() => setIsHovered(false)}
-        >
-          <div className="p-1.5 min-w-[140px] max-w-[220px] dark:bg-gray-800">
-            <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">{place.name}</p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] rounded px-1 py-px bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">{categoryLabel}</span>
-              {place.rating && (
-                <span className="flex items-center gap-0.5 text-[10px] text-gray-600 dark:text-gray-300">
-                  <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
-                  {place.rating}
-                  {place.ratingCount && (
-                    <span className="text-gray-400 dark:text-gray-500">({place.ratingCount.toLocaleString()})</span>
-                  )}
-                </span>
-              )}
-            </div>
-            {place.description && (
-              <p className="mt-1 text-[10px] text-gray-500 dark:text-gray-400 line-clamp-1 leading-relaxed">{place.description}</p>
-            )}
-          </div>
-        </InfoWindow>
-      )}
 
       {/* 클릭 시 상세 InfoWindow */}
       {isSelected && (

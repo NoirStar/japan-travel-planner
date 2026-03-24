@@ -193,15 +193,16 @@ export function CommunityPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 lg:px-8 pt-24 pb-14">
       {/* 헤더 */}
-      <div className="mb-8 flex items-end justify-between">
-        <div>
-          <h1 className="text-headline font-bold">여행 일정 커뮤니티</h1>
+      <div className="mb-8 flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-headline font-bold truncate">여행 일정 커뮤니티</h1>
           <p className="mt-1 text-body-sm text-muted-foreground inline-flex items-center gap-1">다른 여행자들의 일본 일정을 구경하세요 <Plane className="h-3.5 w-3.5" /></p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={handleCreateClick} className="gap-2 rounded-xl btn-gradient text-body-sm h-11 px-5">
+        <div className="flex shrink-0 items-center gap-2">
+          <Button onClick={handleCreateClick} className="gap-1.5 rounded-xl btn-gradient text-body-sm h-10 px-4 sm:h-11 sm:px-5 sm:gap-2">
             <Plus className="h-4 w-4" />
-            내 일정 올리기
+            <span className="hidden sm:inline">내 일정 올리기</span>
+            <span className="sm:hidden">글쓰기</span>
           </Button>
         </div>
       </div>
@@ -219,12 +220,12 @@ export function CommunityPage() {
       </div>
 
       {/* 필터 바 */}
-      <div className="mb-6 flex items-center gap-2">
+      <div className="mb-6 flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap">
         {/* 정렬 */}
-        <div className="flex rounded-lg border border-border bg-card p-0.5">
+        <div className="flex shrink-0 rounded-lg border border-border bg-card p-0.5">
           <button
             onClick={() => setSort("latest")}
-            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
               sort === "latest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -233,7 +234,7 @@ export function CommunityPage() {
           </button>
           <button
             onClick={() => setSort("popular")}
-            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
               sort === "popular" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -242,7 +243,7 @@ export function CommunityPage() {
           </button>
           <button
             onClick={() => setSort("best")}
-            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
               sort === "best" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -251,27 +252,13 @@ export function CommunityPage() {
           </button>
         </div>
 
-        {/* 도시 */}
-        <select
-          value={cityFilter}
-          onChange={(e) => setCityFilter(e.target.value)}
-          className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none"
-        >
-          <option value="">전체 도시</option>
-          {cities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name}
-            </option>
-          ))}
-        </select>
-
         {/* 계획/후기 */}
-        <div className="flex rounded-lg border border-border bg-card p-0.5">
+        <div className="flex shrink-0 rounded-lg border border-border bg-card p-0.5">
           {(["" as const, "plan" as const, "review" as const]).map((stage) => (
             <button
               key={stage}
               onClick={() => setStageFilter(stage)}
-              className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              className={`rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
                 stageFilter === stage
                   ? stage === "review" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -282,11 +269,25 @@ export function CommunityPage() {
           ))}
         </div>
 
+        {/* 도시 */}
+        <select
+          value={cityFilter}
+          onChange={(e) => setCityFilter(e.target.value)}
+          className="h-8 shrink-0 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none"
+        >
+          <option value="">전체 도시</option>
+          {cities.map((city) => (
+            <option key={city.id} value={city.id}>
+              {city.name}
+            </option>
+          ))}
+        </select>
+
         {/* 추천수 */}
         <select
           value={minLikes}
           onChange={(e) => setMinLikes(Number(e.target.value))}
-          className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none"
+          className="h-8 shrink-0 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none"
         >
           <option value={0}>추천 전체</option>
           <option value={5}>추천 5+</option>
@@ -297,15 +298,15 @@ export function CommunityPage() {
         {(searchQuery || cityFilter || minLikes > 0 || stageFilter) && (
           <button
             onClick={() => { setSearchInput(""); setSearchQuery(""); setCityFilter(""); setMinLikes(0); setStageFilter("") }}
-            className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="h-3 w-3" />
             초기화
           </button>
         )}
 
-        {/* 게시글 수 */}
-        <span className="ml-auto text-xs text-muted-foreground">
+        {/* 게시글 수 — 모바일에서는 숨김 */}
+        <span className="ml-auto hidden text-xs text-muted-foreground sm:inline">
           {filteredPosts.length}건
         </span>
       </div>

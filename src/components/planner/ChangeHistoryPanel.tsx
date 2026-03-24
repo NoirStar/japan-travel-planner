@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { History, RefreshCw, User } from "lucide-react"
+import { History, RefreshCw, User, X } from "lucide-react"
 import { getTripChanges, type TripChange } from "@/services/tripSyncService"
 
 interface Props {
@@ -42,7 +42,7 @@ export function ChangeHistoryPanel({ open, onClose, sharedId }: Props) {
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
-      <div className="fixed inset-y-0 right-0 z-50 flex w-80 max-w-full flex-col bg-card shadow-2xl animate-in slide-in-from-right duration-200">
+      <div className="fixed inset-y-0 right-0 z-50 flex w-80 max-w-full flex-col bg-card shadow-xl animate-in slide-in-from-right duration-200">
         {/* 헤더 */}
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-2">
@@ -61,7 +61,7 @@ export function ChangeHistoryPanel({ open, onClose, sharedId }: Props) {
               className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition-colors"
               onClick={onClose}
             >
-              ✕
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>

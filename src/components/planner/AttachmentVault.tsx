@@ -121,7 +121,7 @@ export function AttachmentVault({ open, onOpenChange, tripId }: Props) {
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="fixed inset-y-0 right-0 z-50 flex w-80 max-w-full flex-col bg-card shadow-2xl animate-in slide-in-from-right duration-200">
+      <div className="fixed inset-y-0 right-0 z-50 flex w-80 max-w-full flex-col bg-card shadow-xl animate-in slide-in-from-right duration-200">
         {/* 헤더 */}
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-2">

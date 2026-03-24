@@ -34,7 +34,7 @@ export function TripSummary({ selections, onConfirm, onReset }: TripSummaryProps
       data-testid="trip-summary"
     >
       {/* 타이틀 */}
-      <div className="rounded-2xl bg-gradient-to-r from-sakura-dark to-indigo p-4 text-white shadow-lg">
+      <div className="rounded-2xl bg-primary p-4 text-white">
         <h3 className="text-lg font-bold flex items-center gap-2">
           <Map className="h-5 w-5" /> {cityNames[cityId] ?? cityId} {duration - 1}박{duration}일
         </h3>

@@ -22,7 +22,7 @@ describe("TripMetaChips", () => {
   it("메타데이터가 있으면 칩들을 보여준다", () => {
     render(<TripMetaChips meta={fullMeta} />)
     expect(screen.getByText("커플")).toBeInTheDocument()
-    expect(screen.getByText("🍜 맛집")).toBeInTheDocument()
+    expect(screen.getByText("맛집")).toBeInTheDocument()
   })
 
   it("compact 모드에서는 최대 3개 칩만 표시한다", () => {

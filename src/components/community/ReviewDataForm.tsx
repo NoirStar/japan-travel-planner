@@ -1,4 +1,4 @@
-import { Star } from "lucide-react"
+import { Star, FileText, Check, X } from "lucide-react"
 import type { ReviewData } from "@/types/community"
 import type { Trip } from "@/types/schedule"
 
@@ -44,7 +44,7 @@ export function ReviewDataForm({ value, onChange, trip }: ReviewDataFormProps) {
 
   return (
     <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
-      <h4 className="mb-3 text-xs font-bold text-amber-800 dark:text-amber-300">📝 후기 정보</h4>
+      <h4 className="mb-3 text-xs font-bold text-amber-800 dark:text-amber-300 inline-flex items-center gap-1"><FileText className="h-3 w-3" /> 후기 정보</h4>
 
       <div className="space-y-3">
         {/* Overall Rating */}
@@ -97,7 +97,7 @@ export function ReviewDataForm({ value, onChange, trip }: ReviewDataFormProps) {
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    방문 ✓
+                    <span className="inline-flex items-center gap-0.5">방문 <Check className="h-2.5 w-2.5" /></span>
                   </button>
                   <button
                     type="button"
@@ -108,7 +108,7 @@ export function ReviewDataForm({ value, onChange, trip }: ReviewDataFormProps) {
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    스킵 ✗
+                    <span className="inline-flex items-center gap-0.5">스킵 <X className="h-2.5 w-2.5" /></span>
                   </button>
                 </div>
               ))}

@@ -223,7 +223,7 @@ export function ContactPage() {
       </div>
 
       {/* ── 커피 사주기 ───────────────────────── */}
-      <div className="mb-8 rounded-3xl border border-amber-200/60 bg-gradient-to-r from-amber-50 to-orange-50 p-6 text-center dark:border-amber-900/40 dark:from-amber-950/20 dark:to-orange-950/20">
+      <div className="mb-8 rounded-2xl border border-amber-200/60 bg-amber-50 p-6 text-center dark:border-amber-900/40 dark:bg-amber-950/20">
         <Coffee className="mx-auto mb-2 h-8 w-8 text-amber-600 dark:text-amber-400" />
         <h3 className="mb-1 text-body-sm font-semibold">개발자에게 커피 사주기</h3>
         <p className="mb-4 text-caption text-muted-foreground">

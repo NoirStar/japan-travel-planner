@@ -20,7 +20,7 @@ export function DurationStep({ options, onSelect }: DurationStepProps) {
         <button
           key={opt.id}
           onClick={() => onSelect(opt.id)}
-          className="rounded-full border border-border/50 bg-card px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:bg-gradient-to-r hover:from-sakura-dark hover:to-indigo hover:text-white hover:shadow-md hover:border-transparent active:scale-95"
+          className="rounded-full border border-border/50 bg-card px-5 py-2.5 text-sm font-medium shadow-sm transition-colors hover:bg-primary hover:text-white hover:border-transparent"
           data-testid={`duration-option-${opt.id}`}
         >
           <Moon className="mr-1.5 inline h-4 w-4" />

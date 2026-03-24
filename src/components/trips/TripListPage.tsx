@@ -62,19 +62,12 @@ export function TripListPage() {
 
         {/* 로그인 필요 */}
         {!user ? (
-          <motion.div
-            className="empty-state card-elevated rounded-3xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+          <div
+            className="empty-state card-elevated rounded-2xl"
           >
-            <motion.div
-              className="empty-state-icon"
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <LogIn className="h-9 w-9 text-muted-foreground/40" />
-            </motion.div>
+            <div className="empty-state-icon">
+              <LogIn className="h-8 w-8 text-muted-foreground/40" />
+            </div>
             <p className="empty-state-title">로그인이 필요합니다</p>
             <p className="empty-state-desc">여행 일정을 저장하고 관리하려면 로그인하세요.</p>
             <Button
@@ -84,21 +77,14 @@ export function TripListPage() {
               <LogIn className="h-4 w-4" />
               로그인
             </Button>
-          </motion.div>
+          </div>
         ) : trips.length === 0 ? (
-          <motion.div
-            className="empty-state card-elevated rounded-3xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+          <div
+            className="empty-state card-elevated rounded-2xl"
           >
-            <motion.div
-              className="empty-state-icon"
-              animate={{ y: [0, -8, 0], rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Compass className="h-9 w-9 text-primary/45" />
-            </motion.div>
+            <div className="empty-state-icon">
+              <Compass className="h-8 w-8 text-primary/45" />
+            </div>
             <p className="empty-state-title">아직 저장된 여행이 없습니다</p>
             <p className="empty-state-desc">첫 번째 여행을 만들어 일정과 장소를 하나씩 채워보세요.</p>
             <Button
@@ -108,7 +94,7 @@ export function TripListPage() {
               <Plus className="h-4 w-4" />
               새 여행 만들기
             </Button>
-          </motion.div>
+          </div>
         ) : (
           <div className="space-y-4">
             {/* 투바 */}

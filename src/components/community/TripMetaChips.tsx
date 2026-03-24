@@ -1,3 +1,5 @@
+import type React from "react"
+import { DollarSign, Footprints, UtensilsCrossed, ShoppingBag } from "lucide-react"
 import type { TripMeta } from "@/types/community"
 import { COMPANION_LABELS, BUDGET_LABELS, INTENSITY_LABELS } from "@/types/community"
 
@@ -9,13 +11,13 @@ interface TripMetaChipsProps {
 export function TripMetaChips({ meta, compact }: TripMetaChipsProps) {
   if (!meta) return null
 
-  const chips: { label: string; color: string }[] = []
+  const chips: { label: string; icon?: React.ReactNode; color: string }[] = []
 
   if (meta.companionType) chips.push({ label: COMPANION_LABELS[meta.companionType], color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" })
-  if (meta.budgetBand) chips.push({ label: `💰 ${BUDGET_LABELS[meta.budgetBand]}`, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" })
-  if (meta.walkingIntensity) chips.push({ label: `🚶 ${INTENSITY_LABELS[meta.walkingIntensity]}`, color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300" })
-  if (meta.foodFocus && meta.foodFocus >= 4) chips.push({ label: "🍜 맛집", color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" })
-  if (meta.shoppingFocus && meta.shoppingFocus >= 4) chips.push({ label: "🛍️ 쇼핑", color: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300" })
+  if (meta.budgetBand) chips.push({ label: BUDGET_LABELS[meta.budgetBand], icon: <DollarSign className="h-2.5 w-2.5" />, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" })
+  if (meta.walkingIntensity) chips.push({ label: INTENSITY_LABELS[meta.walkingIntensity], icon: <Footprints className="h-2.5 w-2.5" />, color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300" })
+  if (meta.foodFocus && meta.foodFocus >= 4) chips.push({ label: "맛집", icon: <UtensilsCrossed className="h-2.5 w-2.5" />, color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" })
+  if (meta.shoppingFocus && meta.shoppingFocus >= 4) chips.push({ label: "쇼핑", icon: <ShoppingBag className="h-2.5 w-2.5" />, color: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300" })
   if (meta.visitMonth) chips.push({ label: `${meta.visitMonth}월`, color: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" })
 
   if (chips.length === 0) return null
@@ -25,8 +27,8 @@ export function TripMetaChips({ meta, compact }: TripMetaChipsProps) {
   return (
     <div className="flex flex-wrap gap-1">
       {displayed.map((c, i) => (
-        <span key={i} className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${c.color}`}>
-          {c.label}
+        <span key={i} className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-medium ${c.color}`}>
+          {c.icon}{c.label}
         </span>
       ))}
       {compact && chips.length > 3 && (

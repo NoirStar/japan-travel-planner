@@ -343,7 +343,7 @@ export function TripChatPanel({ sharedId, mobileOpen, onMobileClose: _onMobileCl
       {desktopOpen && (
         <div
           ref={chatRef}
-          className="fixed bottom-6 right-6 z-50 hidden h-[28rem] max-h-[calc(100dvh-3rem)] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl transition-[bottom,max-height] duration-150 lg:flex"
+          className="fixed bottom-6 right-6 z-50 hidden h-[28rem] max-h-[calc(100dvh-3rem)] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl transition-[bottom,max-height] duration-150 lg:flex"
         >
           <div className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
             <span className="flex items-center gap-2 text-sm font-bold">

@@ -1,4 +1,4 @@
-import { ThumbsUp, MessageCircle, MapPin, Trophy } from "lucide-react"
+import { ThumbsUp, MessageCircle, MapPin, Trophy, PenLine } from "lucide-react"
 import { Link } from "react-router-dom"
 import type { CommunityPost } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
@@ -31,13 +31,13 @@ export function PostCard({ post }: PostCardProps) {
           <img
             src={post.cover_image}
             alt={post.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover"
           />
         ) : city?.image ? (
           <img
             src={city.image}
             alt={city.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-muted">
@@ -65,7 +65,7 @@ export function PostCard({ post }: PostCardProps) {
         )}
         {post.travel_post_stage === "review" && (
           <div className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-md">
-            ✍️ 후기
+            <PenLine className="h-3 w-3" /> 후기
           </div>
         )}
       </div>

@@ -151,7 +151,6 @@ body {
   box-shadow:
     0 4px 8px rgba(60, 45, 30, 0.08),
     0 8px 24px rgba(60, 45, 30, 0.1);
-  transform: translateY(-1px);
 }
 
 /* ── 표면 위계 ──────────────────────────── */
@@ -238,7 +237,6 @@ body {
   box-shadow:
     0 4px 12px rgba(60, 45, 30, 0.08),
     0 12px 32px rgba(60, 45, 30, 0.1);
-  transform: translateY(-2px);
 }
 
 .card-flat {
@@ -283,13 +281,13 @@ body {
   text-align: center;
 }
 .empty-state-icon {
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 1.5rem;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(232, 104, 90, 0.08), rgba(43, 107, 138, 0.06));
+  background: var(--color-muted);
 }
 .empty-state-title {
   font-size: 1.125rem;
@@ -334,39 +332,7 @@ body {
   .toolbar-group::-webkit-scrollbar { display: none; }
 }
 
-/* ── 떠다니는 애니메이션 ─────────────────────────────── */
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-8px) rotate(2deg); }
-  66% { transform: translateY(4px) rotate(-1deg); }
-}
-
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
-}
-
-@keyframes sakura-fall {
-  0% { transform: translateY(-100%) rotate(0deg) translateX(0); opacity: 0; }
-  5% { opacity: 0.7; }
-  25% { transform: translateY(20vh) rotate(90deg) translateX(15px); }
-  50% { transform: translateY(45vh) rotate(180deg) translateX(-10px); opacity: 0.8; }
-  75% { transform: translateY(70vh) rotate(270deg) translateX(20px); }
-  90% { opacity: 0.5; }
-  100% { transform: translateY(105vh) rotate(360deg) translateX(5px); opacity: 0; }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-float-slow {
-  animation: float-slow 8s ease-in-out infinite;
-}
-
-.animate-sakura {
-  animation: sakura-fall linear infinite;
-}
+/* ── 유틸리티 애니메이션 ─────────────────────────────── */
 
 /* ── 스크롤바 숨기기 (카테고리 필터 등) ──────────────── */
 .scrollbar-hide::-webkit-scrollbar {
@@ -377,16 +343,7 @@ body {
   scrollbar-width: none;
 }
 
-/* ── 검색 버튼 펄스 애니메이션 ───────────────────────── */
-@keyframes search-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(232, 67, 147, 0.5); }
-  70% { box-shadow: 0 0 0 12px rgba(232, 67, 147, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(232, 67, 147, 0); }
-}
 
-.animate-search-pulse {
-  animation: search-pulse 2s ease-out infinite;
-}
 
 /* ── 토스트 페이드인 ────────────────────────────────────── */
 @keyframes fade-in {
@@ -483,218 +440,65 @@ body {
   scrollbar-width: thin;
 }
 
-/* ── 레벨 뱃지 애니메이션 (Lv.1~20) ──────────────────── */
+/* ── 레벨 뱃지 애니메이션 (3 티어) ──────────────────── */
 
-/* Lv.1 새싹 — 쑥쑥 자라는 모션 */
-@keyframes sprout {
-  0%, 100% { transform: scaleY(1) translateY(0); }
-  25% { transform: scaleY(1.1) translateY(-1px); }
-  50% { transform: scaleY(0.95) translateY(1px); }
-  75% { transform: scaleY(1.05) translateY(-0.5px); }
-}
-.animate-sprout {
-  animation: sprout 3s ease-in-out infinite;
-}
-
-/* Lv.2 지도 — 펼쳐지는 모션 */
-@keyframes map-unfold {
-  0%, 100% { transform: scaleX(1); }
-  50% { transform: scaleX(1.05); }
-}
-.animate-map-unfold {
-  animation: map-unfold 4s ease-in-out infinite;
-}
-
-/* Lv.3 나침반 — 살짝 회전 */
-@keyframes compass-spin {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(10deg); }
-  75% { transform: rotate(-10deg); }
-}
-.animate-compass-spin {
-  animation: compass-spin 3s ease-in-out infinite;
-}
-
-/* Lv.4 여권 — 스탬프 찍기 */
-@keyframes passport-stamp {
-  0%, 90%, 100% { transform: scale(1); }
-  95% { transform: scale(1.08); }
-}
-.animate-passport-stamp {
-  animation: passport-stamp 4s ease-in-out infinite;
-}
-
-/* Lv.5 배낭 — 통통 튀기 */
-@keyframes backpack-bounce {
+/* Lv.1~7: 미세한 흔들림 */
+@keyframes badge-gentle {
   0%, 100% { transform: translateY(0); }
-  30% { transform: translateY(-2px); }
-  60% { transform: translateY(1px); }
+  50% { transform: translateY(-1px); }
 }
-.animate-backpack-bounce {
-  animation: backpack-bounce 2s ease-in-out infinite;
-}
-
-/* Lv.6 기차 — 좌우 이동 */
-@keyframes train-move {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(2px); }
-}
-.animate-train-move {
-  animation: train-move 2s ease-in-out infinite;
-}
-
-/* Lv.7 신칸센 — 빠른 대시 */
-@keyframes shinkansen-dash {
-  0%, 100% { transform: translateX(0) scale(1); }
-  50% { transform: translateX(3px) scale(1.02); }
-}
+.animate-sprout,
+.animate-map-unfold,
+.animate-compass-spin,
+.animate-passport-stamp,
+.animate-backpack-bounce,
+.animate-train-move,
 .animate-shinkansen-dash {
-  animation: shinkansen-dash 1.5s ease-in-out infinite;
+  animation: badge-gentle 3s ease-in-out infinite;
 }
 
-/* Lv.8 온천 — 김 올라오는 모션 */
-@keyframes steam-rise {
-  0% { opacity: 0.3; transform: translateY(0); }
-  50% { opacity: 0.8; transform: translateY(-2px); }
-  100% { opacity: 0.3; transform: translateY(-4px); }
+/* Lv.8~14: 은은한 페이드 */
+@keyframes badge-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
 }
-.animate-onsen-steam {
-  animation: steam-rise 3s ease-in-out infinite;
-}
-.animate-steam-1 { animation: steam-rise 2.5s ease-in-out infinite; }
-.animate-steam-2 { animation: steam-rise 2.5s ease-in-out infinite 0.4s; }
-.animate-steam-3 { animation: steam-rise 2.5s ease-in-out infinite 0.8s; }
-
-/* Lv.9 사쿠라 — 천천히 회전 */
-@keyframes sakura-spin {
-  0% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(90deg) scale(1.05); }
-  50% { transform: rotate(180deg) scale(1); }
-  75% { transform: rotate(270deg) scale(1.05); }
-  100% { transform: rotate(360deg) scale(1); }
-}
-.animate-sakura-spin {
-  animation: sakura-spin 6s linear infinite;
-}
-
-/* Lv.10 도리이 — 글로우 */
-@keyframes torii-glow {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.3)); }
-  50% { filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); transform: scale(1.02); }
-}
-.animate-torii-glow {
-  animation: torii-glow 3s ease-in-out infinite;
-}
-
-/* Lv.11 성 — 빛나는 모션 */
-@keyframes castle-shine {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.4)); }
-  50% { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.7)); transform: scale(1.03); }
-}
-.animate-castle-shine {
-  animation: castle-shine 3.5s ease-in-out infinite;
-}
-
-/* Lv.12 마츠리 — 흔들리는 등불 */
-@keyframes lantern-swing {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(5deg); }
-  75% { transform: rotate(-5deg); }
-}
-.animate-lantern-swing {
-  animation: lantern-swing 3s ease-in-out infinite;
-  transform-origin: top center;
-}
-
-/* Lv.13 사무라이 — 베기 모션 */
-@keyframes samurai-slash {
-  0%, 85%, 100% { transform: rotate(0deg); filter: brightness(1); }
-  90% { transform: rotate(-15deg); filter: brightness(1.4); }
-  95% { transform: rotate(5deg); filter: brightness(1.2); }
-}
-.animate-samurai-slash {
-  animation: samurai-slash 4s ease-in-out infinite;
-}
-
-/* Lv.14 닌자 — 빠른 회전 */
-@keyframes ninja-spin {
-  0%, 80%, 100% { transform: rotate(0deg); }
-  90% { transform: rotate(360deg); }
-}
+.animate-onsen-steam,
+.animate-steam-1,
+.animate-steam-2,
+.animate-steam-3,
+.animate-sakura-spin,
+.animate-torii-glow,
+.animate-castle-shine,
+.animate-lantern-swing,
+.animate-samurai-slash,
 .animate-ninja-spin {
-  animation: ninja-spin 3s ease-in-out infinite;
+  animation: badge-glow 3s ease-in-out infinite;
 }
 
-/* Lv.15 용 — 둥실 부유 */
-@keyframes dragon-float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-2px) rotate(2deg); }
-  75% { transform: translateY(1px) rotate(-1deg); }
+/* Lv.15~20: 고급 글로우 */
+@keyframes badge-prestige {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.25)); }
+  50% { filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.5)); }
 }
-.animate-dragon-float {
-  animation: dragon-float 3s ease-in-out infinite;
-}
-
-/* Lv.16 후지산 — 웅장한 글로우 */
-@keyframes fuji-glow {
-  0%, 100% { filter: drop-shadow(0 0 3px rgba(99, 102, 241, 0.3)); }
-  50% { filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.6)); transform: scale(1.03); }
-}
-.animate-fuji-glow {
-  animation: fuji-glow 4s ease-in-out infinite;
-}
-
-/* Lv.17 오로라 — 물결 흐름 */
-@keyframes aurora {
-  0%, 100% { filter: hue-rotate(0deg) drop-shadow(0 0 4px rgba(99, 102, 241, 0.4)); }
-  33% { filter: hue-rotate(30deg) drop-shadow(0 0 8px rgba(52, 211, 153, 0.5)); }
-  66% { filter: hue-rotate(-20deg) drop-shadow(0 0 8px rgba(167, 139, 250, 0.5)); }
-}
-.animate-aurora {
-  animation: aurora 5s ease-in-out infinite;
-}
-
-/* Lv.18 왕관 — 황금빛 글로우 */
-@keyframes crown-glow {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.4)); transform: translateY(0); }
-  33% { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.7)); transform: translateY(-1px); }
-  66% { filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.5)); transform: translateY(0.5px); }
-}
-.animate-crown-glow {
-  animation: crown-glow 3s ease-in-out infinite;
-}
-
-/* Lv.19 다이아 — 빛 반사 회전 */
-@keyframes diamond-shine {
-  0%, 100% { filter: drop-shadow(0 0 3px rgba(167, 139, 250, 0.5)) brightness(1); }
-  33% { filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.8)) brightness(1.2); transform: rotate(3deg); }
-  66% { filter: drop-shadow(0 0 5px rgba(240, 171, 252, 0.6)) brightness(1.1); transform: rotate(-2deg); }
-}
-.animate-diamond-shine {
-  animation: diamond-shine 3s ease-in-out infinite;
-}
-
-/* Lv.20 전설 — 화려한 펄스 + 회전 */
-@keyframes legend {
-  0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6)) brightness(1); }
-  25% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.7)) brightness(1.3); }
-  50% { transform: scale(1.05) rotate(0deg); filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)) brightness(1.15); }
-  75% { transform: scale(1.1) rotate(-5deg); filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.7)) brightness(1.3); }
-}
+.animate-dragon-float,
+.animate-fuji-glow,
+.animate-aurora,
+.animate-crown-glow,
+.animate-diamond-shine,
 .animate-legend {
-  animation: legend 3s ease-in-out infinite;
+  animation: badge-prestige 4s ease-in-out infinite;
 }
 
 /* 반짝임 공통 */
 @keyframes twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.5); }
-  50% { opacity: 1; transform: scale(1.5); }
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
 }
 .animate-twinkle {
-  animation: twinkle 1.5s ease-in-out infinite;
+  animation: twinkle 2s ease-in-out infinite;
 }
 .animate-twinkle-delay {
-  animation: twinkle 1.5s ease-in-out infinite 0.75s;
+  animation: twinkle 2s ease-in-out infinite 1s;
 }
 
 /* ── Tiptap 에디터 스타일 ────────────────────────────── */

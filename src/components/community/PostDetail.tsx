@@ -13,6 +13,10 @@ import {
   Calendar,
   Pencil,
   RefreshCw,
+  PenLine,
+  ClipboardList,
+  Check,
+  SkipForward,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -502,7 +506,7 @@ export function PostDetail() {
               ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
               : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
           }`}>
-            {post.travel_post_stage === "review" ? "✍️" : "📋"} {POST_STAGE_LABELS[post.travel_post_stage]}
+            {post.travel_post_stage === "review" ? <PenLine className="h-3 w-3" /> : <ClipboardList className="h-3 w-3" />} {POST_STAGE_LABELS[post.travel_post_stage]}
           </span>
         )}
       </div>
@@ -555,7 +559,7 @@ export function PostDetail() {
       {/* 후기 데이터 */}
       {post.travel_post_stage === "review" && post.review_data && (
         <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-800 dark:bg-emerald-950/20">
-          <h3 className="mb-3 font-semibold text-sm inline-flex items-center gap-1.5">✍️ 여행 후기</h3>
+          <h3 className="mb-3 font-semibold text-sm inline-flex items-center gap-1.5"><PenLine className="h-3.5 w-3.5" /> 여행 후기</h3>
           <div className="space-y-2">
             {post.review_data.overallRating != null && post.review_data.overallRating > 0 && (
               <div className="flex items-center gap-2">
@@ -581,9 +585,9 @@ export function PostDetail() {
             )}
             {post.review_data.visitedPlaceIds && post.review_data.visitedPlaceIds.length > 0 && (
               <div className="text-xs">
-                <span className="text-emerald-600 font-medium">✅ 방문 {post.review_data.visitedPlaceIds.length}곳</span>
+                <span className="text-emerald-600 font-medium inline-flex items-center gap-1"><Check className="h-3 w-3" /> 방문 {post.review_data.visitedPlaceIds.length}곳</span>
                 {post.review_data.skippedPlaceIds && post.review_data.skippedPlaceIds.length > 0 && (
-                  <span className="ml-2 text-rose-500 font-medium">⏭ 스킵 {post.review_data.skippedPlaceIds.length}곳</span>
+                  <span className="ml-2 text-rose-500 font-medium inline-flex items-center gap-1"><SkipForward className="h-3 w-3" /> 스킵 {post.review_data.skippedPlaceIds.length}곳</span>
                 )}
               </div>
             )}

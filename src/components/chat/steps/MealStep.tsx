@@ -27,7 +27,7 @@ export function MealStep({ options, dayNumber, mealType, onSelect, onSkip }: Mea
           <button
             key={opt.id}
             onClick={() => onSelect(opt.id)}
-            className="flex flex-col items-start gap-1 rounded-2xl bg-card p-3 text-left shadow-sm ring-1 ring-border/50 transition-all hover:shadow-md hover:ring-sakura-dark/40 active:scale-[0.98]"
+            className="flex flex-col items-start gap-1 rounded-xl bg-card p-3 text-left shadow-sm ring-1 ring-border/50 transition-shadow hover:shadow-md hover:ring-primary/30"
             data-testid={`meal-option-${opt.id}`}
           >
             <UtensilsCrossed className="h-5 w-5 text-muted-foreground" />

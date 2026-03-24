@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo, Component, type ReactNode } from "react"
-import { Plus, TrendingUp, Clock, Trophy, MapPin, Search, ThumbsUp, RefreshCw } from "lucide-react"
+import { Plus, TrendingUp, Clock, Trophy, MapPin, Search, RefreshCw, Plane, X } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
@@ -196,7 +196,7 @@ export function CommunityPage() {
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="text-headline font-bold">여행 일정 커뮤니티</h1>
-          <p className="mt-1 text-body-sm text-muted-foreground">다른 여행자들의 일본 일정을 구경하세요 ✈️</p>
+          <p className="mt-1 text-body-sm text-muted-foreground inline-flex items-center gap-1">다른 여행자들의 일본 일정을 구경하세요 <Plane className="h-3.5 w-3.5" /></p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={handleCreateClick} className="gap-2 rounded-xl btn-gradient text-body-sm h-11 px-5">
@@ -219,43 +219,43 @@ export function CommunityPage() {
       </div>
 
       {/* 필터 바 */}
-      <div className="mb-8 flex flex-wrap items-center gap-2.5">
+      <div className="mb-6 flex items-center gap-2">
         {/* 정렬 */}
-        <div className="flex rounded-xl border border-border bg-card p-0.5">
+        <div className="flex rounded-lg border border-border bg-card p-0.5">
           <button
             onClick={() => setSort("latest")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
               sort === "latest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Clock className="h-3.5 w-3.5" />
+            <Clock className="h-3 w-3" />
             최신
           </button>
           <button
             onClick={() => setSort("popular")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
               sort === "popular" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <TrendingUp className="h-3.5 w-3.5" />
+            <TrendingUp className="h-3 w-3" />
             인기
           </button>
           <button
             onClick={() => setSort("best")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
               sort === "best" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Trophy className="h-3.5 w-3.5" />
+            <Trophy className="h-3 w-3" />
             베스트
           </button>
         </div>
 
-        {/* 도시 필터 */}
+        {/* 도시 */}
         <select
           value={cityFilter}
           onChange={(e) => setCityFilter(e.target.value)}
-          className="rounded-xl border border-border bg-card px-3.5 py-2 text-body-sm font-medium outline-none"
+          className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none"
         >
           <option value="">전체 도시</option>
           {cities.map((city) => (
@@ -265,13 +265,13 @@ export function CommunityPage() {
           ))}
         </select>
 
-        {/* 계획/후기 필터 */}
-        <div className="flex rounded-xl border border-border bg-card p-0.5">
+        {/* 계획/후기 */}
+        <div className="flex rounded-lg border border-border bg-card p-0.5">
           {(["" as const, "plan" as const, "review" as const]).map((stage) => (
             <button
               key={stage}
               onClick={() => setStageFilter(stage)}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-body-sm font-semibold transition-colors ${
+              className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
                 stageFilter === stage
                   ? stage === "review" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -282,49 +282,32 @@ export function CommunityPage() {
           ))}
         </div>
 
-        {/* 추천수 필터 — 모바일에서도 표시 */}
-        <div className="flex rounded-xl border border-border bg-card p-0.5">
-          {[{ value: 0, label: "전체" }, { value: 5, label: "5+" }, { value: 10, label: "10+" }].map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setMinLikes(f.value)}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-body-sm font-semibold transition-colors ${
-                minLikes === f.value
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {f.value > 0 && <ThumbsUp className="h-3 w-3" />}
-              {f.label}
-            </button>
-          ))}
-        </div>
+        {/* 추천수 */}
+        <select
+          value={minLikes}
+          onChange={(e) => setMinLikes(Number(e.target.value))}
+          className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none"
+        >
+          <option value={0}>추천 전체</option>
+          <option value={5}>추천 5+</option>
+          <option value={10}>추천 10+</option>
+        </select>
 
-        {/* 활성 필터 칩 */}
+        {/* 활성 필터 리셋 */}
         {(searchQuery || cityFilter || minLikes > 0 || stageFilter) && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            {searchQuery && (
-              <button onClick={() => { setSearchInput(""); setSearchQuery("") }} className="chip chip-primary gap-1 text-body-sm">
-                검색: {searchQuery} <span className="text-xs">×</span>
-              </button>
-            )}
-            {cityFilter && (
-              <button onClick={() => setCityFilter("")} className="chip chip-primary gap-1 text-body-sm">
-                {cities.find((c) => c.id === cityFilter)?.name ?? cityFilter} <span className="text-xs">×</span>
-              </button>
-            )}
-            {stageFilter && (
-              <button onClick={() => setStageFilter("")} className="chip chip-primary gap-1 text-body-sm">
-                {POST_STAGE_LABELS[stageFilter]} <span className="text-xs">×</span>
-              </button>
-            )}
-            {minLikes > 0 && (
-              <button onClick={() => setMinLikes(0)} className="chip chip-primary gap-1 text-body-sm">
-                추천 {minLikes}+ <span className="text-xs">×</span>
-              </button>
-            )}
-          </div>
+          <button
+            onClick={() => { setSearchInput(""); setSearchQuery(""); setCityFilter(""); setMinLikes(0); setStageFilter("") }}
+            className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="h-3 w-3" />
+            초기화
+          </button>
         )}
+
+        {/* 게시글 수 */}
+        <span className="ml-auto text-xs text-muted-foreground">
+          {filteredPosts.length}건
+        </span>
       </div>
 
       {/* 게시글 그리드 */}

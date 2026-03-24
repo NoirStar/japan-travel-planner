@@ -629,7 +629,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       {isMobileMoreOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setIsMobileMoreOpen(false)} />
-          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl bg-card shadow-2xl lg:hidden animate-in slide-in-from-bottom duration-200" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+          <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl bg-card shadow-xl lg:hidden animate-in slide-in-from-bottom duration-200" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
             <div className="flex justify-center pt-3 pb-1">
               <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
             </div>

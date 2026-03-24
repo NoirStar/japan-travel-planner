@@ -19,7 +19,7 @@ export function CityStep({ options, onSelect }: CityStepProps) {
         <button
           key={opt.id}
           onClick={() => onSelect(opt.id)}
-          className="group overflow-hidden rounded-2xl bg-card text-left shadow-sm ring-1 ring-border/50 transition-all hover:shadow-lg hover:ring-sakura-dark/40 active:scale-[0.98]"
+          className="group overflow-hidden rounded-xl bg-card text-left shadow-sm ring-1 ring-border/50 transition-shadow hover:shadow-md hover:ring-primary/30"
           data-testid={`city-option-${opt.id}`}
         >
           {opt.image && (
@@ -27,9 +27,9 @@ export function CityStep({ options, onSelect }: CityStepProps) {
               <img
                 src={opt.image}
                 alt={opt.label}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="h-full w-full object-cover"
                 loading="lazy"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.classList.add('bg-gradient-to-br', 'from-primary/20', 'to-indigo/20') }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.classList.add('bg-muted') }}
               />
             </div>
           )}

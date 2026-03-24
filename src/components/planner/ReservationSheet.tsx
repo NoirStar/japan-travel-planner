@@ -113,7 +113,7 @@ export function ReservationSheet({ open, onOpenChange, editData, defaultDate, on
 
       {/* 시트 패널 */}
       <div
-        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-3xl bg-card shadow-2xl border-t border-border lg:left-0 lg:max-h-full lg:w-[400px] lg:rounded-none lg:rounded-tr-3xl"
+        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl bg-card shadow-xl border-t border-border lg:left-0 lg:max-h-full lg:w-[400px] lg:rounded-none lg:rounded-tr-2xl"
         data-testid="reservation-sheet"
       >
         {/* 핸들 + 헤더 */}

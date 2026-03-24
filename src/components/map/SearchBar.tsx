@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useMap } from "@vis.gl/react-google-maps"
-import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, Search, Loader2, X, Layers } from "lucide-react"
+import { MapPin, Utensils, Hotel, ShoppingBag, Camera, Coffee, Star, Search, Loader2, X, Layers, Check } from "lucide-react"
 import { getVisibleRadius } from "@/lib/mapUtils"
 
 // ── 카테고리 필터 ────────────────────────────
@@ -210,7 +210,7 @@ export function UnifiedSearchBar({
                     }`}
                   >
                     <span className="flex items-center gap-1.5">
-                      {isActive && <span className="text-yellow-500">✓</span>}
+                      {isActive && <span className="text-yellow-500"><Check className="h-3 w-3" /></span>}
                       <Star className={`w-3 h-3 ${opt.value ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
                       {opt.label}
                     </span>
@@ -242,7 +242,7 @@ export function UnifiedSearchBar({
               ? "bg-primary/10 text-primary cursor-wait"
               : "bg-card text-primary border border-primary/25 hover:bg-primary/10 hover:shadow-md active:scale-95"
           } ${
-            !hasClicked && !isSearching ? "animate-search-pulse" : ""
+            ""
           }`}
         >
           {isSearching ? (

@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react"
-import { X, Share2, ImagePlus, Trash2, Loader2 } from "lucide-react"
+import { X, Share2, ImagePlus, Trash2, Loader2, ClipboardList, PenLine } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { showToast } from "@/components/ui/CelebrationOverlay"
 import { useAuthStore } from "@/stores/authStore"
@@ -254,7 +254,7 @@ export function CreatePostModal({ open, onClose, onCreated, defaultStage, defaul
                 postStage === "plan" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
               }`}
             >
-              📋 여행 계획
+              <span className="inline-flex items-center gap-1"><ClipboardList className="h-3 w-3" /> 여행 계획</span>
             </button>
             <button
               type="button"
@@ -263,7 +263,7 @@ export function CreatePostModal({ open, onClose, onCreated, defaultStage, defaul
                 postStage === "review" ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300" : "border-border text-muted-foreground"
               }`}
             >
-              ✍️ 여행 후기
+              <span className="inline-flex items-center gap-1"><PenLine className="h-3 w-3" /> 여행 후기</span>
             </button>
           </div>
         </div>

@@ -21,7 +21,7 @@ export function DayThemeStep({ options, dayNumber, onSelect }: DayThemeStepProps
         <button
           key={opt.id}
           onClick={() => onSelect(opt.id)}
-          className="flex items-center gap-3 rounded-2xl bg-card p-3 text-left shadow-sm ring-1 ring-border/50 transition-all hover:shadow-md hover:ring-sakura-dark/40 active:scale-[0.98]"
+          className="flex items-center gap-3 rounded-xl bg-card p-3 text-left shadow-sm ring-1 ring-border/50 transition-shadow hover:shadow-md hover:ring-primary/30"
           data-testid={`daytheme-option-${opt.id}`}
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sakura/20 to-indigo/10">

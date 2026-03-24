@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Tag } from "lucide-react"
 import type { TripMeta } from "@/types/community"
 import { COMPANION_LABELS, BUDGET_LABELS, INTENSITY_LABELS } from "@/types/community"
 
@@ -82,7 +83,7 @@ export function TripMetaForm({ value, onChange }: TripMetaFormProps) {
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between text-xs font-semibold text-foreground"
       >
-        <span>🏷️ 여행 메타 정보 (선택)</span>
+        <span className="inline-flex items-center gap-1"><Tag className="h-3 w-3" /> 여행 메타 정보 (선택)</span>
         <span className="text-muted-foreground">{expanded ? "접기" : "펼치기"}</span>
       </button>
       {expanded && (

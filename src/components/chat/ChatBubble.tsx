@@ -20,7 +20,7 @@ export function ChatBubble({ role, text }: ChatBubbleProps) {
         className={`max-w-[85%] text-sm leading-relaxed ${
           isAI
             ? "rounded-2xl rounded-tl-md bg-card border border-border/50 text-foreground px-4 py-3 shadow-sm"
-            : "rounded-2xl rounded-tr-md bg-gradient-to-r from-sakura-dark to-indigo text-white px-4 py-3 shadow-md"
+            : "rounded-2xl rounded-tr-md bg-primary text-white px-4 py-3"
         }`}
         data-testid={isAI ? "ai-bubble" : "user-bubble"}
       >

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
-import { X, CheckSquare, Square, Plus, Trash2, RotateCcw, ChevronDown, ChevronRight, FileText, Banknote, Smartphone, Briefcase, TicketCheck, PenLine, type LucideIcon } from "lucide-react"
+import { X, CheckSquare, Square, Plus, Trash2, RotateCcw, ChevronDown, ChevronRight, FileText, Banknote, Smartphone, Briefcase, TicketCheck, PenLine, PartyPopper, type LucideIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import {
@@ -89,7 +89,7 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
 
       {/* 시트 패널 */}
       <div
-        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-3xl bg-card shadow-2xl border-t border-border lg:left-0 lg:max-h-full lg:w-[400px] lg:rounded-none lg:rounded-tr-3xl"
+        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl bg-card shadow-xl border-t border-border lg:left-0 lg:max-h-full lg:w-[400px] lg:rounded-none lg:rounded-tr-2xl"
         data-testid="checklist-panel"
       >
         {/* 핸들 + 헤더 */}
@@ -97,7 +97,7 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
           <div className="mb-1.5 h-1 w-10 rounded-full bg-border/80 lg:hidden" />
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-base">✅</span>
+              <CheckSquare className="h-4 w-4" />
               <h3 className="text-sm font-bold">준비물 체크리스트</h3>
             </div>
             <div className="flex items-center gap-1">
@@ -149,8 +149,8 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
             />
           </div>
           {progress === 100 && (
-            <p className="mt-1 text-center text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-              🎉 모든 준비가 완료되었습니다!
+            <p className="mt-1 text-center text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 justify-center w-full">
+              <PartyPopper className="h-3.5 w-3.5" /> 모든 준비가 완료되었습니다!
             </p>
           )}
         </div>

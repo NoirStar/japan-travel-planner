@@ -65,7 +65,7 @@ export function BackpackIcon({ size = 20 }: IconProps) {
 export function TrainIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-train-move drop-shadow-md">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-train-move drop-shadow-sm">
       <defs><linearGradient id={`train-${uid}`} x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#22c55e" /><stop offset="100%" stopColor="#15803d" /></linearGradient></defs>
       <rect x="5" y="4" width="14" height="14" rx="3" fill={`url(#train-${uid})`} />
       <rect x="7" y="6" width="10" height="5" rx="1" fill="#bbf7d0" opacity="0.9" />
@@ -80,7 +80,7 @@ export function TrainIcon({ size = 20 }: IconProps) {
 export function ShinkansenIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-shinkansen-dash drop-shadow-md">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-shinkansen-dash drop-shadow-sm">
       <defs><linearGradient id={`shink-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#e0e7ff" /><stop offset="100%" stopColor="#818cf8" /></linearGradient></defs>
       <path d="M3 14h14l4-3v-1c0-2-1-4-3-5H8c-2 1-4 3-4 5v4z" fill={`url(#shink-${uid})`} stroke="#6366f1" strokeWidth="0.5" />
       <rect x="6" y="8" width="4" height="3" rx="0.5" fill="#c7d2fe" />
@@ -94,7 +94,7 @@ export function ShinkansenIcon({ size = 20 }: IconProps) {
 /* Lv.8 온천 */
 export function OnsenIcon({ size = 20 }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-onsen-steam drop-shadow-md">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-onsen-steam drop-shadow-sm">
       <ellipse cx="12" cy="17" rx="8" ry="4" fill="#93c5fd" opacity="0.6" />
       <ellipse cx="12" cy="17" rx="6" ry="3" fill="#60a5fa" opacity="0.4" />
       <path d="M8 11c0-2 1-3 0-5" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" className="animate-steam-1" />
@@ -107,7 +107,7 @@ export function OnsenIcon({ size = 20 }: IconProps) {
 /* Lv.9 사쿠라 */
 export function SakuraIcon({ size = 20 }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-sakura-spin drop-shadow-md">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-sakura-spin drop-shadow-sm">
       {[0, 72, 144, 216, 288].map((deg) => (
         <ellipse key={deg} cx="12" cy="6" rx="3" ry="5" fill="#f9a8d4" transform={`rotate(${deg} 12 12)`} opacity="0.85" />
       ))}
@@ -119,7 +119,7 @@ export function SakuraIcon({ size = 20 }: IconProps) {
 /* Lv.10 도리이 */
 export function ToriiIcon({ size = 20 }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-torii-glow drop-shadow-md">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-torii-glow drop-shadow-sm">
       <rect x="5" y="5" width="14" height="3" rx="0.5" fill="#ef4444" />
       <rect x="4" y="4" width="16" height="2" rx="1" fill="#dc2626" />
       <rect x="7" y="7" width="2" height="14" fill="#dc2626" />
@@ -133,7 +133,7 @@ export function ToriiIcon({ size = 20 }: IconProps) {
 export function CastleIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-castle-shine drop-shadow-lg">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-castle-shine drop-shadow-sm">
       <defs><linearGradient id={`castle-${uid}`} x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stopColor="#fef3c7" /><stop offset="100%" stopColor="#a16207" /></linearGradient></defs>
       <path d="M4 22h16v-6H4z" fill={`url(#castle-${uid})`} />
       <path d="M6 16h12v-4H6z" fill="#fbbf24" />
@@ -150,7 +150,7 @@ export function CastleIcon({ size = 20 }: IconProps) {
 export function MatsuriIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-lantern-swing drop-shadow-lg">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-lantern-swing drop-shadow-sm">
       <defs><radialGradient id={`lantern-${uid}`} cx="50%" cy="40%" r="50%"><stop offset="0%" stopColor="#fef08a" /><stop offset="100%" stopColor="#ef4444" /></radialGradient></defs>
       <line x1="12" y1="2" x2="12" y2="5" stroke="#92400e" strokeWidth="1" />
       <ellipse cx="12" cy="12" rx="5" ry="7" fill={`url(#lantern-${uid})`} stroke="#dc2626" strokeWidth="0.5" />
@@ -166,7 +166,7 @@ export function MatsuriIcon({ size = 20 }: IconProps) {
 export function SamuraiIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-samurai-slash drop-shadow-lg">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-samurai-slash drop-shadow-sm">
       <defs><linearGradient id={`blade-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#e2e8f0" /><stop offset="50%" stopColor="#f8fafc" /><stop offset="100%" stopColor="#cbd5e1" /></linearGradient></defs>
       <path d="M6 20L18 4" stroke={`url(#blade-${uid})`} strokeWidth="2.5" strokeLinecap="round" />
       <path d="M6 20L18 4" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" />
@@ -180,7 +180,7 @@ export function SamuraiIcon({ size = 20 }: IconProps) {
 export function NinjaIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-ninja-spin drop-shadow-lg">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-ninja-spin drop-shadow-sm">
       <defs><linearGradient id={`ninja-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#475569" /><stop offset="100%" stopColor="#1e293b" /></linearGradient></defs>
       <path d="M12 2l3 7h-6zM22 12l-7 3v-6zM12 22l-3-7h6zM2 12l7-3v6z" fill={`url(#ninja-${uid})`} />
       <circle cx="12" cy="12" r="2.5" fill="#334155" stroke="#94a3b8" strokeWidth="0.5" />
@@ -193,7 +193,7 @@ export function NinjaIcon({ size = 20 }: IconProps) {
 export function DragonIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-dragon-float drop-shadow-lg">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-dragon-float drop-shadow-sm">
       <defs><linearGradient id={`dragon-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#10b981" /><stop offset="100%" stopColor="#059669" /></linearGradient></defs>
       <path d="M4 12c0-3 2-6 5-7 1 1 1 3 0 4 2-1 4-1 6 0-1-1-1-3 0-4 3 1 5 4 5 7 0 4-3 8-8 8s-8-4-8-8z" fill={`url(#dragon-${uid})`} />
       <circle cx="9" cy="11" r="1.2" fill="#fef3c7" /><circle cx="9" cy="11" r="0.6" fill="#1e293b" />
@@ -209,7 +209,7 @@ export function DragonIcon({ size = 20 }: IconProps) {
 export function FujiIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-fuji-glow drop-shadow-lg">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-fuji-glow drop-shadow-sm">
       <defs><linearGradient id={`fuji-${uid}`} x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stopColor="#e0e7ff" /><stop offset="30%" stopColor="#93c5fd" /><stop offset="100%" stopColor="#6366f1" /></linearGradient></defs>
       <path d="M2 20h20L12 4z" fill={`url(#fuji-${uid})`} />
       <path d="M8 10l4-6 4 6c-1.5-1-6.5-1-8 0z" fill="white" opacity="0.9" />
@@ -222,7 +222,7 @@ export function FujiIcon({ size = 20 }: IconProps) {
 export function AuroraIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-aurora drop-shadow-xl">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-aurora drop-shadow-sm">
       <defs>
         <linearGradient id={`aurora-${uid}`} x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stopColor="#6366f1" /><stop offset="33%" stopColor="#a78bfa" /><stop offset="66%" stopColor="#34d399" /><stop offset="100%" stopColor="#fbbf24" /></linearGradient>
       </defs>
@@ -239,7 +239,7 @@ export function AuroraIcon({ size = 20 }: IconProps) {
 export function CrownIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-crown-glow drop-shadow-xl">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-crown-glow drop-shadow-sm">
       <defs><linearGradient id={`crown-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#fbbf24" /><stop offset="50%" stopColor="#f59e0b" /><stop offset="100%" stopColor="#d97706" /></linearGradient></defs>
       <path d="M4 18h16v2H4zM4 18l1-10 4 4 3-6 3 6 4-4 1 10z" fill={`url(#crown-${uid})`} stroke="#d97706" strokeWidth="0.5" />
       <circle cx="8" cy="12" r="1" fill="#fef3c7" opacity="0.9" />
@@ -253,7 +253,7 @@ export function CrownIcon({ size = 20 }: IconProps) {
 export function DiamondIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-diamond-shine drop-shadow-xl">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-diamond-shine drop-shadow-sm">
       <defs><linearGradient id={`dia-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#67e8f9" /><stop offset="50%" stopColor="#a78bfa" /><stop offset="100%" stopColor="#f0abfc" /></linearGradient></defs>
       <path d="M6 3h12l4 7-10 12L2 10z" fill={`url(#dia-${uid})`} stroke="#8b5cf6" strokeWidth="0.5" />
       <path d="M2 10h20M6 3l6 19M18 3l-6 19" stroke="white" strokeWidth="0.3" opacity="0.5" />
@@ -266,7 +266,7 @@ export function DiamondIcon({ size = 20 }: IconProps) {
 export function LegendIcon({ size = 20 }: IconProps) {
   const uid = useId()
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-legend drop-shadow-xl">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-legend drop-shadow-sm">
       <defs>
         <linearGradient id={`legend-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#fbbf24" /><stop offset="50%" stopColor="#f59e0b" /><stop offset="100%" stopColor="#ef4444" /></linearGradient>
         <radialGradient id={`legend-glow-${uid}`} cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#fef3c7" stopOpacity="0.8" /><stop offset="100%" stopColor="#fbbf24" stopOpacity="0" /></radialGradient>
@@ -281,7 +281,7 @@ export function LegendIcon({ size = 20 }: IconProps) {
 /* 관리자 방패 */
 export function AdminShieldIcon({ size = 20 }: IconProps) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-crown-glow drop-shadow-lg">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="animate-crown-glow drop-shadow-sm">
       <defs>
         <linearGradient id="admin-grad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#f59e0b" />

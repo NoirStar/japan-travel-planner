@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { getLevelInfo } from "@/types/community"
+import { LEVEL_ICONS } from "@/components/community/levelIconMap"
 
 // ─── Sakura Confetti (CSS petals) ──────────────────────────
 interface Petal {
@@ -9,20 +10,16 @@ interface Petal {
   delay: number
   duration: number
   size: number
-  rotation: number
 }
 
-const PETAL_COLORS = ["#f8a4b8", "#f0c0cc", "#fcd5ce", "#f7b7c5", "#e8a0b4"]
-
-function SakuraConfetti({ count = 22 }: { count?: number }) {
+function SakuraConfetti({ count = 10 }: { count?: number }) {
   const [petals] = useState<Petal[]>(() =>
     Array.from({ length: count }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
-      delay: Math.random() * 1.2,
-      duration: 2.5 + Math.random() * 1.5,
-      size: 6 + Math.random() * 8,
-      rotation: Math.random() * 360,
+      delay: Math.random() * 0.8,
+      duration: 2 + Math.random() * 1,
+      size: 6 + Math.random() * 4,
     }))
   )
 
@@ -31,19 +28,18 @@ function SakuraConfetti({ count = 22 }: { count?: number }) {
       {petals.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-[50%_50%_50%_0%]"
+          className="absolute rounded-full"
           style={{
             left: `${p.x}%`,
-            top: -12,
+            top: -8,
             width: p.size,
-            height: p.size * 0.7,
-            backgroundColor: PETAL_COLORS[p.id % PETAL_COLORS.length],
+            height: p.size * 0.6,
+            backgroundColor: "#f0a4b8",
+            opacity: 0.6,
           }}
           animate={{
-            y: ["0vh", "105vh"],
-            rotate: [p.rotation, p.rotation + 300],
-            x: [0, 12, -8, 15],
-            opacity: [0, 0.7, 0.6, 0],
+            y: ["0vh", "100vh"],
+            opacity: [0, 0.5, 0],
           }}
           transition={{
             duration: p.duration,
@@ -59,6 +55,7 @@ function SakuraConfetti({ count = 22 }: { count?: number }) {
 // ─── Level Up Overlay ──────────────────────────────────────
 function LevelUpOverlay({ level, onDone }: { level: number; onDone: () => void }) {
   const info = getLevelInfo(level)
+  const icon = LEVEL_ICONS[info.level] ?? LEVEL_ICONS[1]
 
   useEffect(() => {
     const timer = setTimeout(onDone, 3000)
@@ -73,19 +70,19 @@ function LevelUpOverlay({ level, onDone }: { level: number; onDone: () => void }
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card/95 px-8 py-6 shadow-xl backdrop-blur-sm"
-        initial={{ scale: 0.8, y: 30 }}
+        className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-8 py-6 shadow-lg"
+        initial={{ scale: 0.95, y: 10 }}
         animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        transition={{ type: "spring", damping: 20, stiffness: 250 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
       >
         <motion.span
-          className="text-4xl"
-          initial={{ scale: 0.5 }}
+          className="flex items-center justify-center"
+          initial={{ scale: 0.8 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring" }}
+          transition={{ delay: 0.1 }}
         >
-          {info.emoji}
+          {icon(40)}
         </motion.span>
         <p className="text-[11px] font-medium tracking-widest text-muted-foreground">
           LEVEL UP

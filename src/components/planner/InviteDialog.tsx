@@ -94,7 +94,7 @@ export function InviteDialog({
       />
 
       {/* 다이얼로그 */}
-      <div className="fixed inset-x-4 top-1/2 z-50 mx-auto max-w-sm -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-2xl" data-testid="invite-dialog">
+      <div className="fixed inset-x-4 top-1/2 z-50 mx-auto max-w-sm -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-xl" data-testid="invite-dialog">
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

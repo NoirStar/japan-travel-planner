@@ -4,6 +4,7 @@ import { Camera, LogOut, Save, MessageCircle, Pencil, ThumbsUp } from "lucide-re
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { LevelBadge } from "@/components/community/LevelBadge"
+import { LEVEL_ICONS } from "@/components/community/levelIconMap"
 import { getLevelInfo, USER_LEVELS } from "@/types/community"
 import { getPointBreakdown } from "@/lib/mockCommunity"
 
@@ -129,7 +130,7 @@ export function ProfilePage() {
             {nextLevel && (
               <div className="rounded-2xl border border-border bg-card p-5">
                 <div className="mb-2 flex items-center justify-between text-caption text-muted-foreground">
-                  <span>다음 레벨: Lv.{nextLevel.level} {nextLevel.label} {nextLevel.emoji}</span>
+                  <span className="inline-flex items-center gap-1">다음 레벨: Lv.{nextLevel.level} {nextLevel.label} {(LEVEL_ICONS[nextLevel.level] ?? LEVEL_ICONS[1])(14)}</span>
                   <span className="font-medium">{currentPts} / {nextLevel.minPoints}P</span>
                 </div>
                 <div className="h-2.5 overflow-hidden rounded-full bg-muted">

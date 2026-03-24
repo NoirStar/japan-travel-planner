@@ -149,34 +149,21 @@ describe("MapView", () => {
     render(
       <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} allCityPlaces={cityPlaces} />,
     )
-    expect(screen.getByTestId("advanced-marker-이치란 라멘")).toBeInTheDocument()
-    expect(screen.getByTestId("advanced-marker-블루보틀 커피")).toBeInTheDocument()
+    expect(screen.getByTestId("map-marker-이치란 라멘")).toBeInTheDocument()
+    expect(screen.getByTestId("map-marker-블루보틀 커피")).toBeInTheDocument()
 
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
   })
 
-  it("rating >= 4.5 마커에 premium data 속성이 있다", async () => {
-    const originalKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-    import.meta.env.VITE_GOOGLE_MAPS_API_KEY = "test-api-key"
-    const { MapView } = await import("@/components/map/MapView")
-    const cityPlaces = [
-      mockPlaceWithRating("c1", "프리미엄식당", 35.66, 139.70, PlaceCategory.RESTAURANT, 4.8),
-      mockPlaceWithRating("c2", "일반카페", 35.65, 139.71, PlaceCategory.CAFE, 3.9),
-    ]
-
-    render(
-      <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} allCityPlaces={cityPlaces} />,
-    )
-    const pins = screen.getAllByTestId("city-pin-marker")
-    const premiumPin = pins.find(el => el.dataset.category === "restaurant")
-    const normalPin = pins.find(el => el.dataset.category === "cafe")
-
-    expect(premiumPin).toHaveAttribute("data-premium", "true")
-    expect(premiumPin).toHaveClass("city-pin--premium")
-    expect(normalPin).not.toHaveAttribute("data-premium")
-    expect(normalPin).not.toHaveClass("city-pin--premium")
-
-    import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
+  it("rating >= 4.5는 premium tier로 분류된다", async () => {
+    const { getRatingTier } = await import("@/components/map/CityPlaceMarker")
+    expect(getRatingTier(4.8)).toBe("premium")
+    expect(getRatingTier(4.5)).toBe("premium")
+    expect(getRatingTier(4.4)).toBe("good")
+    expect(getRatingTier(4.0)).toBe("good")
+    expect(getRatingTier(3.5)).toBe("normal")
+    expect(getRatingTier(3.0)).toBe("basic")
+    expect(getRatingTier(undefined)).toBe("basic")
   })
 
   it("일정 장소와 검색 결과 마커가 동시에 표시된다", async () => {
@@ -198,8 +185,8 @@ describe("MapView", () => {
     )
     // 번호 마커 (PlaceMarker → Marker)
     expect(screen.getByTestId("map-marker-센소지")).toBeInTheDocument()
-    // 검색 결과 마커 (CityPlaceMarker → AdvancedMarker)
-    expect(screen.getByTestId("advanced-marker-도쿄타워")).toBeInTheDocument()
+    // 검색 결과 마커 (CityPlaceMarker → Marker)
+    expect(screen.getByTestId("map-marker-도쿄타워")).toBeInTheDocument()
 
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
   })

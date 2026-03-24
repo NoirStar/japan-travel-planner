@@ -1,7 +1,9 @@
+import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { ArrowRight, MapPin, Map, CalendarDays, Globe, Users } from "lucide-react"
 import { cities } from "@/data/cities"
+import { useScheduleStore } from "@/stores/scheduleStore"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -18,6 +20,23 @@ const features = [
 
 export function LandingPage() {
   const navigate = useNavigate()
+  const trips = useScheduleStore((s) => s.trips)
+  const hasTrips = trips.length > 0
+
+  /** 기존 여행이 있으면 내 여행 목록으로, 없으면 바로 플래너 생성 */
+  const handleStartPlanning = useCallback((link: string, cityId?: string) => {
+    if (!link.includes("/planner")) {
+      navigate(link)
+      return
+    }
+    if (hasTrips) {
+      navigate("/trips")
+    } else if (cityId) {
+      navigate(`/planner?city=${cityId}&new=true`)
+    } else {
+      navigate(link)
+    }
+  }, [hasTrips, navigate])
 
   return (
     <div className="relative min-h-screen bg-sakura-pattern">
@@ -48,7 +67,7 @@ export function LandingPage() {
 
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <motion.button
-                  onClick={() => navigate("/planner?new=true")}
+                  onClick={() => handleStartPlanning("/planner?new=true")}
                   className="btn-gradient btn-base btn-lg w-full shadow-lg sm:w-auto"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -79,7 +98,7 @@ export function LandingPage() {
               {features.map(({ icon: Icon, title, desc, cta, link }) => (
                 <motion.button
                   key={title}
-                  onClick={() => navigate(link)}
+                  onClick={() => handleStartPlanning(link)}
                   className="group card-elevated flex flex-col items-start p-7 text-left"
                   whileHover={{ y: -3 }}
                 >
@@ -112,7 +131,7 @@ export function LandingPage() {
               {cities.slice(0, 8).map((city) => (
                 <motion.button
                   key={city.id}
-                  onClick={() => navigate(`/planner?city=${city.id}&new=true`)}
+                  onClick={() => handleStartPlanning("/planner", city.id)}
                   className="group relative overflow-hidden rounded-2xl text-left card-elevated border-0"
                   whileHover={{ y: -3 }}
                   whileTap={{ scale: 0.98 }}
@@ -189,7 +208,7 @@ export function LandingPage() {
               <h2 className="text-headline text-foreground mb-3">지금 바로 여행 계획을 시작하세요</h2>
               <p className="text-body text-muted-foreground mb-8">회원가입 없이도 플래닝이 가능합니다</p>
               <button
-                onClick={() => navigate("/planner?new=true")}
+                onClick={() => handleStartPlanning("/planner?new=true")}
                 className="btn-gradient btn-base btn-lg shadow-lg"
               >
                 <Map className="h-5 w-5" />

@@ -63,6 +63,20 @@ const PinVisual = memo(function PinVisual({ color, icon, isPremium, isSelected, 
       data-premium={isPremium ? "true" : undefined}
     >
       <svg viewBox="0 0 36 48" width="36" height="48" fill="none">
+        {isPremium && (
+          <>
+            <defs>
+              <filter id="premium-glow">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <path d={PIN} stroke="#D4A843" strokeWidth="2.5" opacity="0.6" fill="none" filter="url(#premium-glow)" />
+          </>
+        )}
         {isSelected && (
           <>
             <path d={PIN} stroke={color} strokeWidth="5" opacity="0.15" fill="none" />
@@ -72,6 +86,7 @@ const PinVisual = memo(function PinVisual({ color, icon, isPremium, isSelected, 
         <path d={PIN} fill={color} />
         <circle cx="18" cy="17" r="10" fill="white" />
       </svg>
+      {isPremium && <div className="city-pin__shimmer" />}
       <div className="city-pin__icon">
         {icon}
       </div>

@@ -748,11 +748,12 @@ body {
   width: 36px;
   height: 48px;
   filter: drop-shadow(0 2px 3px rgba(0,0,0,0.22));
-  transition: filter 0.2s ease;
+  transition: filter 0.2s ease, transform 0.15s ease;
 }
 
 .city-pin:hover {
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.30));
+  transform: scale(1.08);
 }
 
 .city-pin--selected {
@@ -770,22 +771,80 @@ body {
   justify-content: center;
 }
 
-/* Premium float — rating >= 4.5 */
+/* ── Premium tier (rating >= 4.5) ────────────────── */
 .city-pin--premium {
-  animation: city-pin-float 3.2s ease-in-out infinite;
+  width: 40px;
+  height: 52px;
+  animation: city-pin-bounce 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 2px 6px rgba(212,168,67,0.35))
+          drop-shadow(0 1px 3px rgba(0,0,0,0.18));
+}
+
+.city-pin--premium svg {
+  width: 40px;
+  height: 52px;
+}
+
+.city-pin--premium .city-pin__icon {
+  top: 18px;
+}
+
+.city-pin--premium:hover {
+  filter: drop-shadow(0 3px 10px rgba(212,168,67,0.50))
+          drop-shadow(0 2px 4px rgba(0,0,0,0.22));
+}
+
+/* Shimmer sweep effect */
+.city-pin__shimmer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 36 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18 46C15.5 39 4 28 4 17A14 14 0 1 1 32 17C32 28 20.5 39 18 46Z' fill='white'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 36 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18 46C15.5 39 4 28 4 17A14 14 0 1 1 32 17C32 28 20.5 39 18 46Z' fill='white'/%3E%3C/svg%3E");
+  mask-size: contain;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.city-pin__shimmer::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -60%;
+  width: 40%;
+  height: 140%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.45) 50%,
+    transparent 70%
+  );
+  animation: city-pin-shimmer 3s ease-in-out infinite;
 }
 
 .city-pin--selected.city-pin--premium {
   animation-play-state: paused;
 }
 
-@keyframes city-pin-float {
+@keyframes city-pin-bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  40% { transform: translateY(-5px); }
+  60% { transform: translateY(-2px); }
+}
+
+@keyframes city-pin-shimmer {
+  0%, 70%, 100% { left: -60%; opacity: 0; }
+  10% { opacity: 1; }
+  40% { left: 120%; opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .city-pin--premium {
+    animation: none !important;
+  }
+  .city-pin__shimmer::after {
     animation: none !important;
   }
 }

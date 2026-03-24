@@ -19,10 +19,10 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <Link
       to={`/community/${post.id}`}
-      className={`group block overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg ${
+      className={`group block overflow-hidden rounded-2xl border card-shadow bg-card transition-all hover:border-primary/30 ${
         post.likes_count >= BEST_THRESHOLD
-          ? "border-amber-300 dark:border-amber-600 ring-1 ring-amber-200/50 dark:ring-amber-700/30"
-          : "border-border hover:border-primary/30"
+          ? "border-amber-400/60 dark:border-amber-600/50 ring-1 ring-amber-200/30 dark:ring-amber-700/20"
+          : "border-border"
       }`}
     >
       {/* 커버 이미지 */}
@@ -45,38 +45,38 @@ export function PostCard({ post }: PostCardProps) {
           </div>
         )}
         {/* 하단 그라데이션 오버레이 */}
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {/* 도시 + 일수 배지 */}
         <div className="absolute bottom-2.5 left-3 flex gap-1.5">
-          <span className="inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-medium text-white/90">
             <MapPin className="h-3 w-3" />
             {city?.name ?? post.city_id}
           </span>
           {dayCount > 0 && (
-            <span className="rounded-full bg-black/50 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+            <span className="rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-medium text-white/90">
               {dayCount}일
             </span>
           )}
         </div>
         {post.likes_count >= BEST_THRESHOLD && (
-          <div className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-md">
+          <div className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-amber-500/90 px-2 py-0.5 text-[11px] font-bold text-white">
             <Trophy className="h-3 w-3" /> 베스트
           </div>
         )}
         {post.travel_post_stage === "review" && (
-          <div className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-md">
+          <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-emerald-600/90 px-2 py-0.5 text-[11px] font-bold text-white">
             <PenLine className="h-3 w-3" /> 후기
           </div>
         )}
       </div>
 
       {/* 콘텐츠 */}
-      <div className="p-3.5">
+      <div className="p-4">
         <h3 className="mb-1 line-clamp-1 text-sm font-bold leading-snug group-hover:text-primary transition-colors">
           {post.title}
         </h3>
         {post.description && (
-          <p className="mb-2 line-clamp-2 text-body-sm leading-relaxed text-muted-foreground">
+          <p className="mb-2.5 line-clamp-2 text-body-sm leading-relaxed text-muted-foreground">
             {post.description}
           </p>
         )}
@@ -88,12 +88,12 @@ export function PostCard({ post }: PostCardProps) {
         )}
 
         {/* 하단 정보 */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-t border-border/60 pt-3 mt-1">
           <div className="flex items-center gap-2">
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
+              <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover ring-1 ring-border" />
             ) : (
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold">
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold ring-1 ring-border">
                 {profile?.nickname?.charAt(0) ?? "?"}
               </div>
             )}

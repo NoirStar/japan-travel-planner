@@ -11,14 +11,22 @@ interface TripMetaChipsProps {
 export function TripMetaChips({ meta, compact }: TripMetaChipsProps) {
   if (!meta) return null
 
+  /* 브랜드 팔레트 기반 3톤 칩 시스템:
+     - warm: 동행/예산 등 일반 정보 → primary 계열
+     - cool: 활동 강도/시기 → indigo 계열
+     - accent: 맛집/쇼핑 등 관심사 → muted 계열 + primary 텍스트 */
+  const warm = "bg-primary/8 text-primary dark:bg-primary/15 dark:text-primary"
+  const cool = "bg-indigo/8 text-indigo dark:bg-indigo/15 dark:text-indigo-light"
+  const accent = "bg-muted text-foreground dark:bg-muted dark:text-foreground"
+
   const chips: { label: string; icon?: React.ReactNode; color: string }[] = []
 
-  if (meta.companionType) chips.push({ label: COMPANION_LABELS[meta.companionType], color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" })
-  if (meta.budgetBand) chips.push({ label: BUDGET_LABELS[meta.budgetBand], icon: <DollarSign className="h-2.5 w-2.5" />, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" })
-  if (meta.walkingIntensity) chips.push({ label: INTENSITY_LABELS[meta.walkingIntensity], icon: <Footprints className="h-2.5 w-2.5" />, color: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300" })
-  if (meta.foodFocus && meta.foodFocus >= 4) chips.push({ label: "맛집", icon: <UtensilsCrossed className="h-2.5 w-2.5" />, color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" })
-  if (meta.shoppingFocus && meta.shoppingFocus >= 4) chips.push({ label: "쇼핑", icon: <ShoppingBag className="h-2.5 w-2.5" />, color: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300" })
-  if (meta.visitMonth) chips.push({ label: `${meta.visitMonth}월`, color: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" })
+  if (meta.companionType) chips.push({ label: COMPANION_LABELS[meta.companionType], color: warm })
+  if (meta.budgetBand) chips.push({ label: BUDGET_LABELS[meta.budgetBand], icon: <DollarSign className="h-2.5 w-2.5" />, color: warm })
+  if (meta.walkingIntensity) chips.push({ label: INTENSITY_LABELS[meta.walkingIntensity], icon: <Footprints className="h-2.5 w-2.5" />, color: cool })
+  if (meta.foodFocus && meta.foodFocus >= 4) chips.push({ label: "맛집", icon: <UtensilsCrossed className="h-2.5 w-2.5" />, color: accent })
+  if (meta.shoppingFocus && meta.shoppingFocus >= 4) chips.push({ label: "쇼핑", icon: <ShoppingBag className="h-2.5 w-2.5" />, color: accent })
+  if (meta.visitMonth) chips.push({ label: `${meta.visitMonth}월`, color: cool })
 
   if (chips.length === 0) return null
 

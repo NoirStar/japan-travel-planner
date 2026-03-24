@@ -9,51 +9,33 @@ interface LevelBadgeProps {
   compact?: boolean
 }
 
-const LEVEL_COLORS: Record<number, string> = {
-  1:  "border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/40",
-  2:  "border-green-400 bg-green-50 dark:border-green-600 dark:bg-green-950/40",
-  3:  "border-sky-300 bg-sky-50 dark:border-sky-700 dark:bg-sky-950/40",
-  4:  "border-blue-400 bg-blue-50 dark:border-blue-600 dark:bg-blue-950/40",
-  5:  "border-orange-300 bg-orange-50 dark:border-orange-700 dark:bg-orange-950/40",
-  6:  "border-emerald-400 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-950/40",
-  7:  "border-indigo-400 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/40",
-  8:  "border-cyan-400 bg-cyan-50 dark:border-cyan-600 dark:bg-cyan-950/40",
-  9:  "border-pink-300 bg-pink-50 dark:border-pink-700 dark:bg-pink-950/40",
-  10: "border-red-400 bg-red-50 dark:border-red-600 dark:bg-red-950/40",
-  11: "border-amber-400 bg-amber-50 dark:border-amber-600 dark:bg-amber-950/40",
-  12: "border-rose-400 bg-rose-50 dark:border-rose-600 dark:bg-rose-950/40",
-  13: "border-slate-400 bg-slate-50 dark:border-slate-500 dark:bg-slate-950/40",
-  14: "border-gray-500 bg-gray-50 dark:border-gray-400 dark:bg-gray-950/40",
-  15: "border-emerald-500 bg-gradient-to-r from-emerald-50 to-green-50 dark:border-emerald-500 dark:from-emerald-950/40 dark:to-green-950/40",
-  16: "border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:border-blue-500 dark:from-blue-950/40 dark:to-indigo-950/40",
-  17: "border-indigo-400 bg-gradient-to-r from-indigo-50 to-emerald-50 dark:border-indigo-500 dark:from-indigo-950/40 dark:to-emerald-950/40",
-  18: "border-yellow-400 bg-gradient-to-r from-amber-50 to-yellow-50 dark:border-yellow-500 dark:from-amber-950/40 dark:to-yellow-950/40",
-  19: "border-violet-400 bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:border-violet-500 dark:from-violet-950/40 dark:to-fuchsia-950/40",
-  20: "border-amber-500 bg-gradient-to-r from-amber-50 via-red-50 to-amber-50 dark:border-amber-400 dark:from-amber-950/40 dark:via-red-950/40 dark:to-amber-950/40",
-}
-
-/* compact 모드 레벨별 텍스트 스타일: 레벨이 올라갈수록 화려해짐 */
-const COMPACT_LEVEL_STYLE: Record<number, string> = {
-  1:  "text-green-600 dark:text-green-400",
-  2:  "text-green-600 dark:text-green-400",
-  3:  "text-sky-600 dark:text-sky-400",
-  4:  "text-blue-600 dark:text-blue-400",
-  5:  "text-orange-600 dark:text-orange-400 font-semibold",
-  6:  "text-emerald-600 dark:text-emerald-400 font-semibold",
-  7:  "text-indigo-600 dark:text-indigo-400 font-semibold",
-  8:  "text-cyan-600 dark:text-cyan-400 font-semibold",
-  9:  "text-pink-600 dark:text-pink-400 font-semibold",
-  10: "text-red-600 dark:text-red-400 font-bold",
-  11: "text-amber-600 dark:text-amber-400 font-bold",
-  12: "text-rose-600 dark:text-rose-400 font-bold",
-  13: "text-slate-600 dark:text-slate-300 font-bold",
-  14: "text-gray-700 dark:text-gray-300 font-bold",
-  15: "text-emerald-600 dark:text-emerald-400 font-extrabold",
-  16: "text-blue-600 dark:text-blue-400 font-extrabold",
-  17: "text-indigo-600 dark:text-indigo-400 font-extrabold",
-  18: "text-amber-500 dark:text-amber-400 font-extrabold",
-  19: "text-violet-600 dark:text-violet-400 font-extrabold",
-  20: "text-amber-500 dark:text-amber-300 font-black",
+/* 5 tiers: 브랜드 팔레트 기반 레벨 그룹
+   Tier 1 (Lv.1-4):  muted/subtle — 시작 단계
+   Tier 2 (Lv.5-8):  indigo 계열 — 중급 여행자
+   Tier 3 (Lv.9-12): primary 계열 — 숙련 여행자
+   Tier 4 (Lv.13-16): warm amber — 고급 여행자
+   Tier 5 (Lv.17-20): rich gold — 전설 등급 */
+function getLevelTier(level: number): { badge: string; compact: string } {
+  if (level <= 4) return {
+    badge: "border-border bg-muted dark:border-border dark:bg-muted",
+    compact: "text-muted-foreground",
+  }
+  if (level <= 8) return {
+    badge: "border-indigo/30 bg-indigo/5 dark:border-indigo/40 dark:bg-indigo/10",
+    compact: "text-indigo dark:text-indigo-light font-semibold",
+  }
+  if (level <= 12) return {
+    badge: "border-primary/30 bg-primary/5 dark:border-primary/40 dark:bg-primary/10",
+    compact: "text-primary font-bold",
+  }
+  if (level <= 16) return {
+    badge: "border-amber-400/40 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-900/15",
+    compact: "text-amber-600 dark:text-amber-400 font-bold",
+  }
+  return {
+    badge: "border-amber-400/60 bg-gradient-to-r from-amber-50 to-orange-50 dark:border-amber-400/40 dark:from-amber-900/20 dark:to-orange-900/15",
+    compact: "text-amber-500 dark:text-amber-300 font-extrabold",
+  }
 }
 
 export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeProps) {
@@ -71,12 +53,12 @@ export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeP
   const info = getLevelInfo(typeof level === "number" ? level : 1)
   const icon = LEVEL_ICONS[info.level] ?? LEVEL_ICONS[1]
   const pts = typeof totalPoints === "number" ? totalPoints : 0
+  const tier = getLevelTier(info.level)
 
   if (compact) {
-    const style = COMPACT_LEVEL_STYLE[info.level] ?? COMPACT_LEVEL_STYLE[1]
     return (
       <span
-        className={`inline-flex items-center text-[11px] ${style}`}
+        className={`inline-flex items-center text-[11px] ${tier.compact}`}
         title={`Lv.${info.level} ${info.label} (${pts}P)`}
       >
         Lv.{info.level}
@@ -85,7 +67,7 @@ export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeP
   }
 
   return (
-    <div className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm ${LEVEL_COLORS[info.level] ?? ""}`}>
+    <div className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm ${tier.badge}`}>
       {icon(20)}
       <span className="font-semibold">Lv.{info.level}</span>
       <span className="text-muted-foreground">{info.label}</span>

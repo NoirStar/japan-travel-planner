@@ -191,11 +191,13 @@ export function CommunityPage() {
   }
 
   return (
+    <div className="min-h-screen bg-sakura-pattern">
     <div className="mx-auto max-w-5xl px-5 lg:px-8 pt-24 pb-14">
       {/* 헤더 */}
       <div className="mb-8 flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-headline font-bold truncate">여행 일정 커뮤니티</h1>
+          <span className="chip chip-primary mb-2 inline-block">여행 일정 공유</span>
+          <h1 className="text-headline font-bold truncate">커뮤니티</h1>
           <p className="mt-1 text-body-sm text-muted-foreground inline-flex items-center gap-1">다른 여행자들의 일본 일정을 구경하세요 <Plane className="h-3.5 w-3.5" /></p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -207,26 +209,28 @@ export function CommunityPage() {
         </div>
       </div>
 
-      {/* 검색 */}
-      <div className="relative mb-5">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
-        <input
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="제목 또는 설명으로 검색..."
-          className="w-full rounded-2xl border border-border bg-card py-3 pl-11 pr-5 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
-        />
-      </div>
+      {/* 검색 + 필터 그룹 */}
+      <div className="surface-controls mb-6 space-y-3">
+        {/* 검색 */}
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="제목 또는 설명으로 검색..."
+            className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+          />
+        </div>
 
-      {/* 필터 바 */}
-      <div className="mb-6 flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap">
+        {/* 필터 바 */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         {/* 정렬 */}
-        <div className="flex shrink-0 rounded-lg border border-border bg-card p-0.5">
+        <div className="flex shrink-0 rounded-lg border border-border bg-muted p-0.5">
           <button
             onClick={() => setSort("latest")}
             className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-              sort === "latest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+              sort === "latest" ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Clock className="h-3 w-3" />
@@ -235,7 +239,7 @@ export function CommunityPage() {
           <button
             onClick={() => setSort("popular")}
             className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-              sort === "popular" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+              sort === "popular" ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <TrendingUp className="h-3 w-3" />
@@ -244,7 +248,7 @@ export function CommunityPage() {
           <button
             onClick={() => setSort("best")}
             className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-              sort === "best" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "text-muted-foreground hover:text-foreground"
+              sort === "best" ? "bg-card text-amber-600 dark:text-amber-400 shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Trophy className="h-3 w-3" />
@@ -253,14 +257,14 @@ export function CommunityPage() {
         </div>
 
         {/* 계획/후기 */}
-        <div className="flex shrink-0 rounded-lg border border-border bg-card p-0.5">
+        <div className="flex shrink-0 rounded-lg border border-border bg-muted p-0.5">
           {(["" as const, "plan" as const, "review" as const]).map((stage) => (
             <button
               key={stage}
               onClick={() => setStageFilter(stage)}
               className={`rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
                 stageFilter === stage
-                  ? stage === "review" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-primary/10 text-primary"
+                  ? stage === "review" ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-sm" : "bg-card text-primary shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -273,7 +277,7 @@ export function CommunityPage() {
         <select
           value={cityFilter}
           onChange={(e) => setCityFilter(e.target.value)}
-          className="h-8 shrink-0 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none"
+          className="h-8 shrink-0 rounded-lg border border-border bg-muted px-2.5 text-xs font-medium outline-none"
         >
           <option value="">전체 도시</option>
           {cities.map((city) => (
@@ -287,7 +291,7 @@ export function CommunityPage() {
         <select
           value={minLikes}
           onChange={(e) => setMinLikes(Number(e.target.value))}
-          className="h-8 shrink-0 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none"
+          className="h-8 shrink-0 rounded-lg border border-border bg-muted px-2.5 text-xs font-medium outline-none"
         >
           <option value={0}>추천 전체</option>
           <option value={5}>추천 5+</option>
@@ -310,12 +314,13 @@ export function CommunityPage() {
           {filteredPosts.length}건
         </span>
       </div>
+      </div>
 
       {/* 게시글 그리드 */}
       {isLoading ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-64 animate-shimmer rounded-2xl border border-border" />
+            <div key={i} className="h-72 animate-shimmer rounded-2xl" />
           ))}
         </div>
       ) : fetchError ? (
@@ -384,6 +389,7 @@ export function CommunityPage() {
         defaultTripId={createDefaultTripId}
       />
 
+    </div>
     </div>
   )
 }

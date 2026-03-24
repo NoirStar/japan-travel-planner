@@ -40,18 +40,18 @@
   color-scheme: dark;
   --color-background: #0f0d0a;
   --color-foreground: #f5f3ef;
-  --color-card: #1c1a16;
+  --color-card: #1e1b16;
   --color-card-foreground: #f5f3ef;
   --color-primary: #E07A6F;
   --color-primary-foreground: #ffffff;
   --color-secondary: #2a2723;
   --color-secondary-foreground: #f5f3ef;
-  --color-muted: #252320;
-  --color-muted-foreground: #9e9890;
+  --color-muted: #272420;
+  --color-muted-foreground: #a09a92;
   --color-accent: #2a2723;
   --color-accent-foreground: #f5f3ef;
-  --color-border: #3d3930;
-  --color-input: #3d3930;
+  --color-border: #3f3a31;
+  --color-input: #3f3a31;
   --color-ring: #E07A6F;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
@@ -59,8 +59,8 @@
   --color-sakura-dark: var(--color-primary);
   --color-indigo: #3D8EA6;
   --color-indigo-light: #5CAABB;
-  --color-surface: #18160f;
-  --color-elevated: #222018;
+  --color-surface: #161410;
+  --color-elevated: #282520;
 }
 
 body {
@@ -151,6 +151,24 @@ body {
   box-shadow:
     0 4px 8px rgba(60, 45, 30, 0.08),
     0 8px 24px rgba(60, 45, 30, 0.1);
+}
+.dark .card-shadow {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.dark .card-shadow:hover {
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* ── 컨트롤 그룹 표면 (검색/필터 영역) ────────── */
+.surface-controls {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 1rem;
 }
 
 /* ── 표면 위계 ──────────────────────────── */

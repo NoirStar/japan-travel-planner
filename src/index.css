@@ -740,3 +740,52 @@ body {
   border-radius: 0.75rem;
   margin: 1rem 0;
 }
+
+/* ── City Place Pin 마커 ─────────────────────────────── */
+.city-pin {
+  position: relative;
+  cursor: pointer;
+  filter: drop-shadow(0 1.5px 2.5px rgba(0,0,0,0.14));
+  transition: filter 0.2s ease;
+}
+
+.city-pin:hover {
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.22));
+}
+
+.city-pin--selected {
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.28));
+}
+
+.city-pin__icon {
+  position: absolute;
+  top: 17px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+/* Premium float animation — rating >= 4.5 only */
+.city-pin--premium {
+  animation: city-pin-float 3.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.city-pin--selected.city-pin--premium {
+  animation-play-state: paused;
+}
+
+@keyframes city-pin-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .city-pin--premium {
+    animation: none !important;
+  }
+}

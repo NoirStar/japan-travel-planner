@@ -32,6 +32,11 @@ vi.mock("@vis.gl/react-google-maps", () => ({
   useMapsLibrary: () => null,
 }))
 
+// CustomOverlay 모킹 — children을 그대로 렌더링
+vi.mock("@/components/map/CustomOverlay", () => ({
+  CustomOverlay: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}))
+
 const mockPlace = (id: string, name: string, lat: number, lng: number): Place => ({
   id,
   name,
@@ -149,8 +154,7 @@ describe("MapView", () => {
     render(
       <MapView center={{ lat: 35.6762, lng: 139.6503 }} zoom={12} allCityPlaces={cityPlaces} />,
     )
-    expect(screen.getByTestId("map-marker-이치란 라멘")).toBeInTheDocument()
-    expect(screen.getByTestId("map-marker-블루보틀 커피")).toBeInTheDocument()
+    expect(screen.getAllByTestId("city-pin-marker")).toHaveLength(2)
 
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
   })
@@ -185,8 +189,8 @@ describe("MapView", () => {
     )
     // 번호 마커 (PlaceMarker → Marker)
     expect(screen.getByTestId("map-marker-센소지")).toBeInTheDocument()
-    // 검색 결과 마커 (CityPlaceMarker → Marker)
-    expect(screen.getByTestId("map-marker-도쿄타워")).toBeInTheDocument()
+    // 검색 결과 마커 (CityPlaceMarker → CustomOverlay + PinVisual)
+    expect(screen.getAllByTestId("city-pin-marker")).toHaveLength(1)
 
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY = originalKey
   })

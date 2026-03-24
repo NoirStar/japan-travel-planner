@@ -740,3 +740,52 @@ body {
   border-radius: 0.75rem;
   margin: 1rem 0;
 }
+
+/* ── City Place Pin Marker ─────────────────────────── */
+.city-pin {
+  position: relative;
+  cursor: pointer;
+  width: 36px;
+  height: 48px;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.22));
+  transition: filter 0.2s ease;
+}
+
+.city-pin:hover {
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.30));
+}
+
+.city-pin--selected {
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35));
+}
+
+.city-pin__icon {
+  position: absolute;
+  top: 17px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Premium float — rating >= 4.5 */
+.city-pin--premium {
+  animation: city-pin-float 3.2s ease-in-out infinite;
+}
+
+.city-pin--selected.city-pin--premium {
+  animation-play-state: paused;
+}
+
+@keyframes city-pin-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .city-pin--premium {
+    animation: none !important;
+  }
+}

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, memo } from "react"
-import { Marker, InfoWindow, useMarkerRef } from "@vis.gl/react-google-maps"
+import { useCallback, useState, memo } from "react"
+import { InfoWindow } from "@vis.gl/react-google-maps"
 import { Star, Plus, ExternalLink, Clock, X, Bookmark } from "lucide-react"
 import type { Place } from "@/types/place"
 import { CATEGORY_LABELS } from "@/types/place"
@@ -7,6 +7,7 @@ import { CATEGORY_ICONS } from "@/lib/categoryIcons"
 import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
+import { CustomOverlay } from "./CustomOverlay"
 
 /** 카테고리별 muted premium 마커 컬러 */
 const CATEGORY_COLOR: Record<string, string> = {
@@ -30,71 +31,53 @@ export function getRatingTier(rating?: number): RatingTier {
   return "basic"
 }
 
-const TIER_Z_INDEX: Record<RatingTier, number> = { premium: 100, good: 50, normal: 20, basic: 10 }
-const TIER_OPACITY: Record<RatingTier, number> = { premium: 1, good: 1, normal: 0.92, basic: 0.8 }
+const TIER_Z: Record<RatingTier, number> = { premium: 100, good: 50, normal: 20, basic: 10 }
+const TIER_OP: Record<RatingTier, number> = { premium: 1, good: 1, normal: 0.92, basic: 0.8 }
 
 /** Teardrop pin SVG path (36×48 viewBox), tip at (18, 46) */
 const PIN = "M18 46C15.5 39 4 28 4 17A14 14 0 1 1 32 17C32 28 20.5 39 18 46Z"
 
 const isTouchDevice = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0)
 
-/** 카테고리 아이콘 SVG — 컬러 silhouette, 흰 원 위에 표시 */
-function getCategoryIconSvg(category: string, cx: number, cy: number, scale: number, c: string): string {
-  const t = `translate(${cx},${cy}) scale(${scale})`
-  switch (category) {
-    case "restaurant":
-      return `<g transform="${t}"><path d="M-3,-5.5 v4 c0,1.1 0.9,1.6 1.5,1.6 v4.4" stroke="${c}" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M2.8,-5.5 c0,0 -1,3.5 -0.8,5 c0.15,1 0.8,1.2 1.3,0.8 l0.5,-0.5 v4.7" stroke="${c}" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>`
-    case "cafe":
-      return `<g transform="${t}"><rect x="-3.2" y="-1.5" width="5.5" height="5" rx="0.8" fill="${c}" opacity="0.85"/><path d="M2.3,-0.5 h1.2 a1.5,1.5 0 0,1 0,3 h-1.2" stroke="${c}" stroke-width="1.3" fill="none" stroke-linecap="round"/><line x1="-3.8" y1="4" x2="3" y2="4" stroke="${c}" stroke-width="1.3" stroke-linecap="round"/><path d="M-1.2,-3.5 c0,-1.2 1.2,-1.2 1.2,0" stroke="${c}" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/></g>`
-    case "attraction":
-      return `<g transform="${t}"><rect x="-4.5" y="-1.5" width="9" height="6" rx="1.2" fill="${c}" opacity="0.85"/><path d="M-1.5,-1.5 l0.8,-2 h1.4 l0.8,2" fill="${c}"/><circle cx="0" cy="1.5" r="2" fill="white" opacity="0.9"/><circle cx="0" cy="1.5" r="1.2" fill="${c}" opacity="0.4"/><circle cx="3" cy="-0.2" r="0.6" fill="white" opacity="0.5"/></g>`
-    case "shopping":
-      return `<g transform="${t}"><rect x="-3.5" y="-1.5" width="7" height="6.5" rx="1" fill="${c}" opacity="0.85"/><path d="M-1.5,-1.5 v-1.5 a1.5,1.5 0 0,1 3,0 v1.5" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7"/></g>`
-    case "accommodation":
-      return `<g transform="${t}"><path d="M-2,-4 a4,4 0 0,0 0,7 a5.5,5.5 0 0,1 0,-7z" fill="${c}" opacity="0.85"/><ellipse cx="1" cy="3" rx="3.5" ry="1.2" fill="${c}" opacity="0.4"/><circle cx="2" cy="0.5" r="0.5" fill="${c}" opacity="0.3"/></g>`
-    case "transport":
-      return `<g transform="${t}"><rect x="-3.5" y="-4.5" width="7" height="7.5" rx="2.5" fill="${c}" opacity="0.85"/><rect x="-2.2" y="-3" width="4.4" height="2.5" rx="0.6" fill="white" opacity="0.3"/><circle cx="-1.5" cy="1.2" r="0.8" fill="white" opacity="0.35"/><circle cx="1.5" cy="1.2" r="0.8" fill="white" opacity="0.35"/></g>`
-    default:
-      return `<g transform="${t}"><circle cx="0" cy="-1" r="3" fill="${c}" opacity="0.85"/><circle cx="0" cy="-1" r="1.3" fill="white" opacity="0.3"/></g>`
-  }
+// ── Pin visual subcomponent ────────────────────────────────
+interface PinVisualProps {
+  color: string
+  icon: React.ReactNode
+  isPremium: boolean
+  isSelected: boolean
+  category: string
 }
 
-/**
- * Teardrop pin SVG data URI — 카테고리 색상 + 흰 원 + 아이콘
- * premium: 따뜻한 halo glow, selected: 링 강조
- */
-function createTeardropPinSvg(category: string, rating: number | undefined, selected: boolean): string {
-  const tier = getRatingTier(rating)
-  const color = CATEGORY_COLOR[category] ?? CATEGORY_COLOR.other
-  const isPremium = tier === "premium"
+const PinVisual = memo(function PinVisual({ color, icon, isPremium, isSelected, category }: PinVisualProps) {
+  const cls = [
+    "city-pin",
+    isPremium && "city-pin--premium",
+    isSelected && "city-pin--selected",
+  ].filter(Boolean).join(" ")
 
-  const shadowStd = isPremium ? 2.5 : tier === "good" ? 2 : 1.5
-  const shadowOp = isPremium ? 0.18 : 0.12
-
-  let selEls = ""
-  if (selected) {
-    selEls = `<path d="${PIN}" fill="none" stroke="${color}" stroke-width="5" opacity="0.15"/><path d="${PIN}" fill="none" stroke="${color}" stroke-width="2" opacity="0.45"/>`
-  }
-
-  let haloEl = ""
-  if (isPremium && !selected) {
-    haloEl = `<path d="${PIN}" fill="none" stroke="rgba(210,170,80,0.12)" stroke-width="4"/>`
-  }
-
-  const iconSvg = getCategoryIconSvg(category, 18, 17, 0.95, color)
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
-<defs><filter id="s"><feDropShadow dx="0" dy="1.5" stdDeviation="${shadowStd}" flood-opacity="${shadowOp}"/></filter></defs>
-<g filter="url(#s)">
-${haloEl}${selEls}
-<path d="${PIN}" fill="${color}"/>
-<circle cx="18" cy="17" r="10" fill="white"/>
-</g>
-${iconSvg}
-</svg>`
-
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
-}
+  return (
+    <div
+      className={cls}
+      data-testid="city-pin-marker"
+      data-category={category}
+      data-premium={isPremium ? "true" : undefined}
+    >
+      <svg viewBox="0 0 36 48" width="36" height="48" fill="none">
+        {isSelected && (
+          <>
+            <path d={PIN} stroke={color} strokeWidth="5" opacity="0.15" fill="none" />
+            <path d={PIN} stroke={color} strokeWidth="2" opacity="0.35" fill="none" />
+          </>
+        )}
+        <path d={PIN} fill={color} />
+        <circle cx="18" cy="17" r="10" fill="white" />
+      </svg>
+      <div className="city-pin__icon">
+        {icon}
+      </div>
+    </div>
+  )
+})
 
 interface CityPlaceMarkerProps {
   place: Place
@@ -105,61 +88,61 @@ interface CityPlaceMarkerProps {
 
 /**
  * 도시의 미추가 장소를 표시하는 핀 마커.
- * Marker + SVG data URI 기반 teardrop pin.
+ * CustomOverlay 기반 DOM 렌더링 + Lucide 아이콘.
  * 호버 → 미니 툴팁 (이름+별점)
  * 클릭 → 상세 InfoWindow + "일정에 추가"
  */
 export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
-  const [markerRef, marker] = useMarkerRef()
   const [isHovered, setIsHovered] = useState(false)
   const activeTripId = useScheduleStore((s) => s.activeTripId)
   const isBookmarked = useScheduleStore((s) => activeTripId ? s.isInWishlist(activeTripId, place.id) : false)
   const addToWishlist = useScheduleStore((s) => s.addToWishlist)
   const removeFromWishlist = useScheduleStore((s) => s.removeFromWishlist)
 
-  const handleClick = useCallback(() => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
     setIsHovered(false)
     onSelect?.()
   }, [onSelect])
 
-  // 마커 hover 이벤트 리스너 (선택 상태 또는 모바일 터치 디바이스일 때는 무시)
-  useEffect(() => {
-    if (!marker || isTouchDevice) return
-    const over = marker.addListener("mouseover", () => {
-      if (!isSelected) setIsHovered(true)
-    })
-    const out = marker.addListener("mouseout", () => setIsHovered(false))
-    return () => {
-      over.remove()
-      out.remove()
-    }
-  }, [marker, isSelected])
+  const handleMouseEnter = useCallback(() => {
+    if (!isSelected && !isTouchDevice) setIsHovered(true)
+  }, [isSelected])
+
+  const handleMouseLeave = useCallback(() => setIsHovered(false), [])
 
   const color = CATEGORY_COLOR[place.category] ?? CATEGORY_COLOR.other
   const tier = getRatingTier(place.rating)
-  const iconUrl = useMemo(() => createTeardropPinSvg(place.category, place.rating, !!isSelected), [place.category, place.rating, isSelected])
-
+  const isPremium = tier === "premium"
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
 
-  const showHoverTooltip = isHovered && !isSelected && marker
+  const zIndex = isSelected ? 500 : isHovered ? 300 : TIER_Z[tier]
+  const opacity = isSelected || isHovered ? 1 : TIER_OP[tier]
 
   return (
     <>
-      <Marker
-        ref={markerRef}
-        position={place.location}
-        onClick={handleClick}
-        title={place.name}
-        icon={iconUrl}
-        zIndex={isSelected ? 500 : isHovered ? 300 : TIER_Z_INDEX[tier]}
-        opacity={isSelected || isHovered ? 1 : TIER_OPACITY[tier]}
-      />
+      <CustomOverlay position={place.location} zIndex={zIndex}>
+        <div
+          style={{ opacity }}
+          onClick={handleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <PinVisual
+            color={color}
+            icon={<CategoryIcon size={14} color={color} strokeWidth={2.2} />}
+            isPremium={isPremium}
+            isSelected={!!isSelected}
+            category={place.category}
+          />
+        </div>
+      </CustomOverlay>
 
       {/* 호버 툴팁 — 컴팩트 텍스트 */}
-      {showHoverTooltip && (
+      {isHovered && !isSelected && (
         <InfoWindow
-          anchor={marker}
+          position={place.location}
           headerDisabled
           onCloseClick={() => setIsHovered(false)}
         >
@@ -185,9 +168,9 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
       )}
 
       {/* 클릭 시 상세 InfoWindow */}
-      {isSelected && marker && (
+      {isSelected && (
         <InfoWindow
-          anchor={marker}
+          position={place.location}
           headerDisabled
           onCloseClick={() => onSelect?.()}
         >

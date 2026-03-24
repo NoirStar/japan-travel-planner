@@ -16,6 +16,18 @@ export const RESERVATION_LABELS: Record<ReservationType, string> = {
   [ReservationType.ACCOMMODATION]: "숙박",
 }
 
+// ─── 예약 첨부파일 (Feature 5) ──────────────────────────
+export interface ReservationAttachment {
+  /** 첨부 보관함 내 파일 경로 (fullPath) */
+  storagePath: string
+  /** 사용자가 보는 파일 이름 */
+  fileName: string
+  /** 파일 크기(바이트) */
+  size?: number
+  /** 업로드 시점 ISO */
+  addedAt: string
+}
+
 export interface Reservation {
   id: string
   type: ReservationType
@@ -37,6 +49,9 @@ export interface Reservation {
   cost?: number               // 엔화
   memo?: string
   confirmed?: boolean
+
+  /** Feature 5: 예약에 연결된 첨부파일 목록 */
+  attachments?: ReservationAttachment[]
 }
 
 // ─── 일정 아이템 ────────────────────────────────────────
@@ -71,6 +86,8 @@ export interface DaySchedule {
   dayNumber: number // 1-based
   /** ISO date string, e.g. "2026-03-15" */
   date?: string
+  /** Feature 4: 해당 Day의 도시 ID (미설정 시 trip.cityId 사용) */
+  cityId?: string
   items: ScheduleItem[]
 }
 

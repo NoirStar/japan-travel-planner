@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/authStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { formatTravelTime, formatDistance } from "@/lib/utils"
 import { DayTabs } from "./DayTabs"
+import { cities } from "@/data/cities"
 import { PlaceCard } from "./PlaceCard"
 import { PlaceSheet } from "./PlaceSheet"
 import { ReservationCard } from "./ReservationCard"
@@ -38,7 +39,7 @@ interface SchedulePanelProps {
 
 export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace, collab }: SchedulePanelProps) {
   const trip = useScheduleStore((s) => s.getActiveTrip())
-  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation } = useScheduleStore()
+  const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation, updateDayCity } = useScheduleStore()
   const { user } = useAuthStore()
   const navigate = useNavigate()
 
@@ -313,6 +314,22 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
         tripStartDate={trip.startDate}
       />
 
+      {/* Day별 도시 선택 (멀티시티) */}
+      {currentDay && (
+        <div className="flex items-center gap-2 border-b border-border px-5 py-1.5 bg-muted/30">
+          <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <select
+            value={currentDay.cityId ?? trip.cityId}
+            onChange={(e) => updateDayCity(trip.id, currentDay.id, e.target.value)}
+            className="flex-1 rounded-lg border-none bg-transparent py-0.5 text-xs font-medium outline-none cursor-pointer"
+          >
+            {cities.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* 일정 카드 리스트 */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-5 min-h-0" data-testid="schedule-items">
         {timeline.length === 0 ? (
@@ -441,7 +458,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           </div>
           <button
             className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-600 transition-colors"
-            onClick={() => navigate("/community", { state: { openCreatePost: true, tripId: trip.id } })}
+            onClick={() => navigate("/community", { state: { openCreatePost: true, tripId: trip.id, defaultStage: "review" } })}
           >
             후기 작성
           </button>

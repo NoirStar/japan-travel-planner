@@ -9,19 +9,26 @@ import { createMockPost } from "@/lib/mockCommunity"
 import { cities } from "@/data/cities"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { uploadImage } from "@/lib/uploadImage"
+import { TripMetaForm } from "./TripMetaForm"
+import { ReviewDataForm } from "./ReviewDataForm"
 import type { Trip } from "@/types/schedule"
+import type { TripMeta, TravelPostStage, ReviewData } from "@/types/community"
 
 interface CreatePostModalProps {
   open: boolean
   onClose: () => void
   onCreated: () => void
+  /** Feature 3: review 모드로 열기 */
+  defaultStage?: TravelPostStage
+  /** 특정 trip을 미리 선택 */
+  defaultTripId?: string
 }
 
-export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalProps) {
+export function CreatePostModal({ open, onClose, onCreated, defaultStage, defaultTripId }: CreatePostModalProps) {
   const { user, refreshDemoProfile } = useAuthStore()
   const allTrips = useScheduleStore((s) => s.trips)
   const trips = useMemo(() => (open ? allTrips : []), [open, allTrips])
-  const [selectedTripId, setSelectedTripId] = useState("")
+  const [selectedTripId, setSelectedTripId] = useState(defaultTripId ?? "")
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -29,6 +36,9 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
   const [customCover, setCustomCover] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [tripMeta, setTripMeta] = useState<TripMeta>({})
+  const [postStage, setPostStage] = useState<TravelPostStage>(defaultStage ?? "plan")
+  const [reviewData, setReviewData] = useState<ReviewData>({})
 
   const tripOptions = useMemo(() =>
     trips.map((trip) => {
@@ -86,16 +96,16 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
         city_id: selectedTrip.cityId,
         cover_image: finalCover,
         trip_data: tripWithNames,
+        trip_meta: Object.keys(tripMeta).length > 0 ? tripMeta : null,
+        travel_post_stage: postStage,
+        review_data: postStage === "review" ? reviewData : null,
       })
       setIsSubmitting(false)
       refreshDemoProfile()
       onCreated()
       onClose()
-      showToast("여행이 공유됐어요")
-      setTitle("")
-      setDescription("")
-      setSelectedTripId("")
-      setCustomCover(null)
+      showToast(postStage === "review" ? "후기가 공유됐어요" : "여행이 공유됐어요")
+      resetForm()
       return
     }
 
@@ -107,6 +117,9 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
       city_id: selectedTrip.cityId,
       cover_image: finalCover,
       trip_data: tripWithNames,
+      trip_meta: Object.keys(tripMeta).length > 0 ? tripMeta : null,
+      travel_post_stage: postStage,
+      review_data: postStage === "review" ? reviewData : null,
     })
 
     setIsSubmitting(false)
@@ -119,11 +132,18 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
 
     onCreated()
     onClose()
-    showToast("여행이 공유됐어요")
+    showToast(postStage === "review" ? "후기가 공유됐어요" : "여행이 공유됐어요")
+    resetForm()
+  }
+
+  const resetForm = () => {
     setTitle("")
     setDescription("")
     setSelectedTripId("")
     setCustomCover(null)
+    setTripMeta({})
+    setPostStage(defaultStage ?? "plan")
+    setReviewData({})
   }
 
   return (
@@ -222,6 +242,43 @@ export function CreatePostModal({ open, onClose, onCreated }: CreatePostModalPro
             </button>
           )}
         </div>
+
+        {/* 계획 / 후기 모드 선택 */}
+        <div className="mb-4">
+          <label className="mb-1 block text-sm font-medium text-muted-foreground">게시글 유형</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setPostStage("plan")}
+              className={`flex-1 rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
+                postStage === "plan" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
+              }`}
+            >
+              📋 여행 계획
+            </button>
+            <button
+              type="button"
+              onClick={() => setPostStage("review")}
+              className={`flex-1 rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
+                postStage === "review" ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300" : "border-border text-muted-foreground"
+              }`}
+            >
+              ✍️ 여행 후기
+            </button>
+          </div>
+        </div>
+
+        {/* 메타데이터 */}
+        <div className="mb-4">
+          <TripMetaForm value={tripMeta} onChange={setTripMeta} />
+        </div>
+
+        {/* 후기 데이터 */}
+        {postStage === "review" && (
+          <div className="mb-4">
+            <ReviewDataForm value={reviewData} onChange={setReviewData} trip={selectedTrip ?? null} />
+          </div>
+        )}
 
         {error && <p className="mb-3 text-sm text-destructive">{error}</p>}
 

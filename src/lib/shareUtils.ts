@@ -34,7 +34,7 @@ function buildCompactTrip(trip: Trip) {
   return {
     t: trip.title, c: trip.cityId, sd: trip.startDate, ed: trip.endDate,
     d: trip.days.map((day) => ({
-      n: day.dayNumber, dt: day.date,
+      n: day.dayNumber, dt: day.date, ci: day.cityId,
       i: day.items.map((item) => ({ p: item.placeId, s: item.startTime, m: item.memo })),
     })),
   }
@@ -55,14 +55,14 @@ function restorePlaceSnapshots(snapshots: Record<string, PlaceSnapshot>) {
   }
 }
 
-function compactToTrip(compact: { t: string; c: string; sd?: string; ed?: string; d: { n: number; dt?: string; i: { p: string; s?: string; m?: string }[] }[] }): Trip {
+function compactToTrip(compact: { t: string; c: string; sd?: string; ed?: string; d: { n: number; dt?: string; ci?: string; i: { p: string; s?: string; m?: string }[] }[] }): Trip {
   const now = new Date().toISOString()
   let itemCounter = 0
   return {
     id: `shared-${Date.now()}`,
     title: compact.t, cityId: compact.c, startDate: compact.sd, endDate: compact.ed,
     days: compact.d.map((day, di) => ({
-      id: `shared-day-${di}`, dayNumber: day.n, date: day.dt,
+      id: `shared-day-${di}`, dayNumber: day.n, date: day.dt, cityId: day.ci,
       items: day.i.map((item) => ({
         id: `shared-item-${++itemCounter}`, placeId: item.p, startTime: item.s, memo: item.m,
       })),

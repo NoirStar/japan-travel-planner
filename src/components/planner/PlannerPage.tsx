@@ -76,7 +76,8 @@ export function PlannerPage() {
   }, [shareId, trips, createTrip, setActiveTrip])
 
   const cityId = trip?.cityId ?? cityIdParam
-  const cityConfig = getCityConfig(cityId)
+  const activeDayCityId = trip?.days[activeDayIndex]?.cityId ?? cityId
+  const cityConfig = getCityConfig(activeDayCityId)
 
   useEffect(() => {
     if (initialized.current) return
@@ -116,18 +117,21 @@ export function PlannerPage() {
   }, [tripIdParam, cityIdParam, trips, createTrip, setActiveTrip, forceNew, setSearchParams])
 
   // ── 검색 관련 state/handler ──
-  const search = useMapSearch(cityId)
+  const search = useMapSearch(activeDayCityId)
 
   // ── 초기 로드 시 도시 중심 자동 검색 (빈 지도 방지) ──
   const autoSeeded = useRef(false)
+  const lastSeededCity = useRef("")
   useEffect(() => {
-    if (autoSeeded.current || !trip) return
+    if (!trip) return
+    // 초기 시드 또는 Day별 도시가 바뀌었을 때 재시드
+    if (autoSeeded.current && lastSeededCity.current === activeDayCityId) return
     autoSeeded.current = true
+    lastSeededCity.current = activeDayCityId
     const { center, zoom } = cityConfig
-    // zoom 레벨로부터 반경 추정 (약 2km at zoom 13)
     const radius = Math.round(40_000 / Math.pow(2, zoom - 1))
     search.handleSearchArea(center.lat, center.lng, radius)
-  }, [trip, cityConfig, search])
+  }, [trip, cityConfig, search, activeDayCityId])
 
   // ── 공동 편집 동기화 ──
   const collab = useCollaborativeSync(trip)
@@ -184,7 +188,7 @@ export function PlannerPage() {
           mobileTab === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
         }`}>
           <SchedulePanel
-            cityId={cityId}
+            cityId={activeDayCityId}
             activeDayIndex={activeDayIndex}
             onActiveDayIndexChange={setActiveDayIndex}
             selectedPlaceId={selectedPlaceId}

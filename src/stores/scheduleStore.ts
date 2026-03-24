@@ -122,6 +122,9 @@ interface ScheduleState {
   addMapPreset: (tripId: string, preset: Omit<MapPreset, "id">) => void
   removeMapPreset: (tripId: string, presetId: string) => void
 
+  // Day city (Feature 4: multi-city)
+  updateDayCity: (tripId: string, dayId: string, cityId: string | undefined) => void
+
   // 헬퍼
   getActiveTrip: () => Trip | undefined
 }
@@ -558,6 +561,21 @@ export const useScheduleStore = create<ScheduleState>()(
             return {
               ...t,
               mapPresets: (t.mapPresets ?? []).filter((p) => p.id !== presetId),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
+        })),
+
+      // ── Day city (Feature 4) ───────────────────────────
+      updateDayCity: (tripId, dayId, cityId) =>
+        set((state) => ({
+          trips: state.trips.map((t) => {
+            if (t.id !== tripId) return t
+            return {
+              ...t,
+              days: t.days.map((d) =>
+                d.id === dayId ? { ...d, cityId } : d,
+              ),
               updatedAt: new Date().toISOString(),
             }
           }),

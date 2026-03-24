@@ -7,11 +7,13 @@ import {
   Hotel,
   BadgeCheck,
   CircleDashed,
+  Paperclip,
+  Trash2,
   type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { Reservation, ReservationType } from "@/types/schedule"
+import type { Reservation, ReservationType, ReservationAttachment } from "@/types/schedule"
 import { ReservationType as RT, RESERVATION_LABELS } from "@/types/schedule"
 
 interface ReservationSheetProps {
@@ -62,6 +64,7 @@ function getInitialForm(editData?: Reservation | null, defaultDate?: string): Om
     cost: undefined,
     memo: "",
     confirmed: false,
+    attachments: [],
   }
 }
 
@@ -324,6 +327,57 @@ export function ReservationSheet({ open, onOpenChange, editData, defaultDate, on
                   rows={2}
                   className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground/40 focus:ring-2 focus:ring-primary/40"
                 />
+              </div>
+
+              {/* 첨부파일 연결 */}
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+                  <Paperclip className="h-3 w-3" /> 첨부파일
+                </label>
+                {(form.attachments ?? []).length > 0 && (
+                  <div className="mb-2 space-y-1">
+                    {form.attachments!.map((att, idx) => (
+                      <div key={att.storagePath} className="flex items-center gap-2 rounded-lg bg-muted/50 px-2 py-1 text-xs">
+                        <Paperclip className="h-3 w-3 shrink-0 text-muted-foreground" />
+                        <span className="flex-1 truncate">{att.fileName}</span>
+                        <button
+                          type="button"
+                          onClick={() => setForm((prev) => ({
+                            ...prev,
+                            attachments: prev.attachments?.filter((_, i) => i !== idx),
+                          }))}
+                          className="shrink-0 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">
+                  <Paperclip className="h-3 w-3" />
+                  파일 첨부
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/jpeg,image/png,image/webp,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      const att: ReservationAttachment = {
+                        storagePath: `local/${Date.now()}_${file.name}`,
+                        fileName: file.name,
+                        size: file.size,
+                        addedAt: new Date().toISOString(),
+                      }
+                      setForm((prev) => ({
+                        ...prev,
+                        attachments: [...(prev.attachments ?? []), att],
+                      }))
+                      e.target.value = ""
+                    }}
+                  />
+                </label>
               </div>
 
               {/* 예약 확정 토글 */}

@@ -30,23 +30,23 @@ import {
 import { createNotification } from "@/lib/notificationService"
 import { normalizeComment, normalizeCommunityPost, unwrapProfile } from "@/lib/communityTransforms"
 import { useAuthStore } from "@/stores/authStore"
-import { useScheduleStore } from "@/stores/scheduleStore"
-import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 import type { CommunityPost, Comment, VoteType } from "@/types/community"
-import type { Place } from "@/types/place"
 import { BEST_THRESHOLD } from "@/types/community"
 import { LevelBadge } from "./LevelBadge"
 import { CommentVoteButtons } from "./CommentVoteButtons"
+import { TripMetaChips } from "./TripMetaChips"
+import { RemixImportModal } from "./RemixImportModal"
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog"
 import { cities } from "@/data/cities"
 import { showToast } from "@/components/ui/CelebrationOverlay"
+import { POST_STAGE_LABELS } from "@/types/community"
 import DOMPurify from "dompurify"
+import { Star } from "lucide-react"
 
 export function PostDetail() {
   const { postId } = useParams<{ postId: string }>()
   const navigate = useNavigate()
   const { user, setShowLoginModal, refreshDemoProfile, fetchProfile, profile: authProfile } = useAuthStore()
-  const { createTrip, addDay, addItem } = useScheduleStore()
   const useMock = !isSupabaseConfigured
 
   const [post, setPost] = useState<CommunityPost | null>(null)
@@ -63,6 +63,7 @@ export function PostDetail() {
   const likeBtnRef = useRef<HTMLButtonElement>(null)
   const [confirmDeletePost, setConfirmDeletePost] = useState(false)
   const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState<string | null>(null)
+  const [showRemixModal, setShowRemixModal] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
 
   // 게시글 로드
@@ -315,31 +316,10 @@ export function PostDetail() {
     fetchPost()
   }
 
-  // 일정 가져오기
-  const handleImport = () => {
+  // 일정 가져오기 → RemixImportModal로 대체
+  const handleImportClick = () => {
     if (!post?.trip_data?.days?.length) return
-    const tripData = post.trip_data
-    const newTrip = createTrip(tripData.cityId, `[가져옴] ${post.title}`)
-
-    // trip_data에 포함된 장소 데이터를 dynamicPlaceStore에 복원
-    const { addPlace } = useDynamicPlaceStore.getState()
-    for (const day of tripData.days ?? []) {
-      for (const item of day.items ?? []) {
-        if ((item as unknown as { placeData?: Place }).placeData) {
-          addPlace((item as unknown as { placeData: Place }).placeData)
-        }
-      }
-    }
-
-    // 기존 Day 하나 제거 후 원본 일정 복제
-    ;(tripData.days ?? []).forEach((day, i) => {
-      const newDay = i === 0 ? newTrip.days[0] : addDay(newTrip.id)
-      ;(day.items ?? []).forEach((item) => {
-        addItem(newTrip.id, newDay.id, item.placeId)
-      })
-    })
-
-    navigate(`/planner?trip=${newTrip.id}`)
+    setShowRemixModal(true)
   }
 
   // 글 삭제 (본인 또는 관리자)
@@ -516,6 +496,15 @@ export function PostDetail() {
             <Trophy className="h-3 w-3" /> 베스트
           </span>
         )}
+        {post.travel_post_stage && (
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
+            post.travel_post_stage === "review"
+              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+              : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+          }`}>
+            {post.travel_post_stage === "review" ? "✍️" : "📋"} {POST_STAGE_LABELS[post.travel_post_stage]}
+          </span>
+        )}
       </div>
       {post.board_type !== "free" ? (
         <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -549,11 +538,57 @@ export function PostDetail() {
         </div>
       )}
 
+      {/* 여행 메타데이터 */}
+      {post.trip_meta && (
+        <div className="mb-4">
+          <TripMetaChips meta={post.trip_meta} />
+        </div>
+      )}
+
       {/* 설명 */}
       {post.description && (
         <p className="mb-6 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
           {post.description}
         </p>
+      )}
+
+      {/* 후기 데이터 */}
+      {post.travel_post_stage === "review" && post.review_data && (
+        <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-800 dark:bg-emerald-950/20">
+          <h3 className="mb-3 font-semibold text-sm inline-flex items-center gap-1.5">✍️ 여행 후기</h3>
+          <div className="space-y-2">
+            {post.review_data.overallRating != null && post.review_data.overallRating > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">만족도</span>
+                <div className="flex gap-0.5">
+                  {[1,2,3,4,5].map(n => (
+                    <Star key={n} className={`h-4 w-4 ${n <= post.review_data!.overallRating! ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                  ))}
+                </div>
+              </div>
+            )}
+            {post.review_data.actualCost != null && post.review_data.actualCost > 0 && (
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-muted-foreground">실제 비용</span>
+                <span className="font-bold">¥{post.review_data.actualCost.toLocaleString()}</span>
+              </div>
+            )}
+            {post.review_data.tips && (
+              <div className="text-xs">
+                <span className="text-muted-foreground">팁</span>
+                <p className="mt-1 whitespace-pre-wrap rounded-lg bg-white/60 px-3 py-2 dark:bg-black/20">{post.review_data.tips}</p>
+              </div>
+            )}
+            {post.review_data.visitedPlaceIds && post.review_data.visitedPlaceIds.length > 0 && (
+              <div className="text-xs">
+                <span className="text-emerald-600 font-medium">✅ 방문 {post.review_data.visitedPlaceIds.length}곳</span>
+                {post.review_data.skippedPlaceIds && post.review_data.skippedPlaceIds.length > 0 && (
+                  <span className="ml-2 text-rose-500 font-medium">⏭ 스킵 {post.review_data.skippedPlaceIds.length}곳</span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* 본문 (free board) */}
@@ -616,12 +651,12 @@ export function PostDetail() {
         {post.board_type !== "free" && (
           <Button
             variant="outline"
-            onClick={handleImport}
+            onClick={handleImportClick}
             className="ml-auto gap-1.5 rounded-xl"
             size="sm"
           >
             <Download className="h-4 w-4" />
-            내 일정으로 가져오기
+            가져오기 / 리믹스
           </Button>
         )}
         {(authProfile?.is_admin || user?.id === post.user_id) && (
@@ -753,6 +788,16 @@ export function PostDetail() {
         variant="destructive"
         onConfirm={handleDeletePost}
       />
+
+      {/* 리믹스/가져오기 모달 */}
+      {post.trip_data && (
+        <RemixImportModal
+          open={showRemixModal}
+          onClose={() => setShowRemixModal(false)}
+          postTitle={post.title}
+          tripData={post.trip_data}
+        />
+      )}
 
       {/* 댓글 삭제 확인 */}
       <ConfirmDialog

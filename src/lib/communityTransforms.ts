@@ -12,6 +12,9 @@ export function normalizeCommunityPost(post: CommunityPost): CommunityPost {
     likes_count: Number(post.likes_count) || 0,
     dislikes_count: Number(post.dislikes_count) || 0,
     comments_count: Number(post.comments_count) || 0,
+    travel_post_stage: post.travel_post_stage ?? "plan",
+    trip_meta: post.trip_meta ?? null,
+    review_data: post.review_data ?? null,
   }
 }
 

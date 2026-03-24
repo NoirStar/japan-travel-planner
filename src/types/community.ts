@@ -65,6 +65,46 @@ export interface UserProfile {
   updated_at: string
 }
 
+// ─── 여행 메타데이터 (Feature 1) ────────────────────────
+export type CompanionType = "solo" | "couple" | "friends" | "family" | "parents"
+export type BudgetBand = "low" | "mid" | "high" | "premium"
+export type IntensityLevel = "easy" | "normal" | "hard"
+
+export const COMPANION_LABELS: Record<CompanionType, string> = {
+  solo: "혼자", couple: "커플", friends: "친구", family: "가족", parents: "부모님",
+}
+export const BUDGET_LABELS: Record<BudgetBand, string> = {
+  low: "절약", mid: "보통", high: "여유", premium: "럭셔리",
+}
+export const INTENSITY_LABELS: Record<IntensityLevel, string> = {
+  easy: "여유", normal: "보통", hard: "하드",
+}
+
+export interface TripMeta {
+  companionType?: CompanionType
+  budgetBand?: BudgetBand
+  walkingIntensity?: IntensityLevel
+  foodFocus?: number      // 1-5
+  shoppingFocus?: number  // 1-5
+  visitMonth?: number | null  // 1-12 or null
+  staminaLevel?: IntensityLevel
+}
+
+// ─── 후기 데이터 (Feature 3) ────────────────────────────
+export type TravelPostStage = "plan" | "review"
+
+export const POST_STAGE_LABELS: Record<TravelPostStage, string> = {
+  plan: "여행 계획", review: "여행 후기",
+}
+
+export interface ReviewData {
+  actualCost?: number
+  visitedPlaceIds?: string[]
+  skippedPlaceIds?: string[]
+  tips?: string
+  overallRating?: number  // 1-5
+}
+
 // ─── 커뮤니티 게시글 ────────────────────────────────────
 export type BoardType = "travel" | "free"
 
@@ -78,6 +118,9 @@ export interface CommunityPost {
   city_id: string
   cover_image: string | null
   trip_data: Trip | null
+  trip_meta?: TripMeta | null
+  travel_post_stage?: TravelPostStage
+  review_data?: ReviewData | null
   likes_count: number
   dislikes_count: number
   comments_count: number

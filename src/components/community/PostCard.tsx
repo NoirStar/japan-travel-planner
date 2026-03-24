@@ -4,6 +4,7 @@ import type { CommunityPost } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
 import { unwrapProfile } from "@/lib/communityTransforms"
 import { LevelBadge } from "./LevelBadge"
+import { TripMetaChips } from "./TripMetaChips"
 import { cities } from "@/data/cities"
 
 interface PostCardProps {
@@ -62,6 +63,11 @@ export function PostCard({ post }: PostCardProps) {
             <Trophy className="h-3 w-3" /> 베스트
           </div>
         )}
+        {post.travel_post_stage === "review" && (
+          <div className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow-md">
+            ✍️ 후기
+          </div>
+        )}
       </div>
 
       {/* 콘텐츠 */}
@@ -70,9 +76,15 @@ export function PostCard({ post }: PostCardProps) {
           {post.title}
         </h3>
         {post.description && (
-          <p className="mb-3 line-clamp-2 text-body-sm leading-relaxed text-muted-foreground">
+          <p className="mb-2 line-clamp-2 text-body-sm leading-relaxed text-muted-foreground">
             {post.description}
           </p>
+        )}
+
+        {post.trip_meta && (
+          <div className="mb-2">
+            <TripMetaChips meta={post.trip_meta} compact />
+          </div>
         )}
 
         {/* 하단 정보 */}

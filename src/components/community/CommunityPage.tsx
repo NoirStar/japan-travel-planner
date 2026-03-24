@@ -7,8 +7,8 @@ import { fetchMockPosts } from "@/lib/mockCommunity"
 import { normalizeCommunityPost } from "@/lib/communityTransforms"
 import { useAuthStore } from "@/stores/authStore"
 import { useSessionState } from "@/hooks/useSessionState"
-import type { CommunityPost, PostSortOption } from "@/types/community"
-import { BEST_THRESHOLD } from "@/types/community"
+import type { CommunityPost, PostSortOption, TravelPostStage } from "@/types/community"
+import { BEST_THRESHOLD, POST_STAGE_LABELS } from "@/types/community"
 import { PostCard } from "./PostCard"
 import { CreatePostModal } from "./CreatePostModal"
 import { cities } from "@/data/cities"
@@ -61,6 +61,7 @@ export function CommunityPage() {
   const [searchQuery, setSearchQuery] = useSessionState("community:search", "")
   const [searchInput, setSearchInput] = useState(searchQuery)
   const [minLikes, setMinLikes] = useSessionState("community:minLikes", 0)
+  const [stageFilter, setStageFilter] = useSessionState<"" | TravelPostStage>("community:stage", "")
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [showCreate, setShowCreate] = useState(false)
@@ -69,11 +70,14 @@ export function CommunityPage() {
   const abortRef = useRef<AbortController | null>(null)
 
   /* 플래너에서 "후기 작성" 으로 넘어온 경우 자동 모달 열기 */
+  const navState = (location.state ?? {}) as { openCreatePost?: boolean; tripId?: string; defaultStage?: TravelPostStage }
+  const [createDefaultStage, setCreateDefaultStage] = useState<TravelPostStage | undefined>(navState.defaultStage)
+  const [createDefaultTripId, setCreateDefaultTripId] = useState<string | undefined>(navState.tripId)
   useEffect(() => {
-    const navState = location.state as { openCreatePost?: boolean } | null
-    if (navState?.openCreatePost && user) {
+    if (navState.openCreatePost && user) {
+      setCreateDefaultStage(navState.defaultStage)
+      setCreateDefaultTripId(navState.tripId)
       setShowCreate(true)
-      // state를 지워서 새로고침 시 다시 열리지 않게
       window.history.replaceState({}, "")
     }
   }, [location.state, user])
@@ -97,6 +101,9 @@ export function CommunityPage() {
       if (sort === "best") {
         result = result.filter((p) => p.likes_count >= BEST_THRESHOLD)
       }
+      if (stageFilter) {
+        result = result.filter((p) => (p.travel_post_stage ?? "plan") === stageFilter)
+      }
       setPosts(result)
       setIsLoading(false)
       return
@@ -109,6 +116,10 @@ export function CommunityPage() {
 
     if (cityFilter) {
       query = query.eq("city_id", cityFilter)
+    }
+
+    if (stageFilter) {
+      query = query.eq("travel_post_stage", stageFilter)
     }
 
     if (searchQuery) {
@@ -139,7 +150,7 @@ export function CommunityPage() {
     } finally {
       if (!controller.signal.aborted) setIsLoading(false)
     }
-  }, [sort, cityFilter, searchQuery])
+  }, [sort, cityFilter, searchQuery, stageFilter])
 
   useEffect(() => {
     fetchPosts()
@@ -149,7 +160,7 @@ export function CommunityPage() {
   // 필터/정렬 변경 시 displayCount 초기화
   useEffect(() => {
     setDisplayCount(9)
-  }, [sort, cityFilter, searchQuery, minLikes])
+  }, [sort, cityFilter, searchQuery, minLikes, stageFilter])
 
   const filteredPosts = useMemo(() => {
     if (minLikes <= 0) return posts
@@ -254,6 +265,23 @@ export function CommunityPage() {
           ))}
         </select>
 
+        {/* 계획/후기 필터 */}
+        <div className="flex rounded-xl border border-border bg-card p-0.5">
+          {(["" as const, "plan" as const, "review" as const]).map((stage) => (
+            <button
+              key={stage}
+              onClick={() => setStageFilter(stage)}
+              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-body-sm font-semibold transition-colors ${
+                stageFilter === stage
+                  ? stage === "review" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {stage === "" ? "전체" : POST_STAGE_LABELS[stage]}
+            </button>
+          ))}
+        </div>
+
         {/* 추천수 필터 — 모바일에서도 표시 */}
         <div className="flex rounded-xl border border-border bg-card p-0.5">
           {[{ value: 0, label: "전체" }, { value: 5, label: "5+" }, { value: 10, label: "10+" }].map((f) => (
@@ -273,7 +301,7 @@ export function CommunityPage() {
         </div>
 
         {/* 활성 필터 칩 */}
-        {(searchQuery || cityFilter || minLikes > 0) && (
+        {(searchQuery || cityFilter || minLikes > 0 || stageFilter) && (
           <div className="flex flex-wrap items-center gap-1.5">
             {searchQuery && (
               <button onClick={() => { setSearchInput(""); setSearchQuery("") }} className="chip chip-primary gap-1 text-body-sm">
@@ -283,6 +311,11 @@ export function CommunityPage() {
             {cityFilter && (
               <button onClick={() => setCityFilter("")} className="chip chip-primary gap-1 text-body-sm">
                 {cities.find((c) => c.id === cityFilter)?.name ?? cityFilter} <span className="text-xs">×</span>
+              </button>
+            )}
+            {stageFilter && (
+              <button onClick={() => setStageFilter("")} className="chip chip-primary gap-1 text-body-sm">
+                {POST_STAGE_LABELS[stageFilter]} <span className="text-xs">×</span>
               </button>
             )}
             {minLikes > 0 && (
@@ -361,8 +394,10 @@ export function CommunityPage() {
       {/* 글쓰기 모달 */}
       <CreatePostModal
         open={showCreate}
-        onClose={() => setShowCreate(false)}
+        onClose={() => { setShowCreate(false); setCreateDefaultStage(undefined); setCreateDefaultTripId(undefined) }}
         onCreated={() => { setSort("latest"); fetchPosts() }}
+        defaultStage={createDefaultStage}
+        defaultTripId={createDefaultTripId}
       />
 
     </div>

@@ -14,6 +14,7 @@ import {
   CircleDashed,
   ChevronDown,
   ChevronUp,
+  Paperclip,
   type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -165,7 +166,7 @@ export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
         </div>
 
         {/* 확장 토글 */}
-        {(reservation.bookingReference || reservation.cost || reservation.memo || reservation.provider) && (
+        {(reservation.bookingReference || reservation.cost || reservation.memo || reservation.provider || (reservation.attachments && reservation.attachments.length > 0)) && (
           <button
             className="mt-1.5 flex w-full items-center justify-center gap-0.5 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
             onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
@@ -203,6 +204,20 @@ export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
             )}
             {reservation.memo && (
               <p className="rounded-lg bg-muted/50 px-2 py-1 text-[11px] text-muted-foreground">{reservation.memo}</p>
+            )}
+            {reservation.attachments && reservation.attachments.length > 0 && (
+              <div className="space-y-1">
+                <span className="text-muted-foreground/60 text-xs">첨부파일</span>
+                {reservation.attachments.map((att) => (
+                  <div key={att.storagePath} className="flex items-center gap-1.5 text-xs">
+                    <Paperclip className="h-3 w-3 shrink-0 text-teal-500" />
+                    <span className="truncate font-medium text-foreground">{att.fileName}</span>
+                    {att.size != null && (
+                      <span className="shrink-0 text-muted-foreground/50">{att.size < 1024 * 1024 ? `${(att.size / 1024).toFixed(0)}KB` : `${(att.size / (1024 * 1024)).toFixed(1)}MB`}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}

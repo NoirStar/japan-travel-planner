@@ -260,7 +260,7 @@ export function CreatePostModal({ open, onClose, onCreated, defaultStage, defaul
               type="button"
               onClick={() => setPostStage("review")}
               className={`flex-1 rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
-                postStage === "review" ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300" : "border-border text-muted-foreground"
+                postStage === "review" ? "border-warning/50 bg-warning/5 text-warning" : "border-border text-muted-foreground"
               }`}
             >
               <span className="inline-flex items-center gap-1"><PenLine className="h-3 w-3" /> 여행 후기</span>

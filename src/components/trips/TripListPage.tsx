@@ -157,7 +157,7 @@ export function TripListPage() {
                           <h3 className="truncate text-sm font-bold text-foreground">{trip.title}</h3>
                           <span className={`shrink-0 rounded-full px-2 py-0.5 text-caption font-semibold ${
                             daysWithPlaces === trip.days.length
-                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                              ? "bg-success/10 text-success"
                               : "bg-muted text-muted-foreground"
                           }`}>{daysWithPlaces}/{trip.days.length}일</span>
                         </div>

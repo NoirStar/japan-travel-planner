@@ -249,7 +249,7 @@ export function PlannerPage() {
         <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-4 duration-300">
           <button
             onClick={() => { setLoginToast(false); setShowLoginModal(true) }}
-            className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800 shadow-lg dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+            className="flex items-center gap-2 rounded-xl border border-warning/30 bg-warning/5 px-4 py-2.5 text-sm font-medium text-foreground shadow-lg"
           >
             <LogIn className="h-4 w-4" />
             로그인 하면 일정이 자동 저장됩니다
@@ -293,7 +293,7 @@ export function PlannerPage() {
             <MessageSquare className="h-5 w-5" />
             채팅
             {chatUnread > 0 && mobileTab !== "chat" && (
-              <span className="absolute right-1/4 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+              <span className="absolute right-1/4 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-destructive-foreground">
                 {chatUnread > 99 ? "99+" : chatUnread}
               </span>
             )}

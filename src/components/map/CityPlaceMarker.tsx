@@ -145,12 +145,12 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
           {/* 호버 툴팁 — CSS :hover 기반 (React state 불필요) */}
           {!isSelected && !isTouchDevice && (
             <div className="city-pin-tooltip">
-              <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">{place.name}</p>
+              <p className="text-xs font-bold text-foreground truncate">{place.name}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[10px] rounded px-1 py-px bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">{categoryLabel}</span>
+                <span className="text-[10px] rounded px-1 py-px bg-muted text-muted-foreground">{categoryLabel}</span>
                 {place.rating && (
-                  <span className="flex items-center gap-0.5 text-[10px] text-gray-600 dark:text-gray-300">
-                    <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+                  <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                    <Star className="h-2.5 w-2.5 fill-star text-star" />
                     {place.rating}
                   </span>
                 )}
@@ -167,7 +167,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
           headerDisabled
           onCloseClick={() => onSelect?.()}
         >
-          <div className="min-w-[220px] max-w-[280px] dark:bg-gray-800 flex flex-col relative" style={{ maxHeight: '350px' }}>
+          <div className="min-w-[220px] max-w-[280px] dark:bg-elevated flex flex-col relative" style={{ maxHeight: '350px' }}>
             {/* 닫기 버튼 */}
             <button
               onClick={() => onSelect?.()}
@@ -185,33 +185,33 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
 
               <div className="flex items-center gap-1.5">
                 <CategoryIcon className="h-4 w-4" style={{ color }} />
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{place.name}</span>
+                <span className="text-sm font-bold text-foreground">{place.name}</span>
               </div>
-              <div className="mt-1 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-                <span className="rounded bg-stone-100 dark:bg-gray-700 px-1.5 py-0.5 text-stone-600 dark:text-gray-300">{categoryLabel}</span>
+              <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">{categoryLabel}</span>
                 {place.rating && (
                   <span className="flex items-center gap-0.5">
-                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                    <Star className="h-3 w-3 fill-star text-star" />
                     {place.rating}
                     {place.ratingCount && (
-                      <span className="text-gray-400 dark:text-gray-500 text-[10px]">({place.ratingCount.toLocaleString()})</span>
+                      <span className="text-muted-foreground/60 text-[10px]">({place.ratingCount.toLocaleString()})</span>
                     )}
                   </span>
                 )}
               </div>
               {place.address && (
-                <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">{place.address}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground line-clamp-1">{place.address}</p>
               )}
               {place.description && (
-                <p className="mt-1 max-w-[260px] text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                <p className="mt-1 max-w-[260px] text-xs text-muted-foreground line-clamp-2">
                   {place.description}
                 </p>
               )}
 
               {/* 영업시간 */}
               {place.openingHours && place.openingHours.length > 0 && (
-                <details className="mt-2 text-[10px] text-gray-500 dark:text-gray-400">
-                  <summary className="cursor-pointer flex items-center gap-1 font-medium text-gray-600 dark:text-gray-300">
+                <details className="mt-2 text-[10px] text-muted-foreground">
+                  <summary className="cursor-pointer flex items-center gap-1 font-medium text-muted-foreground">
                     <Clock className="h-3 w-3" /> 영업시간
                   </summary>
                   <ul className="mt-1 space-y-0.5 pl-4">
@@ -228,7 +228,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
                   href={place.googleMapsUri}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 rounded-lg bg-stone-50 dark:bg-stone-800/40 px-2 py-1 text-[11px] text-stone-600 dark:text-stone-400 hover:underline"
+                  className="mt-2 inline-flex items-center gap-1 rounded-lg bg-indigo/5 px-2 py-1 text-[11px] text-indigo hover:underline"
                 >
                   <Star className="h-3 w-3" /> 구글 지도에서 리뷰 보기
                 </a>
@@ -240,7 +240,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.googlePlaceId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-stone-500 dark:text-stone-400 hover:underline"
+                  className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-indigo hover:underline"
                 >
                   <ExternalLink className="h-3 w-3" /> Google Maps에서 보기
                 </a>
@@ -248,7 +248,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
             </div>
 
             {/* 하단 고정 버튼 */}
-            <div className="shrink-0 border-t border-gray-100 dark:border-gray-700 p-1.5 flex gap-1.5">
+            <div className="shrink-0 border-t border-border p-1.5 flex gap-1.5">
               <Button
                 size="sm"
                 variant="outline"
@@ -270,7 +270,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
               </Button>
               <Button
                 size="sm"
-                className="flex-1 gap-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 text-xs h-7"
+                className="flex-1 gap-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-7"
                 onClick={(e) => {
                   e.stopPropagation()
                   onAdd?.()

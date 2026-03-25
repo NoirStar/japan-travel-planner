@@ -214,7 +214,7 @@ function MapControlPanel({
         onClick={onToggleMapDark}
         className={`p-2.5 rounded-xl shadow-md border transition-all ${
           isMapDark
-            ? "bg-slate-800 text-amber-300 border-slate-700"
+            ? "bg-elevated text-star border-border"
             : "bg-background/90 backdrop-blur-sm text-foreground border-border/50 hover:bg-muted"
         }`}
         title={isMapDark ? "지도 밝게" : "지도 어둡게"}
@@ -238,7 +238,7 @@ function MapControlPanel({
         onClick={() => setLayerOpen(!layerOpen)}
         className={`p-2.5 rounded-xl shadow-md border transition-all ${
           layerOpen
-            ? "bg-sakura-dark text-white border-sakura-dark"
+            ? "bg-sakura-dark text-primary-foreground border-sakura-dark"
             : "bg-background/90 backdrop-blur-sm text-foreground border-border/50 hover:bg-muted"
         }`}
         title="지도 레이어"

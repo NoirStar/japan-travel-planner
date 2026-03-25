@@ -10,57 +10,71 @@
    ══════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #f6f4ef;
-  --color-foreground: #1a1814;
-  --color-card: #fefdf9;
-  --color-card-foreground: #1a1814;
-  --color-primary: #D96B60;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #edeae3;
-  --color-secondary-foreground: #1a1814;
-  --color-muted: #f0ede6;
-  --color-muted-foreground: #6b6560;
-  --color-accent: #edeae3;
-  --color-accent-foreground: #1a1814;
-  --color-border: #ddd8ce;
-  --color-input: #ddd8ce;
-  --color-ring: #D96B60;
+  --color-background: #F7F3EE;
+  --color-foreground: #1A1612;
+  --color-card: #FDFBF7;
+  --color-card-foreground: #1A1612;
+  --color-primary: #B55349;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #EDE8E0;
+  --color-secondary-foreground: #1A1612;
+  --color-muted: #ECE5DD;
+  --color-muted-foreground: #6C645D;
+  --color-accent: #EDE8E0;
+  --color-accent-foreground: #1A1612;
+  --color-border: #DDD2C5;
+  --color-input: #DDD2C5;
+  --color-ring: #B55349;
   --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
   --radius: 0.75rem;
-  --color-sakura: #f0a4b8;
+  --color-sakura: #C9857B;
   --color-sakura-dark: var(--color-primary);
-  --color-indigo: #2B6B8A;
-  --color-indigo-light: #3D8EA6;
-  --color-surface: #faf8f4;
-  --color-elevated: #ffffff;
+  --color-indigo: #2D5F7A;
+  --color-indigo-light: #4C7C95;
+  --color-surface: #F1ECE5;
+  --color-elevated: #FFFFFF;
+  --color-success: #5C8A6F;
+  --color-success-foreground: #FFFFFF;
+  --color-warning: #C08C3E;
+  --color-warning-foreground: #FFFFFF;
+  --color-info: var(--color-indigo);
+  --color-info-foreground: #FFFFFF;
+  --color-star: #D4A03C;
 }
 
 .dark {
   color-scheme: dark;
-  --color-background: #0f0d0a;
-  --color-foreground: #f5f3ef;
-  --color-card: #1e1b16;
-  --color-card-foreground: #f5f3ef;
-  --color-primary: #E07A6F;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #2a2723;
-  --color-secondary-foreground: #f5f3ef;
-  --color-muted: #272420;
-  --color-muted-foreground: #a09a92;
-  --color-accent: #2a2723;
-  --color-accent-foreground: #f5f3ef;
-  --color-border: #3f3a31;
-  --color-input: #3f3a31;
-  --color-ring: #E07A6F;
+  --color-background: #12100D;
+  --color-foreground: #F4EFE8;
+  --color-card: #1C1915;
+  --color-card-foreground: #F4EFE8;
+  --color-primary: #DDB0A2;
+  --color-primary-foreground: #1A1612;
+  --color-secondary: #26211C;
+  --color-secondary-foreground: #F4EFE8;
+  --color-muted: #26211C;
+  --color-muted-foreground: #A79C92;
+  --color-accent: #26211C;
+  --color-accent-foreground: #F4EFE8;
+  --color-border: #3B342D;
+  --color-input: #3B342D;
+  --color-ring: #DDB0A2;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-sakura: #E07A6F;
+  --color-sakura: #DDB0A2;
   --color-sakura-dark: var(--color-primary);
-  --color-indigo: #3D8EA6;
-  --color-indigo-light: #5CAABB;
-  --color-surface: #161410;
-  --color-elevated: #282520;
+  --color-indigo: #7BA0AF;
+  --color-indigo-light: #AFC3C9;
+  --color-surface: #171410;
+  --color-elevated: #26211C;
+  --color-success: #7AAE8E;
+  --color-success-foreground: #1A1612;
+  --color-warning: #D9A35C;
+  --color-warning-foreground: #1A1612;
+  --color-info: var(--color-indigo);
+  --color-info-foreground: #1A1612;
+  --color-star: #E4B854;
 }
 
 body {
@@ -93,17 +107,17 @@ body {
 .bg-sakura-pattern {
   background-color: var(--color-background);
   background-image:
-    radial-gradient(ellipse at 15% 30%, rgba(217, 107, 96, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 15%, rgba(43, 107, 138, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 30%, rgba(181, 83, 73, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(45, 95, 122, 0.03) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 80%, rgba(180, 160, 120, 0.02) 0%, transparent 50%),
     url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
 }
 
 .dark .bg-sakura-pattern {
   background-image:
-    radial-gradient(ellipse at 15% 30%, rgba(240, 130, 114, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 15%, rgba(61, 142, 166, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(240, 130, 114, 0.025) 0%, transparent 50%);
+    radial-gradient(ellipse at 15% 30%, rgba(221, 176, 162, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(123, 160, 175, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(221, 176, 162, 0.025) 0%, transparent 50%);
 }
 
 /* ── 글래스 → Airbnb 솔리드 카드 ─────────────────────── */
@@ -133,7 +147,7 @@ body {
 /* ── 모던 버튼 (클린 솔리드) ─────────────────────── */
 .btn-gradient {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-primary-foreground);
   transition: all 0.2s ease;
 }
 .btn-gradient:hover {
@@ -423,12 +437,12 @@ body {
   overflow: auto !important;
 }
 .dark .gm-style .gm-style-iw-c {
-  background-color: #1f2937 !important;
-  border: 1px solid #374151 !important;
+  background-color: var(--color-card) !important;
+  border: 1px solid var(--color-border) !important;
   padding: 0 !important;
 }
 .dark .gm-style .gm-style-iw-tc::after {
-  background: #1f2937 !important;
+  background: var(--color-card) !important;
 }
 .dark .gm-style .gm-style-iw-chr button span {
   background-color: #9ca3af !important;
@@ -440,21 +454,21 @@ body {
 }
 .dark .gm-style-iw-d::-webkit-scrollbar-track,
 .dark .gm-style-iw-d *::-webkit-scrollbar-track {
-  background: #1f2937;
+  background: var(--color-card);
 }
 .dark .gm-style-iw-d::-webkit-scrollbar-thumb,
 .dark .gm-style-iw-d *::-webkit-scrollbar-thumb {
-  background: #4b5563;
+  background: var(--color-border);
   border-radius: 3px;
 }
 .dark .gm-style-iw-d::-webkit-scrollbar-thumb:hover,
 .dark .gm-style-iw-d *::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
+  background: var(--color-muted-foreground);
 }
 /* Firefox 다크 스크롤바 */
 .dark .gm-style-iw-d,
 .dark .gm-style-iw-d * {
-  scrollbar-color: #4b5563 #1f2937;
+  scrollbar-color: var(--color-border) var(--color-card);
   scrollbar-width: thin;
 }
 
@@ -603,7 +617,7 @@ body {
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  background: white;
+  background: var(--color-card);
   border-radius: 8px;
   padding: 6px 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
@@ -634,15 +648,11 @@ body {
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: white;
+  border-top-color: var(--color-card);
 }
 
 .dark .city-pin-tooltip {
-  background: #1f2937;
   box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-}
-.dark .city-pin-tooltip::after {
-  border-top-color: #1f2937;
 }
 
 /* ── Premium tier (rating >= 4.5) — 같은 크기, 강조만 ── */

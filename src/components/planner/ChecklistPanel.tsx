@@ -17,12 +17,12 @@ interface ChecklistPanelProps {
 
 /** 카테고리별 아이콘/색상 */
 const CATEGORY_STYLE: Record<ChecklistCategory, { icon: LucideIcon; color: string; bg: string }> = {
-  documents: { icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
-  money: { icon: Banknote, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  connectivity: { icon: Smartphone, color: "text-violet-500", bg: "bg-violet-500/10" },
-  packing: { icon: Briefcase, color: "text-amber-500", bg: "bg-amber-500/10" },
-  bookings: { icon: TicketCheck, color: "text-rose-500", bg: "bg-rose-500/10" },
-  custom: { icon: PenLine, color: "text-gray-500", bg: "bg-gray-500/10" },
+  documents: { icon: FileText, color: "text-indigo", bg: "bg-indigo/5" },
+  money: { icon: Banknote, color: "text-success", bg: "bg-success/5" },
+  connectivity: { icon: Smartphone, color: "text-indigo-light", bg: "bg-indigo/5" },
+  packing: { icon: Briefcase, color: "text-warning", bg: "bg-warning/5" },
+  bookings: { icon: TicketCheck, color: "text-primary", bg: "bg-primary/5" },
+  custom: { icon: PenLine, color: "text-muted-foreground", bg: "bg-muted" },
 }
 
 const EMPTY_CHECKLIST: TripChecklistItem[] = []
@@ -144,12 +144,12 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
           </div>
           <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-sakura-dark to-pink-400 transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-primary to-sakura transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
           {progress === 100 && (
-            <p className="mt-1 text-center text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1 justify-center w-full">
+            <p className="mt-1 text-center text-[11px] font-semibold text-success inline-flex items-center gap-1 justify-center w-full">
               <PartyPopper className="h-3.5 w-3.5" /> 모든 준비가 완료되었습니다!
             </p>
           )}
@@ -181,7 +181,7 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
                     <style.icon className={`h-3 w-3 ${style.color}`} />
                   </span>
                   <span>{CHECKLIST_CATEGORY_LABELS[category]}</span>
-                  <span className={`ml-auto text-[10px] font-medium ${allChecked ? "text-emerald-500" : "text-muted-foreground"}`}>
+                  <span className={`ml-auto text-[10px] font-medium ${allChecked ? "text-success" : "text-muted-foreground"}`}>
                     {catChecked}/{categoryItems.length}
                   </span>
                 </button>
@@ -250,7 +250,7 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
             <button
               onClick={handleAddItem}
               disabled={!newItemText.trim()}
-              className="btn-gradient flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border-0 text-white shadow-sm disabled:opacity-40"
+              className="btn-gradient flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border-0 shadow-sm disabled:opacity-40"
               data-testid="checklist-add-button"
             >
               <Plus className="h-4 w-4" />

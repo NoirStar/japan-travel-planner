@@ -174,11 +174,11 @@ export function UnifiedSearchBar({
             onClick={() => setRatingOpen(!ratingOpen)}
             className={`flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               minRating != null
-                ? "bg-yellow-400/20 text-yellow-700 dark:text-yellow-300"
+                ? "bg-star/20 text-star"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400 shrink-0" />
+            <Star className="w-3.5 h-3.5 fill-star text-star shrink-0" />
             <span className="hidden sm:inline">별점 필터</span>
             <span className="sm:hidden text-[10px]">별점</span>
             {minRating != null && (
@@ -205,13 +205,13 @@ export function UnifiedSearchBar({
                     }}
                     className={`w-full text-left px-3 py-1.5 text-xs font-medium transition-all ${
                       isActive
-                        ? "bg-yellow-400/20 text-yellow-700 dark:text-yellow-300"
+                        ? "bg-star/20 text-star"
                         : "text-foreground hover:bg-muted"
                     }`}
                   >
                     <span className="flex items-center gap-1.5">
-                      {isActive && <span className="text-yellow-500"><Check className="h-3 w-3" /></span>}
-                      <Star className={`w-3 h-3 ${opt.value ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+                      {isActive && <span className="text-star"><Check className="h-3 w-3" /></span>}
+                      <Star className={`w-3 h-3 ${opt.value ? "fill-star text-star" : "text-muted-foreground"}`} />
                       {opt.label}
                     </span>
                   </button>

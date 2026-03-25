@@ -28,15 +28,15 @@ export function RiskAlerts({ risks, currentDayNumber }: RiskAlertsProps) {
         className="flex w-full items-center justify-between px-4 py-2 text-xs hover:bg-muted/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Shield className="h-3.5 w-3.5 text-amber-500" />
+          <Shield className="h-3.5 w-3.5 text-warning" />
           <span className="font-semibold text-foreground">일정 점검</span>
           {warnings.length > 0 && (
-            <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+            <span className="rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-bold text-warning">
               {warnings.length}
             </span>
           )}
           {infos.length > 0 && (
-            <span className="rounded-full bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
+            <span className="rounded-full bg-indigo/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo">
               {infos.length}
             </span>
           )}
@@ -51,8 +51,8 @@ export function RiskAlerts({ risks, currentDayNumber }: RiskAlertsProps) {
               key={risk.id}
               className={`flex items-start gap-2 rounded-lg px-2.5 py-1.5 text-[11px] ${
                 risk.level === "warning"
-                  ? "bg-amber-500/10 text-amber-700 dark:text-amber-300"
-                  : "bg-blue-500/10 text-blue-700 dark:text-blue-300"
+                  ? "bg-warning/10 text-warning"
+                  : "bg-indigo/10 text-indigo"
               }`}
               data-testid={`risk-${risk.id}`}
             >

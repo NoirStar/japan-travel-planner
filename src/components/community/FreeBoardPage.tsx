@@ -255,7 +255,7 @@ export function FreeBoardPage() {
           <button
             onClick={() => setSort("best")}
             className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
-              sort === "best" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "text-muted-foreground hover:text-foreground"
+              sort === "best" ? "bg-warning/10 text-warning" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Trophy className="h-3.5 w-3.5" />
@@ -367,11 +367,11 @@ export function FreeBoardPage() {
                 to={`/community/${post.id}`}
                 className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-4 transition-colors hover:bg-muted/50 ${
                   idx > 0 ? "border-t border-border/60" : ""
-                } ${isBest ? "bg-amber-50/50 dark:bg-amber-950/10" : ""}`}
+                } ${isBest ? "bg-warning/5" : ""}`}
               >
                 {/* 베스트 뱃지 */}
                 {isBest && (
-                  <span className="shrink-0 inline-flex items-center gap-0.5 rounded bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  <span className="shrink-0 inline-flex items-center gap-0.5 rounded bg-warning px-1.5 py-0.5 text-[10px] font-bold text-warning-foreground">
                     <Trophy className="h-2.5 w-2.5" />
                   </span>
                 )}

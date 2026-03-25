@@ -332,7 +332,7 @@ export function TripChatPanel({ sharedId, mobileOpen, onMobileClose: _onMobileCl
         >
           <MessageSquare className="h-6 w-6" />
           {unread > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-primary-foreground">
               {unread > 99 ? "99+" : unread}
             </span>
           )}

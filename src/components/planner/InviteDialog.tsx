@@ -144,7 +144,7 @@ export function InviteDialog({
                   className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-left select-none active:bg-muted transition-colors"
                 >
                   {copied ? (
-                    <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                    <Check className="h-3.5 w-3.5 shrink-0 text-success" />
                   ) : (
                     <Link className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   )}
@@ -157,7 +157,7 @@ export function InviteDialog({
                   className="shrink-0 gap-1 rounded-lg"
                 >
                   {copied ? (
-                    <><Check className="h-3.5 w-3.5 text-emerald-500" /> 복사됨</>
+                    <><Check className="h-3.5 w-3.5 text-success" /> 복사됨</>
                   ) : (
                     <><Copy className="h-3.5 w-3.5" /> 복사</>
                   )}

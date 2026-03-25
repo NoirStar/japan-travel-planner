@@ -85,7 +85,7 @@ export function BudgetPanel({ open, onOpenChange, tripId }: BudgetPanelProps) {
           <div className="mb-1.5 h-1 w-10 rounded-full bg-border/80 lg:hidden" />
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-emerald-500" />
+              <Wallet className="h-4 w-4 text-success" />
               <h3 className="text-sm font-bold">여행 예산</h3>
             </div>
             <button
@@ -116,7 +116,7 @@ export function BudgetPanel({ open, onOpenChange, tripId }: BudgetPanelProps) {
                 <span className="text-[10px] text-muted-foreground">¥</span>
                 <button
                   onClick={handleSaveBudget}
-                  className="rounded bg-sakura px-2 py-0.5 text-[10px] font-bold text-white"
+                  className="rounded bg-sakura px-2 py-0.5 text-[10px] font-bold text-primary-foreground"
                 >
                   저장
                 </button>
@@ -137,14 +137,14 @@ export function BudgetPanel({ open, onOpenChange, tripId }: BudgetPanelProps) {
               <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
-                    remaining < 0 ? "bg-red-500" : remaining < budget * 0.2 ? "bg-amber-500" : "bg-emerald-500"
+                    remaining < 0 ? "bg-destructive" : remaining < budget * 0.2 ? "bg-warning" : "bg-success"
                   }`}
                   style={{ width: `${usagePercent}%` }}
                 />
               </div>
               <div className="mt-1 flex justify-between text-[10px]">
                 <span className="text-muted-foreground">사용 ¥{totalCost.toLocaleString()}</span>
-                <span className={remaining < 0 ? "font-bold text-red-500" : "text-muted-foreground"}>
+                <span className={remaining < 0 ? "font-bold text-destructive" : "text-muted-foreground"}>
                   {remaining >= 0 ? `남은 금액 ¥${remaining.toLocaleString()}` : `초과 ¥${Math.abs(remaining).toLocaleString()}`}
                 </span>
               </div>
@@ -182,7 +182,7 @@ export function BudgetPanel({ open, onOpenChange, tripId }: BudgetPanelProps) {
               ))}
               {reservationCost > 0 && (
                 <div className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/30">
-                  <div className="h-2.5 w-2.5 rounded-full bg-blue-400" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-indigo" />
                   <span className="flex-1 text-[12px]">예약 비용</span>
                   <span className="text-[12px] font-semibold">¥{reservationCost.toLocaleString()}</span>
                   {budget > 0 && (

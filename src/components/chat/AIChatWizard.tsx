@@ -308,7 +308,7 @@ export function AIChatWizard() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sakura-dark text-sm text-white"><Bot className="h-4 w-4" /></div>
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sakura-dark text-sm text-primary-foreground"><Bot className="h-4 w-4" /></div>
           <h1 className="text-sm font-bold">AI 여행 플래너</h1>
         </div>
       </div>
@@ -398,9 +398,9 @@ export function AIChatWizard() {
             data-testid="free-chat-send"
           >
             {isAILoading ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary-foreground" />
             ) : (
-              <Send className="h-3.5 w-3.5 text-white" />
+              <Send className="h-3.5 w-3.5 text-primary-foreground" />
             )}
           </button>
         </div>

@@ -396,7 +396,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                         {formatTravelTime(travelMinutes, travelMode)} · {formatDistance(distanceKm)}
                       </span>
                       {travelData?.source === "live" && (
-                        <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span className="rounded-full bg-success/10 px-1.5 py-0.5 text-[9px] font-semibold text-success">
                           ETA
                         </span>
                       )}
@@ -450,14 +450,14 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
       {/* 여행 완료 후기 배너 */}
       {trip.endDate && new Date(trip.endDate + "T23:59:59") < new Date() && user && (
-        <div className="mx-4 mt-3 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/30">
-          <PenLine className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div className="mx-4 mt-3 flex items-center gap-3 rounded-xl border border-warning/30 bg-warning/5 px-4 py-3">
+          <PenLine className="h-5 w-5 shrink-0 text-warning" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">여행이 끝났어요!</p>
-            <p className="text-xs text-amber-700/80 dark:text-amber-400/70">커뮤니티에 후기를 남겨보세요</p>
+            <p className="text-xs font-semibold text-foreground">여행이 끝났어요!</p>
+            <p className="text-xs text-muted-foreground">커뮤니티에 후기를 남겨보세요</p>
           </div>
           <button
-            className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-600 transition-colors"
+            className="shrink-0 rounded-lg bg-warning px-3 py-1.5 text-xs font-bold text-warning-foreground hover:bg-warning/90 transition-colors"
             onClick={() => navigate("/community", { state: { openCreatePost: true, tripId: trip.id, defaultStage: "review" } })}
           >
             후기 작성
@@ -513,10 +513,10 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             onClick={() => setIsWishlistOpen(true)}
             data-testid="wishlist-button"
           >
-            <Bookmark className="h-4 w-4 text-rose-500" />
+            <Bookmark className="h-4 w-4 text-primary" />
             북마크
             {wishlistCount > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -right-1.5 -top-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
                 {wishlistCount}
               </span>
             )}
@@ -545,7 +545,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             onClick={() => setIsChecklistOpen(true)}
             data-testid="checklist-button"
           >
-            <ClipboardCheck className="h-4 w-4 text-emerald-500" />
+            <ClipboardCheck className="h-4 w-4 text-success" />
             준비물
           </button>
           <button
@@ -553,7 +553,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             onClick={() => setIsBudgetOpen(true)}
             data-testid="budget-button"
           >
-            <Wallet className="h-4 w-4 text-emerald-500" />
+            <Wallet className="h-4 w-4 text-success" />
             예산
           </button>
           <button
@@ -569,7 +569,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             onClick={() => setIsAttachmentVaultOpen(true)}
             data-testid="attachment-vault-button"
           >
-            <Paperclip className="h-4 w-4 text-teal-500" />
+            <Paperclip className="h-4 w-4 text-indigo" />
             첨부함
           </button>
           {collab?.isShared && (
@@ -578,7 +578,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
               onClick={() => setIsChangeHistoryOpen(true)}
               data-testid="change-history-button"
             >
-              <History className="h-4 w-4 text-violet-500" />
+              <History className="h-4 w-4 text-indigo-light" />
               이력
             </button>
           )}
@@ -605,7 +605,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             }}
             data-testid="export-pdf-button"
           >
-            <FileDown className="h-4 w-4 text-rose-500" />
+            <FileDown className="h-4 w-4 text-primary" />
             PDF
           </button>
           <button
@@ -618,7 +618,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             }}
             data-testid="export-ics-button"
           >
-            <CalendarDays className="h-4 w-4 text-teal-500" />
+            <CalendarDays className="h-4 w-4 text-indigo" />
             캘린더
           </button>
         </div>
@@ -638,10 +638,10 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                 className="relative flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                 onClick={() => { setIsMobileMoreOpen(false); setIsWishlistOpen(true) }}
               >
-                <Bookmark className="h-5 w-5 text-rose-500" />
+                <Bookmark className="h-5 w-5 text-primary" />
                 북마크
                 {wishlistCount > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white">
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
                     {wishlistCount}
                   </span>
                 )}
@@ -650,28 +650,28 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                 onClick={() => { setIsMobileMoreOpen(false); setEditingReservation(null); setIsReservationSheetOpen(true) }}
               >
-                <Ticket className="h-5 w-5 text-amber-500" />
+                <Ticket className="h-5 w-5 text-warning" />
                 예약 관리
               </button>
               <button
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                 onClick={() => { setIsMobileMoreOpen(false); setIsChecklistOpen(true) }}
               >
-                <ClipboardCheck className="h-5 w-5 text-emerald-500" />
+                <ClipboardCheck className="h-5 w-5 text-success" />
                 준비물 체크리스트
               </button>
               <button
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                 onClick={() => { setIsMobileMoreOpen(false); setIsBudgetOpen(true) }}
               >
-                <Wallet className="h-5 w-5 text-emerald-500" />
+                <Wallet className="h-5 w-5 text-success" />
                 여행 예산
               </button>
               <button
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                 onClick={() => { setIsMobileMoreOpen(false); setIsTransportPassOpen(true) }}
               >
-                <TrainFront className="h-5 w-5 text-blue-500" />
+                <TrainFront className="h-5 w-5 text-indigo" />
                 교통 패스 계산기
               </button>
               {collab?.isShared && (
@@ -679,7 +679,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                   onClick={() => { setIsMobileMoreOpen(false); setIsChangeHistoryOpen(true) }}
                 >
-                  <History className="h-5 w-5 text-violet-500" />
+                  <History className="h-5 w-5 text-indigo-light" />
                   변경 이력
                 </button>
               )}
@@ -687,7 +687,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
                 onClick={() => { setIsMobileMoreOpen(false); setIsAttachmentVaultOpen(true) }}
               >
-                <Paperclip className="h-5 w-5 text-teal-500" />
+                <Paperclip className="h-5 w-5 text-indigo" />
                 첨부 보관함
               </button>
               <div className="my-1 h-px bg-border" />
@@ -700,7 +700,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   showToast(ok ? "링크가 복사되었습니다!" : "복사에 실패했습니다")
                 }}
               >
-                <Share2 className="h-5 w-5 text-indigo-500" />
+                <Share2 className="h-5 w-5 text-indigo" />
                 공유 링크 복사
               </button>
               <button
@@ -714,7 +714,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   showToast(result.ok ? "PDF가 다운로드되었습니다!" : (result.error ?? "PDF 생성에 실패했습니다"))
                 }}
               >
-                <FileDown className="h-5 w-5 text-rose-500" />
+                <FileDown className="h-5 w-5 text-primary" />
                 PDF 다운로드
               </button>
               <button
@@ -727,7 +727,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                   showToast("캘린더 파일이 다운로드되었습니다!")
                 }}
               >
-                <CalendarDays className="h-5 w-5 text-teal-500" />
+                <CalendarDays className="h-5 w-5 text-indigo" />
                 캘린더 내보내기
               </button>
               <div className="my-1 h-px bg-border" />

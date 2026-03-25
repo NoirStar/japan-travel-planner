@@ -21,7 +21,7 @@ export function PostCard({ post }: PostCardProps) {
       to={`/community/${post.id}`}
       className={`group block overflow-hidden rounded-2xl border card-shadow bg-card transition-all hover:border-primary/30 ${
         post.likes_count >= BEST_THRESHOLD
-          ? "border-amber-400/60 dark:border-amber-600/50 ring-1 ring-amber-200/30 dark:ring-amber-700/20"
+          ? "border-warning/40 ring-1 ring-warning/15"
           : "border-border"
       }`}
     >
@@ -59,12 +59,12 @@ export function PostCard({ post }: PostCardProps) {
           )}
         </div>
         {post.likes_count >= BEST_THRESHOLD && (
-          <div className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-amber-500/90 px-2 py-0.5 text-[11px] font-bold text-white">
+          <div className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-warning/90 px-2 py-0.5 text-[11px] font-bold text-warning-foreground">
             <Trophy className="h-3 w-3" /> 베스트
           </div>
         )}
         {post.travel_post_stage === "review" && (
-          <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-emerald-600/90 px-2 py-0.5 text-[11px] font-bold text-white">
+          <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-success/90 px-2 py-0.5 text-[11px] font-bold text-success-foreground">
             <PenLine className="h-3 w-3" /> 후기
           </div>
         )}

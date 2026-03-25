@@ -29,12 +29,12 @@ function getLevelTier(level: number): { badge: string; compact: string } {
     compact: "text-primary font-bold",
   }
   if (level <= 16) return {
-    badge: "border-amber-400/40 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-900/15",
-    compact: "text-amber-600 dark:text-amber-400 font-bold",
+    badge: "border-warning/30 bg-warning/5",
+    compact: "text-warning font-bold",
   }
   return {
-    badge: "border-amber-400/60 bg-gradient-to-r from-amber-50 to-orange-50 dark:border-amber-400/40 dark:from-amber-900/20 dark:to-orange-900/15",
-    compact: "text-amber-500 dark:text-amber-300 font-extrabold",
+    badge: "border-warning/50 bg-gradient-to-r from-warning/5 to-primary/5",
+    compact: "text-warning font-extrabold",
   }
 }
 
@@ -42,11 +42,11 @@ export function LevelBadge({ level, totalPoints, isAdmin, compact }: LevelBadgeP
   if (isAdmin) {
     if (compact) {
       return (
-        <span className="text-[11px] font-bold text-amber-500" title="관리자">관리자</span>
+        <span className="text-[11px] font-bold text-warning" title="관리자">관리자</span>
       )
     }
     return (
-      <span className="text-sm font-bold text-amber-600 dark:text-amber-400">관리자</span>
+      <span className="text-sm font-bold text-warning">관리자</span>
     )
   }
 

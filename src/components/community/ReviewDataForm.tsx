@@ -43,8 +43,8 @@ export function ReviewDataForm({ value, onChange, trip }: ReviewDataFormProps) {
   }
 
   return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
-      <h4 className="mb-3 text-xs font-bold text-amber-800 dark:text-amber-300 inline-flex items-center gap-1"><FileText className="h-3 w-3" /> 후기 정보</h4>
+    <div className="rounded-xl border border-warning/20 bg-warning/5 p-3">
+      <h4 className="mb-3 text-xs font-bold text-foreground inline-flex items-center gap-1"><FileText className="h-3 w-3" /> 후기 정보</h4>
 
       <div className="space-y-3">
         {/* Overall Rating */}
@@ -58,7 +58,7 @@ export function ReviewDataForm({ value, onChange, trip }: ReviewDataFormProps) {
                 onClick={() => update({ overallRating: value.overallRating === n ? undefined : n })}
                 className="p-0.5"
               >
-                <Star className={`h-5 w-5 ${(value.overallRating ?? 0) >= n ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                <Star className={`h-5 w-5 ${(value.overallRating ?? 0) >= n ? "fill-star text-star" : "text-muted-foreground/30"}`} />
               </button>
             ))}
           </div>
@@ -93,7 +93,7 @@ export function ReviewDataForm({ value, onChange, trip }: ReviewDataFormProps) {
                     onClick={() => toggleVisited(p.placeId)}
                     className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-all ${
                       visitedSet.has(p.placeId)
-                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                        ? "bg-success/10 text-success"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
@@ -104,7 +104,7 @@ export function ReviewDataForm({ value, onChange, trip }: ReviewDataFormProps) {
                     onClick={() => toggleSkipped(p.placeId)}
                     className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-all ${
                       skippedSet.has(p.placeId)
-                        ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                        ? "bg-destructive/10 text-destructive"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >

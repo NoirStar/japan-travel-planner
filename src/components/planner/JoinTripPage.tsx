@@ -134,7 +134,7 @@ export function JoinTripPage() {
         </div>
       ) : effectiveState === "unavailable" ? (
         <div className="flex flex-col items-center gap-3 text-center">
-          <AlertTriangle className="h-8 w-8 text-amber-500" />
+          <AlertTriangle className="h-8 w-8 text-warning" />
           <p className="text-sm text-muted-foreground">공동 편집 기능을 사용할 수 없습니다</p>
           <Button variant="outline" onClick={() => navigate("/")} className="rounded-xl">
             홈으로 돌아가기

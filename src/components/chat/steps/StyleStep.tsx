@@ -39,7 +39,7 @@ export function StyleStep({ options, onSelect }: StyleStepProps) {
               onClick={() => toggle(opt.id)}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                 isActive
-                  ? "border-transparent bg-primary text-white"
+                  ? "border-transparent bg-primary text-primary-foreground"
                   : "border-border/50 bg-card hover:border-sakura/50 hover:shadow-sm"
               }`}
               data-testid={`style-option-${opt.id}`}

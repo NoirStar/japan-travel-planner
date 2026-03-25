@@ -250,12 +250,12 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
           ) : null}
           {/* 저장 상태 */}
           {isLoggedIn ? (
-            <span className="flex items-center gap-1 text-[10px] text-emerald-500">
+            <span className="flex items-center gap-1 text-[10px] text-success">
               <Save className="h-3 w-3" />
               자동 저장
             </span>
           ) : (
-            <span className="flex items-center gap-1 text-[10px] text-amber-500">
+            <span className="flex items-center gap-1 text-[10px] text-warning">
               <AlertTriangle className="h-3 w-3" />
               로그인 후 저장 가능
             </span>
@@ -357,12 +357,12 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
           )}
         </div>
         {isLoggedIn ? (
-          <span className="flex items-center gap-1 text-[10px] text-emerald-500" data-testid="auto-save-indicator">
+          <span className="flex items-center gap-1 text-[10px] text-success" data-testid="auto-save-indicator">
             <Save className="h-3 w-3" />
             자동 저장
           </span>
         ) : (
-          <span className="flex items-center gap-1 text-[10px] text-amber-500" data-testid="auto-save-indicator">
+          <span className="flex items-center gap-1 text-[10px] text-warning" data-testid="auto-save-indicator">
             <AlertTriangle className="h-3 w-3" />
             로그인 후 저장 가능
           </span>

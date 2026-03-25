@@ -9,12 +9,12 @@ interface CollaboratorsBadgeProps {
 
 /** 아바타 팔레트 (멤버별 색상 구분) */
 const AVATAR_COLORS = [
-  "bg-sky-500",
-  "bg-rose-500",
-  "bg-emerald-500",
-  "bg-violet-500",
-  "bg-amber-500",
-  "bg-teal-500",
+  "bg-indigo",
+  "bg-primary",
+  "bg-success",
+  "bg-indigo-light",
+  "bg-warning",
+  "bg-sakura",
 ]
 
 export function CollaboratorsBadge({
@@ -29,9 +29,9 @@ export function CollaboratorsBadge({
     >
       {/* 동기화 상태 */}
       {isSyncing ? (
-        <Loader2 className="h-3 w-3 animate-spin text-amber-500" />
+        <Loader2 className="h-3 w-3 animate-spin text-warning" />
       ) : isConnected ? (
-        <Wifi className="h-3 w-3 text-emerald-500" />
+        <Wifi className="h-3 w-3 text-success" />
       ) : (
         <WifiOff className="h-3 w-3 text-muted-foreground" />
       )}

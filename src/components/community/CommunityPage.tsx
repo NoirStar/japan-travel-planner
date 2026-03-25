@@ -248,7 +248,7 @@ export function CommunityPage() {
           <button
             onClick={() => setSort("best")}
             className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-              sort === "best" ? "bg-card text-amber-600 dark:text-amber-400 shadow-sm" : "text-muted-foreground hover:text-foreground"
+              sort === "best" ? "bg-card text-warning shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <Trophy className="h-3 w-3" />
@@ -264,7 +264,7 @@ export function CommunityPage() {
               onClick={() => setStageFilter(stage)}
               className={`rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
                 stageFilter === stage
-                  ? stage === "review" ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-sm" : "bg-card text-primary shadow-sm"
+                  ? stage === "review" ? "bg-card text-success shadow-sm" : "bg-card text-primary shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >

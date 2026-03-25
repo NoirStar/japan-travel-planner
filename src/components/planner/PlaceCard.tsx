@@ -35,25 +35,25 @@ interface PlaceCardProps {
 
 /** 카테고리별 그라데이션 색상 */
 const CATEGORY_GRADIENT: Record<string, string> = {
-  restaurant: "from-orange-400 to-red-400",
-  attraction: "from-sakura-dark to-pink-400",
-  shopping: "from-violet-400 to-purple-400",
-  accommodation: "from-blue-400 to-indigo",
-  cafe: "from-amber-400 to-yellow-500",
-  transport: "from-emerald-400 to-teal-400",
-  other: "from-gray-400 to-slate-400",
+  restaurant: "from-primary to-primary/70",
+  attraction: "from-primary/80 to-sakura",
+  shopping: "from-indigo to-indigo-light",
+  accommodation: "from-indigo-light to-indigo",
+  cafe: "from-warning to-star",
+  transport: "from-indigo to-info",
+  other: "from-muted-foreground/60 to-muted-foreground/40",
 }
 
 /** 시간대(아침/오전/점심 등) 분류 */
 function getTimeSlotLabel(time: string): { label: string; color: string } | null {
   if (!time) return null
   const [h] = time.split(":").map(Number)
-  if (h >= 6 && h < 9) return { label: "아침", color: "text-orange-500" }
-  if (h >= 9 && h < 12) return { label: "오전", color: "text-sky-500" }
-  if (h >= 12 && h < 14) return { label: "점심", color: "text-amber-600" }
-  if (h >= 14 && h < 17) return { label: "오후", color: "text-emerald-500" }
-  if (h >= 17 && h < 20) return { label: "저녁", color: "text-indigo" }
-  return { label: "밤", color: "text-violet-500" }
+  if (h >= 6 && h < 9) return { label: "아침", color: "text-primary" }
+  if (h >= 9 && h < 12) return { label: "오전", color: "text-indigo" }
+  if (h >= 12 && h < 14) return { label: "점심", color: "text-warning" }
+  if (h >= 14 && h < 17) return { label: "오후", color: "text-success" }
+  if (h >= 17 && h < 20) return { label: "저녁", color: "text-indigo dark:text-indigo-light" }
+  return { label: "밤", color: "text-muted-foreground" }
 }
 
 export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
@@ -63,7 +63,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
   ) {
     const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
     const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
-    const gradientClass = CATEGORY_GRADIENT[place.category] ?? "from-gray-400 to-slate-400"
+    const gradientClass = CATEGORY_GRADIENT[place.category] ?? "from-muted-foreground/60 to-muted-foreground/40"
     const [isEditingTime, setIsEditingTime] = useState(false)
     const [showMemo, setShowMemo] = useState(!!memo)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -158,7 +158,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
               </span>
               {place.rating && (
                 <span className="flex items-center gap-0.5 text-caption text-muted-foreground">
-                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  <Star className="h-3.5 w-3.5 fill-star text-star" />
                   {place.rating}
                 </span>
               )}
@@ -205,7 +205,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
             {/* 비용 — 데스크톱만 */}
             {onCostChange && (
               <div className="mt-2 hidden items-center gap-2 text-caption lg:flex" onClick={(e) => e.stopPropagation()}>
-                <Wallet className="h-3.5 w-3.5 text-emerald-500" />
+                <Wallet className="h-3.5 w-3.5 text-success" />
                 <input
                   type="number"
                   className="w-20 rounded-lg border border-border bg-muted px-2 py-1 text-caption text-foreground outline-none focus:ring-1 focus:ring-sakura/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"

@@ -60,10 +60,10 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
           <div className="mb-1.5 h-1 w-10 rounded-full bg-border/80 lg:hidden" />
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-2">
-              <Bookmark className="h-4 w-4 fill-rose-500 text-rose-500" />
+              <Bookmark className="h-4 w-4 fill-primary text-primary" />
               <h3 className="text-sm font-bold">북마크</h3>
               {visibleItems.length > 0 && (
-                <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-semibold text-rose-500">
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                   {visibleItems.length}
                 </span>
               )}
@@ -82,13 +82,13 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
         <div className="flex-1 overflow-y-auto px-3 py-2" data-testid="wishlist-items">
           {visibleItems.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-14 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10">
-                <Bookmark className="h-6 w-6 text-rose-500/40" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                <Bookmark className="h-6 w-6 text-primary/40" />
               </div>
               <div>
                 <p className="text-sm font-semibold">북마크가 비어있습니다</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  장소 검색에서 <Bookmark className="inline h-3 w-3 text-rose-400" /> 버튼을 눌러<br />
+                  장소 검색에서 <Bookmark className="inline h-3 w-3 text-primary/60" /> 버튼을 눌러<br />
                   관심 있는 장소를 저장하세요
                 </p>
               </div>
@@ -107,7 +107,7 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
                   <div
                     key={item.placeId}
                     className={`flex items-center gap-2 rounded-lg border p-2 transition-all ${
-                      isAdded ? "border-sakura/30 bg-sakura/5" : "border-border hover:border-rose-300 hover:shadow-sm"
+                      isAdded ? "border-sakura/30 bg-sakura/5" : "border-border hover:border-primary/30 hover:shadow-sm"
                     }`}
                     data-testid={`wishlist-item-${item.placeId}`}
                   >
@@ -122,7 +122,7 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
                         <span>{CATEGORY_LABELS[place.category] ?? place.category}</span>
                         {place.rating && (
                           <span className="flex items-center gap-0.5">
-                            <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+                            <Star className="h-2.5 w-2.5 fill-star text-star" />
                             {place.rating}
                           </span>
                         )}
@@ -136,7 +136,7 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
                       ) : (
                         <button
                           onClick={() => handleAddToSchedule(item.placeId)}
-                          className="btn-gradient flex h-7 w-7 items-center justify-center rounded-full border-0 text-white shadow-sm active:scale-95"
+                          className="btn-gradient flex h-7 w-7 items-center justify-center rounded-full border-0 shadow-sm active:scale-95"
                           title="일정에 추가"
                           data-testid={`wishlist-to-schedule-${item.placeId}`}
                         >

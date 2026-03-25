@@ -269,7 +269,7 @@ export function PlaceSheet({
                         <span>{CATEGORY_LABELS[place.category] ?? place.category}</span>
                         {place.rating && (
                           <span className="flex items-center gap-0.5">
-                            <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+                            <Star className="h-2.5 w-2.5 fill-star text-star" />
                             {place.rating}
                           </span>
                         )}
@@ -288,13 +288,13 @@ export function PlaceSheet({
                       }}
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors ${
                         isWishlisted
-                          ? "bg-rose-500/10 text-rose-500"
-                          : "text-muted-foreground/40 hover:text-rose-400"
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground/40 hover:text-primary"
                       }`}
                       title={isWishlisted ? "북마크 해제" : "북마크 저장"}
                       data-testid={`place-wishlist-${place.id}`}
                     >
-                      <Bookmark className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-500" : ""}`} />
+                      <Bookmark className={`h-3.5 w-3.5 ${isWishlisted ? "fill-primary" : ""}`} />
                     </button>
                     <button
                       disabled={isAdded}
@@ -302,7 +302,7 @@ export function PlaceSheet({
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors ${
                         isAdded
                           ? "bg-muted text-muted-foreground"
-                          : "btn-gradient border-0 text-white shadow-sm active:scale-95"
+                          : "btn-gradient border-0 shadow-sm active:scale-95"
                       }`}
                       data-testid={`place-add-${place.id}`}
                     >

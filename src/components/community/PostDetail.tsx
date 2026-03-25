@@ -496,15 +496,15 @@ export function PostDetail() {
       <div className="flex items-center gap-2 mb-2">
         <h1 className="text-headline font-bold">{post.title}</h1>
         {post.likes_count >= BEST_THRESHOLD && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+          <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-1 text-xs font-bold text-warning">
             <Trophy className="h-3 w-3" /> 베스트
           </span>
         )}
         {post.travel_post_stage && (
           <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
             post.travel_post_stage === "review"
-              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-              : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+              ? "bg-success/10 text-success"
+              : "bg-indigo/10 text-indigo"
           }`}>
             {post.travel_post_stage === "review" ? <PenLine className="h-3 w-3" /> : <ClipboardList className="h-3 w-3" />} {POST_STAGE_LABELS[post.travel_post_stage]}
           </span>
@@ -558,7 +558,7 @@ export function PostDetail() {
 
       {/* 후기 데이터 */}
       {post.travel_post_stage === "review" && post.review_data && (
-        <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-800 dark:bg-emerald-950/20">
+        <div className="mb-6 rounded-2xl border border-success/20 bg-success/5 p-4">
           <h3 className="mb-3 font-semibold text-sm inline-flex items-center gap-1.5"><PenLine className="h-3.5 w-3.5" /> 여행 후기</h3>
           <div className="space-y-2">
             {post.review_data.overallRating != null && post.review_data.overallRating > 0 && (
@@ -566,7 +566,7 @@ export function PostDetail() {
                 <span className="text-xs text-muted-foreground">만족도</span>
                 <div className="flex gap-0.5">
                   {[1,2,3,4,5].map(n => (
-                    <Star key={n} className={`h-4 w-4 ${n <= post.review_data!.overallRating! ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+                    <Star key={n} className={`h-4 w-4 ${n <= post.review_data!.overallRating! ? "fill-star text-star" : "text-muted-foreground/30"}`} />
                   ))}
                 </div>
               </div>
@@ -585,9 +585,9 @@ export function PostDetail() {
             )}
             {post.review_data.visitedPlaceIds && post.review_data.visitedPlaceIds.length > 0 && (
               <div className="text-xs">
-                <span className="text-emerald-600 font-medium inline-flex items-center gap-1"><Check className="h-3 w-3" /> 방문 {post.review_data.visitedPlaceIds.length}곳</span>
+                <span className="text-success font-medium inline-flex items-center gap-1"><Check className="h-3 w-3" /> 방문 {post.review_data.visitedPlaceIds.length}곳</span>
                 {post.review_data.skippedPlaceIds && post.review_data.skippedPlaceIds.length > 0 && (
-                  <span className="ml-2 text-rose-500 font-medium inline-flex items-center gap-1"><SkipForward className="h-3 w-3" /> 스킵 {post.review_data.skippedPlaceIds.length}곳</span>
+                  <span className="ml-2 text-destructive font-medium inline-flex items-center gap-1"><SkipForward className="h-3 w-3" /> 스킵 {post.review_data.skippedPlaceIds.length}곳</span>
                 )}
               </div>
             )}
@@ -732,10 +732,10 @@ export function PostDetail() {
             {sortedComments.map((comment) => {
               const isBestComment = (comment.likes_count ?? 0) >= BEST_THRESHOLD
               return (
-              <div key={comment.id} className={`rounded-xl p-3 ${isBestComment ? "bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800" : "bg-muted/50"}`}>
+              <div key={comment.id} className={`rounded-xl p-3 ${isBestComment ? "bg-warning/5 border border-warning/20" : "bg-muted/50"}`}>
                 <div className="mb-1 flex items-center gap-2">
                   {isBestComment && (
-                    <span className="inline-flex items-center gap-0.5 text-xs font-bold text-amber-600 dark:text-amber-400"><Trophy className="h-3 w-3" /> 베스트</span>
+                    <span className="inline-flex items-center gap-0.5 text-xs font-bold text-warning"><Trophy className="h-3 w-3" /> 베스트</span>
                   )}
                   {(() => {
                     const cp = unwrapProfile(comment.profiles)

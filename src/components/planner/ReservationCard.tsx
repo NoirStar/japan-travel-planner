@@ -28,10 +28,10 @@ interface ReservationCardProps {
 }
 
 const TYPE_CONFIG: Record<ReservationType, { icon: LucideIcon; gradient: string; bg: string }> = {
-  flight: { icon: Plane, gradient: "from-blue-500 to-indigo-500", bg: "bg-blue-50 dark:bg-blue-950/30" },
-  train: { icon: TrainFront, gradient: "from-teal-500 to-cyan-600", bg: "bg-teal-50 dark:bg-teal-950/30" },
-  bus: { icon: Bus, gradient: "from-orange-500 to-rose-500", bg: "bg-orange-50 dark:bg-orange-950/30" },
-  accommodation: { icon: Hotel, gradient: "from-purple-500 to-fuchsia-500", bg: "bg-purple-50 dark:bg-purple-950/30" },
+  flight: { icon: Plane, gradient: "from-indigo to-indigo-light", bg: "bg-indigo/5" },
+  train: { icon: TrainFront, gradient: "from-indigo-light to-indigo", bg: "bg-indigo/5" },
+  bus: { icon: Bus, gradient: "from-primary/80 to-primary", bg: "bg-primary/5" },
+  accommodation: { icon: Hotel, gradient: "from-sakura to-primary", bg: "bg-primary/5" },
 }
 
 function formatCost(cost: number): string {
@@ -111,9 +111,9 @@ export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
                 {RESERVATION_LABELS[reservation.type]}
               </span>
               {reservation.confirmed ? (
-                <BadgeCheck className="h-3.5 w-3.5 text-emerald-500" />
+                <BadgeCheck className="h-3.5 w-3.5 text-success" />
               ) : (
-                <CircleDashed className="h-3.5 w-3.5 text-amber-500" />
+                <CircleDashed className="h-3.5 w-3.5 text-warning" />
               )}
             </div>
             <h3 className="mt-0.5 text-sm font-bold leading-tight">{reservation.title}</h3>
@@ -192,7 +192,7 @@ export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
                   {reservation.bookingReference}
                 </code>
                 <button onClick={handleCopyRef} className="p-0.5 hover:text-foreground transition-colors" title="복사">
-                  {copiedRef ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                  {copiedRef ? <Check className="h-3 w-3 text-success" /> : <Copy className="h-3 w-3" />}
                 </button>
               </div>
             )}
@@ -210,7 +210,7 @@ export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
                 <span className="text-muted-foreground/60 text-xs">첨부파일</span>
                 {reservation.attachments.map((att) => (
                   <div key={att.storagePath} className="flex items-center gap-1.5 text-xs">
-                    <Paperclip className="h-3 w-3 shrink-0 text-teal-500" />
+                    <Paperclip className="h-3 w-3 shrink-0 text-indigo" />
                     <span className="truncate font-medium text-foreground">{att.fileName}</span>
                     {att.size != null && (
                       <span className="shrink-0 text-muted-foreground/50">{att.size < 1024 * 1024 ? `${(att.size / 1024).toFixed(0)}KB` : `${(att.size / (1024 * 1024)).toFixed(1)}MB`}</span>

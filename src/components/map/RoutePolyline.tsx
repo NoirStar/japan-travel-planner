@@ -4,13 +4,13 @@ import type { Place } from "@/types/place"
 
 /** Day별 경로 색상. Day 번호(0-based index)에 따라 색상을 순환 */
 const DAY_COLORS = [
-  "#6366f1", // indigo
-  "#f43f5e", // rose
-  "#10b981", // emerald
-  "#f59e0b", // amber
-  "#8b5cf6", // violet
-  "#06b6d4", // cyan
-  "#ec4899", // pink
+  "#2D5F7A", // indigo (theme)
+  "#B55349", // primary (theme)
+  "#5C8A6F", // success (theme)
+  "#C08C3E", // warning (theme)
+  "#4C7C95", // indigo-light (theme)
+  "#C9857B", // sakura (theme)
+  "#6C645D", // muted-foreground (theme)
 ]
 
 interface RoutePolylineProps {

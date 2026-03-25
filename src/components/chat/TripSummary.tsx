@@ -34,11 +34,11 @@ export function TripSummary({ selections, onConfirm, onReset }: TripSummaryProps
       data-testid="trip-summary"
     >
       {/* 타이틀 */}
-      <div className="rounded-2xl bg-primary p-4 text-white">
+      <div className="rounded-2xl bg-primary p-4 text-primary-foreground">
         <h3 className="text-lg font-bold flex items-center gap-2">
           <Map className="h-5 w-5" /> {cityNames[cityId] ?? cityId} {duration - 1}박{duration}일
         </h3>
-        <p className="mt-1 text-sm text-white/70">AI 추천 초안입니다. 플래너에서 자유롭게 수정하세요!</p>
+        <p className="mt-1 text-sm text-primary-foreground/70">AI 추천 초안입니다. 플래너에서 자유롭게 수정하세요!</p>
       </div>
 
       {/* Day별 일정 */}
@@ -57,7 +57,7 @@ export function TripSummary({ selections, onConfirm, onReset }: TripSummaryProps
             data-testid={`summary-day-${dayNum}`}
           >
             <h4 className="mb-3 font-bold text-sm flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sakura-dark to-indigo text-[10px] text-white">D{dayNum}</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sakura-dark to-indigo text-[10px] text-primary-foreground">D{dayNum}</span>
               {(() => { const ThemeIcon = THEME_ICONS[themeId]; return ThemeIcon ? <ThemeIcon className="h-4 w-4 text-muted-foreground" /> : null })()}
               {theme?.label ?? themeId}
             </h4>
@@ -122,7 +122,7 @@ function SummaryPlaceRow({ time, placeId }: { time: string; placeId: string }) {
       <span className="font-medium">{place.name}</span>
       {place.rating && (
         <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
-          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+          <Star className="h-3 w-3 fill-star text-star" />
           {place.rating}
         </span>
       )}

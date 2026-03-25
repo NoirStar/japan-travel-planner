@@ -18,8 +18,8 @@ const CATEGORIES: { value: InquiryCategory; label: string; icon: typeof Bug }[] 
 ]
 
 const STATUS_MAP: Record<InquiryStatus, { label: string; icon: typeof Clock; className: string }> = {
-  open: { label: "접수됨", icon: Clock, className: "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-950/30" },
-  resolved: { label: "답변 완료", icon: CheckCircle2, className: "text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-950/30" },
+  open: { label: "접수됨", icon: Clock, className: "text-indigo bg-indigo/5" },
+  resolved: { label: "답변 완료", icon: CheckCircle2, className: "text-success bg-success/5" },
   closed: { label: "종료", icon: XCircle, className: "text-muted-foreground bg-muted" },
 }
 
@@ -223,15 +223,15 @@ export function ContactPage() {
       </div>
 
       {/* ── 커피 사주기 ───────────────────────── */}
-      <div className="mb-8 rounded-2xl border border-amber-200/60 bg-amber-50 p-6 text-center dark:border-amber-900/40 dark:bg-amber-950/20">
-        <Coffee className="mx-auto mb-2 h-8 w-8 text-amber-600 dark:text-amber-400" />
+      <div className="mb-8 rounded-2xl border border-warning/20 bg-warning/5 p-6 text-center">
+        <Coffee className="mx-auto mb-2 h-8 w-8 text-warning" />
         <h3 className="mb-1 text-body-sm font-semibold">개발자에게 커피 사주기</h3>
         <p className="mb-4 text-caption text-muted-foreground">
           타비톡이 유용하셨다면 커피 한 잔으로 응원해주세요!
         </p>
         <Button
           variant="outline"
-          className="btn-base btn-md gap-2 rounded-xl border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/40"
+          className="btn-base btn-md gap-2 rounded-xl border-warning/40 text-warning hover:bg-warning/10"
           onClick={() => showToast("준비 중입니다! 곧 오픈할게요.")}
         >
           <Coffee className="h-4 w-4" />

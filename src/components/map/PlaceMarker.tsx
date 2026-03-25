@@ -109,21 +109,21 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
           onCloseClick={() => setIsHovered(false)}
         >
           <div className="p-1.5 min-w-[140px] max-w-[220px]">
-            <p className="text-xs font-bold text-gray-900 truncate">{place.name}</p>
+            <p className="text-xs font-bold text-foreground truncate">{place.name}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-[10px] rounded px-1 py-px" style={{ backgroundColor: `${colors[0]}20`, color: colors[0] }}>{categoryLabel}</span>
               {place.rating && (
-                <span className="flex items-center gap-0.5 text-[10px] text-gray-600">
-                  <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                  <Star className="h-2.5 w-2.5 fill-star text-star" />
                   {place.rating}
                   {place.ratingCount && (
-                    <span className="text-gray-400">({place.ratingCount.toLocaleString()})</span>
+                    <span className="text-muted-foreground/60">({place.ratingCount.toLocaleString()})</span>
                   )}
                 </span>
               )}
             </div>
             {place.description && (
-              <p className="mt-1 text-[10px] text-gray-500 line-clamp-1 leading-relaxed">{place.description}</p>
+              <p className="mt-1 text-[10px] text-muted-foreground line-clamp-1 leading-relaxed">{place.description}</p>
             )}
           </div>
         </InfoWindow>
@@ -136,7 +136,7 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
           headerDisabled
           onCloseClick={() => onSelect?.()}
         >
-          <div className="min-w-[220px] max-w-[280px] dark:bg-gray-800 flex flex-col relative" style={{ maxHeight: '350px' }}>
+          <div className="min-w-[220px] max-w-[280px] dark:bg-elevated flex flex-col relative" style={{ maxHeight: '350px' }}>
             {/* 닫기 버튼 */}
             <button
               onClick={() => onSelect?.()}
@@ -152,33 +152,33 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
             )}
             <div className="flex items-center gap-1.5">
               <CategoryIcon className="h-4 w-4 text-sakura-dark" />
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{place.name}</span>
+              <span className="text-sm font-bold text-foreground">{place.name}</span>
             </div>
-            <div className="mt-1 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-              <span className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5">{categoryLabel}</span>
+            <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="rounded bg-muted px-1.5 py-0.5">{categoryLabel}</span>
               {place.rating && (
                 <span className="flex items-center gap-0.5">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                  <Star className="h-3 w-3 fill-star text-star" />
                   {place.rating}
                   {place.ratingCount && (
-                    <span className="text-gray-400 dark:text-gray-500 text-[10px]">({place.ratingCount.toLocaleString()})</span>
+                    <span className="text-muted-foreground/60 text-[10px]">({place.ratingCount.toLocaleString()})</span>
                   )}
                 </span>
               )}
             </div>
             {place.address && (
-              <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">{place.address}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-1">{place.address}</p>
             )}
             {place.description && (
-              <p className="mt-1 max-w-[260px] text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+              <p className="mt-1 max-w-[260px] text-xs text-muted-foreground line-clamp-2">
                 {place.description}
               </p>
             )}
 
             {/* 영업시간 */}
             {place.openingHours && place.openingHours.length > 0 && (
-              <details className="mt-2 text-[10px] text-gray-500 dark:text-gray-400">
-                <summary className="cursor-pointer flex items-center gap-1 font-medium text-gray-600 dark:text-gray-300">
+              <details className="mt-2 text-[10px] text-muted-foreground">
+                <summary className="cursor-pointer flex items-center gap-1 font-medium text-muted-foreground">
                   <Clock className="h-3 w-3" /> 영업시간
                 </summary>
                 <ul className="mt-1 space-y-0.5 pl-4">
@@ -195,7 +195,7 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
                 href={place.googleMapsUri}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-1 rounded-lg bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                className="mt-2 inline-flex items-center gap-1 rounded-lg bg-indigo/5 px-2 py-1 text-[11px] text-indigo hover:underline"
               >
                 <Star className="h-3 w-3" /> 구글 지도에서 리뷰 보기
               </a>
@@ -207,7 +207,7 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.googlePlaceId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-indigo hover:underline"
               >
                 <ExternalLink className="h-3 w-3" /> Google Maps에서 보기
               </a>
@@ -215,7 +215,7 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
             </div>
 
             {/* 하단 고정 버튼 */}
-            <div className="shrink-0 border-t border-gray-100 dark:border-gray-700 p-1.5">
+            <div className="shrink-0 border-t border-border p-1.5">
               <Button
                 size="sm"
                 variant="destructive"

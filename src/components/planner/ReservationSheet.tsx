@@ -33,10 +33,10 @@ interface TypeOption {
 }
 
 const TYPE_OPTIONS: TypeOption[] = [
-  { value: RT.FLIGHT, icon: Plane, gradient: "from-sky-400 to-blue-500" },
-  { value: RT.TRAIN, icon: TrainFront, gradient: "from-emerald-400 to-teal-500" },
-  { value: RT.BUS, icon: Bus, gradient: "from-amber-400 to-orange-500" },
-  { value: RT.ACCOMMODATION, icon: Hotel, gradient: "from-violet-400 to-purple-500" },
+  { value: RT.FLIGHT, icon: Plane, gradient: "from-indigo to-indigo-light" },
+  { value: RT.TRAIN, icon: TrainFront, gradient: "from-indigo-light to-indigo" },
+  { value: RT.BUS, icon: Bus, gradient: "from-primary/80 to-primary" },
+  { value: RT.ACCOMMODATION, icon: Hotel, gradient: "from-sakura to-primary" },
 ]
 
 const TITLE_PLACEHOLDERS: Record<ReservationType, string> = {
@@ -385,13 +385,13 @@ export function ReservationSheet({ open, onOpenChange, editData, defaultDate, on
                 onClick={() => setForm((prev) => ({ ...prev, confirmed: !prev.confirmed }))}
                 className={`flex w-full items-center gap-2 rounded-xl border p-3 transition-all ${
                   form.confirmed
-                    ? "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+                    ? "border-success/30 bg-success/5"
                     : "border-border bg-muted/30"
                 }`}
                 data-testid="reservation-confirmed-toggle"
               >
                 {form.confirmed ? (
-                  <BadgeCheck className="h-5 w-5 text-emerald-500" />
+                  <BadgeCheck className="h-5 w-5 text-success" />
                 ) : (
                   <CircleDashed className="h-5 w-5 text-muted-foreground" />
                 )}

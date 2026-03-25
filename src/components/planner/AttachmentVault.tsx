@@ -28,8 +28,8 @@ function formatSize(bytes: number): string {
 
 function getIcon(name: string) {
   const ext = name.split(".").pop()?.toLowerCase()
-  if (ext === "pdf") return <FileText className="h-5 w-5 text-red-500" />
-  return <Image className="h-5 w-5 text-blue-500" />
+  if (ext === "pdf") return <FileText className="h-5 w-5 text-destructive" />
+  return <Image className="h-5 w-5 text-indigo" />
 }
 
 export function AttachmentVault({ open, onOpenChange, tripId }: Props) {

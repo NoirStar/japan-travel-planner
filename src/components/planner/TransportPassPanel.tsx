@@ -118,7 +118,7 @@ export function TransportPassPanel({ open, onOpenChange, tripId }: TransportPass
         {/* 헤더 */}
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-2">
-            <TrainFront className="h-4 w-4 text-emerald-500" />
+            <TrainFront className="h-4 w-4 text-success" />
             <span className="text-sm font-bold">교통 패스 계산기</span>
           </div>
           <button
@@ -165,14 +165,14 @@ export function TransportPassPanel({ open, onOpenChange, tripId }: TransportPass
                 <div
                   key={pass.id}
                   className={`rounded-xl border p-3 transition-colors ${
-                    recommended ? "border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20" : "border-border bg-card"
+                    recommended ? "border-success/30 bg-success/5" : "border-border bg-card"
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-1.5">
                         {recommended ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          <Check className="h-3.5 w-3.5 text-success" />
                         ) : (
                           <Minus className="h-3.5 w-3.5 text-muted-foreground" />
                         )}
@@ -189,7 +189,7 @@ export function TransportPassPanel({ open, onOpenChange, tripId }: TransportPass
                     <span className="text-muted-foreground">
                       패스 없이 예상 ¥{estimatedCostWithout.toLocaleString()}
                     </span>
-                    <span className={recommended ? "font-bold text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}>
+                    <span className={recommended ? "font-bold text-success" : "text-muted-foreground"}>
                       {savings > 0 ? `¥${savings.toLocaleString()} 절약` : `¥${Math.abs(savings).toLocaleString()} 손해`}
                     </span>
                   </div>

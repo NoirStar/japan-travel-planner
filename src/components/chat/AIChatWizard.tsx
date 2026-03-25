@@ -390,10 +390,11 @@ export function AIChatWizard() {
             aria-label="AI 자유 대화 입력"
             data-testid="free-chat-input"
           />
-          <button
+          <Button
             onClick={handleFreeChatSubmit}
             disabled={isAILoading || !freeInput.trim()}
-            className="btn-gradient flex h-8 w-8 shrink-0 items-center justify-center rounded-lg disabled:opacity-50"
+            size="icon"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
             aria-label="전송"
             data-testid="free-chat-send"
           >
@@ -402,7 +403,7 @@ export function AIChatWizard() {
             ) : (
               <Send className="h-3.5 w-3.5 text-primary-foreground" />
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

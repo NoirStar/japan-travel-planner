@@ -126,7 +126,7 @@ export function JoinTripPage() {
           </div>
           <Button
             onClick={() => setShowLoginModal(true)}
-            className="btn-gradient gap-2 rounded-xl border-0 px-6 text-sm font-bold"
+            className="gap-2 rounded-xl border-0 px-6 text-sm font-bold"
           >
             <LogIn className="h-4 w-4" />
             로그인

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react"
 import { X, Bookmark, Plus, Trash2, Star, Check } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { getAnyPlaceById } from "@/stores/dynamicPlaceStore"
 import { CATEGORY_LABELS } from "@/types/place"
@@ -134,14 +135,15 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
                           <Check className="h-3.5 w-3.5" />
                         </div>
                       ) : (
-                        <button
+                        <Button
+                          size="icon-xs"
                           onClick={() => handleAddToSchedule(item.placeId)}
-                          className="btn-gradient flex h-7 w-7 items-center justify-center rounded-full border-0 shadow-sm active:scale-95"
+                          className="h-7 w-7 rounded-full border-0 shadow-sm"
                           title="일정에 추가"
                           data-testid={`wishlist-to-schedule-${item.placeId}`}
                         >
                           <Plus className="h-3.5 w-3.5" />
-                        </button>
+                        </Button>
                       )}
                       <button
                         onClick={() => removeFromWishlist(tripId, item.placeId)}

@@ -15,7 +15,7 @@ function renderWithRouter() {
 
 beforeEach(() => {
   act(() => {
-    useAuthStore.setState({ user: null, profile: null, isDemoMode: false })
+    useAuthStore.setState({ user: null, profile: null, isDemoMode: false, isLoading: false })
   })
   document.documentElement.classList.remove("dark")
 })

@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <RefreshCw className="h-4 w-4" />
                 새로고침
               </Button>
-              <Button onClick={this.handleGoHome} className="btn-gradient gap-2 rounded-xl">
+              <Button onClick={this.handleGoHome} className="gap-2 rounded-xl">
                 <Home className="h-4 w-4" />
                 홈으로
               </Button>

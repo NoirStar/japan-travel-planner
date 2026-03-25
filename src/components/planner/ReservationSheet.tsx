@@ -419,7 +419,7 @@ export function ReservationSheet({ open, onOpenChange, editData, defaultDate, on
               </Button>
             )}
             <Button
-              className="btn-gradient flex-1 rounded-xl font-bold"
+              className="flex-1 rounded-xl font-bold"
               disabled={!isValid}
               onClick={handleSubmit}
               data-testid="reservation-submit"

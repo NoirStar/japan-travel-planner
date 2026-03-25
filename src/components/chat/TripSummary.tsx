@@ -85,13 +85,13 @@ export function TripSummary({ selections, onConfirm, onReset }: TripSummaryProps
 
       {/* 액션 버튼 */}
       <div className="flex gap-2">
-        <button
+        <Button
           onClick={onConfirm}
-          className="btn-gradient flex-1 rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-1.5"
+          className="flex-1 rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-1.5"
           data-testid="summary-confirm"
         >
           <CheckCircle className="h-4 w-4" /> 이대로 진행
-        </button>
+        </Button>
         <Button
           variant="outline"
           onClick={onReset}

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /mnt/c/Dev/japan-travel-planner -maxdepth 2 -name tailwind.config.* -o -name postcss.config.*)",
+      "Bash(find /mnt/c/Dev/japan-travel-planner -type f \\\\\\(-name README* -o -name DESIGN* -o -name STYLE* \\\\\\) -not -path */node_modules/*)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm test:*)",
+      "Bash(npx vitest:*)"
+    ]
+  }
+}

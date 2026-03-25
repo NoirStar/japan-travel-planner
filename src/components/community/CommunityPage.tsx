@@ -201,7 +201,7 @@ export function CommunityPage() {
           <p className="mt-1 text-body-sm text-muted-foreground inline-flex items-center gap-1">다른 여행자들의 일본 일정을 구경하세요 <Plane className="h-3.5 w-3.5" /></p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <Button onClick={handleCreateClick} className="gap-1.5 rounded-xl btn-gradient text-body-sm h-10 px-4 sm:h-11 sm:px-5 sm:gap-2">
+          <Button onClick={handleCreateClick} className="gap-1.5 rounded-xl text-body-sm h-10 px-4 sm:h-11 sm:px-5 sm:gap-2">
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">내 일정 올리기</span>
             <span className="sm:hidden">글쓰기</span>

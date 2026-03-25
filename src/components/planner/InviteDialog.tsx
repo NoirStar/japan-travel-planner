@@ -124,7 +124,7 @@ export function InviteDialog({
             <Button
               onClick={handleShare}
               disabled={isSharing}
-              className="btn-gradient w-full rounded-xl border-0 text-sm font-bold"
+              className="w-full rounded-xl border-0 text-sm font-bold"
             >
               {isSharing ? "생성 중..." : "초대 링크 만들기"}
             </Button>

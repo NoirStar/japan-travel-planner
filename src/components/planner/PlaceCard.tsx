@@ -91,7 +91,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         onClick={onClick}
       >
         {/* 좌측 컬러 스트라이프 */}
-        <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-gradient-to-b ${gradientClass}`} />
+        <div className={`absolute left-0 top-0 bottom-0 w-[4px] rounded-l-2xl bg-gradient-to-b ${gradientClass}`} />
 
         {/* 번호 배지 */}
         <div

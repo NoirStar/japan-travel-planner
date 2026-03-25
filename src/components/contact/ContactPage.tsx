@@ -215,7 +215,7 @@ export function ContactPage() {
         <Button
           onClick={handleSubmit}
           disabled={isSending || !title.trim() || !content.trim()}
-          className="btn-gradient btn-base btn-md w-full gap-2 rounded-xl"
+          className="w-full gap-2 rounded-xl"
         >
           <Send className="h-4 w-4" />
           문의 보내기
@@ -231,7 +231,7 @@ export function ContactPage() {
         </p>
         <Button
           variant="outline"
-          className="btn-base btn-md gap-2 rounded-xl border-warning/40 text-warning hover:bg-warning/10"
+          className="gap-2 rounded-xl border-warning/40 text-warning hover:bg-warning/10"
           onClick={() => showToast("준비 중입니다! 곧 오픈할게요.")}
         >
           <Coffee className="h-4 w-4" />

@@ -3,9 +3,6 @@ import { Plus, X, Copy, Settings2, ChevronLeft, ChevronRight } from "lucide-reac
 import { Button } from "@/components/ui/button"
 import type { DaySchedule } from "@/types/schedule"
 
-/** Day 탭은 브랜드 primary tint로 절제 표현 */
-const DAY_COLOR = "bg-primary/12"
-
 interface DayTabsProps {
   days: DaySchedule[]
   activeDayIndex: number
@@ -34,7 +31,6 @@ export function DayTabs({
 }: DayTabsProps) {
   const [dayMenuOpen, setDayMenuOpen] = useState(false)
   const day = days[activeDayIndex]
-  const colorClass = DAY_COLOR
 
   return (
     <div className="flex items-center gap-1 border-b border-border px-3 py-2 sm:px-4 sm:gap-1.5" data-testid="day-tabs">
@@ -50,12 +46,12 @@ export function DayTabs({
 
       {/* 현재 Day 표시 */}
       <div
-        className={`rounded-lg ${colorClass} px-3 py-1.5 text-[12px] font-bold text-primary`}
+        className={`rounded-full bg-primary px-3 py-1.5 text-[12px] font-bold text-primary-foreground`}
         data-testid={`day-tab-${day?.dayNumber}`}
       >
         Day {day?.dayNumber ?? 1}
         {tripStartDate && (
-          <span className="ml-1 text-[11px] font-normal text-primary/60">
+          <span className="ml-1 text-[11px] font-normal text-primary-foreground/70">
             {getDayDateLabel(tripStartDate, activeDayIndex)}
           </span>
         )}

@@ -51,7 +51,7 @@ export function TripListPage() {
           {user && trips.length > 0 && (
             <Button
               onClick={() => navigate("/planner?new=true")}
-              className="btn-gradient btn-base btn-md gap-2 rounded-xl"
+              className="gap-2 rounded-xl"
               data-testid="create-new-trip"
             >
               <Plus className="h-4 w-4" />
@@ -72,7 +72,7 @@ export function TripListPage() {
             <p className="empty-state-desc">여행 일정을 저장하고 관리하려면 로그인하세요.</p>
             <Button
               onClick={() => setShowLoginModal(true)}
-              className="btn-gradient btn-base btn-md mt-1 gap-2 rounded-xl"
+              className="mt-1 gap-2 rounded-xl"
             >
               <LogIn className="h-4 w-4" />
               로그인
@@ -89,7 +89,7 @@ export function TripListPage() {
             <p className="empty-state-desc">첫 번째 여행을 만들어 일정과 장소를 하나씩 채워보세요.</p>
             <Button
               onClick={() => navigate("/planner?new=true")}
-              className="btn-gradient btn-base btn-md mt-1 gap-2 rounded-xl"
+              className="mt-1 gap-2 rounded-xl"
             >
               <Plus className="h-4 w-4" />
               새 여행 만들기

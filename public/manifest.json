@@ -4,8 +4,8 @@
   "description": "일본 여행 일정을 쉽고 빠르게 계획하세요",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#e8a0bf",
+  "background_color": "#F8FAFC",
+  "theme_color": "#1565C0",
   "icons": [
     {
       "src": "/icons/icon-192.svg",

@@ -5,82 +5,84 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ══════════════════════════════════════════════════════
-   타비톡 — warm ivory / coral red / deep indigo
-   여행 편집 매거진 + 실용적 플래너 톤
+   타비톡 — Japanese Zen Modern
+   딥 블루 + 쿨 화이트 + 사쿠라 포인트
    ══════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #F7F3EE;
-  --color-foreground: #1A1612;
-  --color-card: #FDFBF7;
-  --color-card-foreground: #1A1612;
-  --color-primary: #B55349;
+  --color-background: #F8FAFC;
+  --color-foreground: #0F172A;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0F172A;
+  --color-primary: #1565C0;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary: #EDE8E0;
-  --color-secondary-foreground: #1A1612;
-  --color-muted: #ECE5DD;
-  --color-muted-foreground: #6C645D;
-  --color-accent: #EDE8E0;
-  --color-accent-foreground: #1A1612;
-  --color-border: #DDD2C5;
-  --color-input: #DDD2C5;
-  --color-ring: #B55349;
+  --color-secondary: #F1F5F9;
+  --color-secondary-foreground: #334155;
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
+  --color-accent: #F1F5F9;
+  --color-accent-foreground: #0F172A;
+  --color-border: #E2E8F0;
+  --color-input: #E2E8F0;
+  --color-ring: #1565C0;
   --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
   --radius: 0.75rem;
-  --color-sakura: #C9857B;
-  --color-sakura-dark: var(--color-primary);
-  --color-indigo: #2D5F7A;
-  --color-indigo-light: #4C7C95;
-  --color-surface: #F1ECE5;
+  --color-sakura: #F48FB1;
+  --color-sakura-dark: #E91E63;
+  --color-indigo: #1E88E5;
+  --color-indigo-light: #42A5F5;
+  --color-surface: #F8FAFC;
   --color-elevated: #FFFFFF;
-  --color-success: #5C8A6F;
+  --color-success: #2E7D32;
   --color-success-foreground: #FFFFFF;
-  --color-warning: #C08C3E;
+  --color-warning: #E65100;
   --color-warning-foreground: #FFFFFF;
   --color-info: var(--color-indigo);
   --color-info-foreground: #FFFFFF;
-  --color-star: #D4A03C;
+  --color-star: #F9A825;
 }
 
 .dark {
   color-scheme: dark;
-  --color-background: #12100D;
-  --color-foreground: #F4EFE8;
-  --color-card: #1C1915;
-  --color-card-foreground: #F4EFE8;
-  --color-primary: #DDB0A2;
-  --color-primary-foreground: #1A1612;
-  --color-secondary: #26211C;
-  --color-secondary-foreground: #F4EFE8;
-  --color-muted: #26211C;
-  --color-muted-foreground: #A79C92;
-  --color-accent: #26211C;
-  --color-accent-foreground: #F4EFE8;
-  --color-border: #3B342D;
-  --color-input: #3B342D;
-  --color-ring: #DDB0A2;
+  --color-background: #0F172A;
+  --color-foreground: #F8FAFC;
+  --color-card: #1E293B;
+  --color-card-foreground: #F8FAFC;
+  --color-primary: #42A5F5;
+  --color-primary-foreground: #0F172A;
+  --color-secondary: #1E293B;
+  --color-secondary-foreground: #F8FAFC;
+  --color-muted: #1E293B;
+  --color-muted-foreground: #94A3B8;
+  --color-accent: #1E293B;
+  --color-accent-foreground: #F8FAFC;
+  --color-border: #334155;
+  --color-input: #334155;
+  --color-ring: #42A5F5;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-sakura: #DDB0A2;
-  --color-sakura-dark: var(--color-primary);
-  --color-indigo: #7BA0AF;
-  --color-indigo-light: #AFC3C9;
-  --color-surface: #171410;
-  --color-elevated: #26211C;
-  --color-success: #7AAE8E;
-  --color-success-foreground: #1A1612;
-  --color-warning: #D9A35C;
-  --color-warning-foreground: #1A1612;
+  --color-sakura: #F48FB1;
+  --color-sakura-dark: #42A5F5;
+  --color-indigo: #64B5F6;
+  --color-indigo-light: #90CAF9;
+  --color-surface: #0F172A;
+  --color-elevated: #334155;
+  --color-success: #66BB6A;
+  --color-success-foreground: #0F172A;
+  --color-warning: #FF8A65;
+  --color-warning-foreground: #0F172A;
   --color-info: var(--color-indigo);
-  --color-info-foreground: #1A1612;
-  --color-star: #E4B854;
+  --color-info-foreground: #0F172A;
+  --color-star: #FFD54F;
 }
 
 body {
   font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+  font-feature-settings: "kern" 1;
   background-color: var(--color-background);
   color: var(--color-foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -107,17 +109,17 @@ body {
 .bg-sakura-pattern {
   background-color: var(--color-background);
   background-image:
-    radial-gradient(ellipse at 15% 30%, rgba(181, 83, 73, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 15%, rgba(45, 95, 122, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(180, 160, 120, 0.02) 0%, transparent 50%),
-    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+    radial-gradient(ellipse at 15% 30%, rgba(21, 101, 192, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(30, 136, 229, 0.025) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(100, 130, 180, 0.02) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.012'/%3E%3C/svg%3E");
 }
 
 .dark .bg-sakura-pattern {
   background-image:
-    radial-gradient(ellipse at 15% 30%, rgba(221, 176, 162, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 15%, rgba(123, 160, 175, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(221, 176, 162, 0.025) 0%, transparent 50%);
+    radial-gradient(ellipse at 15% 30%, rgba(66, 165, 245, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(100, 181, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(66, 165, 245, 0.025) 0%, transparent 50%);
 }
 
 /* ── 글래스 → Airbnb 솔리드 카드 ─────────────────────── */
@@ -144,37 +146,31 @@ body {
   font-weight: 800;
   letter-spacing: -0.02em;
 }
-/* ── 모던 버튼 (클린 솔리드) ─────────────────────── */
-.btn-gradient {
-  background: var(--color-primary);
-  color: var(--color-primary-foreground);
-  transition: all 0.2s ease;
-}
-.btn-gradient:hover {
-  background: color-mix(in srgb, var(--color-primary) 88%, black);
-}
+/* btn-gradient 제거됨 — CVA Button 컴포넌트로 통합 */
 
-/* ── 카드 그림자 (warm undertone) ────────────────── */
+/* ── 카드 그림자 (neutral) ────────────────────── */
 .card-shadow {
   box-shadow:
-    0 1px 2px rgba(60, 45, 30, 0.06),
-    0 4px 12px rgba(60, 45, 30, 0.04);
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.04);
   transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card-shadow:hover {
   box-shadow:
-    0 4px 8px rgba(60, 45, 30, 0.08),
-    0 8px 24px rgba(60, 45, 30, 0.1);
+    0 4px 8px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 .dark .card-shadow {
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.12);
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .dark .card-shadow:hover {
   box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.2),
-    0 8px 24px rgba(0, 0, 0, 0.18);
+    0 4px 8px rgba(0, 0, 0, 0.25),
+    0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 /* ── 컨트롤 그룹 표면 (검색/필터 영역) ────────── */
@@ -190,11 +186,11 @@ body {
 .surface-card { background: var(--color-card); }
 .surface-elevated {
   background: var(--color-elevated);
-  box-shadow: 0 1px 3px rgba(60, 45, 30, 0.08), 0 6px 20px rgba(60, 45, 30, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 6px 20px rgba(0, 0, 0, 0.05);
 }
 .surface-inset {
   background: var(--color-muted);
-  box-shadow: inset 0 1px 2px rgba(60, 45, 30, 0.06);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 .surface-section {
   background: var(--color-surface);
@@ -205,12 +201,12 @@ body {
    ══════════════════════════════════════════════════════ */
 
 /* ── 타이포그래피 스케일 ────────────────────────────── */
-.text-display     { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
-.text-headline    { font-size: clamp(1.5rem, 3.5vw, 2.25rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
-.text-title       { font-size: clamp(1.125rem, 2vw, 1.5rem); font-weight: 700; line-height: 1.3; }
-.text-body        { font-size: 0.9375rem; line-height: 1.65; }              /* 15px */
-.text-body-sm     { font-size: 0.8125rem; line-height: 1.6; }               /* 13px */
-.text-caption     { font-size: 0.75rem; line-height: 1.5; }                 /* 12px */
+.text-display     { font-size: clamp(2.25rem, 5vw, 3.75rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.08; }
+.text-headline    { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; }
+.text-title       { font-size: clamp(1.125rem, 2vw, 1.375rem); font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+.text-body        { font-size: 1rem; line-height: 1.6; }                    /* 16px */
+.text-body-sm     { font-size: 0.875rem; line-height: 1.5; }                /* 14px */
+.text-caption     { font-size: 0.75rem; line-height: 1.4; letter-spacing: 0.01em; }  /* 12px */
 
 /* ── 섹션 리듬 ──────────────────────────── */
 .section-gap      { padding-top: 5rem; padding-bottom: 5rem; }
@@ -226,34 +222,7 @@ body {
   padding-bottom: clamp(3rem, 8vw, 6rem);
 }
 
-/* ── 버튼 시스템 ──────────────────────────── */
-.btn-base {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  white-space: nowrap;
-  gap: 0.5rem;
-}
-.btn-md {
-  height: 2.75rem;       /* 44px */
-  padding: 0 1.25rem;
-  font-size: 0.875rem;
-}
-.btn-lg {
-  height: 3.25rem;       /* 52px */
-  padding: 0 2rem;
-  font-size: 1rem;
-  font-weight: 700;
-}
-.btn-sm {
-  height: 2.25rem;       /* 36px */
-  padding: 0 0.875rem;
-  font-size: 0.8125rem;
-}
+/* btn-base/md/lg/sm 제거됨 — CVA Button 컴포넌트로 통합 */
 
 /* ── 카드 시스템 ──────────────────────────── */
 .card-elevated {
@@ -261,14 +230,15 @@ body {
   border: 1px solid var(--color-border);
   border-radius: 1rem;
   box-shadow:
-    0 1px 2px rgba(60, 45, 30, 0.04),
-    0 4px 16px rgba(60, 45, 30, 0.06);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 6px 24px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card-elevated:hover {
   box-shadow:
-    0 4px 12px rgba(60, 45, 30, 0.08),
-    0 12px 32px rgba(60, 45, 30, 0.1);
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 16px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .card-flat {
@@ -294,8 +264,9 @@ body {
   line-height: 1.4;
 }
 .chip-primary {
-  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
   color: var(--color-primary);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 15%, transparent);
 }
 .chip-muted {
   background: var(--color-muted);
@@ -352,7 +323,7 @@ body {
 .toolbar-group button.active {
   background: var(--color-card);
   color: var(--color-foreground);
-  box-shadow: 0 1px 3px rgba(60, 45, 30, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 @media (max-width: 640px) {
@@ -509,8 +480,8 @@ body {
 
 /* Lv.15~20: 고급 글로우 */
 @keyframes badge-prestige {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.25)); }
-  50% { filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.5)); }
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(21, 101, 192, 0.3)); }
+  50% { filter: drop-shadow(0 0 5px rgba(66, 165, 245, 0.5)); }
 }
 .animate-dragon-float,
 .animate-fuji-glow,

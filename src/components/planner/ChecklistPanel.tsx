@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react"
 import { X, CheckSquare, Square, Plus, Trash2, RotateCcw, ChevronDown, ChevronRight, FileText, Banknote, Smartphone, Briefcase, TicketCheck, PenLine, PartyPopper, type LucideIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import {
@@ -247,14 +248,15 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
               className="h-8 flex-1 rounded-xl border-border text-sm"
               data-testid="checklist-add-input"
             />
-            <button
+            <Button
+              size="icon-sm"
               onClick={handleAddItem}
               disabled={!newItemText.trim()}
-              className="btn-gradient flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border-0 shadow-sm disabled:opacity-40"
+              className="shrink-0 rounded-xl border-0 shadow-sm"
               data-testid="checklist-add-button"
             >
               <Plus className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>

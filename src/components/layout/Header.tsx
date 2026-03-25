@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/authStore"
 import { useNotifications } from "@/hooks/useNotifications"
 import { isSupabaseConfigured } from "@/lib/supabase"
 import { LevelBadge } from "@/components/community/LevelBadge"
+import { Logo } from "@/components/ui/Logo"
 
 export function Header() {
   const { isDarkMode, toggleDarkMode } = useUIStore()
@@ -68,10 +69,11 @@ export function Header() {
   }, [dropdownOpen, communityOpen, notiOpen])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/80 bg-card/90 backdrop-blur-md">
-      <div className={`flex h-16 items-center justify-between px-5 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/80 bg-card/90 backdrop-blur-xl backdrop-saturate-150">
+      <div className={`flex h-14 items-center justify-between px-5 ${isPlanner ? "" : "mx-auto max-w-6xl"}`}>
         <div className="flex items-center gap-3">
           <Link to="/" aria-label="타비톡 홈" className="group flex shrink-0 items-center transition-all hover:opacity-80">
+            <Logo className="h-7 w-7" />
             <span className="text-xl font-extrabold tracking-tight whitespace-nowrap gradient-text font-maple">타비톡</span>
           </Link>
         </div>
@@ -79,7 +81,7 @@ export function Header() {
         <div className="flex items-center gap-1 sm:gap-1.5">
           <Link to="/planner">
             <Button variant="ghost" size="sm" className={`gap-1.5 rounded-xl px-3 py-2 h-11 hover:bg-muted ${
-              isPlanner ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
+              isPlanner ? "text-primary bg-primary/12 font-semibold" : "text-muted-foreground hover:text-foreground"
             }`}>
               <Compass className="h-[18px] w-[18px]" />
               <span className="hidden sm:inline text-[13px]">플래너</span>
@@ -92,7 +94,7 @@ export function Header() {
               variant="ghost"
               size="sm"
               className={`gap-1.5 rounded-xl px-3 py-2 h-11 hover:bg-muted ${
-                isCommunity ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
+                isCommunity ? "text-primary bg-primary/12 font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => { setCommunityOpen((v) => !v); setDropdownOpen(false) }}
             >
@@ -136,7 +138,7 @@ export function Header() {
             {/* ── 내 여행 (로그인 시) ── */}
             <Link to="/trips">
               <Button variant="ghost" size="sm" className={`gap-1.5 rounded-xl px-3 py-2 h-11 hover:bg-muted ${
-                isTrips ? "text-primary bg-primary/8 font-semibold" : "text-muted-foreground hover:text-foreground"
+                isTrips ? "text-primary bg-primary/12 font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}>
                 <Briefcase className="h-[18px] w-[18px]" />
                 <span className="hidden sm:inline text-[13px]">내 여행</span>
@@ -265,7 +267,7 @@ export function Header() {
               </Button>
               <Button
                 size="sm"
-                className="gap-1.5 rounded-xl btn-gradient text-[13px] font-semibold px-5 h-11"
+                className="gap-1.5 rounded-xl text-[13px] font-semibold px-5 h-11"
                 onClick={() => { setShowLoginModal(true); }}
               >
                 <User className="h-4 w-4" />

@@ -25,6 +25,7 @@ import { useTravelTimes } from "@/hooks/useTravelTimes"
 import { useScheduleRisks } from "@/hooks/useScheduleRisks"
 import { copyShareUrl } from "@/lib/shareUtils"
 import { showToast } from "@/components/ui/CelebrationOverlay"
+import { Button } from "@/components/ui/button"
 import type { Reservation } from "@/types/schedule"
 import type { CollaborativeSyncResult } from "@/hooks/useCollaborativeSync"
 
@@ -344,13 +345,14 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                 <br />지도에서 장소를 직접 클릭해도 추가됩니다
               </p>
             </div>
-            <button
+            <Button
+              variant="ghost"
               onClick={() => setIsPlaceSheetOpen(true)}
-              className="btn-base btn-md bg-primary/10 text-primary font-semibold hover:bg-primary/15 transition-colors"
+              className="bg-primary/10 text-primary font-semibold hover:bg-primary/15 transition-colors"
             >
               <Plus className="h-4 w-4" />
               장소 검색하기
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col">
@@ -478,38 +480,40 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
       <div className="flex flex-col gap-2.5 border-t border-border p-5">
         {/* 모바일 하단 (lg 미만) */}
         <div className="flex gap-2.5 lg:hidden">
-          <button
-            className="btn-gradient btn-base btn-md flex-1"
+          <Button
+            className="flex-1"
             onClick={() => setIsPlaceSheetOpen(true)}
           >
             <Plus className="h-4.5 w-4.5" />
             장소 추가
-          </button>
-          <button
-            className="btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors"
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => addDay(trip.id)}
           >
             <Plus className="h-4 w-4" />
             Day
-          </button>
-          <button
-            className="btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors px-5"
+          </Button>
+          <Button
+            variant="outline"
+            className="px-5"
             onClick={() => setIsMobileMoreOpen(true)}
           >
             <MoreHorizontal className="h-4.5 w-4.5" />
-          </button>
+          </Button>
         </div>
         {/* 데스크톱 하단 (lg 이상) */}
         <div className="hidden lg:flex gap-2.5">
-          <button
-            className="btn-gradient btn-base btn-md flex-1"
+          <Button
+            className="flex-1"
             onClick={() => setIsPlaceSheetOpen(true)}
           >
             <Plus className="h-4.5 w-4.5" />
             장소 추가
-          </button>
-          <button
-            className="relative btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors"
+          </Button>
+          <Button
+            variant="outline"
+            className="relative"
             onClick={() => setIsWishlistOpen(true)}
             data-testid="wishlist-button"
           >
@@ -520,14 +524,14 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
                 {wishlistCount}
               </span>
             )}
-          </button>
-          <button
-            className="btn-base btn-md border border-border bg-card text-foreground hover:bg-muted transition-colors"
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
           >
             <MoreHorizontal className="h-4 w-4" />
             도구
-          </button>
+          </Button>
         </div>
         {/* 보조 도구 — 데스크톱 접히는 서랍 */}
         {isDesktopToolsOpen && (

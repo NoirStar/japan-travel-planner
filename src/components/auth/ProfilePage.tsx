@@ -175,15 +175,16 @@ export function ProfilePage() {
         <Button
           onClick={handleSave}
           disabled={isSaving || !nickname.trim()}
-          className="btn-base btn-lg w-full rounded-xl"
+          size="lg" className="w-full rounded-xl"
         >
           <Save className="h-4 w-4" />
           {isSaving ? "저장 중..." : "프로필 저장"}
         </Button>
         <Button
           onClick={handleSignOut}
-          variant="outline"
-          className="btn-base btn-lg w-full rounded-xl text-destructive hover:bg-destructive/10"
+          variant="ghost"
+          size="lg"
+          className="w-full rounded-xl text-destructive hover:bg-destructive/10"
         >
           <LogOut className="h-4 w-4" />
           로그아웃

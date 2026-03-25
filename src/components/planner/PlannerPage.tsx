@@ -258,7 +258,7 @@ export function PlannerPage() {
       )}
 
       {/* 모바일 하단 탭 바 */}
-      <div className="flex shrink-0 border-t border-border/60 bg-card lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} data-testid="mobile-tab-bar">
+      <div className="flex shrink-0 border-t border-border bg-card shadow-[0_-2px_10px_rgba(0,0,0,0.05)] lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} data-testid="mobile-tab-bar">
         <button
           onClick={() => setMobileTab("schedule")}
           className={`flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${

@@ -54,7 +54,7 @@ export function StyleStep({ options, onSelect }: StyleStepProps) {
         onClick={() => onSelect([...selected])}
         disabled={selected.size === 0}
         size="sm"
-        className="self-start btn-gradient rounded-full border-0 px-6"
+        className="self-start rounded-full border-0 px-6"
         data-testid="style-confirm"
       >
         선택 완료 ({selected.size}개)

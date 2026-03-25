@@ -6,6 +6,7 @@ import { PlaceCategory, CATEGORY_LABELS } from "@/types/place"
 import type { Place } from "@/types/place"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { searchGooglePlaces } from "@/services/placesService"
+import { Button } from "@/components/ui/button"
 import { useDynamicPlaceStore } from "@/stores/dynamicPlaceStore"
 
 interface PlaceSheetProps {
@@ -296,18 +297,20 @@ export function PlaceSheet({
                     >
                       <Bookmark className={`h-3.5 w-3.5 ${isWishlisted ? "fill-primary" : ""}`} />
                     </button>
-                    <button
+                    <Button
+                      size="icon-xs"
                       disabled={isAdded}
                       onClick={() => handleAdd(place)}
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors ${
+                      className={`h-7 w-7 shrink-0 rounded-full transition-colors ${
                         isAdded
                           ? "bg-muted text-muted-foreground"
-                          : "btn-gradient border-0 shadow-sm active:scale-95"
+                          : "border-0 shadow-sm"
                       }`}
+                      variant={isAdded ? "ghost" : "default"}
                       data-testid={`place-add-${place.id}`}
                     >
                       {isAdded ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-                    </button>
+                    </Button>
                   </div>
                 )
               })}

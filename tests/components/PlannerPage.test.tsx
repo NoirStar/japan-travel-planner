@@ -130,7 +130,8 @@ describe("PlannerPage", () => {
   it("Day 추가 버튼을 클릭하면 Day 2가 생긴다", () => {
     renderWithRoute()
     fireEvent.click(screen.getByTestId("day-add-btn"))
-    expect(screen.getByTestId("day-tab-2")).toBeInTheDocument()
+    // DayTabs는 현재 활성 Day만 표시하므로 day 카운트 표시("1/2")로 확인
+    expect(screen.getByText("1/2")).toBeInTheDocument()
   })
 
   // ── 빈 상태 ─────────────────────────────────────────

@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom"
 import { ArrowRight, Map, CalendarDays, Globe, Users } from "lucide-react"
 import { cities } from "@/data/cities"
 import { useScheduleStore } from "@/stores/scheduleStore"
+import { Button } from "@/components/ui/button"
 
 const features = [
-  { icon: Map, title: "지도 기반 플래너", desc: "구글맵에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다.", link: "/planner?new=true" as const, cta: "플래너 시작" },
-  { icon: Globe, title: "일본 전역 커버", desc: "도쿄, 오사카는 물론 소도시까지. 구글맵 기반이라 일본 어디든 자유롭게 여행 계획을 세울 수 있어요.", link: "/planner?new=true" as const, cta: "도시 선택하기" },
-  { icon: CalendarDays, title: "여행자 커뮤니티", desc: "다른 여행자가 만든 일정을 구경하고, 나만의 여행도 공유해보세요. 추천과 댓글로 소통할 수 있어요.", link: "/community" as const, cta: "커뮤니티 가기" },
+  { icon: Map, title: "지도 기반 플래너", desc: "구글맵에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다.", link: "/planner?new=true" as const, cta: "플래너 시작", accent: "border-t-4 border-t-primary" },
+  { icon: Globe, title: "일본 전역 커버", desc: "도쿄, 오사카는 물론 소도시까지. 구글맵 기반이라 일본 어디든 자유롭게 여행 계획을 세울 수 있어요.", link: "/planner?new=true" as const, cta: "도시 선택하기", accent: "border-t-4 border-t-indigo-light" },
+  { icon: CalendarDays, title: "여행자 커뮤니티", desc: "다른 여행자가 만든 일정을 구경하고, 나만의 여행도 공유해보세요. 추천과 댓글로 소통할 수 있어요.", link: "/community" as const, cta: "커뮤니티 가기", accent: "border-t-4 border-t-sakura" },
 ]
 
 // stats 섹션 제거 — 추상적 통계는 의사결정을 돕지 않음
@@ -56,14 +57,15 @@ export function LandingPage() {
               </div>
 
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <button
+                <Button
                   onClick={() => handleStartPlanning("/planner?new=true")}
-                  className="btn-gradient btn-base btn-lg w-full sm:w-auto"
+                  size="lg"
+                  className="w-full sm:w-auto"
                 >
                   <Map className="h-5 w-5" />
                   여행 일정 만들기
                   <ArrowRight className="h-5 w-5" />
-                </button>
+                </Button>
               </div>
 
               <p className="mt-5 text-body-sm text-muted-foreground">
@@ -83,11 +85,11 @@ export function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
-              {features.map(({ icon: Icon, title, desc, cta, link }) => (
+              {features.map(({ icon: Icon, title, desc, cta, link, accent }) => (
                 <button
                   key={title}
                   onClick={() => handleStartPlanning(link)}
-                  className="group card-elevated flex flex-col items-start p-7 text-left"
+                  className={`group card-elevated flex flex-col items-start p-7 text-left ${accent}`}
                 >
                   <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/8">
                     <Icon className="h-6 w-6 text-primary" />
@@ -121,11 +123,11 @@ export function LandingPage() {
                     <img
                       src={city.image}
                       alt={city.name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       loading="lazy"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.classList.add('bg-muted') }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                     <div className="absolute bottom-3 left-4">
                       <h3 className="text-base font-bold text-white drop-shadow-sm">{city.name}</h3>
                       <span className="text-caption text-white/75">{city.nameEn}</span>
@@ -183,16 +185,16 @@ export function LandingPage() {
 
           {/* ── CTA ── */}
           <section className="section-gap text-center">
-            <div className="rounded-2xl bg-muted px-8 py-14 sm:px-16 sm:py-16">
+            <div className="rounded-2xl bg-gradient-to-br from-primary/5 via-primary/8 to-indigo/5 border border-border/50 px-8 py-14 sm:px-16 sm:py-16">
               <h2 className="text-headline text-foreground mb-3">지금 바로 여행 계획을 시작하세요</h2>
               <p className="text-body text-muted-foreground mb-8">회원가입 없이도 플래닝이 가능합니다</p>
-              <button
+              <Button
                 onClick={() => handleStartPlanning("/planner?new=true")}
-                className="btn-gradient btn-base btn-lg"
+                size="lg"
               >
                 <Map className="h-5 w-5" />
                 일정 만들기
-              </button>
+              </Button>
             </div>
           </section>
 

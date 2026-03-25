@@ -597,7 +597,7 @@ body {
   justify-content: center;
 }
 
-/* ── Hover tooltip ─────────────────────────────────── */
+/* ── Hover tooltip (CSS :hover 기반 — React state 불필요) ── */
 .city-pin-tooltip {
   position: absolute;
   bottom: calc(100% + 6px);
@@ -612,6 +612,19 @@ body {
   z-index: 10;
   min-width: 100px;
   max-width: 200px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+/* 호버 시 툴팁 표시 (selected 상태에서는 숨김) */
+.city-pin-wrapper:hover:not(.city-pin-wrapper--selected) .city-pin-tooltip {
+  opacity: 1;
+}
+
+/* 호버 시 opacity/zIndex 보정 */
+.city-pin-wrapper:hover:not(.city-pin-wrapper--selected) {
+  opacity: 1 !important;
+  z-index: 300;
 }
 
 .city-pin-tooltip::after {

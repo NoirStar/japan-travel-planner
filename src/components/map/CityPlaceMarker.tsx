@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useRef, memo } from "react"
+import { useCallback, memo } from "react"
 import { InfoWindow } from "@vis.gl/react-google-maps"
 import { Star, Plus, ExternalLink, Clock, X, Bookmark } from "lucide-react"
 import type { Place } from "@/types/place"
@@ -108,7 +108,6 @@ interface CityPlaceMarkerProps {
  * 클릭 → 상세 InfoWindow + "일정에 추가"
  */
 export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected, onSelect, onAdd }: CityPlaceMarkerProps) {
-  const [isHovered, setIsHovered] = useState(false)
   const activeTripId = useScheduleStore((s) => s.activeTripId)
   const isBookmarked = useScheduleStore((s) => activeTripId ? s.isInWishlist(activeTripId, place.id) : false)
   const addToWishlist = useScheduleStore((s) => s.addToWishlist)
@@ -116,26 +115,8 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    setIsHovered(false)
     onSelect?.()
   }, [onSelect])
-
-  // hover 관리: native pointerleave로 확실히 해제 (Google Maps overlay에서 React 이벤트 누락 방지)
-  const wrapperRef = useRef<HTMLDivElement>(null)
-
-  const handleMouseEnter = useCallback(() => {
-    if (!isSelected && !isTouchDevice) setIsHovered(true)
-  }, [isSelected])
-
-  const handleMouseLeave = useCallback(() => setIsHovered(false), [])
-
-  useEffect(() => {
-    const el = wrapperRef.current
-    if (!el) return
-    const onLeave = () => setIsHovered(false)
-    el.addEventListener("pointerleave", onLeave)
-    return () => el.removeEventListener("pointerleave", onLeave)
-  }, [])
 
   const color = CATEGORY_COLOR[place.category] ?? CATEGORY_COLOR.other
   const tier = getRatingTier(place.rating)
@@ -143,19 +124,16 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
   const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
   const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
 
-  const zIndex = isSelected ? 500 : isHovered ? 300 : TIER_Z[tier]
-  const opacity = isSelected || isHovered ? 1 : TIER_OP[tier]
+  const zIndex = isSelected ? 500 : TIER_Z[tier]
+  const opacity = isSelected ? 1 : TIER_OP[tier]
 
   return (
     <>
       <CustomOverlay position={place.location} zIndex={zIndex}>
         <div
-          ref={wrapperRef}
-          className="city-pin-wrapper"
+          className={`city-pin-wrapper ${isSelected ? "city-pin-wrapper--selected" : ""}`}
           style={{ opacity }}
           onClick={handleClick}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
           <PinVisual
             color={color}
@@ -164,8 +142,8 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
             isSelected={!!isSelected}
             category={place.category}
           />
-          {/* 호버 툴팁 — DOM 기반 (InfoWindow 대신) */}
-          {isHovered && !isSelected && (
+          {/* 호버 툴팁 — CSS :hover 기반 (React state 불필요) */}
+          {!isSelected && !isTouchDevice && (
             <div className="city-pin-tooltip">
               <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">{place.name}</p>
               <div className="flex items-center gap-1.5 mt-0.5">

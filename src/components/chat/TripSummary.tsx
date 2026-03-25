@@ -57,7 +57,7 @@ export function TripSummary({ selections, onConfirm, onReset }: TripSummaryProps
             data-testid={`summary-day-${dayNum}`}
           >
             <h4 className="mb-3 font-bold text-sm flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sakura-dark to-indigo text-[10px] text-primary-foreground">D{dayNum}</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-cyan to-indigo text-[10px] text-primary-foreground">D{dayNum}</span>
               {(() => { const ThemeIcon = THEME_ICONS[themeId]; return ThemeIcon ? <ThemeIcon className="h-4 w-4 text-muted-foreground" /> : null })()}
               {theme?.label ?? themeId}
             </h4>

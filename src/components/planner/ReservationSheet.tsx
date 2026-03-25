@@ -36,7 +36,7 @@ const TYPE_OPTIONS: TypeOption[] = [
   { value: RT.FLIGHT, icon: Plane, gradient: "from-indigo to-indigo-light" },
   { value: RT.TRAIN, icon: TrainFront, gradient: "from-indigo-light to-indigo" },
   { value: RT.BUS, icon: Bus, gradient: "from-primary/80 to-primary" },
-  { value: RT.ACCOMMODATION, icon: Hotel, gradient: "from-sakura to-primary" },
+  { value: RT.ACCOMMODATION, icon: Hotel, gradient: "from-cyan to-primary" },
 ]
 
 const TITLE_PLACEHOLDERS: Record<ReservationType, string> = {

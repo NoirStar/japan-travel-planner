@@ -180,7 +180,7 @@ export function PlannerPage() {
     <div className="flex h-dvh flex-col pt-16" data-testid="planner-page">
       <div className="flex flex-1 flex-col overflow-hidden lg:flex-row min-h-0">
         {/* 일정 패널 */}
-        <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-full lg:w-[400px] lg:border-r lg:border-border lg:block ${
+        <aside className={`w-full shrink-0 overflow-hidden bg-card/50 backdrop-blur-sm lg:h-full lg:w-[400px] lg:border-r lg:border-border/30 lg:block ${
           mobileTab === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
         }`}>
           <SchedulePanel
@@ -258,12 +258,12 @@ export function PlannerPage() {
       )}
 
       {/* 모바일 하단 탭 바 */}
-      <div className="flex shrink-0 border-t border-border bg-card shadow-[0_-2px_10px_rgba(0,0,0,0.05)] lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} data-testid="mobile-tab-bar">
+      <div className="flex shrink-0 border-t border-border/30 bg-card/80 backdrop-blur-xl shadow-[0_-2px_20px_rgba(0,0,0,0.15)] lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} data-testid="mobile-tab-bar">
         <button
           onClick={() => setMobileTab("schedule")}
           className={`flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
             mobileTab === "schedule"
-              ? "text-primary border-t-2 border-primary"
+              ? "text-cyan border-t-2 border-cyan"
               : "text-muted-foreground"
           }`}
         >
@@ -274,7 +274,7 @@ export function PlannerPage() {
           onClick={() => setMobileTab("map")}
           className={`flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
             mobileTab === "map"
-              ? "text-primary border-t-2 border-primary"
+              ? "text-cyan border-t-2 border-cyan"
               : "text-muted-foreground"
           }`}
         >
@@ -286,7 +286,7 @@ export function PlannerPage() {
             onClick={() => setMobileTab("chat")}
             className={`relative flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
               mobileTab === "chat"
-                ? "text-primary border-t-2 border-primary"
+                ? "text-cyan border-t-2 border-cyan"
                 : "text-muted-foreground"
             }`}
           >

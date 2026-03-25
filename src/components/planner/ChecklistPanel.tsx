@@ -145,7 +145,7 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
           </div>
           <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-sakura transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-primary to-cyan transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -202,7 +202,7 @@ export function ChecklistPanel({ open, onOpenChange, tripId }: ChecklistPanelPro
                           aria-label={item.checked ? "체크 해제" : "체크"}
                         >
                           {item.checked ? (
-                            <CheckSquare className="h-4 w-4 text-sakura-dark" />
+                            <CheckSquare className="h-4 w-4 text-cyan" />
                           ) : (
                             <Square className="h-4 w-4 text-muted-foreground/50" />
                           )}

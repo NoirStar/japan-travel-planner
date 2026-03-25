@@ -11,7 +11,7 @@ interface UIState {
 export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
-      isDarkMode: false,
+      isDarkMode: true,
       isMapDarkMode: false,
       toggleDarkMode: () =>
         set((state) => {

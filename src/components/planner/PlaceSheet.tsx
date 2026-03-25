@@ -222,7 +222,7 @@ export function PlaceSheet({
               onClick={() => setActiveCategory(cat.value)}
               className={`rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
                 activeCategory === cat.value
-                  ? "bg-primary/12 text-primary font-semibold"
+                  ? "bg-cyan/10 text-cyan font-semibold"
                   : "bg-muted text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
               data-testid={`filter-${cat.value}`}
@@ -254,7 +254,7 @@ export function PlaceSheet({
                   <div
                     key={place.id}
                     className={`flex items-center gap-2 rounded-lg border p-2 transition-all ${
-                      isAdded ? "border-sakura/30 bg-sakura/5" : "border-border hover:border-sakura/30 hover:shadow-sm"
+                      isAdded ? "border-cyan/30 bg-cyan/5" : "border-border hover:border-cyan/30 hover:shadow-sm"
                     }`}
                     data-testid={`place-item-${place.id}`}
                   >
@@ -318,7 +318,7 @@ export function PlaceSheet({
               {isShowingCache && hasMoreCached && (
                 <button
                   onClick={() => setShowAll(true)}
-                  className="mt-1 w-full rounded-xl border border-dashed border-border py-2.5 text-xs text-muted-foreground transition-colors hover:border-sakura hover:text-foreground"
+                  className="mt-1 w-full rounded-xl border border-dashed border-border py-2.5 text-xs text-muted-foreground transition-colors hover:border-cyan hover:text-foreground"
                 >
                   나머지 {totalCount - DISPLAY_LIMIT}개 더 보기
                 </button>

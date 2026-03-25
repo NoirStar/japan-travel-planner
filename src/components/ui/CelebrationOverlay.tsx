@@ -34,7 +34,7 @@ function SakuraConfetti({ count = 10 }: { count?: number }) {
             top: -8,
             width: p.size,
             height: p.size * 0.6,
-            backgroundColor: "#f0a4b8",
+            backgroundColor: p.id % 3 === 0 ? "#06B6D4" : p.id % 3 === 1 ? "#8B5CF6" : "#EC4899",
             opacity: 0.6,
           }}
           animate={{

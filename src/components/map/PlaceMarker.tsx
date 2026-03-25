@@ -151,7 +151,7 @@ export const PlaceMarker = memo(function PlaceMarker({ place, index, isSelected,
               </div>
             )}
             <div className="flex items-center gap-1.5">
-              <CategoryIcon className="h-4 w-4 text-sakura-dark" />
+              <CategoryIcon className="h-4 w-4 text-cyan" />
               <span className="text-sm font-bold text-foreground">{place.name}</span>
             </div>
             <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">

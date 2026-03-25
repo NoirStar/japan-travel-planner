@@ -35,12 +35,12 @@ interface PlaceCardProps {
 
 /** 카테고리별 그라데이션 색상 */
 const CATEGORY_GRADIENT: Record<string, string> = {
-  restaurant: "from-primary to-primary/70",
-  attraction: "from-primary/80 to-sakura",
-  shopping: "from-indigo to-indigo-light",
-  accommodation: "from-indigo-light to-indigo",
+  restaurant: "from-cyan to-cyan/70",
+  attraction: "from-violet to-neon-pink",
+  shopping: "from-neon-blue to-violet",
+  accommodation: "from-violet-light to-violet",
   cafe: "from-warning to-star",
-  transport: "from-indigo to-info",
+  transport: "from-cyan to-neon-blue",
   other: "from-muted-foreground/60 to-muted-foreground/40",
 }
 
@@ -83,8 +83,8 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         ref={ref}
         className={`group relative rounded-2xl border bg-card p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
           isSelected
-            ? "border-sakura-dark shadow-md"
-            : "border-border hover:border-sakura/40"
+            ? "border-cyan shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+            : "border-border hover:border-cyan/40"
         }`}
         data-testid={`place-card-${index}`}
         data-place-id={place.id}
@@ -134,7 +134,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 />
               ) : (
                 <button
-                  className="flex items-center gap-1.5 rounded-lg border border-sakura/30 bg-sakura/10 px-2.5 py-1 text-caption font-semibold text-sakura-dark dark:text-sakura hover:bg-sakura/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-sm"
+                  className="flex items-center gap-1.5 rounded-lg border border-cyan/30 bg-cyan/10 px-2.5 py-1 text-caption font-semibold text-cyan dark:text-cyan-light hover:bg-cyan/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-sm"
                   onClick={(e) => { e.stopPropagation(); setIsEditingTime(true) }}
                   data-testid={`time-badge-${index}`}
                 >

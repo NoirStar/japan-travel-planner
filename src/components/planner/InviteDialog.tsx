@@ -98,7 +98,7 @@ export function InviteDialog({
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-sakura-dark" />
+            <Users className="h-5 w-5 text-cyan" />
             <h3 className="text-base font-bold">공동 편집</h3>
           </div>
           <button
@@ -112,8 +112,8 @@ export function InviteDialog({
         {/* 공유 안 됨 → 공유 시작 */}
         {!isShared ? (
           <div className="mt-4 flex flex-col items-center gap-3 py-4 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sakura-dark/10">
-              <Link className="h-6 w-6 text-sakura-dark" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan/10">
+              <Link className="h-6 w-6 text-cyan" />
             </div>
             <div>
               <p className="text-sm font-semibold">친구와 함께 일정을 편집하세요</p>

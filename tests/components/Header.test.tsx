@@ -52,9 +52,10 @@ describe("Header", () => {
     // 로그인 버튼 옆의 아이콘 버튼이 다크모드 토글
     const darkToggle = buttons.find((btn) => !btn.textContent?.includes("로그인") && !btn.textContent?.includes("플래너") && !btn.textContent?.includes("커뮤니티"))
     expect(darkToggle).toBeTruthy()
-    fireEvent.click(darkToggle!)
-    expect(document.documentElement.classList.contains("dark")).toBe(true)
+    // 기본값이 isDarkMode: true이므로 첫 클릭에 dark 클래스가 제거됨
     fireEvent.click(darkToggle!)
     expect(document.documentElement.classList.contains("dark")).toBe(false)
+    fireEvent.click(darkToggle!)
+    expect(document.documentElement.classList.contains("dark")).toBe(true)
   })
 })

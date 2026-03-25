@@ -46,7 +46,7 @@ export function DayTabs({
 
       {/* 현재 Day 표시 */}
       <div
-        className={`rounded-full bg-primary px-3 py-1.5 text-[12px] font-bold text-primary-foreground`}
+        className={`rounded-full bg-gradient-to-r from-cyan to-violet px-3 py-1.5 text-[12px] font-bold text-white`}
         data-testid={`day-tab-${day?.dayNumber}`}
       >
         Day {day?.dayNumber ?? 1}

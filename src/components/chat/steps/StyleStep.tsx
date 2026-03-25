@@ -40,7 +40,7 @@ export function StyleStep({ options, onSelect }: StyleStepProps) {
               className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                 isActive
                   ? "border-transparent bg-primary text-primary-foreground"
-                  : "border-border/50 bg-card hover:border-sakura/50 hover:shadow-sm"
+                  : "border-border/50 bg-card hover:border-cyan/50 hover:shadow-sm"
               }`}
               data-testid={`style-option-${opt.id}`}
             >

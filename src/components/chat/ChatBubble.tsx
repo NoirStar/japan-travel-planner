@@ -24,7 +24,7 @@ export function ChatBubble({ role, text }: ChatBubbleProps) {
         }`}
         data-testid={isAI ? "ai-bubble" : "user-bubble"}
       >
-        {isAI && <Bot className="mr-1.5 inline h-4 w-4 text-sakura-dark" />}
+        {isAI && <Bot className="mr-1.5 inline h-4 w-4 text-cyan" />}
         {text}
       </div>
     </motion.div>

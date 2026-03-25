@@ -1,14 +1,14 @@
 import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowRight, Map, CalendarDays, Globe, Users } from "lucide-react"
+import { ArrowRight, Map, CalendarDays, Globe, Users, Sparkles } from "lucide-react"
 import { cities } from "@/data/cities"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { Button } from "@/components/ui/button"
 
 const features = [
-  { icon: Map, title: "지도 기반 플래너", desc: "구글맵에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다.", link: "/planner?new=true" as const, cta: "플래너 시작", accent: "border-t-4 border-t-primary" },
-  { icon: Globe, title: "일본 전역 커버", desc: "도쿄, 오사카는 물론 소도시까지. 구글맵 기반이라 일본 어디든 자유롭게 여행 계획을 세울 수 있어요.", link: "/planner?new=true" as const, cta: "도시 선택하기", accent: "border-t-4 border-t-indigo-light" },
-  { icon: CalendarDays, title: "여행자 커뮤니티", desc: "다른 여행자가 만든 일정을 구경하고, 나만의 여행도 공유해보세요. 추천과 댓글로 소통할 수 있어요.", link: "/community" as const, cta: "커뮤니티 가기", accent: "border-t-4 border-t-sakura" },
+  { icon: Map, title: "지도 기반 플래너", desc: "구글맵에서 장소를 검색하고 드래그로 일정을 완성하세요. 이동 시간까지 자동 계산됩니다.", link: "/planner?new=true" as const, cta: "플래너 시작", accent: "from-cyan to-cyan/60" },
+  { icon: Globe, title: "일본 전역 커버", desc: "도쿄, 오사카는 물론 소도시까지. 구글맵 기반이라 일본 어디든 자유롭게 여행 계획을 세울 수 있어요.", link: "/planner?new=true" as const, cta: "도시 선택하기", accent: "from-violet to-violet/60" },
+  { icon: CalendarDays, title: "여행자 커뮤니티", desc: "다른 여행자가 만든 일정을 구경하고, 나만의 여행도 공유해보세요. 추천과 댓글로 소통할 수 있어요.", link: "/community" as const, cta: "커뮤니티 가기", accent: "from-neon-pink to-neon-pink/60" },
 ]
 
 // stats 섹션 제거 — 추상적 통계는 의사결정을 돕지 않음
@@ -38,8 +38,17 @@ export function LandingPage() {
       <div className="mx-auto max-w-6xl px-6 pt-16 pb-20 sm:px-8 lg:px-10">
         <div>
           {/* ── Hero ── */}
-          <section className="pt-12 pb-10 sm:pt-16 sm:pb-14">
-            <div className="mx-auto max-w-3xl text-center">
+          <section className="relative pt-12 pb-10 sm:pt-16 sm:pb-14">
+            {/* Hero glow background */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+              <div className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[700px] rounded-full bg-gradient-to-br from-cyan/8 via-violet/5 to-transparent blur-3xl" />
+            </div>
+
+            <div className="relative mx-auto max-w-3xl text-center">
+              <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm dark:border-cyan/20 dark:bg-cyan/5 dark:text-cyan-light">
+                <Sparkles className="h-3 w-3" />
+                구글맵 기반 일본 여행 플래너
+              </div>
               <h1 className="text-display mb-5">
                 <span className="gradient-text font-maple">일본 여행,</span>
                 <br />
@@ -51,16 +60,17 @@ export function LandingPage() {
                 여행자 커뮤니티까지 한곳에서.
               </p>
               <div className="mb-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5"><Map className="h-4 w-4 text-primary" />지도 기반 플래닝</span>
-                <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-primary" />자동 이동시간 계산</span>
-                <span className="flex items-center gap-1.5"><Users className="h-4 w-4 text-primary" />여행자 커뮤니티</span>
+                <span className="flex items-center gap-1.5"><Map className="h-4 w-4 text-cyan" />지도 기반 플래닝</span>
+                <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4 text-violet" />자동 이동시간 계산</span>
+                <span className="flex items-center gap-1.5"><Users className="h-4 w-4 text-neon-pink" />여행자 커뮤니티</span>
               </div>
 
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Button
                   onClick={() => handleStartPlanning("/planner?new=true")}
                   size="lg"
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto animate-pulse-ring"
+                  variant="gradient"
                 >
                   <Map className="h-5 w-5" />
                   여행 일정 만들기
@@ -70,7 +80,7 @@ export function LandingPage() {
 
               <p className="mt-5 text-body-sm text-muted-foreground">
                 또는{" "}
-                <button onClick={() => navigate("/community")} className="text-primary font-medium hover:underline">
+                <button onClick={() => navigate("/community")} className="text-cyan font-medium hover:underline">
                   다른 여행자의 일정 구경하기 →
                 </button>
               </p>
@@ -80,7 +90,7 @@ export function LandingPage() {
           {/* ── 핵심 기능 ── */}
           <section className="section-gap">
             <div className="mb-10 text-center">
-              <span className="chip chip-primary mb-3 text-caption font-semibold tracking-widest">핵심 기능</span>
+              <span className="chip chip-primary mb-3 font-semibold tracking-widest">핵심 기능</span>
               <h2 className="text-headline text-foreground mt-2">여행 준비의 모든 것</h2>
             </div>
 
@@ -89,14 +99,16 @@ export function LandingPage() {
                 <button
                   key={title}
                   onClick={() => handleStartPlanning(link)}
-                  className={`group card-elevated flex flex-col items-start p-7 text-left ${accent}`}
+                  className="group card-elevated flex flex-col items-start p-7 text-left relative overflow-hidden"
                 >
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/8">
-                    <Icon className="h-6 w-6 text-primary" />
+                  {/* Left gradient stripe */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b ${accent}`} />
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan/8 dark:bg-cyan/10">
+                    <Icon className="h-6 w-6 text-cyan" />
                   </div>
                   <h3 className="mb-2 text-base font-bold text-foreground">{title}</h3>
                   <p className="text-body-sm leading-relaxed text-muted-foreground">{desc}</p>
-                  <span className="mt-4 text-body-sm font-semibold text-primary">
+                  <span className="mt-4 text-body-sm font-semibold text-cyan">
                     {cta} →
                   </span>
                 </button>
@@ -117,7 +129,7 @@ export function LandingPage() {
                 <button
                   key={city.id}
                   onClick={() => handleStartPlanning("/planner", city.id)}
-                  className="group relative overflow-hidden rounded-2xl text-left card-elevated border-0"
+                  className="group relative overflow-hidden rounded-2xl text-left card-elevated border-0 transition-shadow duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
                 >
                   <div className="aspect-[4/3] overflow-hidden">
                     <img
@@ -127,10 +139,10 @@ export function LandingPage() {
                       loading="lazy"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.classList.add('bg-muted') }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
                     <div className="absolute bottom-3 left-4">
                       <h3 className="text-base font-bold text-white drop-shadow-sm">{city.name}</h3>
-                      <span className="text-caption text-white/75">{city.nameEn}</span>
+                      <span className="text-[11px] uppercase tracking-wider text-white/70">{city.nameEn}</span>
                     </div>
                   </div>
                 </button>
@@ -143,12 +155,12 @@ export function LandingPage() {
             <h2 className="text-headline text-center text-foreground mb-10">3단계로 완성하는 여행</h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
               {[
-                { step: "01", title: "도시 & 일정 선택", desc: "여행할 도시와 날짜를 선택하세요" },
-                { step: "02", title: "장소 추가", desc: "지도에서 장소를 검색하고 일정에 드래그" },
-                { step: "03", title: "공유 & 소통", desc: "완성된 여행을 공유하고 후기를 남기세요" },
-              ].map(({ step, title, desc }) => (
+                { step: "01", title: "도시 & 일정 선택", desc: "여행할 도시와 날짜를 선택하세요", color: "from-cyan to-cyan/70" },
+                { step: "02", title: "장소 추가", desc: "지도에서 장소를 검색하고 일정에 드래그", color: "from-violet to-violet/70" },
+                { step: "03", title: "공유 & 소통", desc: "완성된 여행을 공유하고 후기를 남기세요", color: "from-neon-pink to-neon-pink/70" },
+              ].map(({ step, title, desc, color }) => (
                 <div key={step} className="flex items-start gap-5 rounded-xl surface-section p-6">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">{step}</span>
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${color} text-sm font-bold text-white tabular-nums`}>{step}</span>
                   <div>
                     <h3 className="mb-1.5 text-base font-bold">{title}</h3>
                     <p className="text-body-sm text-muted-foreground">{desc}</p>
@@ -172,10 +184,10 @@ export function LandingPage() {
                 <div key={name} className="flex flex-col rounded-xl surface-section p-6">
                   <p className="mb-5 flex-1 text-body-sm leading-relaxed text-muted-foreground">{text}</p>
                   <div className="flex items-center gap-3 border-t border-border/50 pt-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{name[0]}</div>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-cyan to-violet text-xs font-bold text-white">{name[0]}</div>
                     <div>
                       <p className="text-body-sm font-semibold">{name}</p>
-                      <p className="text-caption text-muted-foreground">{city} 여행</p>
+                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{city} 여행</p>
                     </div>
                   </div>
                 </div>
@@ -185,22 +197,29 @@ export function LandingPage() {
 
           {/* ── CTA ── */}
           <section className="section-gap text-center">
-            <div className="rounded-2xl bg-gradient-to-br from-primary/5 via-primary/8 to-indigo/5 border border-border/50 px-8 py-14 sm:px-16 sm:py-16">
-              <h2 className="text-headline text-foreground mb-3">지금 바로 여행 계획을 시작하세요</h2>
-              <p className="text-body text-muted-foreground mb-8">회원가입 없이도 플래닝이 가능합니다</p>
-              <Button
-                onClick={() => handleStartPlanning("/planner?new=true")}
-                size="lg"
-              >
-                <Map className="h-5 w-5" />
-                일정 만들기
-              </Button>
+            <div className="relative overflow-hidden rounded-2xl border border-border/50 px-8 py-14 sm:px-16 sm:py-16 dark:border-cyan/10">
+              {/* CTA glow background */}
+              <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+                <div className="absolute left-1/4 top-0 h-full w-1/2 bg-gradient-to-br from-cyan/5 via-violet/8 to-neon-pink/3 blur-2xl" />
+              </div>
+              <div className="relative">
+                <h2 className="text-headline text-foreground mb-3">지금 바로 여행 계획을 시작하세요</h2>
+                <p className="text-body text-muted-foreground mb-8">회원가입 없이도 플래닝이 가능합니다</p>
+                <Button
+                  onClick={() => handleStartPlanning("/planner?new=true")}
+                  size="lg"
+                  variant="gradient"
+                >
+                  <Map className="h-5 w-5" />
+                  일정 만들기
+                </Button>
+              </div>
             </div>
           </section>
 
           {/* ── Footer ── */}
-          <footer className="border-t border-border/60 pt-10 text-center">
-            <p className="text-caption text-muted-foreground">© 2026 타비톡 · All rights reserved</p>
+          <footer className="border-t border-border/30 pt-10 text-center">
+            <p className="text-[11px] uppercase tracking-widest text-muted-foreground">© 2026 타비톡 · All rights reserved</p>
           </footer>
         </div>
       </div>

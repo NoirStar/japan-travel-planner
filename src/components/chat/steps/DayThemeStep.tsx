@@ -24,8 +24,8 @@ export function DayThemeStep({ options, dayNumber, onSelect }: DayThemeStepProps
           className="flex items-center gap-3 rounded-xl bg-card p-3 text-left shadow-sm ring-1 ring-border/50 transition-shadow hover:shadow-md hover:ring-primary/30"
           data-testid={`daytheme-option-${opt.id}`}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sakura/20 to-indigo/10">
-            {(() => { const Icon = THEME_ICONS[opt.id]; return Icon ? <Icon className="h-5 w-5 text-sakura-dark" /> : null })()}
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan/20 to-indigo/10">
+            {(() => { const Icon = THEME_ICONS[opt.id]; return Icon ? <Icon className="h-5 w-5 text-cyan" /> : null })()}
           </div>
           <div>
             <h4 className="font-semibold text-sm">{opt.label}</h4>

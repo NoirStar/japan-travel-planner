@@ -116,7 +116,7 @@ export function BudgetPanel({ open, onOpenChange, tripId }: BudgetPanelProps) {
                 <span className="text-[10px] text-muted-foreground">¥</span>
                 <button
                   onClick={handleSaveBudget}
-                  className="rounded bg-sakura px-2 py-0.5 text-[10px] font-bold text-primary-foreground"
+                  className="rounded bg-cyan px-2 py-0.5 text-[10px] font-bold text-primary-foreground"
                 >
                   저장
                 </button>
@@ -124,7 +124,7 @@ export function BudgetPanel({ open, onOpenChange, tripId }: BudgetPanelProps) {
             ) : (
               <button
                 onClick={() => { setBudgetInput(String(budget)); setEditingBudget(true) }}
-                className="font-bold text-foreground hover:text-sakura-dark transition-colors"
+                className="font-bold text-foreground hover:text-cyan transition-colors"
               >
                 {budget > 0 ? `¥${budget.toLocaleString()}` : "설정하기"}
               </button>

@@ -31,7 +31,7 @@ const TYPE_CONFIG: Record<ReservationType, { icon: LucideIcon; gradient: string;
   flight: { icon: Plane, gradient: "from-indigo to-indigo-light", bg: "bg-indigo/5" },
   train: { icon: TrainFront, gradient: "from-indigo-light to-indigo", bg: "bg-indigo/5" },
   bus: { icon: Bus, gradient: "from-primary/80 to-primary", bg: "bg-primary/5" },
-  accommodation: { icon: Hotel, gradient: "from-sakura to-primary", bg: "bg-primary/5" },
+  accommodation: { icon: Hotel, gradient: "from-cyan to-primary", bg: "bg-primary/5" },
 }
 
 function formatCost(cost: number): string {

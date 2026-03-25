@@ -64,7 +64,7 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
               <Bookmark className="h-4 w-4 fill-primary text-primary" />
               <h3 className="text-sm font-bold">북마크</h3>
               {visibleItems.length > 0 && (
-                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                <span className="rounded-full bg-cyan/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                   {visibleItems.length}
                 </span>
               )}
@@ -83,7 +83,7 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
         <div className="flex-1 overflow-y-auto px-3 py-2" data-testid="wishlist-items">
           {visibleItems.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-14 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan/10">
                 <Bookmark className="h-6 w-6 text-primary/40" />
               </div>
               <div>
@@ -108,7 +108,7 @@ export function WishlistPanel({ open, onOpenChange, tripId, dayId }: WishlistPan
                   <div
                     key={item.placeId}
                     className={`flex items-center gap-2 rounded-lg border p-2 transition-all ${
-                      isAdded ? "border-sakura/30 bg-sakura/5" : "border-border hover:border-primary/30 hover:shadow-sm"
+                      isAdded ? "border-cyan/30 bg-cyan/5" : "border-border hover:border-primary/30 hover:shadow-sm"
                     }`}
                     data-testid={`wishlist-item-${item.placeId}`}
                   >

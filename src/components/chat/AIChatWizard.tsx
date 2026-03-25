@@ -308,7 +308,7 @@ export function AIChatWizard() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sakura-dark text-sm text-primary-foreground"><Bot className="h-4 w-4" /></div>
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan to-violet text-sm text-primary-foreground"><Bot className="h-4 w-4" /></div>
           <h1 className="text-sm font-bold">AI 여행 플래너</h1>
         </div>
       </div>
@@ -369,7 +369,7 @@ export function AIChatWizard() {
           {/* AI 로딩 인디케이터 */}
           {isAILoading && (
             <div className="flex items-center gap-2 rounded-2xl bg-card p-4 text-sm text-muted-foreground shadow-sm" data-testid="ai-loading">
-              <Loader2 className="h-4 w-4 animate-spin text-sakura-dark" />
+              <Loader2 className="h-4 w-4 animate-spin text-cyan" />
               <span>AI가 맞춤 일정을 생성하고 있어요...</span>
             </div>
           )}
@@ -379,7 +379,7 @@ export function AIChatWizard() {
       {/* 하단 자유 입력 바 */}
       <div className="border-t border-border bg-card px-4 py-3" data-testid="free-chat-bar">
         <div className="mx-auto flex max-w-lg items-center gap-2">
-          <Sparkles className="h-4 w-4 shrink-0 text-sakura-dark dark:text-sakura" />
+          <Sparkles className="h-4 w-4 shrink-0 text-cyan" />
           <Input
             placeholder="자유롭게 여행을 말씀해주세요..."
             value={freeInput}

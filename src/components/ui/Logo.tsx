@@ -14,9 +14,9 @@ export function Logo({ className = "h-8 w-8" }: { className?: string }) {
     >
       <defs>
         <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1565C0" />
-          <stop offset="55%" stopColor="#1256A8" />
-          <stop offset="100%" stopColor="#0D47A1" />
+          <stop offset="0%" stopColor="#06B6D4" />
+          <stop offset="55%" stopColor="#8B5CF6" />
+          <stop offset="100%" stopColor="#7C3AED" />
         </linearGradient>
       </defs>
       <rect width="40" height="40" rx="11" fill={`url(#${gradientId})`} />
@@ -26,8 +26,8 @@ export function Logo({ className = "h-8 w-8" }: { className?: string }) {
       <line x1="14" y1="17" x2="14" y2="30" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
       <line x1="26" y1="17" x2="26" y2="30" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
       {/* 경로 도트 */}
-      <circle cx="20" cy="24" r="2" fill="#90CAF9" opacity="0.9" />
-      <circle cx="20" cy="30" r="1.3" fill="#90CAF9" opacity="0.6" />
+      <circle cx="20" cy="24" r="2" fill="#22D3EE" opacity="0.9" />
+      <circle cx="20" cy="30" r="1.3" fill="#22D3EE" opacity="0.6" />
     </svg>
   )
 }

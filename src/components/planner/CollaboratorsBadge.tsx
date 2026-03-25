@@ -14,7 +14,7 @@ const AVATAR_COLORS = [
   "bg-success",
   "bg-indigo-light",
   "bg-warning",
-  "bg-sakura",
+  "bg-cyan",
 ]
 
 export function CollaboratorsBadge({

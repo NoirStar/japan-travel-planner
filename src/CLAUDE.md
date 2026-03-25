@@ -51,7 +51,7 @@ Domain-grouped directories:
 
 ## Design System
 
-Warm editorial luxe aesthetic: ivory backgrounds, coral accents, deep indigo tones. Preserve this visual language — avoid generic dashboard aesthetics. Mobile-first responsive design throughout. Dark mode supported with map dark mode via Cloud Map IDs.
+Futuristic Space-Modern aesthetic: dark-first design (zinc-950 backgrounds), cyan (#06B6D4) + violet (#8B5CF6) + neon-pink (#EC4899) accent system, glassmorphism surfaces, glow effects on interactive elements. Preserve this visual language. Mobile-first responsive design throughout. Dark mode is the default experience; light mode supported as toggle. Map dark mode via Cloud Map IDs.
 
 ## Key Patterns
 

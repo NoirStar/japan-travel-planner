@@ -1,4 +1,4 @@
-import { useCallback, useState, memo } from "react"
+import { useCallback, useState, useEffect, useRef, memo } from "react"
 import { InfoWindow } from "@vis.gl/react-google-maps"
 import { Star, Plus, ExternalLink, Clock, X, Bookmark } from "lucide-react"
 import type { Place } from "@/types/place"
@@ -120,11 +120,22 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
     onSelect?.()
   }, [onSelect])
 
+  // hover 관리: native pointerleave로 확실히 해제 (Google Maps overlay에서 React 이벤트 누락 방지)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
   const handleMouseEnter = useCallback(() => {
     if (!isSelected && !isTouchDevice) setIsHovered(true)
   }, [isSelected])
 
   const handleMouseLeave = useCallback(() => setIsHovered(false), [])
+
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const onLeave = () => setIsHovered(false)
+    el.addEventListener("pointerleave", onLeave)
+    return () => el.removeEventListener("pointerleave", onLeave)
+  }, [])
 
   const color = CATEGORY_COLOR[place.category] ?? CATEGORY_COLOR.other
   const tier = getRatingTier(place.rating)
@@ -139,6 +150,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
     <>
       <CustomOverlay position={place.location} zIndex={zIndex}>
         <div
+          ref={wrapperRef}
           className="city-pin-wrapper"
           style={{ opacity }}
           onClick={handleClick}

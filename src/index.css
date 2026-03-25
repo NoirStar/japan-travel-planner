@@ -624,14 +624,12 @@ body {
   border-top-color: white;
 }
 
-@media (prefers-color-scheme: dark) {
-  .city-pin-tooltip {
-    background: #1f2937;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-  }
-  .city-pin-tooltip::after {
-    border-top-color: #1f2937;
-  }
+.dark .city-pin-tooltip {
+  background: #1f2937;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.dark .city-pin-tooltip::after {
+  border-top-color: #1f2937;
 }
 
 /* ── Premium tier (rating >= 4.5) — 같은 크기, 강조만 ── */

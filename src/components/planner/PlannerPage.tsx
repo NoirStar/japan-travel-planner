@@ -119,19 +119,15 @@ export function PlannerPage() {
   // ── 검색 관련 state/handler ──
   const search = useMapSearch(activeDayCityId)
 
-  // ── 초기 로드 시 도시 중심 자동 검색 (빈 지도 방지) ──
-  const autoSeeded = useRef(false)
+  // ── 도시 변경 시 검색 결과 초기화 ──
   const lastSeededCity = useRef("")
   useEffect(() => {
     if (!trip) return
-    // 초기 시드 또는 Day별 도시가 바뀌었을 때 재시드
-    if (autoSeeded.current && lastSeededCity.current === activeDayCityId) return
-    autoSeeded.current = true
+    if (lastSeededCity.current === activeDayCityId) return
+    // 도시가 바뀌면 이전 검색 결과 정리
+    if (lastSeededCity.current) search.handleClearMarkers()
     lastSeededCity.current = activeDayCityId
-    const { center, zoom } = cityConfig
-    const radius = Math.round(40_000 / Math.pow(2, zoom - 1))
-    search.handleSearchArea(center.lat, center.lng, radius)
-  }, [trip, cityConfig, search, activeDayCityId])
+  }, [trip, activeDayCityId, search])
 
   // ── 공동 편집 동기화 ──
   const collab = useCollaborativeSync(trip)

@@ -27,11 +27,11 @@ interface ReservationCardProps {
   onRemove: () => void
 }
 
-const TYPE_CONFIG: Record<ReservationType, { icon: LucideIcon; gradient: string; bg: string }> = {
-  flight: { icon: Plane, gradient: "from-indigo to-indigo-light", bg: "bg-indigo/5" },
-  train: { icon: TrainFront, gradient: "from-indigo-light to-indigo", bg: "bg-indigo/5" },
-  bus: { icon: Bus, gradient: "from-primary/80 to-primary", bg: "bg-primary/5" },
-  accommodation: { icon: Hotel, gradient: "from-cyan to-primary", bg: "bg-primary/5" },
+const TYPE_CONFIG: Record<ReservationType, { icon: LucideIcon; color: string; bg: string }> = {
+  flight: { icon: Plane, color: "bg-primary", bg: "bg-primary/5" },
+  train: { icon: TrainFront, color: "bg-primary-light", bg: "bg-primary/5" },
+  bus: { icon: Bus, color: "bg-info", bg: "bg-info/5" },
+  accommodation: { icon: Hotel, color: "bg-success", bg: "bg-success/5" },
 }
 
 function formatCost(cost: number): string {
@@ -69,7 +69,7 @@ export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
   return (
     <div
       ref={ref}
-      className={`group relative overflow-hidden rounded-2xl border bg-card transition-all duration-200 hover:shadow-md ${config.bg} border-border/60`}
+      className={`group relative overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:shadow-md ${config.bg} border-border`}
       data-testid={`reservation-card-${reservation.type}`}
     >
       {/* 좌측 컬러 바 */}
@@ -100,14 +100,14 @@ export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
       <div className="p-3 pl-4">
         {/* 메인 정보 */}
         <div className="flex items-start gap-2.5">
-          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${config.gradient}`}>
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${config.color}`}>
             <Icon className="h-5 w-5 text-white" />
           </div>
 
           <div className="min-w-0 flex-1">
             {/* 타입 + 제목 */}
             <div className="flex items-center gap-1.5">
-              <span className={`rounded-full bg-gradient-to-r ${config.gradient} px-2 py-0.5 text-[9px] font-bold text-white`}>
+              <span className={`rounded-full ${config.color} px-2 py-0.5 text-[9px] font-bold text-white`}>
                 {RESERVATION_LABELS[reservation.type]}
               </span>
               {reservation.confirmed ? (
@@ -210,7 +210,7 @@ export const ReservationCard = forwardRef<HTMLDivElement, ReservationCardProps>(
                 <span className="text-muted-foreground/60 text-xs">첨부파일</span>
                 {reservation.attachments.map((att) => (
                   <div key={att.storagePath} className="flex items-center gap-1.5 text-xs">
-                    <Paperclip className="h-3 w-3 shrink-0 text-indigo" />
+                    <Paperclip className="h-3 w-3 shrink-0 text-primary" />
                     <span className="truncate font-medium text-foreground">{att.fileName}</span>
                     {att.size != null && (
                       <span className="shrink-0 text-muted-foreground/50">{att.size < 1024 * 1024 ? `${(att.size / 1024).toFixed(0)}KB` : `${(att.size / (1024 * 1024)).toFixed(1)}MB`}</span>

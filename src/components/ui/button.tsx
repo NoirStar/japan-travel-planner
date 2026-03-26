@@ -9,25 +9,26 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary-light",
         destructive:
           "bg-destructive text-white shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive/20",
         outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
+          "border border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-muted text-foreground hover:bg-border",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground",
+          "text-muted-foreground hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        cta: "bg-amber text-amber-foreground font-semibold shadow-sm hover:bg-amber/90",
-        gradient: "bg-gradient-to-r from-cosmic via-nebula to-cosmic-light text-white shadow-sm hover:brightness-110",
+        // 레거시 호환 — 점진적 제거 대상
+        cta: "bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary-light",
+        gradient: "bg-primary text-primary-foreground shadow-sm hover:bg-primary-light",
       },
       size: {
-        default: "h-10 px-4 py-2 has-[>svg]:px-3",
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        xs: "h-7 gap-1 rounded-md px-2.5 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 rounded-lg gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-11 rounded-lg px-6 text-base font-semibold has-[>svg]:px-4",
-        icon: "size-10",
+        icon: "size-9",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-8",
         "icon-lg": "size-10",

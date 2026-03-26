@@ -63,7 +63,7 @@ export function TripListPage() {
         {/* 로그인 필요 */}
         {!user ? (
           <div
-            className="empty-state card-elevated rounded-2xl"
+            className="empty-state bg-card border border-border rounded-2xl"
           >
             <div className="empty-state-icon">
               <LogIn className="h-8 w-8 text-muted-foreground/40" />
@@ -80,7 +80,7 @@ export function TripListPage() {
           </div>
         ) : trips.length === 0 ? (
           <div
-            className="empty-state card-elevated rounded-2xl"
+            className="empty-state bg-card border border-border rounded-2xl"
           >
             <div className="empty-state-icon">
               <Compass className="h-8 w-8 text-primary/45" />
@@ -132,7 +132,7 @@ export function TripListPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100 }}
-                    className="group card-elevated cursor-pointer overflow-hidden rounded-2xl transition-all hover:border-primary/20"
+                    className="group bg-card border border-border cursor-pointer overflow-hidden rounded-2xl transition-all hover:border-primary/20"
                     onClick={() => handleOpenTrip(trip.id, trip.cityId)}
                     data-testid={`trip-card-${trip.id}`}
                   >

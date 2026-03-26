@@ -5,61 +5,79 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ══════════════════════════════════════════════════════
-   타비톡 — Deep Teal Cosmic
-   Teal + Emerald + Gold
+   타비톡 — Electric Indigo
+   Single-axis accent on near-black zinc base
    Dark-only theme
    ══════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #0C0F0F;
-  --color-foreground: #E4E8E6;
-  --color-card: #141A1A;
-  --color-card-foreground: #E4E8E6;
-  --color-primary: #2DD4A8;
-  --color-primary-foreground: #0C0F0F;
-  --color-secondary: #1A2222;
-  --color-secondary-foreground: #CBD5D1;
-  --color-muted: #161C1C;
-  --color-muted-foreground: #8A9A94;
-  --color-accent: #1E2828;
-  --color-accent-foreground: #E4E8E6;
-  --color-border: #243030;
-  --color-input: #243030;
-  --color-ring: #2DD4A8;
+  /* ── 배경 표면 (near-black zinc 축) ──────────────── */
+  --color-background: #09090B;
+  --color-surface: #0C0C0F;
+  --color-card: #131316;
+  --color-card-foreground: #FAFAFA;
+  --color-elevated: #1A1A1F;
+  --color-muted: #18181B;
+  --color-muted-foreground: #A1A1AA;
+  --color-faint: #71717A;
+
+  /* ── 텍스트 ─────────────────────────────────────── */
+  --color-foreground: #FAFAFA;
+
+  /* ── 경계선 ─────────────────────────────────────── */
+  --color-border: #27272A;
+  --color-border-strong: #3F3F46;
+  --color-input: #27272A;
+
+  /* ── 프라이머리 (Electric Indigo 단일 축) ────────── */
+  --color-primary: #6366F1;
+  --color-primary-light: #818CF8;
+  --color-primary-foreground: #FFFFFF;
+
+  /* ── 세컨더리/액센트 ────────────────────────────── */
+  --color-secondary: #1E1E23;
+  --color-secondary-foreground: #D4D4D8;
+  --color-accent: #1E1E23;
+  --color-accent-foreground: #FAFAFA;
+
+  /* ── 링 ─────────────────────────────────────────── */
+  --color-ring: #6366F1;
+
+  /* ── 시맨틱 컬러 ────────────────────────────────── */
   --color-destructive: #EF4444;
-  --color-destructive-foreground: #ffffff;
-  --radius: 0.75rem;
-  --color-surface: #0E1212;
-  --color-elevated: #1C2424;
-  --color-success: #34D399;
-  --color-success-foreground: #0C0F0F;
-  --color-warning: #FBBF24;
-  --color-warning-foreground: #0C0F0F;
-  --color-info: #60A5FA;
-  --color-info-foreground: #0C0F0F;
+  --color-destructive-foreground: #FFFFFF;
+  --color-success: #22C55E;
+  --color-success-foreground: #09090B;
+  --color-warning: #F59E0B;
+  --color-warning-foreground: #09090B;
+  --color-info: #3B82F6;
+  --color-info-foreground: #09090B;
   --color-star: #FACC15;
-  --color-cosmic: #2DD4A8;
-  --color-cosmic-light: #5EEAD4;
-  --color-nebula: #34D8B4;
-  --color-nebula-light: #6EE7C0;
-  --color-amber: #E8B931;
-  --color-amber-light: #F5D060;
-  /* legacy aliases */
-  --color-cyan: #2DD4A8;
-  --color-cyan-light: #5EEAD4;
-  --color-violet: #34D8B4;
-  --color-violet-light: #6EE7C0;
-  --color-neon-pink: #E8B931;
-  --color-neon-blue: #60A5FA;
-  --color-sakura: #E8B931;
-  --color-sakura-dark: #2DD4A8;
-  --color-indigo: #34D8B4;
-  --color-indigo-light: #6EE7C0;
+
+  /* ── 레거시 호환 매핑 (기존 코드 참조용) ────────── */
+  --color-cosmic: #6366F1;
+  --color-cosmic-light: #818CF8;
+  --color-nebula: #818CF8;
+  --color-nebula-light: #A5B4FC;
+  --color-amber: #F59E0B;
+  --color-amber-light: #FBBF24;
+  --color-amber-foreground: #09090B;
+  --color-cyan: #6366F1;
+  --color-cyan-light: #818CF8;
+  --color-violet: #818CF8;
+  --color-violet-light: #A5B4FC;
+  --color-neon-pink: #F59E0B;
+  --color-neon-blue: #3B82F6;
+  --color-sakura: #F59E0B;
+  --color-sakura-dark: #6366F1;
+  --color-indigo: #6366F1;
+  --color-indigo-light: #818CF8;
+
+  --radius: 0.75rem;
 }
 
-/* Dark mode is always on — no .dark override needed.
-   The .dark class is still set on <html> for Google Maps
-   InfoWindow styling and any remaining dark: prefixes during migration. */
+/* Dark mode is always on. The .dark class is set on <html>
+   for Google Maps InfoWindow styling. */
 
 body {
   color-scheme: dark;
@@ -86,81 +104,21 @@ body {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-cosmic);
-}
-
-/* ── 코스믹 배경 패턴 ──────────────────────── */
-.bg-cosmic-pattern,
-.bg-sakura-pattern {
-  background-color: var(--color-background);
-  background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(45, 212, 168, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(52, 216, 180, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 85%, rgba(232, 185, 49, 0.02) 0%, transparent 40%);
-}
-
-/* ── 글래스모피즘 ─────────────────────────────────────── */
-.glass {
-  background: rgba(20, 26, 26, 0.6);
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
-  border: 1px solid rgba(36, 48, 48, 0.5);
-}
-
-/* ── 그라데이션 텍스트 ───────────────────────────────── */
-.gradient-text {
-  background: linear-gradient(135deg, #2DD4A8 0%, #34D8B4 50%, #E8B931 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: var(--color-faint);
 }
 
 /* ── 브랜드 폰트 (heavy weight) ────────────────────── */
 .font-maple {
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.03em;
 }
 
-/* ── 글로우 이펙트 ────────────────────────────────────── */
-.glow-cosmic,
-.glow-cyan,
-.glow-violet,
-.glow-brand {
-  box-shadow: 0 0 20px rgba(45, 212, 168, 0.12), 0 0 60px rgba(45, 212, 168, 0.04);
-}
-.glow-amber {
-  box-shadow: 0 0 20px rgba(232, 185, 49, 0.15), 0 0 60px rgba(232, 185, 49, 0.05);
-}
-.text-glow-cosmic,
-.text-glow-cyan {
-  text-shadow: 0 0 20px rgba(45, 212, 168, 0.4);
-}
-
-/* ── 그라디언트 보더 ──────────────────────────────────── */
-.border-gradient {
-  position: relative;
-}
-.border-gradient::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(45,212,168,0.5) 0%, rgba(52,216,180,0.5) 50%, rgba(232,185,49,0.3) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-/* ── 펄스 링 애니메이션 (CTA용) ───────────────────────── */
-@keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(45, 212, 168, 0.3); }
-  70% { box-shadow: 0 0 0 10px rgba(45, 212, 168, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(45, 212, 168, 0); }
-}
-.animate-pulse-ring {
-  animation: pulse-ring 2s ease-out infinite;
+/* ── 글래스모피즘 (절제된 버전) ────────────────────── */
+.glass {
+  background: rgba(19, 19, 22, 0.7);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  border: 1px solid rgba(39, 39, 42, 0.5);
 }
 
 /* ── 카드 그림자 ──────────────────────────────────────── */
@@ -168,21 +126,13 @@ body {
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.3),
     0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .card-shadow:hover {
   box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.35),
-    0 8px 24px rgba(45, 212, 168, 0.06);
-  transform: translateY(-2px);
-}
-
-/* ── 컨트롤 그룹 표면 (검색/필터 영역) ────────── */
-.surface-controls {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 1rem;
-  padding: 1rem;
+    0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 /* ── 표면 위계 ──────────────────────────── */
@@ -190,7 +140,7 @@ body {
 .surface-card { background: var(--color-card); }
 .surface-elevated {
   background: var(--color-elevated);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(36, 48, 48, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 .surface-inset {
   background: var(--color-muted);
@@ -200,59 +150,67 @@ body {
   background: var(--color-surface);
 }
 
+/* ── 컨트롤 그룹 표면 ────────────────────── */
+.surface-controls {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
 /* ══════════════════════════════════════════════════════
    Design System — Typography / Spacing / Components
    ══════════════════════════════════════════════════════ */
 
-/* ── 타이포그래피 스케일 ────────────────────────────── */
-.text-display     { font-size: clamp(2.25rem, 5vw, 3.75rem); font-weight: 900; letter-spacing: -0.05em; line-height: 1.05; }
-.text-headline    { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; }
-.text-title       { font-size: clamp(1.125rem, 2vw, 1.375rem); font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
-.text-body        { font-size: 1rem; line-height: 1.6; }                    /* 16px */
-.text-body-sm     { font-size: 0.875rem; line-height: 1.5; }                /* 14px */
-.text-caption     { font-size: 0.75rem; line-height: 1.4; letter-spacing: 0.06em; text-transform: uppercase; }  /* 12px */
+/* ── 타이포그래피 스케일 (밀도 향상) ─────────────────── */
+.text-display     { font-size: clamp(1.875rem, 4vw, 3rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
+.text-headline    { font-size: clamp(1.25rem, 2.5vw, 1.75rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.text-title       { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+.text-body        { font-size: 0.9375rem; line-height: 1.5; }                    /* 15px */
+.text-body-sm     { font-size: 0.8125rem; line-height: 1.4; }                    /* 13px */
+.text-caption     { font-size: 0.6875rem; line-height: 1.3; letter-spacing: 0.04em; text-transform: uppercase; }  /* 11px */
+.text-micro       { font-size: 0.625rem; line-height: 1.3; }                     /* 10px — 배지/카운트용 */
 
 /* ── 섹션 리듬 ──────────────────────────── */
-.section-gap      { padding-top: 5rem; padding-bottom: 5rem; }
-.section-gap-sm   { padding-top: 3rem; padding-bottom: 3rem; }
+.section-gap      { padding-top: 4rem; padding-bottom: 4rem; }
+.section-gap-sm   { padding-top: 2.5rem; padding-bottom: 2.5rem; }
 @media (max-width: 640px) {
-  .section-gap    { padding-top: 3rem; padding-bottom: 3rem; }
-  .section-gap-sm { padding-top: 2rem; padding-bottom: 2rem; }
+  .section-gap    { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+  .section-gap-sm { padding-top: 1.5rem; padding-bottom: 1.5rem; }
 }
 
 /* ── 히어로 섹션 ──────────────────────────── */
 .hero-section {
-  padding-top: clamp(3rem, 8vw, 7rem);
-  padding-bottom: clamp(3rem, 8vw, 6rem);
+  padding-top: clamp(3rem, 8vw, 6rem);
+  padding-bottom: clamp(3rem, 8vw, 5rem);
 }
 
 /* ── 카드 시스템 ──────────────────────────── */
 .card-elevated {
   background: var(--color-card);
   border: 1px solid var(--color-border);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.25),
     0 6px 24px rgba(0, 0, 0, 0.15);
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .card-elevated:hover {
+  border-color: var(--color-border-strong);
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.35),
-    0 16px 40px rgba(45, 212, 168, 0.05);
-  transform: translateY(-2px);
+    0 16px 40px rgba(0, 0, 0, 0.12);
 }
 
 .card-flat {
   background: var(--color-surface);
   border: 1px solid transparent;
-  border-radius: 1rem;
-  transition: all 0.2s ease;
+  border-radius: 0.75rem;
+  transition: all 0.15s ease;
 }
 .card-flat:hover {
   border-color: var(--color-border);
   background: var(--color-card);
-  box-shadow: 0 0 0 1px rgba(45, 212, 168, 0.08);
 }
 
 /* ── 칩/뱃지 시스템 ────────────────────────── */
@@ -269,7 +227,7 @@ body {
 }
 .chip-primary {
   background: color-mix(in srgb, var(--color-primary) 12%, transparent);
-  color: var(--color-primary);
+  color: var(--color-primary-light);
   border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 .chip-muted {
@@ -314,9 +272,9 @@ body {
   gap: 0.375rem;
   padding: 0.375rem;
   border-radius: 0.75rem;
-  background: rgba(22, 28, 28, 0.8);
+  background: rgba(24, 24, 27, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid transparent;
+  border: 1px solid var(--color-border);
 }
 .toolbar-group button {
   border-radius: 0.5rem;
@@ -328,8 +286,7 @@ body {
 .toolbar-group button.active {
   background: var(--color-card);
   color: var(--color-foreground);
-  border: 1px solid rgba(45, 212, 168, 0.2);
-  box-shadow: 0 0 8px rgba(45, 212, 168, 0.08);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
 @media (max-width: 640px) {
@@ -341,9 +298,7 @@ body {
   .toolbar-group::-webkit-scrollbar { display: none; }
 }
 
-/* ── 유틸리티 애니메이션 ─────────────────────────────── */
-
-/* ── 스크롤바 숨기기 (카테고리 필터 등) ──────────────── */
+/* ── 스크롤바 숨기기 ─────────────────────────────────── */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -352,22 +307,22 @@ body {
   scrollbar-width: none;
 }
 
-/* ── 토스트 페이드인 ────────────────────────────────────── */
+/* ── 유틸리티 애니메이션 ────────────────────────────── */
+
+/* 토스트 페이드인 */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
 
-/* ── Shimmer 로딩 (skeleton 대체) ──────────────────────── */
+/* Shimmer 로딩 */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-
 .animate-shimmer {
   background: linear-gradient(
     90deg,
@@ -379,7 +334,7 @@ body {
   animation: shimmer 1.8s ease-in-out infinite;
 }
 
-/* ── 알림 벨 흔들림 ─────────────────────────────────────── */
+/* 알림 벨 흔들림 */
 @keyframes bell-ring {
   0%, 100% { transform: rotate(0deg); }
   10% { transform: rotate(14deg); }
@@ -389,22 +344,50 @@ body {
   50% { transform: rotate(4deg); }
   60% { transform: rotate(0deg); }
 }
-
 .animate-bell {
   animation: bell-ring 1s ease-in-out;
   transform-origin: top center;
 }
 
-/* ── 좋아요 하트 펄스 ──────────────────────────────────── */
+/* 좋아요 하트 펄스 */
 @keyframes like-pop {
   0% { transform: scale(1); }
   30% { transform: scale(1.35); }
   60% { transform: scale(0.9); }
   100% { transform: scale(1); }
 }
-
 .animate-like-pop {
   animation: like-pop 0.4s ease-out;
+}
+
+/* ── 레거시 호환 유틸리티 (점진적 제거 대상) ────────── */
+.gradient-text {
+  color: var(--color-primary-light);
+  font-weight: 800;
+}
+.glow-cosmic,
+.glow-cyan,
+.glow-violet,
+.glow-brand,
+.glow-amber {
+  /* glow 제거 — 평평하고 깔끔하게 */
+}
+.text-glow-cosmic,
+.text-glow-cyan {
+  /* text glow 제거 */
+}
+.border-gradient {
+  border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+.border-gradient::before {
+  display: none;
+}
+.bg-cosmic-pattern,
+.bg-sakura-pattern {
+  background-color: var(--color-background);
+}
+.animate-pulse-ring {
+  /* 펄스 링 제거 */
 }
 
 /* ── Google Maps InfoWindow 다크모드 ─────────────────────── */
@@ -422,7 +405,6 @@ body {
 .dark .gm-style .gm-style-iw-chr button span {
   background-color: #71717A !important;
 }
-/* InfoWindow 내부 다크 스크롤바 */
 .dark .gm-style-iw-d::-webkit-scrollbar,
 .dark .gm-style-iw-d *::-webkit-scrollbar {
   width: 5px;
@@ -440,7 +422,6 @@ body {
 .dark .gm-style-iw-d *::-webkit-scrollbar-thumb:hover {
   background: var(--color-muted-foreground);
 }
-/* Firefox 다크 스크롤바 */
 .dark .gm-style-iw-d,
 .dark .gm-style-iw-d * {
   scrollbar-color: var(--color-border) var(--color-card);
@@ -482,10 +463,10 @@ body {
   animation: badge-glow 3s ease-in-out infinite;
 }
 
-/* Lv.15~20: 고급 글로우 — teal/emerald */
+/* Lv.15~20: 고급 글로우 — indigo */
 @keyframes badge-prestige {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(45, 212, 168, 0.3)); }
-  50% { filter: drop-shadow(0 0 6px rgba(52, 216, 180, 0.5)); }
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(99, 102, 241, 0.3)); }
+  50% { filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.5)); }
 }
 .animate-dragon-float,
 .animate-fuji-glow,
@@ -534,7 +515,7 @@ body {
 .tiptap h3 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.25rem; }
 
 .tiptap blockquote {
-  border-left: 3px solid var(--color-cosmic);
+  border-left: 3px solid var(--color-primary);
   padding-left: 1rem;
   margin: 0.75rem 0;
   color: var(--color-muted-foreground);
@@ -567,12 +548,12 @@ body {
 }
 
 .city-pin:hover {
-  filter: drop-shadow(0 3px 6px rgba(45,212,168,0.25)) drop-shadow(0 2px 4px rgba(0,0,0,0.20));
+  filter: drop-shadow(0 3px 6px rgba(99,102,241,0.25)) drop-shadow(0 2px 4px rgba(0,0,0,0.20));
   transform: scale(1.06);
 }
 
 .city-pin--selected {
-  filter: drop-shadow(0 2px 8px rgba(45,212,168,0.35));
+  filter: drop-shadow(0 2px 8px rgba(99,102,241,0.35));
 }
 
 .city-pin__icon {
@@ -586,7 +567,7 @@ body {
   justify-content: center;
 }
 
-/* ── Hover tooltip (CSS :hover 기반 — React state 불필요) ── */
+/* ── Hover tooltip ── */
 .city-pin-tooltip {
   position: absolute;
   bottom: calc(100% + 6px);
@@ -595,7 +576,7 @@ body {
   background: var(--color-card);
   border-radius: 8px;
   padding: 6px 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(36,48,48,0.5);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 0 1px var(--color-border);
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
@@ -605,12 +586,10 @@ body {
   transition: opacity 0.12s ease;
 }
 
-/* 호버 시 툴팁 표시 (selected 상태에서는 숨김) */
 .city-pin-wrapper:hover:not(.city-pin-wrapper--selected) .city-pin-tooltip {
   opacity: 1;
 }
 
-/* 호버 시 opacity/zIndex 보정 */
 .city-pin-wrapper:hover:not(.city-pin-wrapper--selected) {
   opacity: 1 !important;
   z-index: 300;
@@ -626,15 +605,15 @@ body {
   border-top-color: var(--color-card);
 }
 
-/* ── Premium tier (rating >= 4.5) — cosmic 글로우 ── */
+/* ── Premium tier (rating >= 4.5) — indigo 글로우 ── */
 .city-pin--premium {
-  filter: drop-shadow(0 0 4px rgba(45,212,168,0.4))
+  filter: drop-shadow(0 0 4px rgba(99,102,241,0.4))
           drop-shadow(0 2px 3px rgba(0,0,0,0.18));
   animation: city-pin-float 3s ease-in-out infinite;
 }
 
 .city-pin--premium:hover {
-  filter: drop-shadow(0 0 7px rgba(45,212,168,0.55))
+  filter: drop-shadow(0 0 7px rgba(99,102,241,0.55))
           drop-shadow(0 2px 4px rgba(0,0,0,0.22));
 }
 
@@ -666,7 +645,7 @@ body {
   background: linear-gradient(
     105deg,
     transparent 30%,
-    rgba(45,212,168,0.4) 50%,
+    rgba(99,102,241,0.4) 50%,
     transparent 70%
   );
   animation: city-pin-shimmer 3s ease-in-out infinite;

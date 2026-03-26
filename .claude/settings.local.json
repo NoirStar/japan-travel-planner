@@ -17,7 +17,9 @@
       "Bash(find /root/work/japan-travel-planner/src/pages -name *planner* -o -name *map*)",
       "Bash(find /root/work/japan-travel-planner -name tailwind.config.* -o -name postcss.config.*)",
       "Bash(wc -l /root/work/japan-travel-planner/src/components/planner/*.tsx)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(npx eslint:*)"
     ]
   }
 }

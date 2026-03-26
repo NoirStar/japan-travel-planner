@@ -33,10 +33,10 @@ interface TypeOption {
 }
 
 const TYPE_OPTIONS: TypeOption[] = [
-  { value: RT.FLIGHT, icon: Plane, gradient: "from-indigo to-indigo-light" },
-  { value: RT.TRAIN, icon: TrainFront, gradient: "from-indigo-light to-indigo" },
-  { value: RT.BUS, icon: Bus, gradient: "from-primary/80 to-primary" },
-  { value: RT.ACCOMMODATION, icon: Hotel, gradient: "from-cyan to-primary" },
+  { value: RT.FLIGHT, icon: Plane, gradient: "bg-primary" },
+  { value: RT.TRAIN, icon: TrainFront, gradient: "bg-primary-light" },
+  { value: RT.BUS, icon: Bus, gradient: "bg-info" },
+  { value: RT.ACCOMMODATION, icon: Hotel, gradient: "bg-success" },
 ]
 
 const TITLE_PLACEHOLDERS: Record<ReservationType, string> = {
@@ -148,7 +148,7 @@ export function ReservationSheet({ open, onOpenChange, editData, defaultDate, on
                       className="flex flex-col items-center gap-2 rounded-2xl border border-border p-5 transition-all hover:border-primary/40 hover:shadow-md active:scale-[0.97]"
                       data-testid={`reservation-type-${opt.value}`}
                     >
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${opt.gradient}`}>
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${opt.gradient}`}>
                         <Icon className="h-6 w-6 text-white" />
                       </div>
                       <span className="text-sm font-bold">{RESERVATION_LABELS[opt.value]}</span>
@@ -172,7 +172,7 @@ export function ReservationSheet({ open, onOpenChange, editData, defaultDate, on
                         onClick={() => setForm((prev) => ({ ...prev, type: opt.value }))}
                         className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition-all ${
                           active
-                            ? `bg-gradient-to-r ${opt.gradient} text-white shadow-sm`
+                            ? `${opt.gradient} text-white shadow-sm`
                             : "bg-muted text-muted-foreground hover:bg-muted/80"
                         }`}
                       >

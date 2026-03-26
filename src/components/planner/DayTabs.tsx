@@ -46,7 +46,7 @@ export function DayTabs({
 
       {/* 현재 Day 표시 */}
       <div
-        className={`rounded-full bg-gradient-to-r from-cosmic to-nebula px-3 py-1.5 text-[12px] font-bold text-white`}
+        className={`rounded-full bg-primary px-3 py-1.5 text-[12px] font-bold text-primary-foreground`}
         data-testid={`day-tab-${day?.dayNumber}`}
       >
         Day {day?.dayNumber ?? 1}
@@ -101,7 +101,7 @@ export function DayTabs({
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sakura/20"
+          className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
           onClick={onAddDay}
           aria-label="Day 추가"
           data-testid="day-add-btn"

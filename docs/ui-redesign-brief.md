@@ -1,224 +1,316 @@
 # UI Redesign Brief
 
-This brief exists to stop "theme refresh only" work. The goal is a product-wide UX overhaul that keeps the features but replaces the current UI structure.
+이 문서는 "색만 바꾸는 리테마"를 막고, 실제 서비스 수준의 전면 UI/UX 개편을 강제하기 위한 기준 문서다.
 
-## Core Intent
+목표는 기능은 유지하면서 제품의 정보 구조, 화면 구조, 인터랙션 흐름, 시각 시스템, 모바일 경험을 전부 다시 설계하는 것이다.
 
-- Redesign the product from the ground up while preserving core functionality.
-- Change layout, navigation, component hierarchy, interaction flow, density, and responsive behavior.
-- Borrow structure and UX patterns from user-provided references, but not their orange palette.
-- Default to dark mode only.
-- Make the product feel like a polished, professional travel service, not a hobby project or a theme experiment.
-- Prioritize usability over decoration. If the UI looks better but is harder to use, the redesign has failed.
+## 문서 목적
 
-## Reference Validation
+- 기존 UI를 꾸미는 것이 아니라 제품 경험 자체를 다시 설계한다.
+- 현재 화면의 구조를 최대한 유지하려는 관성을 끊는다.
+- 사용자 사용성과 전문적인 서비스 느낌을 동시에 만족시키는 결과를 만든다.
+- 결과물이 "기존 화면 + 새 색상"처럼 보이면 실패로 본다.
 
-- The agent must explicitly review the user-provided reference images before redesigning.
-- Before implementing, the agent should explain which layout, hierarchy, spacing, card composition, navigation, or interaction ideas were taken from the references.
-- The agent should not merely claim to have used the references; it should name concrete patterns it is applying.
-- If the references were not actually available or could not be inspected, the agent must say so before proceeding.
+## 커뮤니케이션 규칙
 
-## Product Understanding
+- 사용자에게 설명하는 모든 내용은 한국어로 작성한다.
+- 작업 전 분석, 레퍼런스 해석, 구현 계획, 자체 점검, 최종 보고까지 모두 한국어로 답한다.
+- 추상적인 표현만 쓰지 말고, 어떤 구조와 어떤 UX를 왜 바꾸는지 구체적으로 설명한다.
+- 레퍼런스를 확인했다면 무엇을 참고했는지 한국어로 먼저 설명하고 구현한다.
+- 레퍼런스를 실제로 확인하지 못했다면 확인하지 못했다고 먼저 말한다.
 
-The product has three primary jobs:
+## 핵심 원칙
 
-1. Travel planning
-2. Shared trip collaboration
-3. Community discovery and remix
+- 기능은 유지하고 UX 구조는 새로 만든다.
+- 사용성은 장식보다 우선이다.
+- 모바일은 축소판이 아니라 별도 UX로 설계한다.
+- 페이지 셸, 네비게이션, 카드 구조, 버튼 체급, 정보 밀도, 상태 표현을 다시 설계한다.
+- 현재 UI를 안전하게 보존하려 하지 말고, 필요한 경우 과감하게 교체한다.
+- 디자인은 화려함보다 명확함, 탐색 효율, 신뢰감, 완성도를 우선한다.
 
-Key user actions:
+## 레퍼런스 검증 규칙
 
-- Search places through Google Maps
-- Add places into a day plan
-- See markers and route lines on the map
-- Share a trip and co-edit it
-- Chat while collaborating on a shared trip
-- Browse highly rated or popular trip plans
-- Copy another user's trip and reuse it
-- Read and write community posts and reviews
+- 사용자 제공 레퍼런스 이미지를 먼저 검토한다.
+- 구현 전에 아래 항목을 기준으로 레퍼런스에서 참고할 점을 명시한다.
+  - 레이아웃 구조
+  - 정보 밀도
+  - 네비게이션 방식
+  - 카드 구성 방식
+  - 필터 패턴
+  - 모바일 흐름
+  - 색 사용 절제 방식
+- "비슷하게 만들겠다"가 아니라 어떤 속성을 가져올지 설명해야 한다.
+- 색만 복사하지 말고 구조, 위계, 간격, 흐름을 우선적으로 참고한다.
 
-## Functional Preservation
+## 기능 보존 원칙
 
-The redesign must keep the existing product capability intact.
+리디자인 중에도 아래 기능은 빠지면 안 된다.
 
-- Do not drop features in order to make the UI cleaner.
-- Do not hide important actions behind unclear affordances.
-- Before editing, identify the current user-facing features on each major route.
-- After editing, verify that travel planning, sharing, collaboration, chat, community browsing, copying trips, and post flows still work in the redesigned structure.
+- Google Maps 기반 여행 계획
+- 장소 검색, 장소 추가, 마커 표시, 경로 표시
+- Day 기반 일정 관리와 재정렬
+- 공유 링크 생성 및 공유 진입
+- 공동 편집
+- 여행 채팅
+- 여행 공유 게시판 탐색
+- 다른 사람 여행 복사 또는 리믹스
+- 자유게시판 작성, 조회, 검색, 정렬, 필터
+- 내 여행, 로그인, 프로필, 알림
 
-## Visual Direction
+추가 규칙:
 
-- Mood: mysterious, cosmic, refined, travel-oriented
-- Tone: clean, premium, calm, modern, service-grade
-- Backgrounds: dark, atmospheric, subtle texture or depth
-- Accent usage: restrained and purposeful
-- Gradients: limited and soft, never the main design gimmick
-- Typography: expressive but readable, with strong hierarchy
-- The product should feel like a premium travel platform or mature digital service, not a flashy concept shot.
+- UI를 깔끔하게 만들기 위해 기능을 삭제하지 않는다.
+- 중요한 기능을 숨기거나 접근 단계를 늘리지 않는다.
+- 구현 전 현재 기능 목록을 정리하고, 구현 후 다시 검수한다.
 
-Avoid:
+## 프로젝트가 지금 특히 해결해야 하는 문제
 
-- Simple recolors of the existing UI
-- Neon overload
-- Random decorative widgets with no functional value
-- Crowded controls or tiny tap targets
-- A desktop-first layout that breaks on mobile
-- Beautiful but confusing interactions
-- Over-designed visuals that reduce clarity or trust
+- 색 시스템이 탁하고 일관성이 부족하며, 프리미엄한 서비스 느낌이 약하다.
+- 버튼 색과 CTA 위계가 정리되지 않아 중요한 행동이 선명하지 않다.
+- 전체적으로 모던하고 세련된 제품 느낌보다 "대충 만든 다크 테마"처럼 보일 위험이 있다.
+- 플래너가 실제 여행 계획을 짜기에 불편하다.
+- 모바일에서 플래너 UX가 특히 불편하고, 정보 구조가 불안정하다.
+- 모바일에서 자유게시판 존재감과 진입성이 약해질 수 있다.
+- 커뮤니티와 게시판은 더 촘촘하고 더 빠르게 훑을 수 있어야 한다.
 
-## Non-Negotiables
+## 시각 방향
 
-- Do not preserve existing UI just because it already exists.
-- Do not solve this by only changing colors, shadows, or border radius.
-- Do not keep awkward top tabs, undersized buttons, or oversized post cards if they hurt usability.
-- Do not implement a light theme.
-- Do not introduce many competing gradients.
-- Do not finish the task if major features are missing.
-- Do not treat mobile as an afterthought.
+### 전체 무드
 
-## Usability Standards
+- 다크 테마 전용
+- 신비롭고 우주적인 분위기
+- 하지만 과장되지 않고 정제된 톤
+- 프리미엄 여행 플랫폼 또는 전문적인 디지털 서비스 느낌
+- 컨셉샷이 아니라 실제 출시된 제품처럼 보여야 한다
 
-- Primary actions should be obvious at a glance.
-- Users should understand what the page is for and what to do next within a few seconds.
-- Information hierarchy should guide the eye naturally.
-- Touch targets should be comfortable, especially on mobile.
-- Navigation should be predictable and low-friction.
-- Frequently used actions should require fewer steps than secondary actions.
-- Planner state should always be legible: active day, selected place, route context, collaboration state.
-- Boards and community feeds should optimize scanability and comparison, not oversized presentation.
-- Loading, empty, error, active, selected, and disabled states should be intentionally designed.
-- Readability, contrast, spacing, and alignment should be treated as core UX quality, not cosmetic detail.
+### 타이포그래피
 
-## Redesign Targets
+- 조밀하지만 읽기 쉬운 계층 구조
+- 제목은 강하고 명확하게
+- 본문은 절제되고 안정적으로
+- 카드, 표, 필터, 메타 정보가 빠르게 스캔되도록 설계
 
-### Global Shell
+### 컬러
 
-- Replace the current generic header/navigation if needed.
-- Build a clearer product hierarchy between planner, shared trips, community, and profile/actions.
-- Desktop and mobile should feel intentionally designed, not like the same header scaled down.
-- Users should always understand where they are and what major actions are available.
+- 현재의 탁한 teal/emerald/gold 인상에 갇히지 말고 새 컬러 시스템을 설계한다.
+- 바탕은 거의 검정에 가까운 deep ink 또는 near-black 계열로 간다.
+- 강한 포인트 컬러는 1개 축으로 통일한다.
+- 포인트 컬러는 CTA, 활성 상태, 배지, 포커스에만 선택적으로 사용한다.
+- 포인트 컬러를 모든 버튼과 카드에 남발하지 않는다.
+- 색이 많아서 화려한 것이 아니라, 적은 색으로 정교하게 통제된 느낌이어야 한다.
 
-### Landing Page
+### 모션
 
-- Keep it very clean.
-- One clear primary CTA to start planning.
-- Introduce the product through simple high-value sections, not a busy feature dump.
-- Show trust and discovery through real use cases: planning, collaborative editing, community remix.
-- Visual tone should feel premium and atmospheric without becoming noisy.
-- The first screen should communicate the product value quickly and confidently.
+- 빠르고 절제되며 목적이 있어야 한다.
+- 상태 전환, 시선 유도, 인터랙션 이해를 돕는 용도만 허용한다.
+- 보여주기용 과한 모션은 금지한다.
 
-### Planner
+### 표면과 깊이감
 
-The planner is the most important screen and should be redesigned around real trip-building behavior.
+- 기본은 평평하고 단정하게 간다.
+- 필요한 곳에만 깊이감을 준다.
+- 과한 글래스모피즘, 과한 glow, 과한 gradient는 금지한다.
+- 미래적인 느낌을 낼 때도 기능성과 신뢰감을 해치지 않아야 한다.
 
-Required UX priorities:
+## 반드시 피해야 할 것
 
-- Fast place discovery from map/search
-- Easy day switching
-- Clear itinerary editing and reordering
-- Visible route flow between selected places
-- Accessible collaboration and share controls
-- Strong mobile usability
-- Clear status awareness so users do not get lost while editing
-- Fewer friction points between search, add, reorder, and review
+- 기존 레이아웃을 유지한 채 색만 변경하는 방식
+- generic SaaS dashboard 느낌
+- AI가 만든 티 나는 안전하고 밋밋한 디자인
+- 둥근 카드 남발
+- 과한 그라디언트
+- 과한 네온
+- 탁하거나 촌스러운 포인트 컬러
+- 버튼 스타일이 제각각인 상태
+- 작은 터치 타겟
+- 시선 분산이 심한 여러 CTA
+- 모바일에서 데스크톱 레이아웃을 억지로 줄인 구조
+- 예쁘지만 불편한 UX
 
-Recommended desktop structure:
+## 사용성 기준
 
-- A trip control rail for trip overview, day selection, collaborators, and utilities
-- A primary itinerary workspace for the selected day's schedule
-- A map exploration canvas with search and result layers
+- 페이지에 들어가면 몇 초 안에 "이 페이지가 무엇을 하는 곳인지" 이해되어야 한다.
+- 가장 중요한 행동은 가장 눈에 띄어야 한다.
+- 자주 쓰는 기능은 적은 단계로 접근 가능해야 한다.
+- 정보 위계가 명확해서 시선 흐름이 자연스러워야 한다.
+- 버튼, 입력창, 탭, 필터, 정렬은 누르기 쉬운 크기여야 한다.
+- 모바일에서는 엄지 사용성과 하단 접근성을 고려한다.
+- 검색, 필터, 정렬, 탐색 흐름이 빠르고 직관적이어야 한다.
+- 로딩, 빈 상태, 에러 상태, 선택 상태, 활성 상태, hover, focus를 설계해야 한다.
+- "와 예쁘다"보다 "와 진짜 쓰기 편하다"가 먼저 느껴져야 한다.
 
-Recommended mobile structure:
+## 영역별 UX 목표
 
-- Full-screen map or itinerary focus with large thumb-friendly controls
-- Sheet-based or dock-based navigation rather than cramped tiny tabs
-- Sticky context showing current day and selected place state
-- Mobile should feel designed for actual trip planning, not like a squeezed desktop workspace
+### 공통 레이아웃
 
-### Shared Collaboration
+- 앱 셸, 상단 네비게이션, 모바일 네비게이션을 하나의 제품 시스템처럼 재설계한다.
+- 사용자는 항상 현재 위치와 다음 행동을 이해할 수 있어야 한다.
+- 자유게시판은 모바일 정보 구조에서도 명확하게 드러나야 한다.
+- 장난감 같은 레이아웃보다 전문 서비스형 네비게이션을 우선한다.
 
-- Shared editing should feel like a first-class mode, not an afterthought.
-- Collaboration state, invite/share controls, participant presence, and trip chat should be easy to find.
-- Chat should support co-planning naturally without overwhelming the planner workspace.
-- Collaboration affordances should be visible enough that users understand the trip can be co-edited.
+권장 패턴:
 
-### Travel Community
+- 로고는 왼쪽
+- 주요 카테고리 링크는 중앙
+- CTA와 계정 액션은 오른쪽
 
-- Make shared itineraries easier to browse, compare, and remix.
-- Highlight quality signals such as rating, popularity, travel stage, city, and duration.
-- Support "follow this trip" or "copy this trip" behavior clearly in the card or detail flow.
-- The browsing experience should feel efficient and trustworthy.
+### 랜딩페이지
 
-### Free Board
+- 매우 깔끔하되 첫인상이 강해야 한다.
+- 첫 화면에서 제품 가치가 즉시 이해되어야 한다.
+- CTA는 1개를 중심으로 강하게 가져간다.
+- 여행 계획, 공동 편집, 커뮤니티 탐색의 가치가 자연스럽게 이어져야 한다.
+- 흔한 스타트업 템플릿처럼 보이면 안 된다.
 
-- The current single-post cards are too large.
-- Use a denser list or compact card layout so more posts fit on one screen.
-- Prioritize scanability: title, author, date, likes, comments, thumbnail, short excerpt.
-- Desktop should allow much faster browsing than the current layout.
-- Search, sort, filtering, and reading flow should be easier than before.
+### 플래너
 
-## Implementation Standard
+플래너는 가장 중요한 화면이며, 기존 구조를 보존하는 것이 아니라 실제 여행 계획 흐름에 맞게 다시 짜야 한다.
 
-When doing a redesign, the agent should:
+우선순위:
 
-1. Audit the current routes and major screens first.
-2. Identify the current user-facing features that must survive the redesign.
-3. Explain what was taken from the user references before editing.
-4. Explain the new page structure before editing.
-5. Replace old layout assumptions instead of decorating them.
-6. Keep business logic and data flow intact when possible.
-7. Implement responsive behavior intentionally for desktop and mobile.
-8. Re-check feature completeness and usability before considering the redesign done.
+- 빠른 장소 탐색
+- Day 전환의 명확성
+- 일정 편집과 순서 조정의 쉬움
+- 경로와 지도 상태의 명확한 가시성
+- 공유와 협업의 쉬운 접근
+- 모바일에서도 실제로 계획 짜기 편해야 함
 
-## Definition Of Done
+추가 원칙:
 
-The redesign is not complete unless most of the following are true:
+- 현재 Day, 선택된 장소, 편집 상태, 지도 상태가 항상 읽혀야 한다.
+- 지도 보기와 일정 편집이 따로 노는 느낌을 줄인다.
+- 모바일에서 핵심 기능을 플로팅 토글 몇 개에 의존하지 않는다.
+- 사용자가 길을 잃지 않게 현재 맥락을 계속 보여준다.
 
-- The page structure is recognizably different from the old UI.
-- Navigation and screen hierarchy are improved.
-- Planner workflow feels rebuilt, not merely restyled.
-- Community and free board browsing density are improved.
-- Buttons, tabs, filters, and controls have been reconsidered for usability.
-- Mobile layouts feel purpose-built.
-- The visual language actually changed, not just the layout copy.
-- Major product features are still present and usable.
-- The result feels like a professional service and not a themed mockup.
-- Users can understand key actions quickly without hunting through the interface.
+권장 데스크톱 구조:
 
-## Prompt Template For Major Redesign Work
+- 여행 개요와 Day 컨트롤용 보조 레일
+- 선택한 Day의 상세 일정 편집 워크스페이스
+- 지도 탐색 캔버스
+- 공유/협업/채팅은 부가 기능처럼 숨기지 않고 구조 안에 자연스럽게 연결
 
-Use this style of instruction when requesting implementation:
+권장 모바일 구조:
+
+- 지도 중심 또는 일정 중심의 명확한 기본 화면
+- 시트, 드로어, 도킹 패턴을 적극적으로 활용
+- Day 전환, 장소 추가, 검색, 검토가 엄지 친화적으로 가능해야 함
+- 데스크톱을 줄여 넣은 느낌이 없어야 함
+
+### 여행공유 게시판
+
+- 좋은 여행을 빠르게 찾고 비교하고 복사하는 흐름이 명확해야 한다.
+- 카드 한 장에 5~6개의 유용한 데이터 포인트를 보여줘야 한다.
+- 도시, 기간, 유형, 인기, 반응, 후기 여부 등 신뢰 신호가 잘 보여야 한다.
+- 데스크톱에서는 4열 그리드 탐색 구조를 우선적으로 고려한다.
+- 이미지 아래 메타데이터 구조가 깔끔하게 정리되어야 한다.
+
+권장 패턴:
+
+- 데스크톱: 왼쪽 세로 필터 패널 + 오른쪽 카드 그리드
+- 검색 아래: 가로 스크롤 퀵 필터 태그 바
+- 카드: 과하게 크지 않되 정보 밀도는 높게
+
+### 자유게시판
+
+- 현재보다 훨씬 더 촘촘하고 빠르게 훑을 수 있어야 한다.
+- 한 화면에 더 많은 글이 보이되, 읽기 어려워지면 안 된다.
+- 제목, 작성자, 날짜, 좋아요, 댓글, 이미지 여부, 미리보기 단서가 빠르게 읽혀야 한다.
+- 데스크톱은 리스트 또는 테이블 하이브리드 구조를 적극적으로 고려한다.
+- 모바일에서는 검색, 정렬, 필터, 글쓰기 진입이 쉬워야 한다.
+- 모바일 IA에서 자유게시판이 묻히면 실패다.
+
+### 내 여행
+
+- 저장된 여행을 빠르게 이어서 열 수 있어야 한다.
+- 카드 또는 리스트가 계획 재개 중심으로 동작해야 한다.
+- 새 여행 만들기 CTA는 강하지만 과하지 않아야 한다.
+
+## 구현 워크플로우
+
+### 1단계: 분석
+
+- 현재 라우트와 주요 화면을 검토한다.
+- 유지해야 할 기능 목록을 정리한다.
+- 현재 UX 문제를 한국어로 요약한다.
+- 레퍼런스에서 가져올 구조적 특성을 한국어로 설명한다.
+
+### 2단계: 정보 구조 설계
+
+- 랜딩
+- 공통 레이아웃
+- 플래너
+- 여행공유 게시판
+- 자유게시판
+- 내 여행
+
+각 화면의 새 구조를 먼저 제안한다.
+
+### 3단계: 레이아웃 재설계
+
+- 페이지 셸과 컴포넌트 계층을 갈아엎는다.
+- 기존 구조를 꾸미지 말고 새 구조로 교체한다.
+- 필요하면 새 컴포넌트를 만든다.
+
+### 4단계: 시각 시스템 재설계
+
+- 컬러 토큰
+- 타이포 스케일
+- 간격 체계
+- 버튼 위계
+- 카드 위계
+- 상태 표현
+
+이 단계에서 색과 제품 무드를 실제로 개선한다.
+
+### 5단계: 모바일/접근성/상태 정리
+
+- 모바일 반응형을 다듬는다.
+- 터치 타겟, 포커스, 대비, 키보드 접근성을 확인한다.
+- 로딩, 에러, 빈 상태를 다듬는다.
+
+### 6단계: 자체 비판 및 보완
+
+- 결과물을 스스로 비판한다.
+- 최소 8개의 구체적인 약점을 적는다.
+- 그 약점을 실제로 수정한다.
+- 첫 번째 결과물이 그럴듯해 보여도 거기서 멈추지 않는다.
+
+## 완료 기준
+
+아래 대부분을 만족하지 못하면 리디자인은 완료된 것이 아니다.
+
+- 기존과 페이지 구조가 확실히 다르다.
+- 정보 구조와 내비게이션이 개선되었다.
+- 플래너가 진짜로 더 쓰기 쉬워졌다.
+- 모바일 플래너 UX가 별도로 고민되어 있다.
+- 모바일에서 자유게시판 접근성과 존재감이 분명하다.
+- 여행공유 게시판이 더 촘촘하고 탐색 효율이 좋아졌다.
+- 색 시스템이 실제로 더 세련되고 통일감 있게 바뀌었다.
+- 버튼과 CTA 위계가 선명해졌다.
+- 주요 기능이 빠지지 않았다.
+- 전체 결과가 "예쁜 컨셉"이 아니라 "완성된 서비스"처럼 보인다.
+
+## 실패 조건
+
+- 기존 UI에 색만 바꾼 수준이면 실패
+- 중요한 기능이 빠졌으면 실패
+- 모바일 UX가 여전히 불편하면 실패
+- 자유게시판이 모바일에서 묻히면 실패
+- 플래너가 여전히 계획 짜기 불편하면 실패
+- 색감이 여전히 촌스럽거나 탁하면 실패
+- 결과물이 generic하거나 AI 느낌이 강하면 실패
+
+## 구현 요청용 문구
+
+아래 문구를 Claude Code 프롬프트에 포함하는 것을 권장한다.
 
 ```text
-Do a full UI/UX overhaul of this project. Do not preserve the current layout unless functionality requires it.
+모든 분석, 설명, 계획, 자체 검수, 최종 보고는 한국어로 답해라.
 
-This is not a color refresh. You must replace the page structure, navigation patterns, component hierarchy, spacing system, and mobile behavior while keeping the core features working.
+이 작업은 색만 바꾸는 리테마가 아니라 서비스급 전면 UI/UX 재설계다.
+기능은 유지하고, 구조와 정보 위계와 모바일 UX와 시각 시스템을 다시 설계해라.
 
-Follow docs/ui-redesign-brief.md.
+docs/ui-redesign-brief.md를 반드시 따르고, 구현 전에 레퍼런스에서 실제로 참고한 구조적 요소를 한국어로 설명해라.
 
-Before implementing, explicitly explain what you took from the user-provided references. If you could not inspect the references, say so before proceeding.
-
-Priorities:
-- Dark theme only
-- Mysterious, cosmic, travel-oriented mood
-- Clean and modern, not noisy
-- Professional service feel
-- Strong usability
-- Minimal unnecessary decoration
-- Mobile web must be fully supported
-- No feature loss
-
-Critical requirement:
-- If the result still looks like the current UI with new colors, it has failed.
-- If important functionality is missing, it has failed.
-- If mobile usability regresses, it has failed.
-
-Execution order:
-1. Audit the current routes and major screens.
-2. Identify the existing user-facing features that must remain.
-3. Explain the reference-derived structure and interaction patterns you will apply.
-4. Propose the new layout structure for landing, planner, community, and free board.
-5. Implement the redesign screen by screen.
-6. Replace awkward tabs/buttons/cards instead of reskinning them.
-7. Verify responsive behavior, feature completeness, and usability.
+결과물이 기존 UI와 비슷하게 보이거나, 기능이 빠지거나, 모바일이 불편하거나, 색감이 여전히 촌스럽고 모던하지 않으면 실패다.
 ```

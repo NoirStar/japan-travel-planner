@@ -205,7 +205,7 @@ export function PlannerPage() {
       </aside>
 
       {/* ── 데스크톱: 일정 패널 (380px) / 모바일: 전체화면 토글 ── */}
-      <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-dvh lg:w-[380px] lg:border-r lg:border-border/30 ${
+      <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-dvh lg:w-[380px] lg:border-r lg:border-border ${
         mobileView === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
       }`}>
         <SchedulePanel
@@ -263,7 +263,7 @@ export function PlannerPage() {
 
       {/* ── 데스크톱: 채팅 슬라이드인 드로어 ── */}
       {showChat && chatOpen && (
-        <aside className="hidden lg:flex w-[320px] shrink-0 border-l border-border/30 bg-card h-dvh">
+        <aside className="hidden lg:flex w-[320px] shrink-0 border-l border-border bg-card h-dvh">
           <TripChatPanel
             sharedId={trip!.sharedId!}
             mobileOpen={false}

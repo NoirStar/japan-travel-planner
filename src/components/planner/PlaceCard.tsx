@@ -33,15 +33,15 @@ interface PlaceCardProps {
   onClick?: () => void
 }
 
-/** 카테고리별 그라데이션 색상 */
-const CATEGORY_GRADIENT: Record<string, string> = {
-  restaurant: "from-indigo to-indigo/70",
-  attraction: "from-nebula to-amber",
-  shopping: "from-indigo-light to-nebula",
-  accommodation: "from-nebula-light to-nebula",
-  cafe: "from-warning to-star",
-  transport: "from-indigo to-indigo-light",
-  other: "from-muted-foreground/60 to-muted-foreground/40",
+/** 카테고리별 컬러 */
+const CATEGORY_COLOR: Record<string, string> = {
+  restaurant: "bg-primary",
+  attraction: "bg-primary-light",
+  shopping: "bg-info",
+  accommodation: "bg-success",
+  cafe: "bg-warning",
+  transport: "bg-faint",
+  other: "bg-muted-foreground",
 }
 
 /** 시간대(아침/오전/점심 등) 분류 */
@@ -49,10 +49,10 @@ function getTimeSlotLabel(time: string): { label: string; color: string } | null
   if (!time) return null
   const [h] = time.split(":").map(Number)
   if (h >= 6 && h < 9) return { label: "아침", color: "text-primary" }
-  if (h >= 9 && h < 12) return { label: "오전", color: "text-indigo" }
+  if (h >= 9 && h < 12) return { label: "오전", color: "text-primary-light" }
   if (h >= 12 && h < 14) return { label: "점심", color: "text-warning" }
   if (h >= 14 && h < 17) return { label: "오후", color: "text-success" }
-  if (h >= 17 && h < 20) return { label: "저녁", color: "text-indigo-light" }
+  if (h >= 17 && h < 20) return { label: "저녁", color: "text-info" }
   return { label: "밤", color: "text-muted-foreground" }
 }
 
@@ -63,7 +63,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
   ) {
     const CategoryIcon = CATEGORY_ICONS[place.category] ?? CATEGORY_ICONS.other
     const categoryLabel = CATEGORY_LABELS[place.category] ?? place.category
-    const gradientClass = CATEGORY_GRADIENT[place.category] ?? "from-muted-foreground/60 to-muted-foreground/40"
+    const colorClass = CATEGORY_COLOR[place.category] ?? "bg-muted-foreground"
     const [isEditingTime, setIsEditingTime] = useState(false)
     const [showMemo, setShowMemo] = useState(!!memo)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -83,19 +83,19 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         ref={ref}
         className={`group relative rounded-xl border bg-card p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
           isSelected
-            ? "border-indigo shadow-[0_0_15px_rgba(99,102,241,0.15)]"
-            : "border-border hover:border-indigo/40"
+            ? "border-primary shadow-[0_0_12px_rgba(99,102,241,0.12)]"
+            : "border-border hover:border-primary/40"
         }`}
         data-testid={`place-card-${index}`}
         data-place-id={place.id}
         onClick={onClick}
       >
         {/* 좌측 컬러 스트라이프 */}
-        <div className={`absolute left-0 top-0 bottom-0 w-[4px] rounded-l-xl bg-gradient-to-b ${gradientClass}`} />
+        <div className={`absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl ${colorClass}`} />
 
         {/* 번호 배지 */}
         <div
-          className={`absolute -left-1 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${gradientClass} text-[10px] font-bold text-white shadow-md`}
+          className={`absolute -left-1 top-3 flex h-6 w-6 items-center justify-center rounded-full ${colorClass} text-[10px] font-bold text-white shadow-sm`}
         >
           {index + 1}
         </div>
@@ -118,7 +118,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                   ref={timeInputRef}
                   type="time"
                   defaultValue={startTime ?? ""}
-                  className="h-9 w-[100px] shrink-0 appearance-none rounded-lg bg-card px-2.5 text-sm font-medium text-foreground outline-none border border-sakura-dark shadow-sm focus:ring-2 focus:ring-sakura/30 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:leading-[32px]"
+                  className="h-9 w-[100px] shrink-0 appearance-none rounded-lg bg-card px-2.5 text-sm font-medium text-foreground outline-none border border-border shadow-sm focus:ring-2 focus:ring-primary/30 [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-datetime-edit]:leading-[32px]"
                   onBlur={(e) => {
                     setIsEditingTime(false)
                     onStartTimeChange?.(e.target.value)
@@ -134,7 +134,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 />
               ) : (
                 <button
-                  className="flex items-center gap-1.5 rounded-lg border border-indigo/30 bg-indigo/10 px-2.5 py-1 text-caption font-semibold text-indigo-light hover:bg-indigo/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-sm"
+                  className="flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-caption font-semibold text-primary-light hover:bg-primary/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-sm"
                   onClick={(e) => { e.stopPropagation(); setIsEditingTime(true) }}
                   data-testid={`time-badge-${index}`}
                 >
@@ -192,7 +192,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
             {/* 메모 입력 — 데스크톱만 */}
             {showMemo && (
               <textarea
-                className="mt-2 hidden w-full resize-none rounded-xl border border-border bg-muted px-3 py-2 text-body-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40 lg:block"
+                className="mt-2 hidden w-full resize-none rounded-xl border border-border bg-muted px-3 py-2 text-body-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-primary/40 lg:block"
                 placeholder="메모를 입력하세요..."
                 rows={2}
                 defaultValue={memo ?? ""}
@@ -208,7 +208,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 <Wallet className="h-3.5 w-3.5 text-success" />
                 <input
                   type="number"
-                  className="w-20 rounded-lg border border-border bg-muted px-2 py-1 text-caption text-foreground outline-none focus:ring-1 focus:ring-sakura/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  className="w-20 rounded-lg border border-border bg-muted px-2 py-1 text-caption text-foreground outline-none focus:ring-1 focus:ring-primary/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   placeholder="비용(¥)"
                   defaultValue={cost ?? ""}
                   onBlur={(e) => {
@@ -322,7 +322,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
         {/* 모바일 메모 영역 (메뉴에서 열었을 때) */}
         {showMemo && (
           <textarea
-            className="mt-3 w-full resize-none rounded-xl border border-border bg-muted px-3 py-2 text-body-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-sakura/40 lg:hidden"
+            className="mt-3 w-full resize-none rounded-xl border border-border bg-muted px-3 py-2 text-body-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-primary/40 lg:hidden"
             placeholder="메모를 입력하세요..."
             rows={2}
             defaultValue={memo ?? ""}

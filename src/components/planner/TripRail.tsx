@@ -94,15 +94,15 @@ export function TripRail({
     { icon: Bookmark, label: "북마크", color: "text-primary", onClick: onOpenWishlist, badge: wishlistCount },
     { icon: ClipboardCheck, label: "준비물", color: "text-success", onClick: onOpenChecklist },
     { icon: Wallet, label: "예산", color: "text-success", onClick: onOpenBudget },
-    { icon: TrainFront, label: "패스", color: "text-nebula", onClick: onOpenTransportPass },
-    { icon: Paperclip, label: "첨부함", color: "text-nebula", onClick: onOpenAttachmentVault },
-    ...(collab?.isShared ? [{ icon: History, label: "이력", color: "text-nebula-light", onClick: onOpenChangeHistory }] : []),
+    { icon: TrainFront, label: "패스", color: "text-info", onClick: onOpenTransportPass },
+    { icon: Paperclip, label: "첨부함", color: "text-muted-foreground", onClick: onOpenAttachmentVault },
+    ...(collab?.isShared ? [{ icon: History, label: "이력", color: "text-muted-foreground", onClick: onOpenChangeHistory }] : []),
   ]
 
   return (
-    <div className="flex h-full flex-col bg-card border-r border-border/30 overflow-y-auto">
+    <div className="flex h-full flex-col bg-card border-r border-border overflow-y-auto">
       {/* Trip Title */}
-      <div className="p-4 border-b border-border/30">
+      <div className="p-4 border-b border-border">
         {isEditingTitle ? (
           <input
             value={editTitle}
@@ -129,7 +129,7 @@ export function TripRail({
       </div>
 
       {/* Dates */}
-      <div className="px-4 py-3 border-b border-border/30">
+      <div className="px-4 py-3 border-b border-border">
         <div className="flex items-center gap-1.5 mb-2 text-xs font-medium text-muted-foreground">
           <Calendar className="h-3 w-3" />
           여행 날짜
@@ -153,7 +153,7 @@ export function TripRail({
       </div>
 
       {/* Day Selector */}
-      <div className="px-4 py-3 border-b border-border/30">
+      <div className="px-4 py-3 border-b border-border">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-muted-foreground">일정 ({trip.days.length}일)</span>
           <button
@@ -195,7 +195,7 @@ export function TripRail({
 
       {/* Collaboration */}
       {isLoggedIn && canCollab && (
-        <div className="px-4 py-3 border-b border-border/30">
+        <div className="px-4 py-3 border-b border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-muted-foreground">
               <Users className="inline h-3 w-3 mr-1" />
@@ -219,7 +219,7 @@ export function TripRail({
       )}
 
       {/* Visibility */}
-      <div className="px-4 py-3 border-b border-border/30">
+      <div className="px-4 py-3 border-b border-border">
         <div className="flex items-center gap-1.5 mb-2 text-xs font-medium text-muted-foreground">
           <Eye className="h-3 w-3" />
           공개 설정

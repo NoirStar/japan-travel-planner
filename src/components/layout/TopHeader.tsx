@@ -65,11 +65,11 @@ export function TopHeader() {
   const isLoggedIn = !!user && !!profile
 
   return (
-    <header className="hidden lg:flex fixed top-0 left-0 right-0 z-50 h-14 items-center border-b border-border/30 bg-card/90 backdrop-blur-xl px-6">
+    <header className="hidden lg:flex fixed top-0 left-0 right-0 z-50 h-14 items-center bg-background/95 backdrop-blur-sm border-b border-border px-6">
       {/* Left: Logo + Brand */}
       <Link to="/" className="flex items-center gap-2.5 mr-8 shrink-0" aria-label="타비톡 홈">
         <Logo className="h-8 w-8" />
-        <span className="gradient-text font-maple text-lg">타비톡</span>
+        <span className="text-foreground font-bold text-lg">타비톡</span>
       </Link>
 
       {/* Center: Nav Links */}
@@ -81,15 +81,15 @@ export function TopHeader() {
             <Link
               key={item.path}
               to={item.path}
-              className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`relative px-4 py-2 text-sm transition-colors ${
                 active
-                  ? "text-primary bg-primary/8"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? "text-foreground font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {item.label}
               {active && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full bg-primary" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-full rounded-full bg-indigo-500" />
               )}
             </Link>
           )
@@ -109,7 +109,7 @@ export function TopHeader() {
             <div className="relative" ref={notiRef}>
               <button
                 className={`relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
-                  notiOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  notiOpen ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
                 onClick={() => {
                   setNotiOpen((v) => !v)
@@ -161,7 +161,7 @@ export function TopHeader() {
             <div className="relative" ref={profileRef}>
               <button
                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
-                  profileOpen ? "ring-2 ring-primary/30" : "hover:ring-2 hover:ring-border"
+                  profileOpen ? "ring-2 ring-border" : "hover:ring-2 hover:ring-border"
                 }`}
                 onClick={() => {
                   setProfileOpen((v) => !v)
@@ -172,7 +172,7 @@ export function TopHeader() {
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
                 ) : (
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
                     {profile.nickname.charAt(0)}
                   </div>
                 )}
@@ -212,7 +212,7 @@ export function TopHeader() {
           </>
         ) : (
           <button
-            className="flex h-9 items-center gap-2 rounded-lg px-4 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            className="flex h-9 items-center gap-2 rounded-lg px-4 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             onClick={() => setShowLoginModal(true)}
           >
             <User className="h-[18px] w-[18px]" />

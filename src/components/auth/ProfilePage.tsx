@@ -41,17 +41,17 @@ export function ProfilePage() {
   return (
     <div className="mx-auto max-w-lg px-5 pt-24 pb-14">
       {/* 프로필 헤더 */}
-      <div className="mb-8 rounded-2xl border border-border bg-gradient-to-br from-cyan/5 via-card to-card p-8">
+      <div className="mb-8 rounded-2xl border border-border bg-card p-8">
         <div className="flex flex-col items-center gap-4">
           <div className="relative h-24 w-24">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
                 alt="avatar"
-                className="h-24 w-24 rounded-full border-2 border-cyan/20 object-cover ring-4 ring-cyan/5"
+                className="h-24 w-24 rounded-full border-2 border-primary/20 object-cover ring-4 ring-primary/5"
               />
             ) : (
-              <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-cyan/20 bg-cyan/10 text-3xl font-bold text-cyan ring-4 ring-cyan/5">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-primary/20 bg-primary/10 text-3xl font-bold text-primary ring-4 ring-primary/5">
                 {profile.nickname.charAt(0)}
               </div>
             )}
@@ -135,7 +135,7 @@ export function ProfilePage() {
                 </div>
                 <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-indigo transition-all"
+                    className="h-full rounded-full bg-primary transition-all"
                     style={{ width: `${progressPct}%` }}
                   />
                 </div>

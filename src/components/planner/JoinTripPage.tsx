@@ -110,13 +110,13 @@ export function JoinTripPage() {
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
       {effectiveState === "joining" ? (
         <>
-          <Loader2 className="h-8 w-8 animate-spin text-sakura-dark" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">여행에 참여하는 중...</p>
         </>
       ) : effectiveState === "need-login" ? (
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sakura-dark/10">
-            <Users className="h-7 w-7 text-sakura-dark" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+            <Users className="h-7 w-7 text-primary" />
           </div>
           <div>
             <h2 className="text-lg font-bold">공동 편집 초대</h2>

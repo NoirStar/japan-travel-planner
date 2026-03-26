@@ -9,12 +9,12 @@ interface CollaboratorsBadgeProps {
 
 /** 아바타 팔레트 (멤버별 색상 구분) */
 const AVATAR_COLORS = [
-  "bg-indigo",
+  "bg-primary",
   "bg-primary",
   "bg-success",
-  "bg-indigo-light",
+  "bg-info",
   "bg-warning",
-  "bg-cyan",
+  "bg-primary-light",
 ]
 
 export function CollaboratorsBadge({

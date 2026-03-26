@@ -39,9 +39,9 @@ export function LoginModal() {
       />
 
       {/* modal */}
-      <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xl glass border-gradient">
+      <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
         {/* 브랜드 헤더 */}
-        <div className="relative bg-gradient-to-br from-primary/10 via-nebula/5 to-transparent px-6 pt-8 pb-6 text-center">
+        <div className="relative px-6 pt-8 pb-6 text-center">
           <button
             onClick={() => { setShowLoginModal(false); navigate("/") }}
             className="absolute right-3 top-3 rounded-lg p-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
@@ -49,7 +49,7 @@ export function LoginModal() {
             <X className="h-4 w-4" />
           </button>
 
-          <h2 className="text-2xl font-bold gradient-text font-maple">타비톡</h2>
+          <h2 className="text-2xl font-bold text-foreground font-maple">타비톡</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             {location.pathname.startsWith("/planner") ? "일정을 저장하려면 로그인하세요"
               : location.pathname.startsWith("/community") ? "커뮤니티에 참여하려면 로그인하세요"

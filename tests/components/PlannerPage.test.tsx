@@ -97,23 +97,23 @@ describe("PlannerPage", () => {
 
   it("기본 도시명(도쿄)이 표시된다", () => {
     renderWithRoute()
-    expect(screen.getByText(/도쿄 여행/)).toBeInTheDocument()
+    expect(screen.getAllByText(/도쿄 여행/).length).toBeGreaterThanOrEqual(1)
   })
 
   it("city=osaka 파라미터로 오사카가 표시된다", () => {
     renderWithRoute("/planner?city=osaka")
-    expect(screen.getByText(/오사카 여행/)).toBeInTheDocument()
+    expect(screen.getAllByText(/오사카 여행/).length).toBeGreaterThanOrEqual(1)
   })
 
   it("city=kyoto 파라미터로 교토가 표시된다", () => {
     renderWithRoute("/planner?city=kyoto")
-    expect(screen.getByText(/교토 여행/)).toBeInTheDocument()
+    expect(screen.getAllByText(/교토 여행/).length).toBeGreaterThanOrEqual(1)
   })
 
   it("잘못된 share 링크에서도 기본 플래너가 초기화된다", () => {
     renderWithRoute("/planner/invalid-share-id")
     expect(screen.getByTestId("schedule-panel")).toBeInTheDocument()
-    expect(screen.getByText(/도쿄 여행/)).toBeInTheDocument()
+    expect(screen.getAllByText(/도쿄 여행/).length).toBeGreaterThanOrEqual(1)
   })
 
   it("장소 추가 버튼이 존재한다", () => {
@@ -124,7 +124,7 @@ describe("PlannerPage", () => {
   // ── Day 탭 ──────────────────────────────────────────
   it("Day 1 탭이 기본으로 표시된다", () => {
     renderWithRoute()
-    expect(screen.getByTestId("day-tab-1")).toBeInTheDocument()
+    expect(screen.getAllByTestId("day-tab-1").length).toBeGreaterThanOrEqual(1)
   })
 
   it("Day 추가 버튼을 클릭하면 Day 2가 생긴다", () => {

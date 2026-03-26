@@ -3,6 +3,7 @@ import { useSearchParams, useParams } from "react-router-dom"
 import { List, MapIcon, MessageSquare, LogIn } from "lucide-react"
 import { MapView } from "@/components/map/MapView"
 import { SchedulePanel } from "@/components/planner/SchedulePanel"
+import { TripRail } from "@/components/planner/TripRail"
 import { getCityConfig } from "@/data/mapConfig"
 import { useScheduleStore } from "@/stores/scheduleStore"
 import { useAuthStore } from "@/stores/authStore"
@@ -32,6 +33,15 @@ export function PlannerPage() {
   const [loginToast, setLoginToast] = useState(false)
   const [chatUnread, setChatUnread] = useState(0)
   const [chatOpen, setChatOpen] = useState(false)
+
+  // Sub-panel state (lifted so TripRail can trigger them via SchedulePanel)
+  const [_isWishlistOpen, setIsWishlistOpen] = useState(false)
+  const [_isChecklistOpen, setIsChecklistOpen] = useState(false)
+  const [_isBudgetOpen, setIsBudgetOpen] = useState(false)
+  const [_isTransportPassOpen, setIsTransportPassOpen] = useState(false)
+  const [_isAttachmentVaultOpen, setIsAttachmentVaultOpen] = useState(false)
+  const [_isChangeHistoryOpen, setIsChangeHistoryOpen] = useState(false)
+  const [_isReservationSheetOpen, setIsReservationSheetOpen] = useState(false)
 
   const showChat = !!trip?.sharedId && isChatAvailable()
 
@@ -173,10 +183,29 @@ export function PlannerPage() {
     search.handlePoiClick(googlePlaceId, setSelectedPlaceId)
   }, [search])
 
+  const wishlistCount = trip?.wishlist?.length ?? 0
+
   return (
     <div className="flex h-dvh flex-col lg:flex-row" data-testid="planner-page">
-      {/* ── 데스크톱: 워크스페이스 패널 (360px) ── */}
-      <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-dvh lg:w-[360px] lg:border-r lg:border-border/30 ${
+      {/* ── 데스크톱: TripRail (240px, 왼쪽 사이드) ── */}
+      <aside className="hidden lg:block w-[240px] shrink-0 h-dvh overflow-hidden">
+        <TripRail
+          activeDayIndex={activeDayIndex}
+          onActiveDayIndexChange={setActiveDayIndex}
+          collab={collab}
+          onOpenWishlist={() => setIsWishlistOpen(true)}
+          onOpenChecklist={() => setIsChecklistOpen(true)}
+          onOpenBudget={() => setIsBudgetOpen(true)}
+          onOpenTransportPass={() => setIsTransportPassOpen(true)}
+          onOpenAttachmentVault={() => setIsAttachmentVaultOpen(true)}
+          onOpenChangeHistory={() => setIsChangeHistoryOpen(true)}
+          onOpenReservation={() => setIsReservationSheetOpen(true)}
+          wishlistCount={wishlistCount}
+        />
+      </aside>
+
+      {/* ── 데스크톱: 일정 패널 (380px) / 모바일: 전체화면 토글 ── */}
+      <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-dvh lg:w-[380px] lg:border-r lg:border-border/30 ${
         mobileView === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
       }`}>
         <SchedulePanel
@@ -270,7 +299,7 @@ export function PlannerPage() {
       )}
 
       {/* ── 모바일: 뷰 전환 플로팅 버튼 ── */}
-      <div className="fixed bottom-20 right-4 z-40 flex flex-col gap-2 lg:hidden">
+      <div className="fixed bottom-6 right-4 z-40 flex flex-col gap-2 lg:hidden">
         {showChat && (
           <button
             onClick={() => setChatOpen(true)}
@@ -286,7 +315,7 @@ export function PlannerPage() {
         )}
         <button
           onClick={() => setMobileView(mobileView === "schedule" ? "map" : "schedule")}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
+          className="flex h-13 w-13 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
           aria-label={mobileView === "schedule" ? "지도 보기" : "일정 보기"}
         >
           {mobileView === "schedule" ? (

@@ -24,12 +24,12 @@ function renderWithRouter() {
 describe("LandingPage", () => {
   it("히어로 타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText("타비톡으로 완성하세요")).toBeInTheDocument()
+    expect(screen.getByText("완벽하게 계획하세요")).toBeInTheDocument()
   })
 
   it("서브타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("지도 기반 플래너") ?? false))).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("Google Maps 기반 플래너") ?? false))).toBeInTheDocument()
   })
 
 

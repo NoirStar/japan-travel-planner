@@ -193,7 +193,7 @@ export function CommunityPage() {
     <div className="min-h-screen bg-background">
     <div className="flex">
       {/* ── 데스크톱: 사이드바 필터 ── */}
-      <aside className="hidden lg:block w-[240px] shrink-0 sticky top-0 h-dvh overflow-y-auto border-r border-border/30 bg-card/50 p-5">
+      <aside className="hidden lg:block w-[240px] shrink-0 sticky top-14 h-[calc(100dvh-3.5rem)] overflow-y-auto border-r border-border/30 bg-card/50 p-5">
         {/* 검색 */}
         <div className="relative mb-5">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -361,6 +361,24 @@ export function CommunityPage() {
               <option value="review">후기</option>
             </select>
           </div>
+        </div>
+
+        {/* 빠른 도시 필터 태그 (데스크톱) */}
+        <div className="hidden lg:flex items-center gap-2 mb-4 overflow-x-auto scrollbar-hide">
+          <span className="text-[11px] font-medium text-muted-foreground shrink-0">도시:</span>
+          {[{ id: "", name: "전체" }, ...cities.slice(0, 8)].map((city) => (
+            <button
+              key={city.id}
+              onClick={() => setCityFilter(city.id)}
+              className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${
+                cityFilter === city.id
+                  ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              }`}
+            >
+              {city.name}
+            </button>
+          ))}
         </div>
 
         {/* 게시글 그리드 */}

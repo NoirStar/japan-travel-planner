@@ -36,9 +36,11 @@ interface SchedulePanelProps {
   selectedPlaceId?: string | null
   onSelectPlace?: (placeId: string | null) => void
   collab?: CollaborativeSyncResult
+  /** Hide TripHeader, DayTabs and desktop tools when shown alongside TripRail */
+  compactMode?: boolean
 }
 
-export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace, collab }: SchedulePanelProps) {
+export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, selectedPlaceId, onSelectPlace, collab, compactMode }: SchedulePanelProps) {
   const trip = useScheduleStore((s) => s.getActiveTrip())
   const { addDay, removeDay, removeItem, moveItem, updateItem, updateTrip, clearDay, duplicateDay, addReservation, updateReservation, removeReservation, updateDayCity } = useScheduleStore()
   const { user } = useAuthStore()
@@ -293,27 +295,31 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
   return (
     <div className="flex h-full flex-col" data-testid="schedule-panel">
-      {/* 헤더 */}
-      <TripHeader
-        trip={trip}
-        isLoggedIn={!!user}
-        onUpdateTrip={updateTrip}
-        onDateChange={handleDateChange}
-        onCitiesChange={(newCities) => updateTrip(trip.id, { cities: newCities })}
-        onVisibilityChange={(v) => updateTrip(trip.id, { visibility: v })}
-        collab={collab}
-      />
+      {/* 헤더 — compactMode에서는 숨김 (TripRail에서 표시) */}
+      {!compactMode && (
+        <TripHeader
+          trip={trip}
+          isLoggedIn={!!user}
+          onUpdateTrip={updateTrip}
+          onDateChange={handleDateChange}
+          onCitiesChange={(newCities) => updateTrip(trip.id, { cities: newCities })}
+          onVisibilityChange={(v) => updateTrip(trip.id, { visibility: v })}
+          collab={collab}
+        />
+      )}
 
-      {/* Day 탭 */}
-      <DayTabs
-        days={trip.days}
-        activeDayIndex={activeDayIndex}
-        onSelectDay={onActiveDayIndexChange}
-        onAddDay={handleAddDay}
-        onRemoveDay={handleRemoveDay}
-        onDuplicateDay={handleDuplicateDay}
-        tripStartDate={trip.startDate}
-      />
+      {/* Day 탭 — compactMode에서는 숨김 (TripRail에서 표시) */}
+      {!compactMode && (
+        <DayTabs
+          days={trip.days}
+          activeDayIndex={activeDayIndex}
+          onSelectDay={onActiveDayIndexChange}
+          onAddDay={handleAddDay}
+          onRemoveDay={handleRemoveDay}
+          onDuplicateDay={handleDuplicateDay}
+          tripStartDate={trip.startDate}
+        />
+      )}
 
       {/* Day별 도시 선택 (멀티시티) */}
       {currentDay && (
@@ -502,8 +508,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             <MoreHorizontal className="h-4.5 w-4.5" />
           </Button>
         </div>
-        {/* 데스크톱 하단 (lg 이상) */}
-        <div className="hidden lg:flex gap-2.5">
+        {/* 데스크톱 하단 (lg 이상) — compactMode에서는 장소추가만 표시 */}
+        <div className={`hidden lg:flex gap-2.5 ${compactMode ? "" : ""}`}>
           <Button
             className="flex-1"
             onClick={() => setIsPlaceSheetOpen(true)}

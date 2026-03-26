@@ -187,12 +187,93 @@ export function FreeBoardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-5 lg:px-6 pt-6 pb-14">
+    <div className="min-h-screen bg-background">
+    <div className="flex">
+      {/* ── 데스크톱: 사이드바 필터 ── */}
+      <aside className="hidden lg:block w-[220px] shrink-0 sticky top-14 h-[calc(100dvh-3.5rem)] overflow-y-auto border-r border-border/30 bg-card/50 p-5">
+        {/* 검색 */}
+        <div className="mb-5">
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">검색</h4>
+          <select
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value as "all" | "title" | "author")}
+            className="w-full mb-2 rounded-lg border border-border bg-card px-2 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="all">제목+내용</option>
+            <option value="title">제목</option>
+            <option value="author">작성자</option>
+          </select>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              placeholder="검색..."
+              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-xs outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
+        </div>
+
+        {/* 정렬 */}
+        <div className="mb-5">
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">정렬</h4>
+          <div className="flex flex-col gap-0.5">
+            {([["latest", "최신", Clock], ["popular", "인기", TrendingUp], ["best", "베스트", Trophy]] as const).map(([value, label, Icon]) => (
+              <button
+                key={value}
+                onClick={() => setSort(value)}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                  sort === value ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 추천수 */}
+        <div className="mb-5">
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">추천수</h4>
+          <div className="flex flex-col gap-0.5">
+            {LIKES_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setMinLikes(f.value)}
+                className={`rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors ${
+                  minLikes === f.value ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 작성자 필터 */}
+        {authorFilter && (
+          <button
+            onClick={() => setAuthorFilter(null)}
+            className="flex items-center gap-1 w-full rounded-lg px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <X className="h-3 w-3" />
+            {authorFilter.nickname} 필터 해제
+          </button>
+        )}
+      </aside>
+
+      {/* ── 메인 콘텐츠 ── */}
+      <div className="flex-1 min-w-0 px-5 lg:px-8 pt-6 pb-14">
       {/* 헤더 */}
       <div className="mb-6 flex items-end justify-between">
         <div>
-          <h1 className="text-headline font-bold">자유게시판</h1>
-          <p className="mt-1 text-body-sm text-muted-foreground">자유롭게 이야기를 나눠보세요</p>
+          <h1 className="text-xl font-bold">자유게시판</h1>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {filteredPosts.length}개의 글 · 자유롭게 이야기를 나눠보세요
+          </p>
         </div>
         <Button onClick={handleCreateClick} className="gap-2 rounded-xl px-5">
           <PenSquare className="h-4 w-4" />
@@ -200,102 +281,54 @@ export function FreeBoardPage() {
         </Button>
       </div>
 
-      {/* 검색 (모바일: 2줄 / 데스크톱: 1줄) */}
-      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:gap-2">
-        <select
-          value={searchType}
-          onChange={(e) => setSearchType(e.target.value as "all" | "title" | "author")}
-          className="shrink-0 rounded-lg border border-border bg-card px-3 py-2.5 text-body-sm outline-none focus:ring-2 focus:ring-primary/40"
-        >
-          <option value="all">제목+내용</option>
-          <option value="title">제목</option>
-          <option value="author">작성자</option>
-        </select>
-        <div className="flex gap-2 flex-1">
+      {/* 모바일: 인라인 검색 + 필터 */}
+      <div className="mb-4 lg:hidden">
+        <div className="flex gap-2 mb-3">
+          <select
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value as "all" | "title" | "author")}
+            className="shrink-0 rounded-lg border border-border bg-card px-2 py-2 text-xs outline-none"
+          >
+            <option value="all">제목+내용</option>
+            <option value="title">제목</option>
+            <option value="author">작성자</option>
+          </select>
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={handleSearchKeyDown}
-              placeholder={searchType === "author" ? "작성자 닉네임 검색..." : "제목 또는 내용으로 검색..."}
-              className="w-full rounded-lg border border-border bg-card py-2.5 pl-11 pr-4 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+              placeholder="검색..."
+              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-xs outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
-          <Button onClick={handleSearch} variant="outline" className="shrink-0 gap-2 rounded-xl h-auto">
-            <Search className="h-4 w-4" />
-            검색
+          <Button onClick={handleSearch} variant="outline" size="sm" className="shrink-0">
+            <Search className="h-3.5 w-3.5" />
           </Button>
         </div>
-      </div>
-
-      {/* 필터 바 */}
-      <div className="mb-5 flex flex-wrap items-center gap-2.5">
-        {/* 정렬 */}
-        <div className="flex rounded-lg border border-border bg-card p-0.5">
-          <button
-            onClick={() => setSort("latest")}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-body-sm font-semibold transition-colors ${
-              sort === "latest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Clock className="h-3.5 w-3.5" />
-            최신
-          </button>
-          <button
-            onClick={() => setSort("popular")}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-body-sm font-semibold transition-colors ${
-              sort === "popular" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <TrendingUp className="h-3.5 w-3.5" />
-            인기
-          </button>
-          <button
-            onClick={() => setSort("best")}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-body-sm font-semibold transition-colors ${
-              sort === "best" ? "bg-warning/10 text-warning" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Trophy className="h-3.5 w-3.5" />
-            베스트
-          </button>
-        </div>
-
-        {/* 추천수 필터 */}
-        <div className="flex rounded-lg border border-border bg-card p-0.5">
-          {LIKES_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setMinLikes(f.value)}
-              className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-body-sm font-semibold transition-colors ${
-                minLikes === f.value
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {f.value > 0 && <ThumbsUp className="h-3 w-3" />}
-              {f.label}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+          <div className="flex shrink-0 rounded-lg border border-border bg-muted p-0.5">
+            {(["latest", "popular", "best"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSort(s)}
+                className={`rounded-md px-2.5 py-1.5 text-[11px] font-medium whitespace-nowrap transition-colors ${
+                  sort === s ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
+                }`}
+              >
+                {s === "latest" ? "최신" : s === "popular" ? "인기" : "베스트"}
+              </button>
+            ))}
+          </div>
+          {authorFilter && (
+            <button onClick={() => setAuthorFilter(null)} className="chip chip-primary gap-1 shrink-0">
+              {authorFilter.nickname} <X className="h-3 w-3" />
             </button>
-          ))}
+          )}
+          <span className="ml-auto text-[10px] text-muted-foreground shrink-0">{filteredPosts.length}건</span>
         </div>
-
-        {/* 작성자 필터 표시 */}
-        {authorFilter && (
-          <button
-            onClick={() => setAuthorFilter(null)}
-            className="chip chip-primary gap-1"
-          >
-            {authorFilter.nickname}의 글
-            <X className="h-3 w-3" />
-          </button>
-        )}
-
-        {/* 글 수 표시 */}
-        <span className="ml-auto text-caption text-muted-foreground">
-          총 {filteredPosts.length}건
-        </span>
       </div>
 
       {/* 게시글 리스트 */}
@@ -497,6 +530,8 @@ export function FreeBoardPage() {
         </div>
       )}
 
+    </div>
+    </div>
     </div>
   )
 }

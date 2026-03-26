@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom"
-import { DesktopRail } from "./DesktopRail"
+import { TopHeader } from "./TopHeader"
 import { MobileDock } from "./MobileDock"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -8,11 +8,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <DesktopRail />
-      <main className={`min-h-screen ${isPlanner ? "lg:ml-[60px]" : "lg:ml-[60px]"} pb-14 lg:pb-0`}>
+      {!isPlanner && <TopHeader />}
+      <main className={`min-h-screen ${isPlanner ? "" : "lg:mt-14"} ${isPlanner ? "" : "pb-14 lg:pb-0"}`}>
         {children}
       </main>
-      <MobileDock />
+      {!isPlanner && <MobileDock />}
     </>
   )
 }

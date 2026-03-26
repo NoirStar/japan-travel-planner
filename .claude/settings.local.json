@@ -13,7 +13,11 @@
       "Bash(find /root/work/japan-travel-planner/src/components/search -type f -name *.tsx)",
       "Bash(find /root/work/japan-travel-planner -name tailwind.config.* -o -name postcss.config.* -o -name vite.config.*)",
       "Bash(ls -la /root/work/japan-travel-planner/*.*)",
-      "Bash(grep -r \"container\\\\|@container\" /root/work/japan-travel-planner/src/components/ui/*.tsx)"
+      "Bash(grep -r \"container\\\\|@container\" /root/work/japan-travel-planner/src/components/ui/*.tsx)",
+      "Bash(find /root/work/japan-travel-planner/src/pages -name *planner* -o -name *map*)",
+      "Bash(find /root/work/japan-travel-planner -name tailwind.config.* -o -name postcss.config.*)",
+      "Bash(wc -l /root/work/japan-travel-planner/src/components/planner/*.tsx)",
+      "Bash(wc:*)"
     ]
   }
 }

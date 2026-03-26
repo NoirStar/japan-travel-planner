@@ -36,7 +36,12 @@ export function MobileDock() {
                 active ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              <item.icon className={`h-5 w-5 ${active ? "stroke-[2.5]" : ""}`} />
+              <div className="relative">
+                <item.icon className={`h-5 w-5 ${active ? "stroke-[2.5]" : ""}`} />
+                {active && (
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                )}
+              </div>
               <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
           )
@@ -50,13 +55,18 @@ export function MobileDock() {
               location.pathname === "/profile" ? "text-primary" : "text-muted-foreground"
             }`}
           >
-            {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
-            ) : (
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[9px] font-bold text-primary">
-                {profile.nickname.charAt(0)}
-              </div>
-            )}
+            <div className="relative">
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover" />
+              ) : (
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-[9px] font-bold text-primary">
+                  {profile.nickname.charAt(0)}
+                </div>
+              )}
+              {location.pathname === "/profile" && (
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+              )}
+            </div>
             <span className="text-[10px] font-medium">프로필</span>
           </Link>
         ) : (

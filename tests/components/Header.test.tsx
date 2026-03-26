@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { BrowserRouter } from "react-router-dom"
-import { DesktopRail } from "@/components/layout/DesktopRail"
+import { TopHeader } from "@/components/layout/TopHeader"
 import { useAuthStore } from "@/stores/authStore"
 import { act } from "@testing-library/react"
 
 function renderWithRouter() {
   return render(
     <BrowserRouter>
-      <DesktopRail />
+      <TopHeader />
     </BrowserRouter>,
   )
 }
@@ -20,7 +20,7 @@ beforeEach(() => {
   document.documentElement.classList.add("dark")
 })
 
-describe("DesktopRail", () => {
+describe("TopHeader", () => {
   it("홈 링크가 존재한다", () => {
     renderWithRouter()
     expect(screen.getByLabelText("타비톡 홈")).toBeInTheDocument()
@@ -34,7 +34,7 @@ describe("DesktopRail", () => {
 
   it("로그인 버튼이 존재한다", () => {
     renderWithRouter()
-    expect(screen.getByLabelText("로그인")).toBeInTheDocument()
+    expect(screen.getByText("로그인")).toBeInTheDocument()
   })
 
   it("dark 클래스가 항상 존재한다 (dark-only 테마)", () => {

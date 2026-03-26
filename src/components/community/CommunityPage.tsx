@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo, Component, type ReactNode } from "react"
-import { Plus, TrendingUp, Clock, Trophy, MapPin, Search, RefreshCw, Plane, X } from "lucide-react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { Plus, TrendingUp, Clock, Trophy, MapPin, Search, RefreshCw, X } from "lucide-react"
+import { useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
 import { fetchMockPosts } from "@/lib/mockCommunity"
@@ -54,7 +54,6 @@ class CardErrorBoundary extends Component<
 export function CommunityPage() {
   const { user, setShowLoginModal } = useAuthStore()
   const location = useLocation()
-  const navigate = useNavigate()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [sort, setSort] = useSessionState<PostSortOption>("community:sort", "latest")
   const [cityFilter, setCityFilter] = useSessionState("community:city", "")
@@ -191,194 +190,221 @@ export function CommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-sakura-pattern">
-    <div className="mx-auto max-w-5xl px-5 lg:px-8 pt-20 pb-14">
-      {/* 헤더 */}
-      <div className="mb-8 flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <span className="chip chip-primary mb-2 inline-block">여행 일정 공유</span>
-          <h1 className="text-headline font-bold truncate">커뮤니티</h1>
-          <p className="mt-1 text-body-sm text-muted-foreground inline-flex items-center gap-1">다른 여행자들의 일본 일정을 구경하세요 <Plane className="h-3.5 w-3.5" /></p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button onClick={handleCreateClick} className="gap-1.5 rounded-xl text-body-sm h-10 px-4 sm:h-11 sm:px-5 sm:gap-2">
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">내 일정 올리기</span>
-            <span className="sm:hidden">글쓰기</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* 검색 + 필터 그룹 */}
-      <div className="surface-controls mb-6 space-y-3">
+    <div className="min-h-screen bg-background">
+    <div className="flex">
+      {/* ── 데스크톱: 사이드바 필터 ── */}
+      <aside className="hidden lg:block w-[240px] shrink-0 sticky top-0 h-dvh overflow-y-auto border-r border-border/30 bg-card/50 p-5">
         {/* 검색 */}
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative mb-5">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="제목 또는 설명으로 검색..."
-            className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+            placeholder="검색..."
+            className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-xs outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>
 
-        {/* 필터 바 */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         {/* 정렬 */}
-        <div className="flex shrink-0 rounded-lg border border-border bg-muted p-0.5">
-          <button
-            onClick={() => setSort("latest")}
-            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-              sort === "latest" ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Clock className="h-3 w-3" />
-            최신
-          </button>
-          <button
-            onClick={() => setSort("popular")}
-            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-              sort === "popular" ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <TrendingUp className="h-3 w-3" />
-            인기
-          </button>
-          <button
-            onClick={() => setSort("best")}
-            className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-              sort === "best" ? "bg-card text-warning shadow-sm" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Trophy className="h-3 w-3" />
-            베스트
-          </button>
+        <div className="mb-5">
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">정렬</h4>
+          <div className="flex flex-col gap-0.5">
+            {([["latest", "최신", Clock], ["popular", "인기", TrendingUp], ["best", "베스트", Trophy]] as const).map(([value, label, Icon]) => (
+              <button
+                key={value}
+                onClick={() => setSort(value)}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                  sort === value ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* 계획/후기 */}
-        <div className="flex shrink-0 rounded-lg border border-border bg-muted p-0.5">
-          {(["" as const, "plan" as const, "review" as const]).map((stage) => (
-            <button
-              key={stage}
-              onClick={() => setStageFilter(stage)}
-              className={`rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-                stageFilter === stage
-                  ? stage === "review" ? "bg-card text-success shadow-sm" : "bg-card text-primary shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {stage === "" ? "전체" : POST_STAGE_LABELS[stage]}
-            </button>
-          ))}
+        {/* 유형 */}
+        <div className="mb-5">
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">유형</h4>
+          <div className="flex flex-col gap-0.5">
+            {(["" as const, "plan" as const, "review" as const]).map((stage) => (
+              <button
+                key={stage}
+                onClick={() => setStageFilter(stage)}
+                className={`rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors ${
+                  stageFilter === stage ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {stage === "" ? "전체" : POST_STAGE_LABELS[stage]}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* 도시 */}
-        <select
-          value={cityFilter}
-          onChange={(e) => setCityFilter(e.target.value)}
-          className="h-8 shrink-0 rounded-lg border border-border bg-muted px-2.5 text-xs font-medium outline-none"
-        >
-          <option value="">전체 도시</option>
-          {cities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name}
-            </option>
-          ))}
-        </select>
+        <div className="mb-5">
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">도시</h4>
+          <div className="flex flex-col gap-0.5">
+            <button
+              onClick={() => setCityFilter("")}
+              className={`rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors ${
+                !cityFilter ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              전체
+            </button>
+            {cities.map((city) => (
+              <button
+                key={city.id}
+                onClick={() => setCityFilter(city.id)}
+                className={`rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors ${
+                  cityFilter === city.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {city.name}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* 추천수 */}
-        <select
-          value={minLikes}
-          onChange={(e) => setMinLikes(Number(e.target.value))}
-          className="h-8 shrink-0 rounded-lg border border-border bg-muted px-2.5 text-xs font-medium outline-none"
-        >
-          <option value={0}>추천 전체</option>
-          <option value={5}>추천 5+</option>
-          <option value={10}>추천 10+</option>
-        </select>
+        <div className="mb-5">
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">추천수</h4>
+          <div className="flex flex-col gap-0.5">
+            {[{ v: 0, l: "전체" }, { v: 5, l: "5+" }, { v: 10, l: "10+" }].map(({ v, l }) => (
+              <button
+                key={v}
+                onClick={() => setMinLikes(v)}
+                className={`rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors ${
+                  minLikes === v ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* 활성 필터 리셋 */}
         {(searchQuery || cityFilter || minLikes > 0 || stageFilter) && (
           <button
             onClick={() => { setSearchInput(""); setSearchQuery(""); setCityFilter(""); setMinLikes(0); setStageFilter("") }}
-            className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors w-full"
           >
             <X className="h-3 w-3" />
-            초기화
+            필터 초기화
           </button>
         )}
+      </aside>
 
-        {/* 게시글 수 — 모바일에서는 숨김 */}
-        <span className="ml-auto hidden text-xs text-muted-foreground sm:inline">
-          {filteredPosts.length}건
-        </span>
-      </div>
-      </div>
-
-      {/* 게시글 그리드 */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-72 animate-shimmer rounded-2xl" />
-          ))}
+      {/* ── 메인 콘텐츠 ── */}
+      <div className="flex-1 min-w-0 px-5 lg:px-8 pt-6 pb-14">
+        {/* 헤더 */}
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold truncate">여행 일정 공유</h1>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {filteredPosts.length}개의 여행 일정
+            </p>
+          </div>
+          <Button onClick={handleCreateClick} className="gap-1.5 rounded-xl text-xs h-9 px-4">
+            <Plus className="h-3.5 w-3.5" />
+            내 일정 올리기
+          </Button>
         </div>
-      ) : fetchError ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="col-span-full">
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 py-16 px-6 text-center">
-              <RefreshCw className="h-8 w-8 text-destructive/40" />
-              <div>
-                <p className="text-body-sm font-semibold text-foreground">{fetchError}</p>
-                <p className="mt-1 text-body-sm text-muted-foreground">일시적인 문제일 수 있어요. 잠시 후 다시 시도해주세요.</p>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-                <Button onClick={fetchPosts} variant="outline" className="gap-2 rounded-xl">
-                  <RefreshCw className="h-4 w-4" /> 다시 시도
-                </Button>
-                <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/")}>
-                  홈으로
-                </Button>
-              </div>
+
+        {/* 모바일: 인라인 필터 + 검색 */}
+        <div className="mb-4 lg:hidden">
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="검색..."
+              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-xs outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            <div className="flex shrink-0 rounded-lg border border-border bg-muted p-0.5">
+              {(["latest", "popular", "best"] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSort(s)}
+                  className={`rounded-md px-2.5 py-1.5 text-[11px] font-medium whitespace-nowrap transition-colors ${
+                    sort === s ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
+                  }`}
+                >
+                  {s === "latest" ? "최신" : s === "popular" ? "인기" : "베스트"}
+                </button>
+              ))}
             </div>
+            <select
+              value={cityFilter}
+              onChange={(e) => setCityFilter(e.target.value)}
+              className="h-7 shrink-0 rounded-lg border border-border bg-muted px-2 text-[11px] font-medium outline-none"
+            >
+              <option value="">전체 도시</option>
+              {cities.map((city) => (
+                <option key={city.id} value={city.id}>{city.name}</option>
+              ))}
+            </select>
+            <select
+              value={stageFilter}
+              onChange={(e) => setStageFilter(e.target.value as "" | TravelPostStage)}
+              className="h-7 shrink-0 rounded-lg border border-border bg-muted px-2 text-[11px] font-medium outline-none"
+            >
+              <option value="">전체</option>
+              <option value="plan">계획</option>
+              <option value="review">후기</option>
+            </select>
           </div>
         </div>
-      ) : posts.length === 0 ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="col-span-full">
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-muted/30 py-16 px-6 text-center">
-              <MapPin className="h-8 w-8 text-primary/40" />
-              <div>
-                <p className="text-body-sm font-semibold text-foreground">아직 공유된 여행이 없어요</p>
-                <p className="mt-1 text-body-sm text-muted-foreground">첫 번째로 여행을 공유해보세요!</p>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-                <Button onClick={handleCreateClick} className="gap-2 rounded-xl">
-                  <Plus className="h-4 w-4" /> 내 일정 올리기
-                </Button>
-                <Button variant="ghost" className="gap-2 rounded-xl" onClick={() => navigate("/planner?new=true")}>
-                  플래너에서 여행 만들기
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {visiblePosts.map((post) => (
-            <CardErrorBoundary key={post.id} postDebug={post}>
-              <PostCard post={post} />
-            </CardErrorBoundary>
-          ))}
-        </div>
-      )}
 
-      {/* 무한스크롤 sentinel */}
-      {displayCount < filteredPosts.length && (
-        <div ref={loadMoreRef} className="flex justify-center py-6">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
-      )}
+        {/* 게시글 그리드 */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-64 animate-shimmer rounded-xl" />
+            ))}
+          </div>
+        ) : fetchError ? (
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-destructive/20 bg-destructive/5 py-16 px-6 text-center">
+            <RefreshCw className="h-8 w-8 text-destructive/40" />
+            <p className="text-sm font-semibold text-foreground">{fetchError}</p>
+            <Button onClick={fetchPosts} variant="outline" size="sm" className="gap-2 rounded-lg">
+              <RefreshCw className="h-3.5 w-3.5" /> 다시 시도
+            </Button>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-muted/30 py-16 px-6 text-center">
+            <MapPin className="h-8 w-8 text-primary/40" />
+            <p className="text-sm font-semibold text-foreground">아직 공유된 여행이 없어요</p>
+            <p className="text-xs text-muted-foreground">첫 번째로 여행을 공유해보세요!</p>
+            <Button onClick={handleCreateClick} size="sm" className="gap-2 rounded-lg mt-2">
+              <Plus className="h-3.5 w-3.5" /> 내 일정 올리기
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {visiblePosts.map((post) => (
+              <CardErrorBoundary key={post.id} postDebug={post}>
+                <PostCard post={post} />
+              </CardErrorBoundary>
+            ))}
+          </div>
+        )}
+
+        {/* 무한스크롤 sentinel */}
+        {displayCount < filteredPosts.length && (
+          <div ref={loadMoreRef} className="flex justify-center py-6">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        )}
+      </div>
+    </div>
 
       {/* 글쓰기 모달 */}
       <CreatePostModal
@@ -389,7 +415,6 @@ export function CommunityPage() {
         defaultTripId={createDefaultTripId}
       />
 
-    </div>
     </div>
   )
 }

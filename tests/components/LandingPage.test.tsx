@@ -29,7 +29,7 @@ describe("LandingPage", () => {
 
   it("서브타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("구글맵 기반 일정 플래너부터") ?? false))).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("지도 기반 플래너") ?? false))).toBeInTheDocument()
   })
 
 

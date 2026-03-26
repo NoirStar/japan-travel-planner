@@ -51,7 +51,23 @@ Domain-grouped directories:
 
 ## Design System
 
-Futuristic Space-Modern aesthetic: dark-first design (zinc-950 backgrounds), cyan (#06B6D4) + violet (#8B5CF6) + neon-pink (#EC4899) accent system, glassmorphism surfaces, glow effects on interactive elements. Preserve this visual language. Mobile-first responsive design throughout. Dark mode is the default experience; light mode supported as toggle. Map dark mode via Cloud Map IDs.
+Current product direction is a dark-only redesign with a mysterious, travel-forward, cosmic mood. Favor deep charcoal and blue-black surfaces, restrained aurora accents, crisp typography, and clear hierarchy. The feeling should be modern and atmospheric, not loud or game-like.
+
+- Do not preserve the legacy cyan/violet/neon-pink palette by default.
+- Do not add or maintain a light theme unless the user explicitly asks for it.
+- Avoid heavy glassmorphism, oversized glow effects, and excessive gradients.
+- Prioritize usability over decoration: larger touch targets, stronger section hierarchy, clearer actions, and denser browse layouts where scanability matters.
+- Mobile web support must be first-class, not a desktop layout squeezed into a narrow viewport.
+
+## Full Redesign Rules
+
+- When the user says to "change the UI completely", do not keep the old page structure and merely restyle components.
+- References from the user should influence layout, interaction patterns, information density, and flow first. Do not copy their color palette unless requested.
+- Rework the global shell, landing page, planner, community, and board layouts as needed to fit the actual product features.
+- Existing tabs, headers, card sizes, and split-pane assumptions can be replaced if they hurt usability.
+- The free board should be more compact and easier to scan than the current oversized-card layout.
+- The planner should optimize around map search, itinerary editing, route visibility, and collaboration instead of preserving the current panel arrangement.
+- For major redesign work, use `../docs/ui-redesign-brief.md` as the baseline brief and update it if the product direction changes.
 
 ## Key Patterns
 

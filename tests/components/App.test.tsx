@@ -5,12 +5,12 @@ import App from "@/App"
 describe("App", () => {
   it("랜딩 페이지가 정상 렌더링된다", () => {
     render(<App />)
-    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("구글맵 기반 일정 플래너부터") ?? false))).toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("지도 기반 플래너") ?? false))).toBeInTheDocument()
   })
 
-  it("헤더에 서비스명이 표시된다", () => {
+  it("네비게이션에 서비스 로고가 표시된다", () => {
     render(<App />)
-    const allMatches = screen.getAllByText("타비톡")
-    expect(allMatches.length).toBeGreaterThanOrEqual(1)
+    // Rail에 로고 아이콘이 존재
+    expect(screen.getByLabelText("타비톡 홈")).toBeInTheDocument()
   })
 })

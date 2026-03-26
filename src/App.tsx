@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { lazy, Suspense, useEffect } from "react"
-import { Header } from "@/components/layout/Header"
+import { AppShell } from "@/components/layout/AppShell"
 import { LandingPage } from "@/components/landing/LandingPage"
 import { LoginModal } from "@/components/auth/LoginModal"
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary"
@@ -58,27 +58,28 @@ function App() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
-        <Header />
         <LoginModal />
         <CelebrationProvider />
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/planner" element={<PlannerPage />} />
-            {/* <Route path="/wizard" element={<AIChatWizard />} /> — AI 추천 개발 중, 비활성화 */}
-            <Route path="/trips" element={<RequireAuth redirectTo="/"><TripListPage /></RequireAuth>} />
-            <Route path="/share/:shareId" element={<PlannerPage />} />
-            <Route path="/s/:shareCode" element={<ShareRedirectPage />} />
-            <Route path="/collab/:inviteCode" element={<JoinTripPage />} />
-            <Route path="/community" element={<CommunityPage />} />
-            <Route path="/community/free" element={<FreeBoardPage />} />
-            <Route path="/community/free/write" element={<RequireAuth redirectTo="/community/free"><CreateFreePostPage /></RequireAuth>} />
-            <Route path="/community/free/edit/:postId" element={<RequireAuth redirectTo="/community/free"><EditFreePostPage /></RequireAuth>} />
-            <Route path="/community/:postId" element={<PostDetail />} />
-            <Route path="/profile" element={<RequireAuth redirectTo="/"><ProfilePage /></RequireAuth>} />
-            <Route path="/contact" element={<RequireAuth redirectTo="/"><ContactPage /></RequireAuth>} />
-          </Routes>
-        </Suspense>
+        <AppShell>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/planner" element={<PlannerPage />} />
+              {/* <Route path="/wizard" element={<AIChatWizard />} /> — AI 추천 개발 중, 비활성화 */}
+              <Route path="/trips" element={<RequireAuth redirectTo="/"><TripListPage /></RequireAuth>} />
+              <Route path="/share/:shareId" element={<PlannerPage />} />
+              <Route path="/s/:shareCode" element={<ShareRedirectPage />} />
+              <Route path="/collab/:inviteCode" element={<JoinTripPage />} />
+              <Route path="/community" element={<CommunityPage />} />
+              <Route path="/community/free" element={<FreeBoardPage />} />
+              <Route path="/community/free/write" element={<RequireAuth redirectTo="/community/free"><CreateFreePostPage /></RequireAuth>} />
+              <Route path="/community/free/edit/:postId" element={<RequireAuth redirectTo="/community/free"><EditFreePostPage /></RequireAuth>} />
+              <Route path="/community/:postId" element={<PostDetail />} />
+              <Route path="/profile" element={<RequireAuth redirectTo="/"><ProfilePage /></RequireAuth>} />
+              <Route path="/contact" element={<RequireAuth redirectTo="/"><ContactPage /></RequireAuth>} />
+            </Routes>
+          </Suspense>
+        </AppShell>
       </ErrorBoundary>
     </BrowserRouter>
   )

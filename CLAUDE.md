@@ -34,6 +34,15 @@ Required: `VITE_GOOGLE_MAPS_API_KEY`. Optional: `GOOGLE_PLACES_API_KEY` (server-
 - After changes, run type check + lint + tests before considering work complete.
 - Path alias: `@/` maps to `src/` (configured in vite, vitest, and tsconfig).
 
+## UI Redesign Priority
+
+- When the user asks for a full UI/UX redesign, treat the existing UI as disposable unless they explicitly request preservation.
+- A successful redesign must change information architecture, page shell, navigation, component hierarchy, spacing, and responsive behavior. Color-only or token-only refreshes are not enough.
+- Start by auditing the relevant routes/components, then state a concise redesign plan before editing.
+- Prefer replacing page-level structure over polishing isolated widgets. If a screen still reads as the old layout with new colors, the redesign is incomplete.
+- When design guidance in older files conflicts with a newer user request, the user's request wins.
+- For large redesign work, consult `docs/ui-redesign-brief.md` and keep implementation aligned with it.
+
 ## Area-Specific Guides
 
 - [src/CLAUDE.md](src/CLAUDE.md) — Frontend: React components, stores, hooks, services, styling

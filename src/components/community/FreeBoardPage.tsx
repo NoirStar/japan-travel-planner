@@ -187,7 +187,7 @@ export function FreeBoardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-5 lg:px-8 pt-20 pb-14">
+    <div className="mx-auto max-w-2xl px-5 lg:px-6 pt-6 pb-14">
       {/* 헤더 */}
       <div className="mb-6 flex items-end justify-between">
         <div>

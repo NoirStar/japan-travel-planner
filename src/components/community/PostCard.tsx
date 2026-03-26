@@ -3,8 +3,6 @@ import { Link } from "react-router-dom"
 import type { CommunityPost } from "@/types/community"
 import { BEST_THRESHOLD } from "@/types/community"
 import { unwrapProfile } from "@/lib/communityTransforms"
-import { LevelBadge } from "./LevelBadge"
-import { TripMetaChips } from "./TripMetaChips"
 import { cities } from "@/data/cities"
 
 interface PostCardProps {
@@ -26,7 +24,7 @@ export function PostCard({ post }: PostCardProps) {
       }`}
     >
       {/* 커버 이미지 */}
-      <div className="relative h-32 overflow-hidden bg-muted">
+      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         {post.cover_image ? (
           <img
             src={post.cover_image}
@@ -72,43 +70,31 @@ export function PostCard({ post }: PostCardProps) {
 
       {/* 콘텐츠 */}
       <div className="p-3">
-        <h3 className="mb-1 line-clamp-1 text-sm font-bold leading-snug group-hover:text-primary transition-colors">
+        <h3 className="mb-1.5 line-clamp-1 text-sm font-bold leading-snug group-hover:text-primary transition-colors">
           {post.title}
         </h3>
-        {post.description && (
-          <p className="mb-2.5 line-clamp-2 text-body-sm leading-relaxed text-muted-foreground">
-            {post.description}
-          </p>
-        )}
 
-        {post.trip_meta && (
-          <div className="mb-2">
-            <TripMetaChips meta={post.trip_meta} compact />
-          </div>
-        )}
-
-        {/* 하단 정보 */}
-        <div className="flex items-center justify-between border-t border-border/60 pt-3 mt-1">
-          <div className="flex items-center gap-2">
+        {/* 작성자 + 메타 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 min-w-0">
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="h-5 w-5 rounded-full object-cover ring-1 ring-border" />
+              <img src={profile.avatar_url} alt="" className="h-4 w-4 rounded-full object-cover" />
             ) : (
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-bold ring-1 ring-border">
+              <div className="flex h-4 w-4 items-center justify-center rounded-full bg-muted text-[9px] font-bold">
                 {profile?.nickname?.charAt(0) ?? "?"}
               </div>
             )}
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground truncate">
               {profile?.nickname ?? "익명"}
             </span>
-            {profile && <LevelBadge level={profile.level} totalPoints={profile.total_points} isAdmin={profile.is_admin} compact />}
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
+          <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground shrink-0">
+            <span className="inline-flex items-center gap-0.5">
               <ThumbsUp className="h-3 w-3" />
               {Number(post.likes_count) || 0}
             </span>
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-0.5">
               <MessageCircle className="h-3 w-3" />
               {Number(post.comments_count) || 0}
             </span>

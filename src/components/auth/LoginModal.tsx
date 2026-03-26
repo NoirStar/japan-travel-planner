@@ -41,7 +41,7 @@ export function LoginModal() {
       {/* modal */}
       <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-border/50 bg-card shadow-xl glass border-gradient">
         {/* 브랜드 헤더 */}
-        <div className="relative bg-gradient-to-br from-cyan/10 via-violet/5 to-transparent px-6 pt-8 pb-6 text-center">
+        <div className="relative bg-gradient-to-br from-primary/10 via-nebula/5 to-transparent px-6 pt-8 pb-6 text-center">
           <button
             onClick={() => { setShowLoginModal(false); navigate("/") }}
             className="absolute right-3 top-3 rounded-lg p-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
@@ -60,9 +60,9 @@ export function LoginModal() {
 
         {/* 기능 하이라이트 */}
         <div className="mx-6 -mt-1 mb-4 flex justify-center gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1"><Map className="h-3 w-3 text-cyan" />지도 플래너</span>
-          <span className="flex items-center gap-1"><MapPin className="h-3 w-3 text-cyan" />일정 관리</span>
-          <span className="flex items-center gap-1"><Users className="h-3 w-3 text-cyan" />커뮤니티</span>
+          <span className="flex items-center gap-1"><Map className="h-3 w-3 text-primary" />지도 플래너</span>
+          <span className="flex items-center gap-1"><MapPin className="h-3 w-3 text-primary" />일정 관리</span>
+          <span className="flex items-center gap-1"><Users className="h-3 w-3 text-primary" />커뮤니티</span>
         </div>
 
         {/* 로그인 버튼 */}
@@ -101,7 +101,7 @@ export function LoginModal() {
             variant="outline"
             className="w-full gap-3 rounded-xl py-5 font-medium hover:bg-muted/50"
           >
-            <UserCircle className="h-5 w-5 text-cyan" />
+            <UserCircle className="h-5 w-5 text-primary" />
             {isSupabaseConfigured ? "체험용 계정으로 둘러보기" : "데모 계정으로 시작하기"}
           </Button>
 

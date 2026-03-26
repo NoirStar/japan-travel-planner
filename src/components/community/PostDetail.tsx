@@ -580,7 +580,7 @@ export function PostDetail() {
             {post.review_data.tips && (
               <div className="text-xs">
                 <span className="text-muted-foreground">팁</span>
-                <p className="mt-1 whitespace-pre-wrap rounded-lg bg-white/60 px-3 py-2 dark:bg-black/20">{post.review_data.tips}</p>
+                <p className="mt-1 whitespace-pre-wrap rounded-lg bg-black/20 px-3 py-2">{post.review_data.tips}</p>
               </div>
             )}
             {post.review_data.visitedPlaceIds && post.review_data.visitedPlaceIds.length > 0 && (
@@ -598,7 +598,7 @@ export function PostDetail() {
       {/* 본문 (free board) */}
       {post.board_type === "free" && post.content && (
         <div
-          className="mb-6 prose prose-sm dark:prose-invert max-w-none"
+          className="mb-6 prose prose-sm prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content, { ADD_TAGS: ["img"], ADD_ATTR: ["src", "alt", "style"] }) }}
         />
       )}

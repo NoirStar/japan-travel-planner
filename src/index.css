@@ -5,85 +5,64 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ══════════════════════════════════════════════════════
-   타비톡 — Futuristic Space-Modern
-   시안 + 바이올렛 + 네온 핑크
+   타비톡 — Cosmic Travel Dark
+   Indigo + Nebula Purple + Amber Gold
+   Dark-only theme
    ══════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #FAFAFA;
-  --color-foreground: #09090B;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #09090B;
-  --color-primary: #0891B2;
+  --color-background: #0B0D17;
+  --color-foreground: #E2E8F0;
+  --color-card: #111427;
+  --color-card-foreground: #E2E8F0;
+  --color-primary: #6366F1;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary: #F4F4F5;
-  --color-secondary-foreground: #3F3F46;
-  --color-muted: #F4F4F5;
-  --color-muted-foreground: #71717A;
-  --color-accent: #F4F4F5;
-  --color-accent-foreground: #09090B;
-  --color-border: #E4E4E7;
-  --color-input: #E4E4E7;
-  --color-ring: #0891B2;
+  --color-secondary: #1A1D35;
+  --color-secondary-foreground: #CBD5E1;
+  --color-muted: #151830;
+  --color-muted-foreground: #94A3B8;
+  --color-accent: #1E2140;
+  --color-accent-foreground: #E2E8F0;
+  --color-border: #1E293B;
+  --color-input: #1E293B;
+  --color-ring: #6366F1;
   --color-destructive: #EF4444;
   --color-destructive-foreground: #ffffff;
   --radius: 0.75rem;
-  --color-sakura: #EC4899;
-  --color-sakura-dark: #0891B2;
-  --color-indigo: #8B5CF6;
-  --color-indigo-light: #A78BFA;
-  --color-surface: #FAFAFA;
-  --color-elevated: #FFFFFF;
-  --color-success: #22C55E;
-  --color-success-foreground: #FFFFFF;
-  --color-warning: #F59E0B;
-  --color-warning-foreground: #09090B;
-  --color-info: #3B82F6;
-  --color-info-foreground: #FFFFFF;
+  --color-surface: #0D1020;
+  --color-elevated: #181B36;
+  --color-success: #34D399;
+  --color-success-foreground: #0B0D17;
+  --color-warning: #FBBF24;
+  --color-warning-foreground: #0B0D17;
+  --color-info: #60A5FA;
+  --color-info-foreground: #0B0D17;
   --color-star: #FACC15;
-  --color-cyan: #06B6D4;
-  --color-cyan-light: #22D3EE;
-  --color-violet: #8B5CF6;
-  --color-violet-light: #A78BFA;
-  --color-neon-pink: #EC4899;
-  --color-neon-blue: #3B82F6;
+  --color-cosmic: #6366F1;
+  --color-cosmic-light: #818CF8;
+  --color-nebula: #A78BFA;
+  --color-nebula-light: #C4B5FD;
+  --color-amber: #F59E0B;
+  --color-amber-light: #FBBF24;
+  /* legacy aliases for components that still reference old names */
+  --color-cyan: #6366F1;
+  --color-cyan-light: #818CF8;
+  --color-violet: #A78BFA;
+  --color-violet-light: #C4B5FD;
+  --color-neon-pink: #F59E0B;
+  --color-neon-blue: #60A5FA;
+  --color-sakura: #F59E0B;
+  --color-sakura-dark: #6366F1;
+  --color-indigo: #A78BFA;
+  --color-indigo-light: #C4B5FD;
 }
 
-.dark {
-  color-scheme: dark;
-  --color-background: #09090B;
-  --color-foreground: #FAFAFA;
-  --color-card: #18181B;
-  --color-card-foreground: #FAFAFA;
-  --color-primary: #06B6D4;
-  --color-primary-foreground: #09090B;
-  --color-secondary: #27272A;
-  --color-secondary-foreground: #D4D4D8;
-  --color-muted: #27272A;
-  --color-muted-foreground: #A1A1AA;
-  --color-accent: #27272A;
-  --color-accent-foreground: #FAFAFA;
-  --color-border: #27272A;
-  --color-input: #27272A;
-  --color-ring: #06B6D4;
-  --color-destructive: #EF4444;
-  --color-destructive-foreground: #ffffff;
-  --color-sakura: #EC4899;
-  --color-sakura-dark: #06B6D4;
-  --color-indigo: #8B5CF6;
-  --color-indigo-light: #A78BFA;
-  --color-surface: #0C0C0E;
-  --color-elevated: #1E1E22;
-  --color-success: #34D399;
-  --color-success-foreground: #09090B;
-  --color-warning: #FBBF24;
-  --color-warning-foreground: #09090B;
-  --color-info: #60A5FA;
-  --color-info-foreground: #09090B;
-  --color-star: #FFD54F;
-}
+/* Dark mode is always on — no .dark override needed.
+   The .dark class is still set on <html> for Google Maps
+   InfoWindow styling and any remaining dark: prefixes during migration. */
 
 body {
+  color-scheme: dark;
   font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -91,7 +70,6 @@ body {
   font-feature-settings: "kern" 1;
   background-color: var(--color-background);
   color: var(--color-foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -108,41 +86,30 @@ body {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-cyan);
+  background: var(--color-cosmic);
 }
 
-/* ── 스페이스 배경 패턴 ──────────────────────── */
+/* ── 코스믹 배경 패턴 ──────────────────────── */
+.bg-cosmic-pattern,
 .bg-sakura-pattern {
   background-color: var(--color-background);
   background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.035) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 85%, rgba(236, 72, 153, 0.02) 0%, transparent 40%);
-}
-
-.dark .bg-sakura-pattern {
-  background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 85%, rgba(236, 72, 153, 0.03) 0%, transparent 40%);
+    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(167, 139, 250, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 85%, rgba(245, 158, 11, 0.02) 0%, transparent 40%);
 }
 
 /* ── 글래스모피즘 ─────────────────────────────────────── */
 .glass {
-  background: color-mix(in srgb, var(--color-card) 85%, transparent);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
-}
-
-.dark .glass {
-  background: rgba(24, 24, 27, 0.6);
-  border: 1px solid rgba(63, 63, 70, 0.5);
+  background: rgba(17, 20, 39, 0.6);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(30, 41, 59, 0.5);
 }
 
 /* ── 그라데이션 텍스트 ───────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #06B6D4 0%, #8B5CF6 50%, #EC4899 100%);
+  background: linear-gradient(135deg, #6366F1 0%, #A78BFA 50%, #818CF8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -155,17 +122,18 @@ body {
 }
 
 /* ── 글로우 이펙트 ────────────────────────────────────── */
-.glow-cyan {
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 60px rgba(6, 182, 212, 0.05);
-}
-.glow-violet {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15), 0 0 60px rgba(139, 92, 246, 0.05);
-}
+.glow-cosmic,
+.glow-cyan,
+.glow-violet,
 .glow-brand {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.2), 0 0 80px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.12), 0 0 60px rgba(99, 102, 241, 0.04);
 }
+.glow-amber {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15), 0 0 60px rgba(245, 158, 11, 0.05);
+}
+.text-glow-cosmic,
 .text-glow-cyan {
-  text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
 }
 
 /* ── 그라디언트 보더 ──────────────────────────────────── */
@@ -178,7 +146,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(6,182,212,0.5) 0%, rgba(139,92,246,0.5) 50%, rgba(236,72,153,0.3) 100%);
+  background: linear-gradient(135deg, rgba(99,102,241,0.5) 0%, rgba(167,139,250,0.5) 50%, rgba(129,140,248,0.3) 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -187,9 +155,9 @@ body {
 
 /* ── 펄스 링 애니메이션 (CTA용) ───────────────────────── */
 @keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3); }
+  70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
 }
 .animate-pulse-ring {
   animation: pulse-ring 2s ease-out infinite;
@@ -198,25 +166,14 @@ body {
 /* ── 카드 그림자 ──────────────────────────────────────── */
 .card-shadow {
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.06),
-    0 4px 12px rgba(0, 0, 0, 0.04);
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.2);
   transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card-shadow:hover {
   box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-.dark .card-shadow {
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.3),
-    0 4px 12px rgba(0, 0, 0, 0.2);
-}
-.dark .card-shadow:hover {
-  box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.35),
-    0 8px 24px rgba(6, 182, 212, 0.08);
+    0 8px 24px rgba(99, 102, 241, 0.06);
   transform: translateY(-2px);
 }
 
@@ -233,14 +190,11 @@ body {
 .surface-card { background: var(--color-card); }
 .surface-elevated {
   background: var(--color-elevated);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 6px 20px rgba(0, 0, 0, 0.06);
-}
-.dark .surface-elevated {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(39, 39, 42, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(30, 41, 59, 0.3);
 }
 .surface-inset {
   background: var(--color-muted);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 .surface-section {
   background: var(--color-surface);
@@ -278,25 +232,14 @@ body {
   border: 1px solid var(--color-border);
   border-radius: 1rem;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 6px 24px rgba(0, 0, 0, 0.06);
+    0 1px 3px rgba(0, 0, 0, 0.25),
+    0 6px 24px rgba(0, 0, 0, 0.15);
   transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card-elevated:hover {
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 16px 40px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-.dark .card-elevated {
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    0 6px 24px rgba(0, 0, 0, 0.2);
-}
-.dark .card-elevated:hover {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.4),
-    0 16px 40px rgba(6, 182, 212, 0.06);
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    0 16px 40px rgba(99, 102, 241, 0.05);
   transform: translateY(-2px);
 }
 
@@ -309,9 +252,7 @@ body {
 .card-flat:hover {
   border-color: var(--color-border);
   background: var(--color-card);
-}
-.dark .card-flat:hover {
-  box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.1);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.08);
 }
 
 /* ── 칩/뱃지 시스템 ────────────────────────── */
@@ -373,12 +314,9 @@ body {
   gap: 0.375rem;
   padding: 0.375rem;
   border-radius: 0.75rem;
-  background: var(--color-muted);
-  border: 1px solid transparent;
-}
-.dark .toolbar-group {
-  background: rgba(39, 39, 42, 0.8);
+  background: rgba(21, 24, 48, 0.8);
   backdrop-filter: blur(8px);
+  border: 1px solid transparent;
 }
 .toolbar-group button {
   border-radius: 0.5rem;
@@ -390,11 +328,8 @@ body {
 .toolbar-group button.active {
   background: var(--color-card);
   color: var(--color-foreground);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-.dark .toolbar-group button.active {
-  border: 1px solid rgba(6, 182, 212, 0.2);
-  box-shadow: 0 0 8px rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.08);
 }
 
 @media (max-width: 640px) {
@@ -547,10 +482,10 @@ body {
   animation: badge-glow 3s ease-in-out infinite;
 }
 
-/* Lv.15~20: 고급 글로우 — 시안/바이올렛 */
+/* Lv.15~20: 고급 글로우 — cosmic/nebula */
 @keyframes badge-prestige {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(6, 182, 212, 0.3)); }
-  50% { filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5)); }
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(99, 102, 241, 0.3)); }
+  50% { filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.5)); }
 }
 .animate-dragon-float,
 .animate-fuji-glow,
@@ -599,7 +534,7 @@ body {
 .tiptap h3 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.25rem; }
 
 .tiptap blockquote {
-  border-left: 3px solid var(--color-cyan);
+  border-left: 3px solid var(--color-cosmic);
   padding-left: 1rem;
   margin: 0.75rem 0;
   color: var(--color-muted-foreground);
@@ -632,12 +567,12 @@ body {
 }
 
 .city-pin:hover {
-  filter: drop-shadow(0 3px 6px rgba(6,182,212,0.25)) drop-shadow(0 2px 4px rgba(0,0,0,0.20));
+  filter: drop-shadow(0 3px 6px rgba(99,102,241,0.25)) drop-shadow(0 2px 4px rgba(0,0,0,0.20));
   transform: scale(1.06);
 }
 
 .city-pin--selected {
-  filter: drop-shadow(0 2px 8px rgba(6,182,212,0.35));
+  filter: drop-shadow(0 2px 8px rgba(99,102,241,0.35));
 }
 
 .city-pin__icon {
@@ -660,7 +595,7 @@ body {
   background: var(--color-card);
   border-radius: 8px;
   padding: 6px 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(30,41,59,0.5);
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
@@ -691,19 +626,15 @@ body {
   border-top-color: var(--color-card);
 }
 
-.dark .city-pin-tooltip {
-  box-shadow: 0 2px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(39,39,42,0.5);
-}
-
-/* ── Premium tier (rating >= 4.5) — 시안 글로우 ── */
+/* ── Premium tier (rating >= 4.5) — cosmic 글로우 ── */
 .city-pin--premium {
-  filter: drop-shadow(0 0 4px rgba(6,182,212,0.4))
+  filter: drop-shadow(0 0 4px rgba(99,102,241,0.4))
           drop-shadow(0 2px 3px rgba(0,0,0,0.18));
   animation: city-pin-float 3s ease-in-out infinite;
 }
 
 .city-pin--premium:hover {
-  filter: drop-shadow(0 0 7px rgba(6,182,212,0.55))
+  filter: drop-shadow(0 0 7px rgba(99,102,241,0.55))
           drop-shadow(0 2px 4px rgba(0,0,0,0.22));
 }
 
@@ -735,7 +666,7 @@ body {
   background: linear-gradient(
     105deg,
     transparent 30%,
-    rgba(6,182,212,0.4) 50%,
+    rgba(99,102,241,0.4) 50%,
     transparent 70%
   );
   animation: city-pin-shimmer 3s ease-in-out infinite;

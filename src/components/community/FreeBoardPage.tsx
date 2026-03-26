@@ -187,7 +187,7 @@ export function FreeBoardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-5 lg:px-8 pt-24 pb-14">
+    <div className="mx-auto max-w-4xl px-5 lg:px-8 pt-20 pb-14">
       {/* 헤더 */}
       <div className="mb-6 flex items-end justify-between">
         <div>
@@ -205,7 +205,7 @@ export function FreeBoardPage() {
         <select
           value={searchType}
           onChange={(e) => setSearchType(e.target.value as "all" | "title" | "author")}
-          className="shrink-0 rounded-xl border border-border bg-card px-3.5 py-3 text-body-sm outline-none focus:ring-2 focus:ring-primary/40"
+          className="shrink-0 rounded-lg border border-border bg-card px-3 py-2.5 text-body-sm outline-none focus:ring-2 focus:ring-primary/40"
         >
           <option value="all">제목+내용</option>
           <option value="title">제목</option>
@@ -220,7 +220,7 @@ export function FreeBoardPage() {
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={handleSearchKeyDown}
               placeholder={searchType === "author" ? "작성자 닉네임 검색..." : "제목 또는 내용으로 검색..."}
-              className="w-full rounded-xl border border-border bg-card py-3 pl-11 pr-4 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
+              className="w-full rounded-lg border border-border bg-card py-2.5 pl-11 pr-4 text-body-sm outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
             />
           </div>
           <Button onClick={handleSearch} variant="outline" className="shrink-0 gap-2 rounded-xl h-auto">
@@ -233,10 +233,10 @@ export function FreeBoardPage() {
       {/* 필터 바 */}
       <div className="mb-5 flex flex-wrap items-center gap-2.5">
         {/* 정렬 */}
-        <div className="flex rounded-xl border border-border bg-card p-0.5">
+        <div className="flex rounded-lg border border-border bg-card p-0.5">
           <button
             onClick={() => setSort("latest")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-body-sm font-semibold transition-colors ${
               sort === "latest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -245,7 +245,7 @@ export function FreeBoardPage() {
           </button>
           <button
             onClick={() => setSort("popular")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-body-sm font-semibold transition-colors ${
               sort === "popular" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -254,7 +254,7 @@ export function FreeBoardPage() {
           </button>
           <button
             onClick={() => setSort("best")}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-body-sm font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-body-sm font-semibold transition-colors ${
               sort === "best" ? "bg-warning/10 text-warning" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -264,12 +264,12 @@ export function FreeBoardPage() {
         </div>
 
         {/* 추천수 필터 */}
-        <div className="flex rounded-xl border border-border bg-card p-0.5">
+        <div className="flex rounded-lg border border-border bg-card p-0.5">
           {LIKES_FILTERS.map((f) => (
             <button
               key={f.value}
               onClick={() => setMinLikes(f.value)}
-              className={`flex items-center gap-1 rounded-lg px-3 py-2 text-body-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-body-sm font-semibold transition-colors ${
                 minLikes === f.value
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -365,7 +365,7 @@ export function FreeBoardPage() {
               <Link
                 key={post.id}
                 to={`/community/${post.id}`}
-                className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-4 transition-colors hover:bg-muted/50 ${
+                className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2.5 transition-colors hover:bg-muted/50 ${
                   idx > 0 ? "border-t border-border/60" : ""
                 } ${isBest ? "bg-warning/5" : ""}`}
               >

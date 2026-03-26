@@ -167,7 +167,7 @@ export const CityPlaceMarker = memo(function CityPlaceMarker({ place, isSelected
           headerDisabled
           onCloseClick={() => onSelect?.()}
         >
-          <div className="min-w-[220px] max-w-[280px] dark:bg-elevated flex flex-col relative" style={{ maxHeight: '350px' }}>
+          <div className="min-w-[220px] max-w-[280px] bg-elevated flex flex-col relative" style={{ maxHeight: '350px' }}>
             {/* 닫기 버튼 */}
             <button
               onClick={() => onSelect?.()}

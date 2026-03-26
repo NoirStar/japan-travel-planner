@@ -39,7 +39,7 @@ export function TripListPage() {
     trip.days.reduce((sum, day) => sum + day.items.filter((item) => getAnyPlaceById(item.placeId)).length, 0)
 
   return (
-    <div className="min-h-screen bg-sakura-pattern pt-24 pb-14" data-testid="trip-list-page">
+    <div className="min-h-screen bg-cosmic-pattern pt-20 pb-14" data-testid="trip-list-page">
       <div className="mx-auto max-w-4xl px-5 lg:px-8">
         {/* 헤더 */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

@@ -19,14 +19,14 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <Link
       to={`/community/${post.id}`}
-      className={`group block overflow-hidden rounded-2xl border card-shadow bg-card transition-all hover:border-primary/30 ${
+      className={`group block overflow-hidden rounded-xl border card-shadow bg-card transition-all hover:border-primary/30 ${
         post.likes_count >= BEST_THRESHOLD
           ? "border-warning/40 ring-1 ring-warning/15"
           : "border-border"
       }`}
     >
       {/* 커버 이미지 */}
-      <div className="relative h-44 overflow-hidden bg-muted">
+      <div className="relative h-32 overflow-hidden bg-muted">
         {post.cover_image ? (
           <img
             src={post.cover_image}
@@ -45,7 +45,7 @@ export function PostCard({ post }: PostCardProps) {
           </div>
         )}
         {/* 하단 그라데이션 오버레이 */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {/* 도시 + 일수 배지 */}
         <div className="absolute bottom-2.5 left-3 flex gap-1.5">
           <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-medium text-white/90">
@@ -71,7 +71,7 @@ export function PostCard({ post }: PostCardProps) {
       </div>
 
       {/* 콘텐츠 */}
-      <div className="p-4">
+      <div className="p-3">
         <h3 className="mb-1 line-clamp-1 text-sm font-bold leading-snug group-hover:text-primary transition-colors">
           {post.title}
         </h3>

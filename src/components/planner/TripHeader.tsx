@@ -50,7 +50,7 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
   const availableCities = CITIES.filter((c) => !allCityIds.includes(c.id))
 
   return (
-    <div className="border-b border-border p-5">
+    <div className="border-b border-border p-4">
       {/* 커버 이미지 — 데스크톱만 기본 표시, 모바일은 expanded 시에만 */}
       {trip.coverImage && (
         <div className={`relative -mx-5 -mt-5 mb-4 h-32 overflow-hidden ${mobileExpanded ? "" : "hidden lg:block"}`}>
@@ -103,7 +103,7 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
         {/* 모바일: 날짜 요약 + 협업 상태 인라인 */}
         <div className="ml-auto flex items-center gap-1.5 lg:hidden">
           {collab?.isShared && (
-            <span className="flex items-center gap-1 rounded-full bg-cyan/10 px-2 py-0.5 text-[10px] font-semibold text-cyan">
+            <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
               <Users className="h-3 w-3" />
               {collab.onlineMembers.length}
             </span>
@@ -132,7 +132,7 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
       {/* 모바일: 날짜 요약 + 공개상태 한 줄 */}
       <div className="mt-2 flex items-center gap-2 lg:hidden">
         <p className="text-body-sm text-muted-foreground flex-1">
-          <Calendar className="mr-1.5 inline h-3.5 w-3.5 text-cyan" />
+          <Calendar className="mr-1.5 inline h-3.5 w-3.5 text-primary" />
           {getTripDateSummary(trip)}
         </p>
         {onVisibilityChange && (
@@ -214,20 +214,20 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
             </button>
           )}
           {/* 날짜 입력 */}
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 dark:bg-muted">
-            <Calendar className="h-4 w-4 shrink-0 text-cyan" />
+          <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 bg-muted">
+            <Calendar className="h-4 w-4 shrink-0 text-primary" />
             <input
               type="date"
               value={trip.startDate ?? ""}
               onChange={(e) => onDateChange("startDate", e.target.value)}
-              className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-cyan focus:ring-2 focus:ring-cyan/30"
+              className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/30"
             />
             <span className="shrink-0 text-xs font-bold text-muted-foreground">~</span>
             <input
               type="date"
               value={trip.endDate ?? ""}
               onChange={(e) => onDateChange("endDate", e.target.value)}
-              className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-cyan focus:ring-2 focus:ring-cyan/30"
+              className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/30"
             />
           </div>
           {/* 공동 편집 */}
@@ -236,7 +236,7 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
               onClick={() => setIsInviteOpen(true)}
               className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
             >
-              <Users className="h-4 w-4 text-cyan" />
+              <Users className="h-4 w-4 text-primary" />
               멤버 관리
             </button>
           ) : isLoggedIn && isCollabAvailable() ? (
@@ -296,13 +296,13 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
       )}
 
       {/* 데스크톱: 날짜 입력 + 공동 편집 + 자동 저장 */}
-      <div className="mt-3 hidden items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 dark:bg-muted lg:flex">
-        <Calendar className="h-4 w-4 shrink-0 text-cyan" />
+      <div className="mt-3 hidden items-center gap-2 rounded-xl border border-border bg-muted/50 p-2.5 bg-muted lg:flex">
+        <Calendar className="h-4 w-4 shrink-0 text-primary" />
         <input
           type="date"
           value={trip.startDate ?? ""}
           onChange={(e) => onDateChange("startDate", e.target.value)}
-          className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-cyan focus:ring-2 focus:ring-cyan/30"
+          className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/30"
           data-testid="trip-start-date"
         />
         <span className="shrink-0 text-xs font-bold text-muted-foreground">~</span>
@@ -310,7 +310,7 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
           type="date"
           value={trip.endDate ?? ""}
           onChange={(e) => onDateChange("endDate", e.target.value)}
-          className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-cyan focus:ring-2 focus:ring-cyan/30"
+          className="h-8 w-full min-w-0 rounded-lg bg-card px-2.5 text-xs font-medium text-foreground outline-none border border-border shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/30"
           data-testid="trip-end-date"
         />
       </div>
@@ -326,7 +326,7 @@ export function TripHeader({ trip, isLoggedIn, onUpdateTrip, onDateChange, onCit
               />
               <button
                 onClick={() => setIsInviteOpen(true)}
-                className="flex items-center gap-1 rounded-lg bg-cyan/10 px-2 py-1 text-[10px] font-semibold text-cyan hover:bg-cyan/20 transition-colors"
+                className="flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary hover:bg-primary/20 transition-colors"
               >
                 <Users className="h-3 w-3" />
                 멤버

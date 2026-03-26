@@ -17,15 +17,15 @@ interface LevelBadgeProps {
    Tier 5 (Lv.17-20): rich gold — 전설 등급 */
 function getLevelTier(level: number): { badge: string; compact: string } {
   if (level <= 4) return {
-    badge: "border-border bg-muted dark:border-border dark:bg-muted",
+    badge: "border-border bg-muted",
     compact: "text-muted-foreground",
   }
   if (level <= 8) return {
-    badge: "border-indigo/30 bg-indigo/5 dark:border-indigo/40 dark:bg-indigo/10",
-    compact: "text-indigo dark:text-indigo-light font-semibold",
+    badge: "border-indigo/40 bg-indigo/10",
+    compact: "text-indigo-light font-semibold",
   }
   if (level <= 12) return {
-    badge: "border-primary/30 bg-primary/5 dark:border-primary/40 dark:bg-primary/10",
+    badge: "border-primary/40 bg-primary/10",
     compact: "text-primary font-bold",
   }
   if (level <= 16) return {

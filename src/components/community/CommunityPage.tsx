@@ -192,7 +192,7 @@ export function CommunityPage() {
 
   return (
     <div className="min-h-screen bg-sakura-pattern">
-    <div className="mx-auto max-w-5xl px-5 lg:px-8 pt-24 pb-14">
+    <div className="mx-auto max-w-5xl px-5 lg:px-8 pt-20 pb-14">
       {/* 헤더 */}
       <div className="mb-8 flex items-end justify-between gap-3">
         <div className="min-w-0">
@@ -318,13 +318,13 @@ export function CommunityPage() {
 
       {/* 게시글 그리드 */}
       {isLoading ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-72 animate-shimmer rounded-2xl" />
           ))}
         </div>
       ) : fetchError ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="col-span-full">
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 py-16 px-6 text-center">
               <RefreshCw className="h-8 w-8 text-destructive/40" />
@@ -344,7 +344,7 @@ export function CommunityPage() {
           </div>
         </div>
       ) : posts.length === 0 ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="col-span-full">
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-muted/30 py-16 px-6 text-center">
               <MapPin className="h-8 w-8 text-primary/40" />
@@ -364,7 +364,7 @@ export function CommunityPage() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visiblePosts.map((post) => (
             <CardErrorBoundary key={post.id} postDebug={post}>
               <PostCard post={post} />

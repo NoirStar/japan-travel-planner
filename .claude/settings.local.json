@@ -8,7 +8,9 @@
       "Bash(npx tsc:*)",
       "Bash(npm test:*)",
       "Bash(npx vitest:*)",
-      "Bash(find /mnt/c/Dev/japan-travel-planner -name *.config.* -o -name tailwind*)"
+      "Bash(find /mnt/c/Dev/japan-travel-planner -name *.config.* -o -name tailwind*)",
+      "Bash(xargs cat:*)",
+      "Bash(find /root/work/japan-travel-planner/src/components/search -type f -name *.tsx)"
     ]
   }
 }

@@ -92,7 +92,7 @@ export function FreePostEditor({
     ],
     editorProps: {
       attributes: {
-        class: "prose prose-sm dark:prose-invert max-w-none min-h-[300px] px-5 py-4 outline-none focus:outline-none",
+        class: "prose prose-sm prose-invert max-w-none min-h-[300px] px-5 py-4 outline-none focus:outline-none",
       },
       handleDrop: (_view, event) => {
         const file = event.dataTransfer?.files?.[0]

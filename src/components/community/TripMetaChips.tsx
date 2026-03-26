@@ -15,9 +15,9 @@ export function TripMetaChips({ meta, compact }: TripMetaChipsProps) {
      - warm: 동행/예산 등 일반 정보 → primary 계열
      - cool: 활동 강도/시기 → indigo 계열
      - accent: 맛집/쇼핑 등 관심사 → muted 계열 + primary 텍스트 */
-  const warm = "bg-primary/8 text-primary dark:bg-primary/15 dark:text-primary"
-  const cool = "bg-indigo/8 text-indigo dark:bg-indigo/15 dark:text-indigo-light"
-  const accent = "bg-muted text-foreground dark:bg-muted dark:text-foreground"
+  const warm = "bg-primary/15 text-primary"
+  const cool = "bg-indigo/15 text-indigo-light"
+  const accent = "bg-muted text-foreground"
 
   const chips: { label: string; icon?: React.ReactNode; color: string }[] = []
 

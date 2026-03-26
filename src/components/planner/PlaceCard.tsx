@@ -35,12 +35,12 @@ interface PlaceCardProps {
 
 /** 카테고리별 그라데이션 색상 */
 const CATEGORY_GRADIENT: Record<string, string> = {
-  restaurant: "from-cyan to-cyan/70",
-  attraction: "from-violet to-neon-pink",
-  shopping: "from-neon-blue to-violet",
-  accommodation: "from-violet-light to-violet",
+  restaurant: "from-indigo to-indigo/70",
+  attraction: "from-nebula to-amber",
+  shopping: "from-indigo-light to-nebula",
+  accommodation: "from-nebula-light to-nebula",
   cafe: "from-warning to-star",
-  transport: "from-cyan to-neon-blue",
+  transport: "from-indigo to-indigo-light",
   other: "from-muted-foreground/60 to-muted-foreground/40",
 }
 
@@ -52,7 +52,7 @@ function getTimeSlotLabel(time: string): { label: string; color: string } | null
   if (h >= 9 && h < 12) return { label: "오전", color: "text-indigo" }
   if (h >= 12 && h < 14) return { label: "점심", color: "text-warning" }
   if (h >= 14 && h < 17) return { label: "오후", color: "text-success" }
-  if (h >= 17 && h < 20) return { label: "저녁", color: "text-indigo dark:text-indigo-light" }
+  if (h >= 17 && h < 20) return { label: "저녁", color: "text-indigo-light" }
   return { label: "밤", color: "text-muted-foreground" }
 }
 
@@ -81,17 +81,17 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
     return (
       <div
         ref={ref}
-        className={`group relative rounded-2xl border bg-card p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
+        className={`group relative rounded-xl border bg-card p-3 transition-all duration-200 hover:shadow-md cursor-pointer ${
           isSelected
-            ? "border-cyan shadow-[0_0_15px_rgba(6,182,212,0.15)]"
-            : "border-border hover:border-cyan/40"
+            ? "border-indigo shadow-[0_0_15px_rgba(99,102,241,0.15)]"
+            : "border-border hover:border-indigo/40"
         }`}
         data-testid={`place-card-${index}`}
         data-place-id={place.id}
         onClick={onClick}
       >
         {/* 좌측 컬러 스트라이프 */}
-        <div className={`absolute left-0 top-0 bottom-0 w-[4px] rounded-l-2xl bg-gradient-to-b ${gradientClass}`} />
+        <div className={`absolute left-0 top-0 bottom-0 w-[4px] rounded-l-xl bg-gradient-to-b ${gradientClass}`} />
 
         {/* 번호 배지 */}
         <div
@@ -134,7 +134,7 @@ export const PlaceCard = forwardRef<HTMLDivElement, PlaceCardProps>(
                 />
               ) : (
                 <button
-                  className="flex items-center gap-1.5 rounded-lg border border-cyan/30 bg-cyan/10 px-2.5 py-1 text-caption font-semibold text-cyan dark:text-cyan-light hover:bg-cyan/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-sm"
+                  className="flex items-center gap-1.5 rounded-lg border border-indigo/30 bg-indigo/10 px-2.5 py-1 text-caption font-semibold text-indigo-light hover:bg-indigo/20 transition-colors shadow-sm lg:px-3 lg:py-1.5 lg:text-sm"
                   onClick={(e) => { e.stopPropagation(); setIsEditingTime(true) }}
                   data-testid={`time-badge-${index}`}
                 >

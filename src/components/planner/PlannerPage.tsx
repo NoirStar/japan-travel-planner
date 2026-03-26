@@ -177,10 +177,10 @@ export function PlannerPage() {
   }, [search])
 
   return (
-    <div className="flex h-dvh flex-col pt-16" data-testid="planner-page">
+    <div className="flex h-dvh flex-col pt-14" data-testid="planner-page">
       <div className="flex flex-1 flex-col overflow-hidden lg:flex-row min-h-0">
         {/* 일정 패널 */}
-        <aside className={`w-full shrink-0 overflow-hidden bg-card/50 backdrop-blur-sm lg:h-full lg:w-[400px] lg:border-r lg:border-border/30 lg:block ${
+        <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-full lg:w-[400px] lg:border-r lg:border-border/30 lg:block ${
           mobileTab === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
         }`}>
           <SchedulePanel
@@ -263,7 +263,7 @@ export function PlannerPage() {
           onClick={() => setMobileTab("schedule")}
           className={`flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
             mobileTab === "schedule"
-              ? "text-cyan border-t-2 border-cyan"
+              ? "text-primary border-t-2 border-primary"
               : "text-muted-foreground"
           }`}
         >
@@ -274,7 +274,7 @@ export function PlannerPage() {
           onClick={() => setMobileTab("map")}
           className={`flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
             mobileTab === "map"
-              ? "text-cyan border-t-2 border-cyan"
+              ? "text-primary border-t-2 border-primary"
               : "text-muted-foreground"
           }`}
         >
@@ -286,7 +286,7 @@ export function PlannerPage() {
             onClick={() => setMobileTab("chat")}
             className={`relative flex flex-1 flex-col items-center gap-1 py-3 text-caption font-semibold transition-colors ${
               mobileTab === "chat"
-                ? "text-cyan border-t-2 border-cyan"
+                ? "text-primary border-t-2 border-primary"
                 : "text-muted-foreground"
             }`}
           >

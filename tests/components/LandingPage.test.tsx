@@ -24,7 +24,8 @@ function renderWithRouter() {
 describe("LandingPage", () => {
   it("히어로 타이틀이 렌더링된다", () => {
     renderWithRouter()
-    expect(screen.getByText("완벽하게 계획하세요")).toBeInTheDocument()
+    // h1 contains text split by <br/>, use function matcher
+    expect(screen.getByText((_, el) => el?.tagName === "H1" && (el.textContent?.includes("완벽하게 계획하세요") ?? false))).toBeInTheDocument()
   })
 
   it("서브타이틀이 렌더링된다", () => {
@@ -32,11 +33,11 @@ describe("LandingPage", () => {
     expect(screen.getByText((_, element) => element?.tagName === "P" && (element.textContent?.includes("Google Maps 기반 플래너") ?? false))).toBeInTheDocument()
   })
 
-
-
   it("여행 만들기 버튼이 존재한다", () => {
     renderWithRouter()
-    expect(screen.getByText("여행 일정 만들기")).toBeInTheDocument()
+    // Multiple buttons with the same text (hero + CTA), use getAllByText
+    const buttons = screen.getAllByText("여행 일정 만들기")
+    expect(buttons.length).toBeGreaterThanOrEqual(1)
   })
 
   it("4개 도시 카드가 렌더링된다", () => {
@@ -46,8 +47,6 @@ describe("LandingPage", () => {
     expect(screen.getByText("교토")).toBeInTheDocument()
     expect(screen.getByText("후쿠오카")).toBeInTheDocument()
   })
-
-
 
   it("도시 카드가 키보드 접근 가능하다", () => {
     renderWithRouter()

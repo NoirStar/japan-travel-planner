@@ -307,6 +307,112 @@ body {
   scrollbar-width: none;
 }
 
+/* ── 랜딩 히어로 배경 애니메이션 ─────────────────────── */
+
+@keyframes aurora-drift {
+  0% {
+    background-position: 0% 50%;
+    opacity: 0.35;
+  }
+  25% {
+    background-position: 50% 80%;
+    opacity: 0.45;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.3;
+  }
+  75% {
+    background-position: 50% 20%;
+    opacity: 0.4;
+  }
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.35;
+  }
+}
+
+@keyframes route-draw {
+  0% { stroke-dashoffset: 1000; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes aurora-drift-secondary {
+  0% {
+    background-position: 100% 50%;
+    opacity: 0.2;
+  }
+  50% {
+    background-position: 0% 50%;
+    opacity: 0.3;
+  }
+  100% {
+    background-position: 100% 50%;
+    opacity: 0.2;
+  }
+}
+
+.aurora-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.aurora-bg::before,
+.aurora-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aurora-bg::before {
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 50%,
+    rgba(99, 102, 241, 0.15) 0%,
+    rgba(129, 140, 248, 0.08) 40%,
+    transparent 70%
+  );
+  background-size: 200% 200%;
+  animation: aurora-drift 22s ease-in-out infinite;
+}
+
+.aurora-bg::after {
+  background: radial-gradient(
+    ellipse 60% 80% at 30% 60%,
+    rgba(99, 102, 241, 0.1) 0%,
+    rgba(165, 180, 252, 0.05) 50%,
+    transparent 70%
+  );
+  background-size: 200% 200%;
+  animation: aurora-drift-secondary 28s ease-in-out infinite;
+}
+
+.route-line {
+  stroke-dasharray: 8 12;
+  stroke-dashoffset: 1000;
+  animation: route-draw 20s linear infinite;
+}
+
+.route-line-reverse {
+  stroke-dasharray: 6 14;
+  stroke-dashoffset: 1000;
+  animation: route-draw 25s linear infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-bg::before,
+  .aurora-bg::after {
+    animation: none;
+    opacity: 0.25;
+  }
+  .route-line,
+  .route-line-reverse {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
 /* ── 유틸리티 애니메이션 ────────────────────────────── */
 
 /* 토스트 페이드인 */

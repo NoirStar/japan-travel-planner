@@ -102,7 +102,7 @@ export function TripRail({
   return (
     <div className="flex h-full flex-col bg-card border-r border-border overflow-y-auto">
       {/* Trip Title */}
-      <div className="p-4 border-b border-border">
+      <div className="p-4 pb-3 border-b border-border">
         {isEditingTitle ? (
           <input
             value={editTitle}

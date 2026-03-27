@@ -1,6 +1,6 @@
 import { useEffect, useRef, useMemo, useState, useCallback } from "react"
 import { useSearchParams, useParams } from "react-router-dom"
-import { List, MapIcon, MessageSquare, LogIn } from "lucide-react"
+import { List, MapIcon, MessageSquare, LogIn, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { MapView } from "@/components/map/MapView"
 import { SchedulePanel } from "@/components/planner/SchedulePanel"
 import { TripRail } from "@/components/planner/TripRail"
@@ -13,6 +13,7 @@ import { showToast } from "@/components/ui/CelebrationOverlay"
 import { useMapSearch } from "@/hooks/useMapSearch"
 import { useCollaborativeSync } from "@/hooks/useCollaborativeSync"
 import { TripChatPanel } from "@/components/planner/TripChatPanel"
+import { PlannerTopBar } from "@/components/planner/PlannerTopBar"
 import { isChatAvailable } from "@/services/tripChatService"
 import type { Place } from "@/types/place"
 
@@ -186,9 +187,11 @@ export function PlannerPage() {
   const wishlistCount = trip?.wishlist?.length ?? 0
 
   return (
-    <div className="flex h-dvh flex-col lg:flex-row" data-testid="planner-page">
+    <div className="flex h-dvh flex-col" data-testid="planner-page">
+      <PlannerTopBar tripTitle={trip?.title} />
+      <div className="flex flex-1 min-h-0 flex-col lg:flex-row">
       {/* ── 데스크톱: TripRail (240px, 왼쪽 사이드) ── */}
-      <aside className="hidden lg:block w-[240px] shrink-0 h-dvh overflow-hidden">
+      <aside className="hidden lg:block w-[240px] shrink-0 overflow-hidden">
         <TripRail
           activeDayIndex={activeDayIndex}
           onActiveDayIndexChange={setActiveDayIndex}
@@ -205,8 +208,8 @@ export function PlannerPage() {
       </aside>
 
       {/* ── 데스크톱: 일정 패널 (380px) / 모바일: 전체화면 토글 ── */}
-      <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-dvh lg:w-[380px] lg:border-r lg:border-border ${
-        mobileView === "schedule" ? "flex-1 lg:flex-none" : "hidden lg:block"
+      <aside className={`w-full shrink-0 overflow-hidden bg-card lg:h-full lg:w-[380px] lg:border-r lg:border-border ${
+        mobileView === "schedule" ? "flex-1 pb-[88px] lg:pb-0 lg:flex-none" : "hidden lg:block"
       }`}>
         <SchedulePanel
           cityId={activeDayCityId}
@@ -215,12 +218,13 @@ export function PlannerPage() {
           selectedPlaceId={selectedPlaceId}
           onSelectPlace={setSelectedPlaceId}
           collab={collab}
+          compactMode
         />
       </aside>
 
       {/* ── 맵 캔버스 ── */}
       <main className={`relative flex-1 min-h-0 ${
-        mobileView === "map" ? "block h-full" : "hidden lg:block"
+        mobileView === "map" ? "block h-full pb-[88px] lg:pb-0" : "hidden lg:block"
       }`}>
         <MapView
           center={cityConfig.center}
@@ -244,6 +248,20 @@ export function PlannerPage() {
           onTextSearch={search.handleTextSearch}
           isTextSearching={search.isTextSearching}
         />
+
+        {/* 모바일 맵 오버레이: 현재 Day 표시 + 장소 추가 버튼 */}
+        <div className="absolute top-3 left-3 z-20 lg:hidden flex items-center gap-2">
+          <span className="rounded-lg bg-background/90 backdrop-blur-sm border border-border px-2.5 py-1 text-[11px] font-bold text-foreground shadow-sm">
+            Day {activeDayIndex + 1} · {currentDayPlaces.length}곳
+          </span>
+        </div>
+        <button
+          onClick={() => { setMobileView("schedule") }}
+          className="absolute bottom-3 right-3 z-20 lg:hidden flex h-10 items-center gap-1.5 rounded-xl bg-primary text-primary-foreground px-4 shadow-lg hover:bg-primary/90 transition-colors text-xs font-semibold"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          장소 추가
+        </button>
 
         {/* Chat FAB — 데스크톱 */}
         {showChat && (
@@ -287,7 +305,7 @@ export function PlannerPage() {
 
       {/* 비로그인 저장 불가 토스트 */}
       {loginToast && (
-        <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-28 left-1/2 z-50 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-4 duration-300 lg:bottom-24">
           <button
             onClick={() => { setLoginToast(false); setShowLoginModal(true) }}
             className="flex items-center gap-2 rounded-xl border border-warning/30 bg-warning/5 px-4 py-2.5 text-sm font-medium text-foreground shadow-lg backdrop-blur-sm"
@@ -298,33 +316,75 @@ export function PlannerPage() {
         </div>
       )}
 
-      {/* ── 모바일: 뷰 전환 플로팅 버튼 ── */}
-      <div className="fixed bottom-6 right-4 z-40 flex flex-col gap-2 lg:hidden">
-        {showChat && (
+      {/* ── 모바일: 하단 컨텍스트 바 + 세그먼트 컨트롤 ── */}
+      <div
+        className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-background/95 backdrop-blur-sm border-t border-border"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
+        {/* Day 네비게이션 행 */}
+        <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border/50">
           <button
-            onClick={() => setChatOpen(true)}
-            className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card border border-border shadow-lg text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => { if (activeDayIndex > 0) setActiveDayIndex(activeDayIndex - 1) }}
+            disabled={activeDayIndex <= 0}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors"
           >
-            <MessageSquare className="h-4.5 w-4.5" />
-            {chatUnread > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-white">
-                {chatUnread > 9 ? "9+" : chatUnread}
-              </span>
-            )}
+            <ChevronLeft className="h-3.5 w-3.5" />
           </button>
-        )}
-        <button
-          onClick={() => setMobileView(mobileView === "schedule" ? "map" : "schedule")}
-          className="flex h-13 w-13 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
-          aria-label={mobileView === "schedule" ? "지도 보기" : "일정 보기"}
-        >
-          {mobileView === "schedule" ? (
-            <MapIcon className="h-5 w-5" />
-          ) : (
-            <List className="h-5 w-5" />
+          <span className="rounded-md bg-primary/15 px-2 py-0.5 text-[11px] font-bold text-primary">
+            Day {activeDayIndex + 1}{trip?.days.length ? ` / ${trip.days.length}` : ""}
+          </span>
+          <button
+            onClick={() => { if (trip && activeDayIndex < trip.days.length - 1) setActiveDayIndex(activeDayIndex + 1) }}
+            disabled={!trip || activeDayIndex >= trip.days.length - 1}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-colors"
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+          <span className="flex-1 text-[11px] text-muted-foreground truncate text-right">
+            {trip?.title}
+          </span>
+        </div>
+        {/* 세그먼트 컨트롤 행 */}
+        <div className="flex gap-1 p-1.5 px-2">
+          <button
+            onClick={() => setMobileView("schedule")}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-colors ${
+              mobileView === "schedule"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            <List className="h-3.5 w-3.5" />
+            일정
+          </button>
+          <button
+            onClick={() => setMobileView("map")}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-colors ${
+              mobileView === "map"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            <MapIcon className="h-3.5 w-3.5" />
+            지도
+          </button>
+          {showChat && (
+            <button
+              onClick={() => setChatOpen(true)}
+              className="relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+              채팅
+              {chatUnread > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-bold text-white">
+                  {chatUnread > 9 ? "9+" : chatUnread}
+                </span>
+              )}
+            </button>
           )}
-        </button>
+        </div>
       </div>
+      </div>{/* close inner flex */}
     </div>
   )
 }

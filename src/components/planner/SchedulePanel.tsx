@@ -295,8 +295,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
 
   return (
     <div className="flex h-full flex-col" data-testid="schedule-panel">
-      {/* 헤더 — compactMode에서는 숨김 (TripRail에서 표시) */}
-      {!compactMode && (
+      {/* 헤더 — 데스크톱 compactMode에서는 숨김 (TripRail에서 표시), 모바일에서는 항상 표시 */}
+      <div className={compactMode ? "lg:hidden" : ""}>
         <TripHeader
           trip={trip}
           isLoggedIn={!!user}
@@ -306,10 +306,10 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           onVisibilityChange={(v) => updateTrip(trip.id, { visibility: v })}
           collab={collab}
         />
-      )}
+      </div>
 
-      {/* Day 탭 — compactMode에서는 숨김 (TripRail에서 표시) */}
-      {!compactMode && (
+      {/* Day 탭 — 데스크톱 compactMode에서는 숨김, 모바일에서는 항상 표시 */}
+      <div className={compactMode ? "lg:hidden" : ""}>
         <DayTabs
           days={trip.days}
           activeDayIndex={activeDayIndex}
@@ -319,7 +319,7 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
           onDuplicateDay={handleDuplicateDay}
           tripStartDate={trip.startDate}
         />
-      )}
+      </div>
 
       {/* Day별 도시 선택 (멀티시티) */}
       {currentDay && (
@@ -508,8 +508,8 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
             <MoreHorizontal className="h-4.5 w-4.5" />
           </Button>
         </div>
-        {/* 데스크톱 하단 (lg 이상) — compactMode에서는 장소추가만 표시 */}
-        <div className={`hidden lg:flex gap-2.5 ${compactMode ? "" : ""}`}>
+        {/* 데스크톱 하단 (lg 이상) — compactMode에서는 장소추가+북마크만, 도구는 TripRail에서 제공 */}
+        <div className="hidden lg:flex gap-2.5">
           <Button
             className="flex-1"
             onClick={() => setIsPlaceSheetOpen(true)}
@@ -531,16 +531,18 @@ export function SchedulePanel({ cityId, activeDayIndex, onActiveDayIndexChange, 
               </span>
             )}
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
-          >
-            <MoreHorizontal className="h-4 w-4" />
-            도구
-          </Button>
+          {!compactMode && (
+            <Button
+              variant="outline"
+              onClick={() => setIsDesktopToolsOpen(!isDesktopToolsOpen)}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+              도구
+            </Button>
+          )}
         </div>
-        {/* 보조 도구 — 데스크톱 접히는 서랍 */}
-        {isDesktopToolsOpen && (
+        {/* 보조 도구 — 데스크톱 접히는 서랍 (compactMode에서는 TripRail에서 제공) */}
+        {isDesktopToolsOpen && !compactMode && (
         <div className="hidden lg:flex gap-1 animate-in fade-in slide-in-from-top-2 duration-200">
           <button
             className="flex flex-1 flex-col items-center gap-1 rounded-xl border border-border bg-card py-2 text-caption font-medium text-foreground hover:bg-muted transition-colors"
